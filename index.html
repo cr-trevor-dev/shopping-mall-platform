@@ -7927,7 +7927,7 @@ async function openOrder(
         .single(),
 
       db
-        .from("order_items")
+        .from("customer_order_items")
         .select(
           `
           id,
