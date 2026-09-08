@@ -1640,7 +1640,1153 @@ th:{
 
 };
 
+/* ==========================================
+   RUNTIME I18N
+   动态表格 / 按钮 / 状态 / 弹窗
+========================================== */
 
+const runtimeI18n = {
+
+zh:{
+
+  pageTitle:"零食平台 · 员工工作台",
+  brandStaff:"零食平台 · 员工端",
+  work:"工作",
+  languageLabel:"语言",
+
+  noOrderPermission:"没有订单权限",
+  noPermissions:"暂无权限",
+
+  order:"订单",
+  region:"地区",
+  status:"状态",
+  fulfillment:"配货状态",
+  total:"总金额",
+  customer:"客户",
+  address:"地址",
+  payment:"付款",
+  action:"操作",
+  amount:"金额",
+  method:"方式",
+  proof:"付款证明",
+  name:"姓名",
+  phone:"电话",
+  language:"语言",
+  joined:"注册时间",
+  onHand:"实际库存",
+  reserved:"已预留",
+  available:"可用库存",
+  lowStock:"低库存线",
+  batch:"批次",
+  remaining:"剩余",
+  expiry:"到期日期",
+  staffCode:"员工编号",
+  role:"角色",
+
+  confirmButton:"确认",
+  startPickingButton:"开始拣货",
+  packedButton:"标记已打包",
+  fulfillButton:"确认出库",
+  assignDeliveryButton:"指派配送",
+  requestCancelButton:"申请取消",
+  approveButton:"批准",
+  rejectButton:"拒绝",
+
+  statusActive:"启用",
+  statusConfirmed:"已确认",
+  statusPaid:"已付款",
+  statusCompleted:"已完成",
+  statusPacked:"已打包",
+  statusFulfilled:"已出库",
+  statusDelivered:"已送达",
+  statusApproved:"已批准",
+  statusProcessed:"已处理",
+  statusFailed:"失败",
+  statusCancelled:"已取消",
+  statusRejected:"已拒绝",
+  statusInactive:"未启用",
+  statusSuspended:"已暂停",
+  statusDeactivated:"已停用",
+  statusExpired:"已过期",
+  statusSubmitted:"已提交",
+  statusPending:"待处理",
+  statusPendingConfirmation:"待确认",
+  statusUnpaid:"未付款",
+  statusPicking:"拣货中",
+  statusAssigned:"已指派",
+  statusPickedUp:"已取货",
+  statusDelivering:"配送中",
+  statusRequested:"已申请",
+  statusProcessing:"处理中",
+  statusPartiallyRefunded:"部分退款",
+  statusUnfulfilled:"未配货",
+  statusNotAssigned:"未指派",
+  statusRefunded:"已退款",
+
+  roleCustomerService:"客服",
+  roleOrderStaff:"订单员工",
+  roleRegionalManager:"地区经理",
+  roleWarehouseStaff:"仓库/配货员工",
+
+  emailPasswordRequired:"请输入邮箱和密码。",
+  unauthorizedStaff:"此账号不是已授权的员工账号。",
+  staffInactive:"此员工账号当前未启用。",
+
+  operationFailed:"操作失败：",
+  confirmOrder:"确定要确认这个订单吗？",
+  pickingStarted:"已开始拣货。",
+  deductStockConfirm:"此操作将正式扣减实际库存，确定继续吗？",
+
+  cannotLoadDrivers:"无法读取配送员：",
+  noActiveDriver:"此地区目前没有可用的配送员。",
+  chooseDeliveryDriver:"请选择配送员：",
+  invalidDriver:"配送员选择无效。",
+  assignOrderTo:"确定把这个订单指派给 ",
+  deliveryAssigned:"配送员指派成功。",
+
+  cannotCheckApproval:"无法检查审批状态：",
+  cancelApprovedExecute:"此取消申请已经获批，确定现在执行取消吗？",
+  orderCancelled:"订单已取消。",
+  cancelWaiting:"取消申请仍在等待 Super Admin 审批。",
+  cancelReason:"请输入取消原因：",
+  cancelRequestSubmitted:"取消审批申请已提交。",
+
+  invalidQuantity:"数量无效。",
+  stockReceived:"入库成功。",
+  quantityReasonRequired:"必须填写调整数量和原因。",
+  cannotFindInventory:"无法找到库存记录：",
+  cannotLoadBatches:"无法读取库存批次：",
+  noBatchCode:"无批次编号",
+  chooseBatch:"请选择本次库存调整的批次：",
+  invalidBatch:"批次选择无效。",
+  adjustApprovedExecute:"此库存调整已经精确审批，确定现在执行吗？",
+  adjustCompleted:"库存调整完成。",
+  adjustWaiting:"此库存调整仍在等待 Super Admin 审批。",
+  adjustSubmitted:"库存调整审批申请已提交。",
+
+  noteOptional:"备注（选填）：",
+  rejectionReason:"请输入拒绝原因：",
+  paymentApproved:"付款审核已批准。",
+  paymentRejected:"付款审核已拒绝。"
+
+},
+
+
+en:{
+
+  pageTitle:"Snack Platform · Staff Workspace",
+  brandStaff:"SNACK PLATFORM · STAFF",
+  work:"WORK",
+  languageLabel:"Language",
+
+  noOrderPermission:"No order permission",
+  noPermissions:"No permissions",
+
+  order:"Order",
+  region:"Region",
+  status:"Status",
+  fulfillment:"Fulfillment",
+  total:"Total",
+  customer:"Customer",
+  address:"Address",
+  payment:"Payment",
+  action:"Action",
+  amount:"Amount",
+  method:"Method",
+  proof:"Proof",
+  name:"Name",
+  phone:"Phone",
+  language:"Language",
+  joined:"Joined",
+  onHand:"On Hand",
+  reserved:"Reserved",
+  available:"Available",
+  lowStock:"Low Stock",
+  batch:"Batch",
+  remaining:"Remaining",
+  expiry:"Expiry",
+  staffCode:"Staff Code",
+  role:"Role",
+
+  confirmButton:"Confirm",
+  startPickingButton:"Start Picking",
+  packedButton:"Packed",
+  fulfillButton:"Fulfill",
+  assignDeliveryButton:"Assign Delivery",
+  requestCancelButton:"Request Cancel",
+  approveButton:"Approve",
+  rejectButton:"Reject",
+
+  statusActive:"Active",
+  statusConfirmed:"Confirmed",
+  statusPaid:"Paid",
+  statusCompleted:"Completed",
+  statusPacked:"Packed",
+  statusFulfilled:"Fulfilled",
+  statusDelivered:"Delivered",
+  statusApproved:"Approved",
+  statusProcessed:"Processed",
+  statusFailed:"Failed",
+  statusCancelled:"Cancelled",
+  statusRejected:"Rejected",
+  statusInactive:"Inactive",
+  statusSuspended:"Suspended",
+  statusDeactivated:"Deactivated",
+  statusExpired:"Expired",
+  statusSubmitted:"Submitted",
+  statusPending:"Pending",
+  statusPendingConfirmation:"Pending Confirmation",
+  statusUnpaid:"Unpaid",
+  statusPicking:"Picking",
+  statusAssigned:"Assigned",
+  statusPickedUp:"Picked Up",
+  statusDelivering:"Delivering",
+  statusRequested:"Requested",
+  statusProcessing:"Processing",
+  statusPartiallyRefunded:"Partially Refunded",
+  statusUnfulfilled:"Unfulfilled",
+  statusNotAssigned:"Not Assigned",
+  statusRefunded:"Refunded",
+
+  roleCustomerService:"Customer Service",
+  roleOrderStaff:"Order Staff",
+  roleRegionalManager:"Regional Manager",
+  roleWarehouseStaff:"Warehouse Staff",
+
+  emailPasswordRequired:"Email / Password required.",
+  unauthorizedStaff:"This account is not an authorized staff account.",
+  staffInactive:"Staff account is not active.",
+
+  operationFailed:"Operation failed:",
+  confirmOrder:"Confirm this order?",
+  pickingStarted:"Picking started",
+  deductStockConfirm:"This will deduct physical stock. Continue?",
+
+  cannotLoadDrivers:"Cannot load delivery drivers:",
+  noActiveDriver:"No active delivery driver is assigned to this region.",
+  chooseDeliveryDriver:"Choose delivery driver:",
+  invalidDriver:"Invalid delivery driver selection.",
+  assignOrderTo:"Assign this order to ",
+  deliveryAssigned:"Delivery assigned.",
+
+  cannotCheckApproval:"Cannot check approval status:",
+  cancelApprovedExecute:"This cancellation request has been approved. Execute cancellation now?",
+  orderCancelled:"Order cancelled.",
+  cancelWaiting:"Cancellation request is still waiting for Super Admin approval.",
+  cancelReason:"Reason for cancellation:",
+  cancelRequestSubmitted:"Cancellation approval request submitted.",
+
+  invalidQuantity:"Invalid quantity.",
+  stockReceived:"Stock received.",
+  quantityReasonRequired:"Quantity and reason are required.",
+  cannotFindInventory:"Cannot find inventory:",
+  cannotLoadBatches:"Cannot load inventory batches:",
+  noBatchCode:"No batch code",
+  chooseBatch:"Choose the batch for this inventory adjustment:",
+  invalidBatch:"Invalid batch selection.",
+  adjustApprovedExecute:"This exact inventory adjustment has been approved. Execute it now?",
+  adjustCompleted:"Inventory adjustment completed.",
+  adjustWaiting:"This exact inventory adjustment is still waiting for Super Admin approval.",
+  adjustSubmitted:"Inventory adjustment approval submitted.",
+
+  noteOptional:"Note (optional):",
+  rejectionReason:"Rejection reason:",
+  paymentApproved:"Payment approved.",
+  paymentRejected:"Payment rejected."
+
+},
+
+
+my:{
+
+  pageTitle:"မုန့်ပလက်ဖောင်း · ဝန်ထမ်းအလုပ်စခန်း",
+  brandStaff:"မုန့်ပလက်ဖောင်း · ဝန်ထမ်း",
+  work:"အလုပ်",
+  languageLabel:"ဘာသာစကား",
+
+  noOrderPermission:"အော်ဒါကြည့်ရှုခွင့်မရှိပါ",
+  noPermissions:"ခွင့်ပြုချက်မရှိသေးပါ",
+
+  order:"အော်ဒါ",
+  region:"ဒေသ",
+  status:"အခြေအနေ",
+  fulfillment:"ပစ္စည်းပြင်ဆင်မှု",
+  total:"စုစုပေါင်း",
+  customer:"ဖောက်သည်",
+  address:"လိပ်စာ",
+  payment:"ငွေပေးချေမှု",
+  action:"လုပ်ဆောင်ချက်",
+  amount:"ငွေပမာဏ",
+  method:"ငွေပေးချေနည်း",
+  proof:"ငွေပေးချေမှုအထောက်အထား",
+  name:"အမည်",
+  phone:"ဖုန်း",
+  language:"ဘာသာစကား",
+  joined:"စာရင်းသွင်းချိန်",
+  onHand:"လက်ရှိကုန်",
+  reserved:"သီးသန့်ထားပြီး",
+  available:"အသုံးပြုနိုင်သောကုန်",
+  lowStock:"ကုန်နည်းသတ်မှတ်ချက်",
+  batch:"ကုန်အသုတ်",
+  remaining:"ကျန်ရှိ",
+  expiry:"သက်တမ်းကုန်ရက်",
+  staffCode:"ဝန်ထမ်းနံပါတ်",
+  role:"ရာထူး",
+
+  confirmButton:"အတည်ပြု",
+  startPickingButton:"ပစ္စည်းစရွေးမည်",
+  packedButton:"ထုပ်ပိုးပြီး",
+  fulfillButton:"ကုန်ထုတ်မည်",
+  assignDeliveryButton:"ပို့ဆောင်သူသတ်မှတ်",
+  requestCancelButton:"ပယ်ဖျက်ရန်တင်ပြ",
+  approveButton:"အတည်ပြု",
+  rejectButton:"ငြင်းပယ်",
+
+  statusActive:"အသုံးပြုနေ",
+  statusConfirmed:"အတည်ပြုပြီး",
+  statusPaid:"ငွေချေပြီး",
+  statusCompleted:"ပြီးဆုံး",
+  statusPacked:"ထုပ်ပိုးပြီး",
+  statusFulfilled:"ကုန်ထုတ်ပြီး",
+  statusDelivered:"ပို့ပြီး",
+  statusApproved:"ခွင့်ပြုပြီး",
+  statusProcessed:"ဆောင်ရွက်ပြီး",
+  statusFailed:"မအောင်မြင်",
+  statusCancelled:"ပယ်ဖျက်ပြီး",
+  statusRejected:"ငြင်းပယ်ပြီး",
+  statusInactive:"မဖွင့်ထား",
+  statusSuspended:"ယာယီရပ်ထား",
+  statusDeactivated:"ပိတ်ထား",
+  statusExpired:"သက်တမ်းကုန်",
+  statusSubmitted:"တင်ပြပြီး",
+  statusPending:"စောင့်ဆိုင်း",
+  statusPendingConfirmation:"အတည်ပြုရန်စောင့်",
+  statusUnpaid:"ငွေမချေရသေး",
+  statusPicking:"ပစ္စည်းရွေးနေ",
+  statusAssigned:"တာဝန်ပေးပြီး",
+  statusPickedUp:"ပစ္စည်းယူပြီး",
+  statusDelivering:"ပို့ဆောင်နေ",
+  statusRequested:"တောင်းဆိုပြီး",
+  statusProcessing:"ဆောင်ရွက်နေ",
+  statusPartiallyRefunded:"တစ်စိတ်တစ်ပိုင်းငွေပြန်ပြီး",
+  statusUnfulfilled:"ပစ္စည်းမပြင်ရသေး",
+  statusNotAssigned:"မသတ်မှတ်ရသေး",
+  statusRefunded:"ငွေပြန်ပြီး",
+
+  roleCustomerService:"ဖောက်သည်ဝန်ဆောင်မှု",
+  roleOrderStaff:"အော်ဒါဝန်ထမ်း",
+  roleRegionalManager:"ဒေသမန်နေဂျာ",
+  roleWarehouseStaff:"ဂိုဒေါင်/ပစ္စည်းပြင်ဆင်ဝန်ထမ်း",
+
+  emailPasswordRequired:"အီးမေးလ်နှင့် စကားဝှက် ဖြည့်ပါ။",
+  unauthorizedStaff:"ဤအကောင့်သည် ခွင့်ပြုထားသော ဝန်ထမ်းအကောင့်မဟုတ်ပါ။",
+  staffInactive:"ဤဝန်ထမ်းအကောင့်ကို လက်ရှိအသုံးပြုခွင့်မပေးထားပါ။",
+
+  operationFailed:"လုပ်ဆောင်မှု မအောင်မြင်ပါ:",
+  confirmOrder:"ဤအော်ဒါကို အတည်ပြုမလား?",
+  pickingStarted:"ပစ္စည်းစရွေးနေပါပြီ။",
+  deductStockConfirm:"ဤလုပ်ဆောင်မှုက အမှန်တကယ်ကုန်လက်ကျန်ကို လျှော့မည်။ ဆက်လုပ်မလား?",
+
+  cannotLoadDrivers:"ပို့ဆောင်သူများကို ဖတ်မရပါ:",
+  noActiveDriver:"ဤဒေသတွင် အသုံးပြုနိုင်သော ပို့ဆောင်သူမရှိပါ။",
+  chooseDeliveryDriver:"ပို့ဆောင်သူရွေးပါ:",
+  invalidDriver:"ပို့ဆောင်သူရွေးချယ်မှု မမှန်ပါ။",
+  assignOrderTo:"ဤအော်ဒါကို ပို့ဆောင်ရန် ",
+  deliveryAssigned:"ပို့ဆောင်သူ သတ်မှတ်ပြီးပါပြီ။",
+
+  cannotCheckApproval:"အတည်ပြုမှုအခြေအနေကို စစ်မရပါ:",
+  cancelApprovedExecute:"ပယ်ဖျက်ရန် အတည်ပြုပြီးပါပြီ။ ယခု ပယ်ဖျက်မလား?",
+  orderCancelled:"အော်ဒါပယ်ဖျက်ပြီးပါပြီ။",
+  cancelWaiting:"ပယ်ဖျက်ရန်တောင်းဆိုမှုသည် Super Admin အတည်ပြုချက် စောင့်နေဆဲဖြစ်သည်။",
+  cancelReason:"ပယ်ဖျက်ရသည့်အကြောင်းပြချက်:",
+  cancelRequestSubmitted:"ပယ်ဖျက်ရန် အတည်ပြုချက်တင်ပြီးပါပြီ။",
+
+  invalidQuantity:"အရေအတွက် မမှန်ပါ။",
+  stockReceived:"ကုန်သွင်းပြီးပါပြီ။",
+  quantityReasonRequired:"ပြင်ဆင်မည့်အရေအတွက်နှင့် အကြောင်းပြချက် ဖြည့်ရပါမည်။",
+  cannotFindInventory:"ကုန်လက်ကျန်ကို ရှာမတွေ့ပါ:",
+  cannotLoadBatches:"ကုန်အသုတ်များကို ဖတ်မရပါ:",
+  noBatchCode:"Batch နံပါတ်မရှိ",
+  chooseBatch:"ဤကုန်လက်ကျန်ပြင်ဆင်မှုအတွက် Batch ရွေးပါ:",
+  invalidBatch:"Batch ရွေးချယ်မှု မမှန်ပါ။",
+  adjustApprovedExecute:"ဤကုန်လက်ကျန်ပြင်ဆင်မှုကို အတည်ပြုပြီးပါပြီ။ ယခုဆောင်ရွက်မလား?",
+  adjustCompleted:"ကုန်လက်ကျန်ပြင်ဆင်ပြီးပါပြီ။",
+  adjustWaiting:"ဤကုန်လက်ကျန်ပြင်ဆင်မှုသည် Super Admin အတည်ပြုချက် စောင့်နေဆဲဖြစ်သည်။",
+  adjustSubmitted:"ကုန်လက်ကျန်ပြင်ဆင်ရန် အတည်ပြုချက်တင်ပြီးပါပြီ။",
+
+  noteOptional:"မှတ်ချက် (မဖြည့်လည်းရ):",
+  rejectionReason:"ငြင်းပယ်ရသည့်အကြောင်းပြချက်:",
+  paymentApproved:"ငွေပေးချေမှု အတည်ပြုပြီးပါပြီ။",
+  paymentRejected:"ငွေပေးချေမှု ငြင်းပယ်ပြီးပါပြီ။"
+
+},
+
+
+th:{
+
+  pageTitle:"แพลตฟอร์มขนม · ระบบพนักงาน",
+  brandStaff:"แพลตฟอร์มขนม · พนักงาน",
+  work:"งาน",
+  languageLabel:"ภาษา",
+
+  noOrderPermission:"ไม่มีสิทธิ์ดูคำสั่งซื้อ",
+  noPermissions:"ยังไม่มีสิทธิ์",
+
+  order:"คำสั่งซื้อ",
+  region:"พื้นที่",
+  status:"สถานะ",
+  fulfillment:"สถานะจัดสินค้า",
+  total:"ยอดรวม",
+  customer:"ลูกค้า",
+  address:"ที่อยู่",
+  payment:"การชำระเงิน",
+  action:"การดำเนินการ",
+  amount:"จำนวนเงิน",
+  method:"วิธีชำระเงิน",
+  proof:"หลักฐานการชำระเงิน",
+  name:"ชื่อ",
+  phone:"โทรศัพท์",
+  language:"ภาษา",
+  joined:"วันที่สมัคร",
+  onHand:"สต็อกจริง",
+  reserved:"จองแล้ว",
+  available:"พร้อมใช้",
+  lowStock:"ระดับสต็อกต่ำ",
+  batch:"ล็อต",
+  remaining:"คงเหลือ",
+  expiry:"วันหมดอายุ",
+  staffCode:"รหัสพนักงาน",
+  role:"บทบาท",
+
+  confirmButton:"ยืนยัน",
+  startPickingButton:"เริ่มจัดสินค้า",
+  packedButton:"จัดแพ็กแล้ว",
+  fulfillButton:"ตัดสต็อก",
+  assignDeliveryButton:"มอบหมายจัดส่ง",
+  requestCancelButton:"ขอยกเลิก",
+  approveButton:"อนุมัติ",
+  rejectButton:"ปฏิเสธ",
+
+  statusActive:"ใช้งาน",
+  statusConfirmed:"ยืนยันแล้ว",
+  statusPaid:"ชำระแล้ว",
+  statusCompleted:"เสร็จสมบูรณ์",
+  statusPacked:"แพ็กแล้ว",
+  statusFulfilled:"ตัดสต็อกแล้ว",
+  statusDelivered:"จัดส่งแล้ว",
+  statusApproved:"อนุมัติแล้ว",
+  statusProcessed:"ดำเนินการแล้ว",
+  statusFailed:"ล้มเหลว",
+  statusCancelled:"ยกเลิกแล้ว",
+  statusRejected:"ปฏิเสธแล้ว",
+  statusInactive:"ไม่ใช้งาน",
+  statusSuspended:"ระงับชั่วคราว",
+  statusDeactivated:"ปิดใช้งาน",
+  statusExpired:"หมดอายุ",
+  statusSubmitted:"ส่งแล้ว",
+  statusPending:"รอดำเนินการ",
+  statusPendingConfirmation:"รอยืนยัน",
+  statusUnpaid:"ยังไม่ชำระ",
+  statusPicking:"กำลังจัดสินค้า",
+  statusAssigned:"มอบหมายแล้ว",
+  statusPickedUp:"รับสินค้าแล้ว",
+  statusDelivering:"กำลังจัดส่ง",
+  statusRequested:"ส่งคำขอแล้ว",
+  statusProcessing:"กำลังดำเนินการ",
+  statusPartiallyRefunded:"คืนเงินบางส่วน",
+  statusUnfulfilled:"ยังไม่จัดสินค้า",
+  statusNotAssigned:"ยังไม่มอบหมาย",
+  statusRefunded:"คืนเงินแล้ว",
+
+  roleCustomerService:"ฝ่ายบริการลูกค้า",
+  roleOrderStaff:"พนักงานคำสั่งซื้อ",
+  roleRegionalManager:"ผู้จัดการพื้นที่",
+  roleWarehouseStaff:"พนักงานคลัง/จัดสินค้า",
+
+  emailPasswordRequired:"กรุณากรอกอีเมลและรหัสผ่าน",
+  unauthorizedStaff:"บัญชีนี้ไม่ใช่บัญชีพนักงานที่ได้รับอนุญาต",
+  staffInactive:"บัญชีพนักงานนี้ไม่ได้เปิดใช้งาน",
+
+  operationFailed:"ดำเนินการไม่สำเร็จ:",
+  confirmOrder:"ยืนยันคำสั่งซื้อนี้หรือไม่?",
+  pickingStarted:"เริ่มจัดสินค้าแล้ว",
+  deductStockConfirm:"การดำเนินการนี้จะตัดสต็อกจริง ต้องการดำเนินการต่อหรือไม่?",
+
+  cannotLoadDrivers:"ไม่สามารถโหลดพนักงานจัดส่ง:",
+  noActiveDriver:"ไม่มีพนักงานจัดส่งที่พร้อมใช้งานในพื้นที่นี้",
+  chooseDeliveryDriver:"เลือกพนักงานจัดส่ง:",
+  invalidDriver:"เลือกพนักงานจัดส่งไม่ถูกต้อง",
+  assignOrderTo:"มอบหมายคำสั่งซื้อนี้ให้ ",
+  deliveryAssigned:"มอบหมายการจัดส่งเรียบร้อยแล้ว",
+
+  cannotCheckApproval:"ไม่สามารถตรวจสอบสถานะการอนุมัติ:",
+  cancelApprovedExecute:"คำขอยกเลิกได้รับอนุมัติแล้ว ต้องการยกเลิกตอนนี้หรือไม่?",
+  orderCancelled:"ยกเลิกคำสั่งซื้อแล้ว",
+  cancelWaiting:"คำขอยกเลิกยังรอการอนุมัติจาก Super Admin",
+  cancelReason:"เหตุผลในการยกเลิก:",
+  cancelRequestSubmitted:"ส่งคำขออนุมัติการยกเลิกแล้ว",
+
+  invalidQuantity:"จำนวนไม่ถูกต้อง",
+  stockReceived:"รับสินค้าเข้าสต็อกแล้ว",
+  quantityReasonRequired:"ต้องกรอกจำนวนที่ปรับและเหตุผล",
+  cannotFindInventory:"ไม่พบข้อมูลสต็อก:",
+  cannotLoadBatches:"ไม่สามารถโหลดล็อตสินค้า:",
+  noBatchCode:"ไม่มีเลขล็อต",
+  chooseBatch:"เลือกล็อตสำหรับการปรับสต็อกครั้งนี้:",
+  invalidBatch:"เลือกล็อตไม่ถูกต้อง",
+  adjustApprovedExecute:"การปรับสต็อกนี้ได้รับอนุมัติแล้ว ต้องการดำเนินการตอนนี้หรือไม่?",
+  adjustCompleted:"ปรับสต็อกเรียบร้อยแล้ว",
+  adjustWaiting:"การปรับสต็อกนี้ยังรอการอนุมัติจาก Super Admin",
+  adjustSubmitted:"ส่งคำขออนุมัติการปรับสต็อกแล้ว",
+
+  noteOptional:"หมายเหตุ (ไม่บังคับ):",
+  rejectionReason:"เหตุผลที่ปฏิเสธ:",
+  paymentApproved:"อนุมัติการชำระเงินแล้ว",
+  paymentRejected:"ปฏิเสธการชำระเงินแล้ว"
+
+}
+
+};
+
+
+const runtimeStatusKeys = {
+
+  active:"statusActive",
+  confirmed:"statusConfirmed",
+  paid:"statusPaid",
+  completed:"statusCompleted",
+  packed:"statusPacked",
+  fulfilled:"statusFulfilled",
+  delivered:"statusDelivered",
+  approved:"statusApproved",
+  processed:"statusProcessed",
+
+  failed:"statusFailed",
+  cancelled:"statusCancelled",
+  rejected:"statusRejected",
+  inactive:"statusInactive",
+  suspended:"statusSuspended",
+  deactivated:"statusDeactivated",
+  expired:"statusExpired",
+
+  submitted:"statusSubmitted",
+  pending:"statusPending",
+  pending_confirmation:"statusPendingConfirmation",
+  unpaid:"statusUnpaid",
+  picking:"statusPicking",
+  assigned:"statusAssigned",
+  picked_up:"statusPickedUp",
+  delivering:"statusDelivering",
+  requested:"statusRequested",
+  processing:"statusProcessing",
+  partially_refunded:"statusPartiallyRefunded",
+  unfulfilled:"statusUnfulfilled",
+  not_assigned:"statusNotAssigned",
+  refunded:"statusRefunded"
+
+};
+
+
+function rt(key){
+
+  return (
+    runtimeI18n[
+      appLanguage
+    ]?.[key]
+    ||
+    runtimeI18n.en[key]
+    ||
+    key
+  );
+
+}
+
+
+const runtimeAliasMap =
+  new Map();
+
+
+Object
+  .entries(
+    runtimeI18n
+  )
+  .forEach(
+    ([language,data]) => {
+
+      Object
+        .entries(data)
+        .forEach(
+          ([key,value]) => {
+
+            runtimeAliasMap
+              .set(
+                String(value),
+                key
+              );
+
+          }
+        );
+
+    }
+  );
+
+
+[
+  ["客服","roleCustomerService"],
+  ["Customer Service","roleCustomerService"],
+
+  ["订单员工","roleOrderStaff"],
+  ["Order Staff","roleOrderStaff"],
+
+  ["地区经理","roleRegionalManager"],
+  ["Regional Manager","roleRegionalManager"],
+
+  ["仓库/配货员工","roleWarehouseStaff"],
+  ["Warehouse Staff","roleWarehouseStaff"]
+
+]
+.forEach(
+  ([value,key]) => {
+
+    runtimeAliasMap
+      .set(
+        value,
+        key
+      );
+
+  }
+);
+
+
+function translateRuntimeText(value){
+
+  const text =
+    String(
+      value
+      ??
+      ""
+    )
+    .trim();
+
+
+  if(!text){
+    return text;
+  }
+
+
+  if(
+    runtimeStatusKeys[
+      text
+    ]
+  ){
+
+    return rt(
+      runtimeStatusKeys[
+        text
+      ]
+    );
+
+  }
+
+
+  const exactKey =
+    runtimeAliasMap
+      .get(text);
+
+
+  if(exactKey){
+
+    return rt(
+      exactKey
+    );
+
+  }
+
+
+  if(
+    text.includes("、")
+  ){
+
+    const parts =
+      text.split("、");
+
+    const translated =
+      parts.map(
+        item =>
+          translateRuntimeText(
+            item
+          )
+      );
+
+
+    const changed =
+      translated.some(
+        (
+          item,
+          index
+        ) =>
+          item
+          !==
+          parts[index]
+      );
+
+
+    if(changed){
+
+      return translated
+        .join(
+          appLanguage === "en"
+          ?
+          ", "
+          :
+          "、"
+        );
+
+    }
+
+  }
+
+
+  return text;
+
+}
+
+
+function translateRuntimeMessage(value){
+
+  let message =
+    String(
+      value
+      ??
+      ""
+    );
+
+
+  const exact =
+    translateRuntimeText(
+      message
+    );
+
+
+  if(
+    exact
+    !==
+    message.trim()
+  ){
+
+    return exact;
+  }
+
+
+  const prefixes = [
+
+    [
+      "Operation failed:\n",
+      "operationFailed"
+    ],
+
+    [
+      "Cannot load delivery drivers:\n",
+      "cannotLoadDrivers"
+    ],
+
+    [
+      "Cannot check approval status:\n",
+      "cannotCheckApproval"
+    ],
+
+    [
+      "Cannot find inventory:\n",
+      "cannotFindInventory"
+    ],
+
+    [
+      "Cannot load inventory batches:\n",
+      "cannotLoadBatches"
+    ]
+
+  ];
+
+
+  for(
+    const [
+      prefix,
+      key
+    ]
+    of
+    prefixes
+  ){
+
+    if(
+      message.startsWith(
+        prefix
+      )
+    ){
+
+      return (
+        rt(key)
+        +
+        "\n"
+        +
+        message.slice(
+          prefix.length
+        )
+      );
+
+    }
+
+  }
+
+
+  if(
+    message.startsWith(
+      "Assign this order to "
+    )
+    &&
+    message.endsWith("?")
+  ){
+
+    const name =
+      message
+        .slice(
+          "Assign this order to ".length,
+          -1
+        );
+
+
+    return (
+      rt("assignOrderTo")
+      +
+      name
+      +
+      "?"
+    );
+
+  }
+
+
+  if(
+    message.startsWith(
+      "Choose delivery driver:\n\n"
+    )
+  ){
+
+    return (
+      rt(
+        "chooseDeliveryDriver"
+      )
+      +
+      "\n\n"
+      +
+      message.slice(
+        "Choose delivery driver:\n\n".length
+      )
+    );
+
+  }
+
+
+  if(
+    message.startsWith(
+      "Choose the batch for this inventory adjustment:\n\n"
+    )
+  ){
+
+    let body =
+      message.slice(
+        "Choose the batch for this inventory adjustment:\n\n"
+          .length
+      );
+
+
+    body =
+      body
+        .split(
+          "No batch code"
+        )
+        .join(
+          rt(
+            "noBatchCode"
+          )
+        );
+
+
+    body =
+      body
+        .split(
+          " | Remaining: "
+        )
+        .join(
+          " | "
+          +
+          rt("remaining")
+          +
+          ": "
+        );
+
+
+    body =
+      body
+        .split(
+          " | Expiry: "
+        )
+        .join(
+          " | "
+          +
+          rt("expiry")
+          +
+          ": "
+        );
+
+
+    return (
+      rt("chooseBatch")
+      +
+      "\n\n"
+      +
+      body
+    );
+
+  }
+
+
+  return message;
+
+}
+
+
+function translateRuntimeDom(){
+
+  document.title =
+    rt(
+      "pageTitle"
+    );
+
+
+  const selector = [
+    "button",
+    "th",
+    ".profile-label",
+    ".profile-value",
+    ".empty",
+    ".menu-title",
+    ".brand",
+    "a",
+    ".badge",
+    "option",
+    "#loginMessage",
+    "label"
+  ]
+  .join(",");
+
+
+  document
+    .querySelectorAll(
+      selector
+    )
+    .forEach(
+      item => {
+
+        if(
+          item.children.length
+          >
+          0
+        ){
+          return;
+        }
+
+
+        const current =
+          item.textContent
+            ?.trim()
+          ||
+          "";
+
+
+        if(!current){
+          return;
+        }
+
+
+        let translated =
+          translateRuntimeText(
+            current
+          );
+
+
+        if(
+          current
+          ===
+          "Language / 语言"
+        ){
+
+          translated =
+            rt(
+              "languageLabel"
+            );
+
+        }
+
+
+        if(
+          current
+          ===
+          "SNACK PLATFORM · STAFF"
+        ){
+
+          translated =
+            rt(
+              "brandStaff"
+            );
+
+        }
+
+
+        if(
+          current
+          ===
+          "WORK"
+        ){
+
+          translated =
+            rt(
+              "work"
+            );
+
+        }
+
+
+        if(
+          translated
+          !==
+          current
+        ){
+
+          item.textContent =
+            translated;
+
+        }
+
+      }
+    );
+
+}
+
+
+const nativeAlert =
+  window.alert
+    .bind(window);
+
+const nativeConfirm =
+  window.confirm
+    .bind(window);
+
+const nativePrompt =
+  window.prompt
+    .bind(window);
+
+
+window.alert =
+  function(message){
+
+    return nativeAlert(
+      translateRuntimeMessage(
+        message
+      )
+    );
+
+  };
+
+
+window.confirm =
+  function(message){
+
+    return nativeConfirm(
+      translateRuntimeMessage(
+        message
+      )
+    );
+
+  };
+
+
+window.prompt =
+  function(
+    message,
+    defaultValue
+  ){
+
+    const translated =
+      translateRuntimeMessage(
+        message
+      );
+
+
+    if(
+      arguments.length
+      >
+      1
+    ){
+
+      return nativePrompt(
+        translated,
+        defaultValue
+      );
+
+    }
+
+
+    return nativePrompt(
+      translated
+    );
+
+  };
+
+
+let runtimeTranslateQueued =
+  false;
+
+
+const runtimeObserver =
+  new MutationObserver(
+    () => {
+
+      if(
+        runtimeTranslateQueued
+      ){
+        return;
+      }
+
+
+      runtimeTranslateQueued =
+        true;
+
+
+      queueMicrotask(
+        () => {
+
+          runtimeTranslateQueued =
+            false;
+
+          translateRuntimeDom();
+
+        }
+      );
+
+    }
+  );
+
+
+runtimeObserver.observe(
+  document.body,
+  {
+    childList:true,
+    subtree:true
+  }
+);
+
+
+translateRuntimeDom();
 function t(key){
 
   return (
@@ -1697,7 +2843,7 @@ function applyLanguage(){
 
   el("loginLanguage").value =
     appLanguage;
-
+  translateRuntimeDom();
 }
 
 
@@ -1833,12 +2979,19 @@ function formatDate(value){
     return "—";
   }
 
+
+  const localeMap = {
+    zh:"zh-CN",
+    en:"en-US",
+    my:"my-MM",
+    th:"th-TH"
+  };
+
+
   return new Date(value)
     .toLocaleString(
-      appLanguage === "zh"
-      ?
-      "zh-CN"
-      :
+      localeMap[appLanguage]
+      ||
       "en-US",
       {
         hour12:false
