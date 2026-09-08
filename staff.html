@@ -3050,7 +3050,7 @@ async function loadDashboard(){
               ${
                 money(
                   order.total_amount,
-                  order.currency_code
+                  order.currency
                 )
               }
 
@@ -3402,7 +3402,7 @@ async function loadOrders(){
                 ${
                   money(
                     order.total_amount,
-                    order.currency_code
+                    order.currency
                   )
                 }
 
@@ -3562,6 +3562,129 @@ async function requestOrderCancellation(
   orderId,
   regionId
 ){
+
+  const {
+    data:
+      approvalRows,
+    error:
+      approvalError
+  } =
+    await db
+      .from(
+        "approval_requests"
+      )
+      .select(
+        "id,status,reason,requested_at,reviewed_at"
+      )
+      .eq(
+        "action_type",
+        "order_cancel"
+      )
+      .eq(
+        "region_id",
+        regionId
+      )
+      .eq(
+        "target_id",
+        orderId
+      )
+      .eq(
+        "requested_by",
+        currentUser.id
+      )
+      .in(
+        "status",
+        [
+          "pending",
+          "approved"
+        ]
+      )
+      .order(
+        "requested_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(20);
+
+
+  if(approvalError){
+
+    alert(
+      "Cannot check approval status:\n"
+      +
+      approvalError.message
+    );
+
+    return;
+
+  }
+
+
+  const approved =
+    (approvalRows || [])
+      .find(
+        item =>
+          item.status
+          ===
+          "approved"
+      );
+
+
+  if(approved){
+
+    if(
+      !confirm(
+        "This cancellation request has been approved. Execute cancellation now?"
+      )
+    ){
+      return;
+    }
+
+
+    await callRpc(
+
+      "cancel_order",
+
+      {
+        p_order_id:
+          orderId,
+
+        p_reason:
+          approved.reason
+          ||
+          "Approved staff cancellation"
+      },
+
+      "Order cancelled."
+
+    );
+
+    return;
+
+  }
+
+
+  const pending =
+    (approvalRows || [])
+      .find(
+        item =>
+          item.status
+          ===
+          "pending"
+      );
+
+
+  if(pending){
+
+    alert(
+      "Cancellation request is still waiting for Super Admin approval."
+    );
+
+    return;
+
+  }
+
 
   const reason =
     prompt(
