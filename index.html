@@ -1,692 +1,9296 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">商城</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF9F1">
+<title>SnacksHub · 零食商城</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
-      color: #222;
-      padding-bottom: 80px;
-    }
+<style>
+:root{
+  --bg:#FFF9F1;
+  --card:#FFFFFF;
+  --soft:#FFF3E4;
+  --orange:#F47B35;
+  --orange-dark:#D96525;
+  --text:#35251D;
+  --muted:#8B776C;
+  --line:#EEDFD2;
+  --green:#4F8A62;
+  --green-soft:#EAF4ED;
+  --red:#B42318;
+  --red-soft:#FEECE8;
+  --amber:#9A6700;
+  --amber-soft:#FFF5DF;
+  --gray:#667085;
+  --gray-soft:#F2F4F7;
+}
 
-    .header {
-      background: linear-gradient(135deg, #ff5a36, #ff7a35);
-      padding: 18px 16px 22px;
-      color: white;
-    }
+*{
+  box-sizing:border-box;
+}
 
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+html{
+  scroll-behavior:smooth;
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
+body{
+  margin:0;
+  padding-bottom:84px;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
 
-    .message-btn {
-      font-size: 14px;
-      white-space: nowrap;
-    }
+button{
+  cursor:pointer;
+}
 
-    .language-select {
-      border: 1px solid rgba(255,255,255,0.6);
-      background: rgba(255,255,255,0.14);
-      color: white;
-      border-radius: 18px;
-      padding: 7px 10px;
-      font-size: 13px;
-      outline: none;
-    }
+img{
+  display:block;
+  max-width:100%;
+}
 
-    .language-select option {
-      color: #222;
-      background: white;
-    }
+a{
+  color:inherit;
+}
 
-    .search-box {
-      background: white;
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      padding: 11px 16px;
-      color: #999;
-    }
+.hidden{
+  display:none!important;
+}
 
-    .search-box input {
-      border: none;
-      outline: none;
-      width: 100%;
-      font-size: 15px;
-      margin-left: 8px;
-      background: transparent;
-    }
+.no-scroll{
+  overflow:hidden;
+}
 
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
+/* ==============================
+   TOP
+============================== */
 
-    .category-section {
-      background: white;
-      padding: 20px 10px;
-      margin-bottom: 10px;
-    }
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:
+    rgba(255,249,241,.94);
+  backdrop-filter:
+    blur(16px);
+  border-bottom:
+    1px solid
+    rgba(238,223,210,.85);
+}
 
-    .section-title {
-      padding: 0 8px;
-      margin-bottom: 16px;
-      font-size: 18px;
-      font-weight: 700;
-    }
+.top-main{
+  max-width:1180px;
+  margin:0 auto;
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 14px;
+}
 
-    .categories {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 18px 6px;
-    }
+.logo{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
 
-    .category {
-      text-align: center;
-      font-size: 13px;
-      cursor: pointer;
-    }
+.logo-main{
+  font-size:20px;
+  font-weight:1000;
+  letter-spacing:-.02em;
+}
 
-    .category-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      margin: 0 auto 7px;
-      background: #fff1ec;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 27px;
-    }
+.logo-main span{
+  color:var(--orange);
+}
 
-    .promotion {
-      margin: 10px;
-      padding: 20px;
-      border-radius: 18px;
-      color: white;
-      background: linear-gradient(135deg, #ff3f32, #ff8b35);
-    }
+.logo-sub{
+  margin-top:1px;
+  color:var(--muted);
+  font-size:9px;
+}
 
-    .promotion h2 {
-      font-size: 22px;
-      margin-bottom: 5px;
-    }
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 
-    .promotion p {
-      font-size: 14px;
-      opacity: 0.95;
-    }
+.icon-button{
+  position:relative;
+  min-width:39px;
+  height:39px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
 
-    .products-section {
-      padding: 10px;
-    }
+.cart-badge{
+  position:absolute;
+  right:-5px;
+  top:-6px;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--orange);
+  color:white;
+  font-size:9px;
+  font-weight:900;
+  border:2px solid var(--bg);
+}
 
-    .products {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
+.language-select{
+  width:auto;
+  height:39px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:0 8px;
+  background:white;
+  color:var(--text);
+  font-weight:800;
+  font-size:11px;
+}
 
-    .product {
-      background: white;
-      border-radius: 14px;
-      overflow: hidden;
-      position: relative;
-    }
+/* ==============================
+   MAIN
+============================== */
 
-    .product-image {
-      height: 170px;
-      background: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 60px;
-    }
+.container{
+  width:100%;
+  max-width:1180px;
+  margin:0 auto;
+  padding:14px;
+}
 
-    .discount {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: #ff3b30;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-    }
+.view{
+  display:none;
+}
 
-    .product-info {
-      padding: 11px;
-    }
+.view.active{
+  display:block;
+}
 
-    .product-name {
-      font-size: 15px;
-      line-height: 1.4;
-      margin-bottom: 7px;
-    }
+.section-title-row{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin:22px 0 11px;
+}
 
-    .expiry {
-      color: #888;
-      font-size: 11px;
-      margin-bottom: 8px;
-    }
+.section-title{
+  font-size:20px;
+  font-weight:1000;
+}
 
-    .price {
-      color: #f04432;
-      font-size: 19px;
-      font-weight: 800;
-    }
+.section-subtitle{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:11px;
+}
 
-    .old-price {
-      color: #aaa;
-      font-size: 12px;
-      text-decoration: line-through;
-      margin-left: 5px;
-    }
+.link-button{
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--orange);
+  font-weight:900;
+  font-size:11px;
+}
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 68px;
-      background: white;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: space-around;
-      z-index: 100;
-    }
+/* ==============================
+   REGION
+============================== */
 
-    .nav-item {
-      width: 20%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 11px;
-      color: #777;
-      text-align: center;
-    }
+.region-strip{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:3px;
+  scrollbar-width:none;
+}
 
-    .nav-icon {
-      font-size: 22px;
-      margin-bottom: 3px;
-    }
+.region-strip::-webkit-scrollbar{
+  display:none;
+}
 
-    .nav-item.active {
-      color: #ff572f;
-      font-weight: 600;
-    }
+.region-pill{
+  flex:none;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:white;
+  padding:9px 13px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
 
-    @media (min-width: 700px) {
-      .product-image {
-        height: 240px;
-      }
-    }
+.region-pill.active{
+  color:white;
+  background:var(--orange);
+  border-color:var(--orange);
+}
 
-    @media (max-width: 390px) {
-      .language-select {
-        max-width: 92px;
-        padding: 6px 8px;
-        font-size: 12px;
-      }
+/* ==============================
+   HERO
+============================== */
 
-      .message-btn {
-        display: none;
-      }
-    }
-  </style>
+.hero{
+  overflow:hidden;
+  position:relative;
+  min-height:215px;
+  margin-top:12px;
+  padding:27px 23px;
+  border-radius:24px;
+  background:
+    linear-gradient(
+      135deg,
+      #FFE7D3,
+      #FFF8ED
+    );
+  border:1px solid #F5DCC7;
+}
+
+.hero:after{
+  content:"🍪";
+  position:absolute;
+  right:-8px;
+  bottom:-38px;
+  font-size:155px;
+  transform:rotate(-12deg);
+  opacity:.14;
+}
+
+.hero-kicker{
+  position:relative;
+  z-index:2;
+  color:var(--orange);
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.05em;
+}
+
+.hero-title{
+  position:relative;
+  z-index:2;
+  max-width:530px;
+  margin-top:8px;
+  font-size:31px;
+  line-height:1.12;
+  font-weight:1000;
+  letter-spacing:-.035em;
+}
+
+.hero-text{
+  position:relative;
+  z-index:2;
+  max-width:470px;
+  margin-top:10px;
+  color:#705E52;
+  font-size:13px;
+  line-height:1.65;
+}
+
+.hero-actions{
+  position:relative;
+  z-index:2;
+  display:flex;
+  gap:8px;
+  margin-top:17px;
+}
+
+/* ==============================
+   BUTTON
+============================== */
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:11px 15px;
+  font-weight:900;
+}
+
+.btn-small{
+  padding:8px 10px;
+  font-size:11px;
+}
+
+.btn-primary{
+  background:var(--orange);
+  color:white;
+}
+
+.btn-light{
+  background:#F5EEE8;
+  color:var(--text);
+}
+
+.btn-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.btn-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.btn-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.btn-block{
+  width:100%;
+}
+
+/* ==============================
+   SEARCH
+============================== */
+
+.search-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  padding:10px 12px;
+  margin-top:13px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:white;
+}
+
+.search-box span{
+  font-size:17px;
+}
+
+.search-box input{
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--text);
+}
+
+/* ==============================
+   CATEGORY
+============================== */
+
+.category-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(5,minmax(0,1fr));
+  gap:9px;
+}
+
+.category-card{
+  min-width:0;
+  padding:13px 9px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:white;
+  text-align:center;
+  cursor:pointer;
+}
+
+.category-card:hover{
+  border-color:#E8BE9E;
+}
+
+.category-icon{
+  font-size:29px;
+  line-height:1;
+}
+
+.category-name{
+  margin-top:8px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.category-card.active{
+  background:var(--soft);
+  border-color:var(--orange);
+  color:var(--orange);
+}
+
+/* ==============================
+   PRODUCTS
+============================== */
+
+.product-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+  gap:11px;
+}
+
+.product-card{
+  overflow:hidden;
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:white;
+}
+
+.product-image-wrap{
+  position:relative;
+  aspect-ratio:1/1;
+  background:
+    linear-gradient(
+      145deg,
+      #FFF1E6,
+      #FFF9F1
+    );
+  overflow:hidden;
+}
+
+.product-image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.product-placeholder{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:62px;
+}
+
+.featured-tag{
+  position:absolute;
+  top:9px;
+  left:9px;
+  padding:5px 7px;
+  border-radius:999px;
+  color:white;
+  background:var(--orange);
+  font-size:9px;
+  font-weight:1000;
+}
+
+.stock-tag{
+  position:absolute;
+  right:9px;
+  bottom:9px;
+  padding:5px 7px;
+  border-radius:999px;
+  color:#2F6A42;
+  background:
+    rgba(234,244,237,.96);
+  font-size:9px;
+  font-weight:1000;
+}
+
+.stock-tag.out{
+  color:var(--red);
+  background:
+    rgba(254,236,232,.96);
+}
+
+.product-body{
+  padding:12px;
+}
+
+.product-brand{
+  color:var(--muted);
+  font-size:9px;
+  min-height:13px;
+}
+
+.product-name{
+  margin-top:3px;
+  min-height:38px;
+  font-size:13px;
+  font-weight:900;
+  line-height:1.4;
+}
+
+.product-price{
+  margin-top:8px;
+  color:var(--orange);
+  font-size:15px;
+  font-weight:1000;
+}
+
+.product-wholesale{
+  margin-top:2px;
+  color:var(--green);
+  font-size:9px;
+  font-weight:800;
+}
+
+.product-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:7px;
+  margin-top:10px;
+}
+
+/* ==============================
+   PRODUCT DETAIL
+============================== */
+
+.back-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.back-btn{
+  width:38px;
+  height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;
+  font-size:18px;
+}
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:
+    minmax(0,1fr)
+    minmax(0,1fr);
+  gap:18px;
+}
+
+.detail-image{
+  overflow:hidden;
+  aspect-ratio:1/1;
+  border:1px solid var(--line);
+  border-radius:21px;
+  background:white;
+}
+
+.detail-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.detail-placeholder{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    linear-gradient(
+      145deg,
+      #FFF0E2,
+      #FFF9F1
+    );
+  font-size:100px;
+}
+
+.detail-info{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:21px;
+  padding:19px;
+}
+
+.detail-brand{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.detail-title{
+  margin-top:5px;
+  font-size:25px;
+  line-height:1.25;
+  font-weight:1000;
+}
+
+.detail-description{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.7;
+}
+
+.variant-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:14px;
+}
+
+.variant-chip{
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:white;
+  font-size:11px;
+  font-weight:900;
+}
+
+.variant-chip.active{
+  border-color:var(--orange);
+  background:#FFF4EC;
+  color:var(--orange);
+}
+
+.purchase-mode{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:15px;
+}
+
+.mode-card{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;
+  cursor:pointer;
+}
+
+.mode-card.active{
+  border-color:var(--orange);
+  background:#FFF8F2;
+}
+
+.mode-title{
+  font-size:11px;
+  font-weight:900;
+}
+
+.mode-price{
+  margin-top:4px;
+  font-size:16px;
+  font-weight:1000;
+  color:var(--orange);
+}
+
+.mode-note{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.qty-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:15px;
+}
+
+.qty-control{
+  display:flex;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.qty-control button{
+  width:38px;
+  height:38px;
+  border:0;
+  background:#FFF8F2;
+  font-size:17px;
+}
+
+.qty-control span{
+  min-width:44px;
+  text-align:center;
+  font-weight:900;
+}
+
+/* ==============================
+   CART
+============================== */
+
+.cart-layout{
+  display:grid;
+  grid-template-columns:
+    minmax(0,1fr)
+    310px;
+  gap:14px;
+}
+
+.cart-list{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.cart-item{
+  display:grid;
+  grid-template-columns:
+    76px
+    minmax(0,1fr);
+  gap:11px;
+  padding:11px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+}
+
+.cart-thumb{
+  width:76px;
+  height:76px;
+  border-radius:12px;
+  overflow:hidden;
+  background:#FFF3E8;
+}
+
+.cart-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.cart-thumb-placeholder{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:35px;
+}
+
+.cart-name{
+  font-size:12px;
+  font-weight:900;
+}
+
+.cart-meta{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.cart-line{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:9px;
+}
+
+.cart-price{
+  color:var(--orange);
+  font-size:13px;
+  font-weight:1000;
+}
+
+.mini-qty{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.mini-qty button{
+  width:28px;
+  height:28px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:white;
+}
+
+.remove-btn{
+  margin-left:5px;
+  border:0;
+  background:transparent;
+  color:var(--red);
+  font-size:10px;
+}
+
+.summary-card{
+  position:sticky;
+  top:76px;
+  height:max-content;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:white;
+}
+
+.summary-title{
+  font-size:16px;
+  font-weight:1000;
+}
+
+.summary-line{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid #F5EAE2;
+  font-size:11px;
+}
+
+.summary-total{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 0;
+  font-size:14px;
+  font-weight:1000;
+}
+
+/* ==============================
+   FORM
+============================== */
+
+.form-card{
+  padding:16px;
+  margin-bottom:12px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:white;
+}
+
+.form-title{
+  margin-bottom:12px;
+  font-size:16px;
+  font-weight:1000;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.form-group{
+  margin-bottom:11px;
+}
+
+.form-group label{
+  display:block;
+  margin-bottom:6px;
+  font-size:11px;
+  font-weight:900;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:11px;
+  background:white;
+  color:var(--text);
+  outline:0;
+}
+
+textarea{
+  min-height:85px;
+  resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--orange);
+  box-shadow:
+    0 0 0 3px
+    rgba(244,123,53,.1);
+}
+
+/* ==============================
+   ADDRESS
+============================== */
+
+.address-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.address-card{
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:white;
+  cursor:pointer;
+}
+
+.address-card.selected{
+  border-color:var(--orange);
+  background:#FFF8F2;
+}
+
+.address-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.address-name{
+  font-size:12px;
+  font-weight:900;
+}
+
+.address-detail{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.6;
+}
+
+.default-badge{
+  padding:4px 6px;
+  border-radius:999px;
+  background:var(--green-soft);
+  color:var(--green);
+  font-size:8px;
+  font-weight:900;
+}
+
+/* ==============================
+   AUTH MODAL
+============================== */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:
+    rgba(28,20,15,.5);
+}
+
+.modal{
+  width:100%;
+  max-width:470px;
+  max-height:90vh;
+  overflow:auto;
+  padding:19px;
+  border-radius:20px;
+  background:white;
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:13px;
+}
+
+.modal-title{
+  font-size:19px;
+  font-weight:1000;
+}
+
+.close-btn{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:10px;
+  background:#F5EEE8;
+  font-size:18px;
+}
+
+.auth-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-bottom:13px;
+}
+
+.auth-tab{
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:white;
+  font-weight:900;
+  font-size:11px;
+}
+
+.auth-tab.active{
+  border-color:var(--orange);
+  color:var(--orange);
+  background:#FFF8F2;
+}
+
+.notice{
+  margin-bottom:12px;
+  padding:11px 12px;
+  border-radius:11px;
+  background:var(--amber-soft);
+  color:#72510B;
+  font-size:10px;
+  line-height:1.6;
+}
+
+/* ==============================
+   ACCOUNT / ORDERS
+============================== */
+
+.account-hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:17px;
+  margin-bottom:12px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+}
+
+.avatar{
+  width:52px;
+  height:52px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--soft);
+  font-size:23px;
+}
+
+.account-name{
+  font-size:17px;
+  font-weight:1000;
+}
+
+.account-phone{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.order-list{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.order-card{
+  padding:14px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+}
+
+.order-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:9px;
+}
+
+.order-number{
+  font-size:12px;
+  font-weight:1000;
+}
+
+.order-time{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.status-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:999px;
+  background:var(--gray-soft);
+  color:var(--gray);
+  font-size:9px;
+  font-weight:900;
+}
+
+.badge-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.badge-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.badge-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.order-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:11px;
+}
+
+.order-total{
+  font-size:14px;
+  font-weight:1000;
+  color:var(--orange);
+}
+
+.order-actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+/* ==============================
+   ORDER DETAIL
+============================== */
+
+.timeline{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.timeline-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:
+    24px
+    minmax(0,1fr);
+  gap:9px;
+}
+
+.timeline-marker{
+  position:relative;
+  display:flex;
+  justify-content:center;
+}
+
+.timeline-dot{
+  z-index:2;
+  width:11px;
+  height:11px;
+  margin-top:4px;
+  border-radius:50%;
+  background:var(--orange);
+  box-shadow:
+    0 0 0 4px #FFF1E7;
+}
+
+.timeline-marker:after{
+  content:"";
+  position:absolute;
+  top:15px;
+  bottom:-5px;
+  width:2px;
+  background:#F1DED0;
+}
+
+.timeline-item:last-child
+.timeline-marker:after{
+  display:none;
+}
+
+.timeline-body{
+  padding-bottom:17px;
+}
+
+.timeline-status{
+  font-size:11px;
+  font-weight:900;
+}
+
+.timeline-note{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.5;
+}
+
+/* ==============================
+   EMPTY
+============================== */
+
+.empty{
+  padding:35px 18px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:white;
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
+}
+
+.empty-icon{
+  margin-bottom:7px;
+  font-size:35px;
+}
+
+/* ==============================
+   BOTTOM NAV
+============================== */
+
+.bottom-nav{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  z-index:50;
+  width:100%;
+  max-width:760px;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:
+    repeat(5,1fr);
+  padding:
+    6px
+    6px
+    calc(6px + env(safe-area-inset-bottom));
+  background:
+    rgba(255,255,255,.96);
+  backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+}
+
+.nav-item{
+  position:relative;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:900;
+  padding:5px 2px;
+}
+
+.nav-item.active{
+  color:var(--orange);
+}
+
+.nav-icon{
+  display:block;
+  margin-bottom:2px;
+  font-size:20px;
+}
+
+.nav-cart-count{
+  position:absolute;
+  top:0;
+  left:calc(50% + 7px);
+  min-width:16px;
+  height:16px;
+  padding:0 4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:var(--orange);
+  color:white;
+  border:2px solid white;
+  font-size:8px;
+}
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+@media(max-width:900px){
+
+  .category-grid{
+    grid-template-columns:
+      repeat(4,minmax(0,1fr));
+  }
+
+  .product-grid{
+    grid-template-columns:
+      repeat(3,minmax(0,1fr));
+  }
+
+}
+
+@media(max-width:700px){
+
+  .container{
+    padding:11px;
+  }
+
+  .top-main{
+    padding:7px 11px;
+  }
+
+  .logo-main{
+    font-size:18px;
+  }
+
+  .hero{
+    min-height:190px;
+    padding:22px 18px;
+  }
+
+  .hero-title{
+    max-width:80%;
+    font-size:27px;
+  }
+
+  .hero-text{
+    max-width:80%;
+    font-size:11px;
+  }
+
+  .category-grid{
+    grid-template-columns:
+      repeat(4,minmax(0,1fr));
+    gap:7px;
+  }
+
+  .category-card{
+    padding:11px 5px;
+  }
+
+  .category-icon{
+    font-size:25px;
+  }
+
+  .category-name{
+    font-size:9px;
+  }
+
+  .product-grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .product-body{
+    padding:10px;
+  }
+
+  .detail-grid{
+    grid-template-columns:1fr;
+  }
+
+  .cart-layout{
+    grid-template-columns:1fr;
+  }
+
+  .summary-card{
+    position:static;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(min-width:761px){
+
+  .bottom-nav{
+    border:1px solid var(--line);
+    border-bottom:0;
+    border-radius:18px 18px 0 0;
+  }
+
+}
+</style>
 </head>
 
 <body>
 
-  <div class="container">
+<!-- ==============================
+     TOPBAR
+============================== -->
 
-    <header class="header">
-      <div class="header-top">
-        <div class="logo" data-i18n="mall">商城</div>
+<header class="topbar">
 
-        <div class="header-right">
-          <div class="message-btn" data-i18n="messages">消息</div>
+  <div class="top-main">
 
-          <select
-            id="languageSelect"
-            class="language-select"
-            onchange="changeLanguage(this.value)"
-          >
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-            <option value="my">မြန်မာ</option>
-            <option value="th">ไทย</option>
-          </select>
-        </div>
+    <div
+      class="logo"
+      onclick="goView('home')"
+      style="cursor:pointer"
+    >
+
+      <div class="logo-main">
+        Snacks<span>Hub</span>
       </div>
 
-      <div class="search-box">
-        🔍
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="搜索商品、零食、家具..."
-          oninput="searchProducts()"
-        >
-      </div>
-    </header>
-
-    <section class="category-section">
-      <div class="section-title" data-i18n="categories">商品分类</div>
-
-      <div class="categories">
-
-        <div class="category">
-          <div class="category-icon">🍪</div>
-          <span data-i18n="snacks">零食</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">🥤</div>
-          <span data-i18n="drinks">饮料</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">🛋️</div>
-          <span data-i18n="furniture">家具</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">👕</div>
-          <span data-i18n="clothing">服装</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">📱</div>
-          <span data-i18n="digital">数码</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">🧴</div>
-          <span data-i18n="daily">日用品</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">💄</div>
-          <span data-i18n="beauty">美妆</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">👟</div>
-          <span data-i18n="shoes">鞋包</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">🏠</div>
-          <span data-i18n="home">家居</span>
-        </div>
-
-        <div class="category">
-          <div class="category-icon">•••</div>
-          <span data-i18n="all">全部</span>
-        </div>
-
-      </div>
-    </section>
-
-    <section class="promotion">
-      <h2 data-i18n="limitedOffer">限时特惠</h2>
-      <p data-i18n="dailyDeals">精选商品 · 每日优惠</p>
-    </section>
-
-    <section class="products-section">
-
-      <div class="section-title" data-i18n="recommended">猜你喜欢</div>
-
-      <div class="products" id="productList">
-
-        <div
-          class="product"
-          data-search-zh="进口巧克力零食"
-          data-search-en="imported chocolate snack"
-          data-search-my="ချောကလက် အဆာပြေ"
-          data-search-th="ช็อกโกแลต ขนม"
-        >
-          <div class="discount" data-i18n="discount20">8折</div>
-          <div class="product-image">🍫</div>
-
-          <div class="product-info">
-            <div class="product-name" data-i18n="productChocolate">
-              进口巧克力零食
-            </div>
-
-            <div class="expiry">
-              <span data-i18n="expiry">保质期至</span>：2027-03-20
-            </div>
-
-            <span class="price">K 8,000</span>
-            <span class="old-price">K 10,000</span>
-          </div>
-        </div>
-
-        <div
-          class="product"
-          data-search-zh="薯片休闲零食"
-          data-search-en="potato chips snack"
-          data-search-my="အာလူးကြော် အဆာပြေ"
-          data-search-th="มันฝรั่งทอด ขนม"
-        >
-          <div class="discount" data-i18n="specialPrice">特价</div>
-          <div class="product-image">🍟</div>
-
-          <div class="product-info">
-            <div class="product-name" data-i18n="productChips">
-              薯片休闲零食
-            </div>
-
-            <div class="expiry">
-              <span data-i18n="expiry">保质期至</span>：2027-01-15
-            </div>
-
-            <span class="price">K 3,500</span>
-            <span class="old-price">K 4,500</span>
-          </div>
-        </div>
-
-        <div
-          class="product"
-          data-search-zh="现代简约沙发家具"
-          data-search-en="modern sofa furniture"
-          data-search-my="ခေတ်မီ ဆိုဖာ ပရိဘောဂ"
-          data-search-th="โซฟา เฟอร์นิเจอร์"
-        >
-          <div class="product-image">🛋️</div>
-
-          <div class="product-info">
-            <div class="product-name" data-i18n="productSofa">
-              现代简约沙发
-            </div>
-
-            <span class="price">K 680,000</span>
-          </div>
-        </div>
-
-        <div
-          class="product"
-          data-search-zh="无线蓝牙耳机数码"
-          data-search-en="wireless bluetooth headphones"
-          data-search-my="ကြိုးမဲ့ ဘလူးတုသ် နားကြပ်"
-          data-search-th="หูฟังบลูทูธไร้สาย"
-        >
-          <div class="discount" data-i18n="discount10">9折</div>
-          <div class="product-image">🎧</div>
-
-          <div class="product-info">
-            <div class="product-name" data-i18n="productHeadphones">
-              无线蓝牙耳机
-            </div>
-
-            <span class="price">K 45,000</span>
-            <span class="old-price">K 50,000</span>
-          </div>
-        </div>
-
+      <div
+        class="logo-sub"
+        data-i18n="brandSub"
+      >
+        零食 · 食品 · 饮料
       </div>
 
-    </section>
+    </div>
+
+
+    <div class="top-actions">
+
+      <select
+        id="languageSelect"
+        class="language-select"
+        onchange="changeLanguage(this.value)"
+      >
+
+        <option value="zh">
+          中文
+        </option>
+
+        <option value="en">
+          EN
+        </option>
+
+        <option value="my">
+          MY
+        </option>
+
+        <option value="th">
+          TH
+        </option>
+
+      </select>
+
+
+      <button
+        class="icon-button"
+        onclick="goView('cart')"
+        aria-label="Cart"
+      >
+
+        🛒
+
+        <span
+          id="topCartCount"
+          class="cart-badge hidden"
+        >
+          0
+        </span>
+
+      </button>
+
+    </div>
 
   </div>
 
-  <nav class="bottom-nav">
+</header>
 
-    <div class="nav-item active">
-      <div class="nav-icon">🏠</div>
-      <span data-i18n="navHome">首页</span>
+
+<main class="container">
+
+<!-- ==============================
+     HOME
+============================== -->
+
+<section
+  id="home"
+  class="view active"
+>
+
+  <div class="region-strip" id="regionStrip"></div>
+
+
+  <div class="hero">
+
+    <div
+      class="hero-kicker"
+      data-i18n="heroKicker"
+    >
+      RETAIL & WHOLESALE
     </div>
 
-    <div class="nav-item">
-      <div class="nav-icon">▦</div>
-      <span data-i18n="navCategories">分类</span>
+    <div
+      class="hero-title"
+      data-i18n="heroTitle"
+    >
+      好吃的零食，送到你的城市
     </div>
 
-    <div class="nav-item">
-      <div class="nav-icon">🛒</div>
-      <span data-i18n="cart">购物车</span>
+    <div
+      class="hero-text"
+      data-i18n="heroText"
+    >
+      零售、批发都可以。选择地区后，只显示当地可售库存。
     </div>
 
-    <div class="nav-item">
-      <div class="nav-icon">💬</div>
-      <span data-i18n="messages">消息</span>
+    <div class="hero-actions">
+
+      <button
+        class="btn btn-primary"
+        onclick="scrollToProducts()"
+        data-i18n="shopNow"
+      >
+        开始选购
+      </button>
+
+      <button
+        class="btn btn-light"
+        onclick="goView('orders')"
+        data-i18n="myOrders"
+      >
+        我的订单
+      </button>
+
     </div>
 
-    <div class="nav-item">
-      <div class="nav-icon">👤</div>
-      <span data-i18n="mine">我的</span>
+  </div>
+
+
+  <div class="search-box">
+
+    <span>
+      🔍
+    </span>
+
+    <input
+      id="searchInput"
+      oninput="applyProductFilters()"
+      data-i18n-placeholder="searchPlaceholder"
+      placeholder="搜索商品、品牌、口味..."
+    >
+
+  </div>
+
+
+  <div class="section-title-row">
+
+    <div>
+
+      <div
+        class="section-title"
+        data-i18n="categories"
+      >
+        商品分类
+      </div>
+
+      <div
+        class="section-subtitle"
+        data-i18n="categoryHint"
+      >
+        点击分类快速筛选
+      </div>
+
     </div>
 
-  </nav>
 
-  <script>
-    const translations = {
-      zh: {
-        pageTitle: "商城",
-        mall: "商城",
-        messages: "消息",
-        searchPlaceholder: "搜索商品、零食、家具...",
-        categories: "商品分类",
-        snacks: "零食",
-        drinks: "饮料",
-        furniture: "家具",
-        clothing: "服装",
-        digital: "数码",
-        daily: "日用品",
-        beauty: "美妆",
-        shoes: "鞋包",
-        home: "家居",
-        all: "全部",
-        limitedOffer: "限时特惠",
-        dailyDeals: "精选商品 · 每日优惠",
-        recommended: "猜你喜欢",
-        discount20: "8折",
-        discount10: "9折",
-        specialPrice: "特价",
-        productChocolate: "进口巧克力零食",
-        productChips: "薯片休闲零食",
-        productSofa: "现代简约沙发",
-        productHeadphones: "无线蓝牙耳机",
-        expiry: "保质期至",
-        navHome: "首页",
-        navCategories: "分类",
-        cart: "购物车",
-        mine: "我的"
-      },
+    <button
+      class="link-button"
+      onclick="clearCategoryFilter()"
+      data-i18n="all"
+    >
+      全部
+    </button>
 
-      en: {
-        pageTitle: "Shopping Mall",
-        mall: "Mall",
-        messages: "Messages",
-        searchPlaceholder: "Search products, snacks, furniture...",
-        categories: "Categories",
-        snacks: "Snacks",
-        drinks: "Drinks",
-        furniture: "Furniture",
-        clothing: "Clothing",
-        digital: "Electronics",
-        daily: "Daily Goods",
-        beauty: "Beauty",
-        shoes: "Shoes & Bags",
-        home: "Home",
-        all: "All",
-        limitedOffer: "Limited Offer",
-        dailyDeals: "Selected products · Daily deals",
-        recommended: "Recommended",
-        discount20: "20% OFF",
-        discount10: "10% OFF",
-        specialPrice: "Special",
-        productChocolate: "Imported Chocolate Snacks",
-        productChips: "Potato Chips",
-        productSofa: "Modern Minimalist Sofa",
-        productHeadphones: "Wireless Bluetooth Headphones",
-        expiry: "Expiry",
-        navHome: "Home",
-        navCategories: "Categories",
-        cart: "Cart",
-        mine: "Me"
-      },
+  </div>
 
-      my: {
-        pageTitle: "စျေးဝယ်စင်တာ",
-        mall: "စျေးဝယ်စင်တာ",
-        messages: "စာများ",
-        searchPlaceholder: "ပစ္စည်း၊ အဆာပြေ၊ ပရိဘောဂ ရှာရန်...",
-        categories: "ပစ္စည်းအမျိုးအစား",
-        snacks: "အဆာပြေ",
-        drinks: "အဖျော်ယမကာ",
-        furniture: "ပရိဘောဂ",
-        clothing: "အဝတ်အစား",
-        digital: "အီလက်ထရွန်းနစ်",
-        daily: "နေ့စဉ်သုံးပစ္စည်း",
-        beauty: "အလှကုန်",
-        shoes: "ဖိနပ်နှင့်အိတ်",
-        home: "အိမ်သုံး",
-        all: "အားလုံး",
-        limitedOffer: "အချိန်ကန့်သတ် လျှော့ဈေး",
-        dailyDeals: "ရွေးချယ်ထားသော ပစ္စည်းများ · နေ့စဉ်လျှော့ဈေး",
-        recommended: "သင့်အတွက်",
-        discount20: "20% လျှော့",
-        discount10: "10% လျှော့",
-        specialPrice: "အထူးဈေး",
-        productChocolate: "တင်သွင်းချောကလက် အဆာပြေ",
-        productChips: "အာလူးကြော် အဆာပြေ",
-        productSofa: "ခေတ်မီ ရိုးရှင်းသော ဆိုဖာ",
-        productHeadphones: "ကြိုးမဲ့ Bluetooth နားကြပ်",
-        expiry: "သက်တမ်းကုန်ရက်",
-        navHome: "ပင်မ",
-        navCategories: "အမျိုးအစား",
-        cart: "ဈေးခြင်း",
-        mine: "ကျွန်ုပ်"
-      },
 
-      th: {
-        pageTitle: "ศูนย์การค้า",
-        mall: "ศูนย์การค้า",
-        messages: "ข้อความ",
-        searchPlaceholder: "ค้นหาสินค้า ขนม เฟอร์นิเจอร์...",
-        categories: "หมวดหมู่สินค้า",
-        snacks: "ขนม",
-        drinks: "เครื่องดื่ม",
-        furniture: "เฟอร์นิเจอร์",
-        clothing: "เสื้อผ้า",
-        digital: "อิเล็กทรอนิกส์",
-        daily: "ของใช้ประจำวัน",
-        beauty: "ความงาม",
-        shoes: "รองเท้าและกระเป๋า",
-        home: "ของใช้ในบ้าน",
-        all: "ทั้งหมด",
-        limitedOffer: "โปรโมชั่นจำกัดเวลา",
-        dailyDeals: "สินค้าคัดสรร · โปรรายวัน",
-        recommended: "แนะนำสำหรับคุณ",
-        discount20: "ลด 20%",
-        discount10: "ลด 10%",
-        specialPrice: "ราคาพิเศษ",
-        productChocolate: "ช็อกโกแลตนำเข้า",
-        productChips: "มันฝรั่งทอด",
-        productSofa: "โซฟาสไตล์โมเดิร์น",
-        productHeadphones: "หูฟังบลูทูธไร้สาย",
-        expiry: "หมดอายุ",
-        navHome: "หน้าแรก",
-        navCategories: "หมวดหมู่",
-        cart: "รถเข็น",
-        mine: "ของฉัน"
+  <div
+    id="categoryGrid"
+    class="category-grid"
+  ></div>
+
+
+  <div
+    id="productSection"
+    class="section-title-row"
+  >
+
+    <div>
+
+      <div
+        class="section-title"
+        data-i18n="products"
+      >
+        推荐商品
+      </div>
+
+      <div
+        id="productSubtitle"
+        class="section-subtitle"
+      >
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="productGrid"
+    class="product-grid"
+  ></div>
+
+</section>
+
+
+<!-- ==============================
+     PRODUCT DETAIL
+============================== -->
+
+<section
+  id="productDetail"
+  class="view"
+>
+
+  <div class="back-row">
+
+    <button
+      class="back-btn"
+      onclick="goView('home')"
+    >
+      ←
+    </button>
+
+    <strong data-i18n="productDetail">
+      商品详情
+    </strong>
+
+  </div>
+
+
+  <div id="productDetailContent"></div>
+
+</section>
+
+
+<!-- ==============================
+     CART
+============================== -->
+
+<section
+  id="cart"
+  class="view"
+>
+
+  <div class="section-title-row">
+
+    <div>
+
+      <div
+        class="section-title"
+        data-i18n="cart"
+      >
+        购物车
+      </div>
+
+      <div
+        class="section-subtitle"
+        data-i18n="cartHint"
+      >
+        数量单位为当前 SKU 的销售单位
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div id="cartContent"></div>
+
+</section>
+
+
+<!-- ==============================
+     CHECKOUT
+============================== -->
+
+<section
+  id="checkout"
+  class="view"
+>
+
+  <div class="back-row">
+
+    <button
+      class="back-btn"
+      onclick="goView('cart')"
+    >
+      ←
+    </button>
+
+    <strong data-i18n="checkout">
+      确认订单
+    </strong>
+
+  </div>
+
+
+  <div id="checkoutContent"></div>
+
+</section>
+
+
+<!-- ==============================
+     ORDERS
+============================== -->
+
+<section
+  id="orders"
+  class="view"
+>
+
+  <div class="section-title-row">
+
+    <div>
+
+      <div
+        class="section-title"
+        data-i18n="myOrders"
+      >
+        我的订单
+      </div>
+
+      <div
+        class="section-subtitle"
+        data-i18n="ordersHint"
+      >
+        查看付款、配货和配送进度
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="ordersContent"
+    class="order-list"
+  ></div>
+
+</section>
+
+
+<!-- ==============================
+     ORDER DETAIL
+============================== -->
+
+<section
+  id="orderDetail"
+  class="view"
+>
+
+  <div class="back-row">
+
+    <button
+      class="back-btn"
+      onclick="goView('orders')"
+    >
+      ←
+    </button>
+
+    <strong data-i18n="orderDetail">
+      订单详情
+    </strong>
+
+  </div>
+
+
+  <div id="orderDetailContent"></div>
+
+</section>
+
+
+<!-- ==============================
+     ACCOUNT
+============================== -->
+
+<section
+  id="account"
+  class="view"
+>
+
+  <div class="section-title-row">
+
+    <div>
+
+      <div
+        class="section-title"
+        data-i18n="account"
+      >
+        我的
+      </div>
+
+      <div
+        class="section-subtitle"
+        data-i18n="accountHint"
+      >
+        账号、地址和地区设置
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div id="accountContent"></div>
+
+</section>
+
+</main>
+
+
+<!-- ==============================
+     BOTTOM NAV
+============================== -->
+
+<nav class="bottom-nav">
+
+  <button
+    class="nav-item active"
+    data-view="home"
+    onclick="goView('home',this)"
+  >
+
+    <span class="nav-icon">
+      🏠
+    </span>
+
+    <span data-i18n="home">
+      首页
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-view="home"
+    onclick="goCategories()"
+  >
+
+    <span class="nav-icon">
+      🧃
+    </span>
+
+    <span data-i18n="categories">
+      分类
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-view="cart"
+    onclick="goView('cart',this)"
+  >
+
+    <span class="nav-icon">
+      🛒
+    </span>
+
+    <span
+      id="bottomCartCount"
+      class="nav-cart-count hidden"
+    >
+      0
+    </span>
+
+    <span data-i18n="cart">
+      购物车
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-view="orders"
+    onclick="goView('orders',this)"
+  >
+
+    <span class="nav-icon">
+      📦
+    </span>
+
+    <span data-i18n="orders">
+      订单
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-view="account"
+    onclick="goView('account',this)"
+  >
+
+    <span class="nav-icon">
+      👤
+    </span>
+
+    <span data-i18n="account">
+      我的
+    </span>
+
+  </button>
+
+</nav>
+
+
+<!-- ==============================
+     AUTH MODAL
+============================== -->
+
+<div
+  id="authOverlay"
+  class="overlay hidden"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <div
+        class="modal-title"
+        data-i18n="loginRegister"
+      >
+        登录 / 注册
+      </div>
+
+      <button
+        class="close-btn"
+        onclick="closeAuthModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="auth-tabs">
+
+      <button
+        id="loginTab"
+        class="auth-tab active"
+        onclick="setAuthMode('login')"
+        data-i18n="login"
+      >
+        登录
+      </button>
+
+
+      <button
+        id="registerTab"
+        class="auth-tab"
+        onclick="setAuthMode('register')"
+        data-i18n="register"
+      >
+        注册
+      </button>
+
+    </div>
+
+
+    <div id="authLoginForm">
+
+      <div class="form-group">
+
+        <label data-i18n="email">
+          邮箱
+        </label>
+
+        <input
+          id="loginEmail"
+          type="email"
+          autocomplete="email"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="password">
+          密码
+        </label>
+
+        <input
+          id="loginPassword"
+          type="password"
+          autocomplete="current-password"
+        >
+
+      </div>
+
+
+      <button
+        class="btn btn-primary btn-block"
+        onclick="customerLogin()"
+        data-i18n="login"
+      >
+        登录
+      </button>
+
+    </div>
+
+
+    <div
+      id="authRegisterForm"
+      class="hidden"
+    >
+
+      <div class="form-group">
+
+        <label data-i18n="fullName">
+          姓名
+        </label>
+
+        <input id="registerName">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="phone">
+          电话
+        </label>
+
+        <input
+          id="registerPhone"
+          type="tel"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="email">
+          邮箱
+        </label>
+
+        <input
+          id="registerEmail"
+          type="email"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="password">
+          密码
+        </label>
+
+        <input
+          id="registerPassword"
+          type="password"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="defaultRegion">
+          默认地区
+        </label>
+
+        <select id="registerRegion"></select>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary btn-block"
+        onclick="customerRegister()"
+        data-i18n="register"
+      >
+        注册
+      </button>
+
+    </div>
+
+
+    <div
+      id="authMessage"
+      class="notice hidden"
+      style="margin-top:12px"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<!-- ==============================
+     PROFILE SETUP MODAL
+============================== -->
+
+<div
+  id="profileOverlay"
+  class="overlay hidden"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <div
+        class="modal-title"
+        data-i18n="completeProfile"
+      >
+        完善客户资料
+      </div>
+
+    </div>
+
+
+    <div
+      class="notice"
+      data-i18n="profileRequired"
+    >
+      第一次登录需要补充姓名、电话和默认地区。
+    </div>
+
+
+    <div class="form-group">
+
+      <label data-i18n="fullName">
+        姓名
+      </label>
+
+      <input id="profileSetupName">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label data-i18n="phone">
+        电话
+      </label>
+
+      <input
+        id="profileSetupPhone"
+        type="tel"
+      >
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label data-i18n="defaultRegion">
+        默认地区
+      </label>
+
+      <select id="profileSetupRegion"></select>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary btn-block"
+      onclick="saveInitialProfile()"
+      data-i18n="save"
+    >
+      保存
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================================
+   SUPABASE
+========================================================== */
+
+const SUPABASE_URL =
+  "https://aymicuawrlylpqnipwky.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
+
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* ==========================================================
+   STATE
+========================================================== */
+
+let currentUser = null;
+let customerProfile = null;
+
+let regions = [];
+let categories = [];
+let products = [];
+let variants = [];
+let productImages = [];
+let inventory = [];
+
+let addresses = [];
+let orders = [];
+
+let regionMap = {};
+let categoryMap = {};
+let productMap = {};
+let variantMap = {};
+let imageMap = {};
+let inventoryMap = {};
+
+let selectedRegionId =
+  localStorage.getItem(
+    "mallRegionId"
+  )
+  ||
+  null;
+
+let selectedCategoryId =
+  null;
+
+let currentProductId =
+  null;
+
+let currentVariantId =
+  null;
+
+let currentPurchaseMode =
+  "retail";
+
+let currentProductQty =
+  1;
+
+let currentOrderId =
+  null;
+
+let selectedCheckoutAddressId =
+  null;
+
+let authMode =
+  "login";
+
+let appLanguage =
+  localStorage.getItem(
+    "mallLanguage"
+  )
+  ||
+  "zh";
+
+let localCart =
+  loadLocalCart();
+
+
+/* ==========================================================
+   I18N
+========================================================== */
+
+const i18n = {
+
+zh:{
+  brandSub:"零食 · 食品 · 饮料",
+  heroKicker:"零售 & 批发",
+  heroTitle:"好吃的零食，送到你的城市",
+  heroText:"零售、批发都可以。选择地区后，只显示当地可售库存。",
+  shopNow:"开始选购",
+  myOrders:"我的订单",
+  searchPlaceholder:"搜索商品、品牌、口味...",
+  categories:"分类",
+  categoryHint:"点击分类快速筛选",
+  all:"全部",
+  products:"推荐商品",
+  productDetail:"商品详情",
+  retail:"零售",
+  wholesale:"批发",
+  wholesaleFrom:"起订",
+  available:"可售",
+  outOfStock:"缺货",
+  addCart:"加入购物车",
+  cart:"购物车",
+  cartHint:"数量单位为当前 SKU 的销售单位",
+  checkout:"确认订单",
+  subtotal:"商品金额",
+  total:"合计",
+  proceedCheckout:"去结账",
+  emptyCart:"购物车还是空的",
+  continueShopping:"继续购物",
+  address:"收货地址",
+  chooseAddress:"请选择收货地址",
+  addAddress:"新增地址",
+  paymentMethod:"付款方式",
+  customerNote:"订单备注",
+  placeOrder:"提交订单",
+  loginRequired:"结账前请先登录。",
+  loginRegister:"登录 / 注册",
+  login:"登录",
+  register:"注册",
+  email:"邮箱",
+  password:"密码",
+  fullName:"姓名",
+  phone:"电话",
+  defaultRegion:"默认地区",
+  registerSuccess:"注册成功。",
+  verifyEmail:"请先到邮箱完成验证，然后回来登录。",
+  completeProfile:"完善客户资料",
+  profileRequired:"第一次登录需要补充姓名、电话和默认地区。",
+  save:"保存",
+  account:"我的",
+  accountHint:"账号、地址和地区设置",
+  notLoggedIn:"你还没有登录",
+  loginNow:"登录 / 注册",
+  logout:"退出登录",
+  orders:"订单",
+  ordersHint:"查看付款、配货和配送进度",
+  emptyOrders:"目前没有订单",
+  orderDetail:"订单详情",
+  orderNumber:"订单号",
+  orderStatus:"订单状态",
+  paymentStatus:"付款状态",
+  fulfillmentStatus:"配货状态",
+  deliveryStatus:"配送状态",
+  recipient:"收货人",
+  orderItems:"商品明细",
+  orderTimeline:"订单进度",
+  cancelOrder:"取消订单",
+  cancelReason:"请输入取消原因",
+  submitPayment:"提交付款凭证",
+  paymentReference:"付款参考号",
+  proofUrl:"付款凭证图片 URL",
+  submit:"提交",
+  paymentSubmitted:"付款凭证已经提交，等待审核。",
+  home:"首页",
+  region:"地区",
+  saveAddress:"保存地址",
+  recipientName:"收货人",
+  township:"Township / 区",
+  street:"街道",
+  detailedAddress:"详细地址",
+  addressLabel:"地址标签",
+  setDefault:"设为默认地址",
+  profile:"个人资料",
+  editProfile:"更新资料",
+  joined:"注册时间",
+  quantity:"数量",
+  itemCount:"商品数量",
+  selectedRegion:"当前地区",
+  noProducts:"当前地区暂无可售商品",
+  orderSuccess:"下单成功",
+  orderCreated:"订单已经创建。",
+  viewOrder:"查看订单",
+  paymentPending:"如果你已经付款，可以在订单详情提交付款凭证。",
+  regionMismatch:"收货地址必须与当前购物地区一致。",
+  stockInsufficient:"库存不足",
+  wholesaleMinimum:"没有达到批发起订数量",
+  soldOut:"当前地区暂无库存",
+  variant:"规格",
+  unit:"单位",
+  productAdded:"已加入购物车",
+  addressSaved:"地址保存成功",
+  profileSaved:"资料更新成功",
+  loading:"正在加载...",
+  networkError:"加载失败，请刷新后再试",
+  status:"状态",
+  regionChangedCart:"切换地区后，购物车只显示当前地区商品。",
+  noAddress:"还没有收货地址",
+  chooseRegion:"请选择地区",
+  paymentMethodCash:"现金 / 线下",
+  paymentMethodKpay:"KPay",
+  paymentMethodWave:"WavePay",
+  paymentMethodBank:"银行转账"
+},
+
+en:{
+  brandSub:"Snacks · Food · Drinks",
+  heroKicker:"RETAIL & WHOLESALE",
+  heroTitle:"Great snacks delivered to your city",
+  heroText:"Shop retail or wholesale. Only locally available inventory is shown.",
+  shopNow:"Shop Now",
+  myOrders:"My Orders",
+  searchPlaceholder:"Search products, brands, flavors...",
+  categories:"Categories",
+  categoryHint:"Tap a category to filter",
+  all:"All",
+  products:"Products",
+  productDetail:"Product Details",
+  retail:"Retail",
+  wholesale:"Wholesale",
+  wholesaleFrom:"Minimum",
+  available:"Available",
+  outOfStock:"Out of stock",
+  addCart:"Add to Cart",
+  cart:"Cart",
+  cartHint:"Quantity uses the SKU sales unit",
+  checkout:"Checkout",
+  subtotal:"Subtotal",
+  total:"Total",
+  proceedCheckout:"Checkout",
+  emptyCart:"Your cart is empty",
+  continueShopping:"Continue Shopping",
+  address:"Delivery Address",
+  chooseAddress:"Choose delivery address",
+  addAddress:"Add Address",
+  paymentMethod:"Payment Method",
+  customerNote:"Order Note",
+  placeOrder:"Place Order",
+  loginRequired:"Please sign in before checkout.",
+  loginRegister:"Login / Register",
+  login:"Login",
+  register:"Register",
+  email:"Email",
+  password:"Password",
+  fullName:"Full Name",
+  phone:"Phone",
+  defaultRegion:"Default Region",
+  registerSuccess:"Registration successful.",
+  verifyEmail:"Please verify your email before signing in.",
+  completeProfile:"Complete Profile",
+  profileRequired:"Please complete your name, phone and default region.",
+  save:"Save",
+  account:"Account",
+  accountHint:"Account, addresses and region settings",
+  notLoggedIn:"You are not signed in",
+  loginNow:"Login / Register",
+  logout:"Logout",
+  orders:"Orders",
+  ordersHint:"Track payment, fulfillment and delivery",
+  emptyOrders:"No orders yet",
+  orderDetail:"Order Detail",
+  orderNumber:"Order Number",
+  orderStatus:"Order Status",
+  paymentStatus:"Payment Status",
+  fulfillmentStatus:"Fulfillment",
+  deliveryStatus:"Delivery",
+  recipient:"Recipient",
+  orderItems:"Items",
+  orderTimeline:"Timeline",
+  cancelOrder:"Cancel Order",
+  cancelReason:"Enter cancellation reason",
+  submitPayment:"Submit Payment Proof",
+  paymentReference:"Payment Reference",
+  proofUrl:"Payment Proof Image URL",
+  submit:"Submit",
+  paymentSubmitted:"Payment proof submitted for review.",
+  home:"Home",
+  region:"Region",
+  saveAddress:"Save Address",
+  recipientName:"Recipient",
+  township:"Township",
+  street:"Street",
+  detailedAddress:"Detailed Address",
+  addressLabel:"Label",
+  setDefault:"Set as Default",
+  profile:"Profile",
+  editProfile:"Update Profile",
+  joined:"Joined",
+  quantity:"Quantity",
+  itemCount:"Items",
+  selectedRegion:"Current Region",
+  noProducts:"No products available in this region",
+  orderSuccess:"Order Successful",
+  orderCreated:"Your order has been created.",
+  viewOrder:"View Order",
+  paymentPending:"If you have paid, submit payment proof from the order details.",
+  regionMismatch:"Delivery address must match the shopping region.",
+  stockInsufficient:"Insufficient stock",
+  wholesaleMinimum:"Wholesale minimum quantity not reached",
+  soldOut:"No stock in this region",
+  variant:"Variant",
+  unit:"Unit",
+  productAdded:"Added to cart",
+  addressSaved:"Address saved",
+  profileSaved:"Profile updated",
+  loading:"Loading...",
+  networkError:"Failed to load. Please try again.",
+  status:"Status",
+  regionChangedCart:"After changing region, the cart shows items for the current region.",
+  noAddress:"No delivery address yet",
+  chooseRegion:"Choose a region",
+  paymentMethodCash:"Cash / Offline",
+  paymentMethodKpay:"KPay",
+  paymentMethodWave:"WavePay",
+  paymentMethodBank:"Bank Transfer"
+},
+
+my:{
+  brandSub:"မုန့် · အစားအစာ · အချိုရည်",
+  heroKicker:"လက်လီ & လက်ကား",
+  heroTitle:"အရသာရှိတဲ့ မုန့်တွေကို သင့်မြို့အရောက်ပို့မယ်",
+  heroText:"လက်လီနှင့် လက်ကားဝယ်ယူနိုင်ပြီး သင့်ဒေသရှိ လက်ကျန်ပစ္စည်းများကိုသာ ပြသသည်။",
+  shopNow:"ဝယ်ယူမည်",
+  myOrders:"ကျွန်ုပ်အော်ဒါ",
+  searchPlaceholder:"ပစ္စည်း၊ brand၊ အရသာ ရှာရန်...",
+  categories:"အမျိုးအစား",
+  categoryHint:"အမျိုးအစားရွေးပြီးရှာနိုင်သည်",
+  all:"အားလုံး",
+  products:"ပစ္စည်းများ",
+  productDetail:"ပစ္စည်းအသေးစိတ်",
+  retail:"လက်လီ",
+  wholesale:"လက်ကား",
+  wholesaleFrom:"အနည်းဆုံး",
+  available:"ရရှိနိုင်",
+  outOfStock:"ပစ္စည်းကုန်",
+  addCart:"ခြင်းထဲထည့်",
+  cart:"ခြင်း",
+  cartHint:"အရေအတွက်သည် SKU ရောင်းချသည့်ယူနစ်ဖြစ်သည်",
+  checkout:"အော်ဒါအတည်ပြု",
+  subtotal:"ပစ္စည်းတန်ဖိုး",
+  total:"စုစုပေါင်း",
+  proceedCheckout:"ငွေရှင်းမည်",
+  emptyCart:"ခြင်းထဲ ပစ္စည်းမရှိသေးပါ",
+  continueShopping:"ဆက်ဝယ်မည်",
+  address:"ပို့ဆောင်ရန်လိပ်စာ",
+  chooseAddress:"လိပ်စာရွေးပါ",
+  addAddress:"လိပ်စာထည့်",
+  paymentMethod:"ငွေပေးချေမှုနည်းလမ်း",
+  customerNote:"အော်ဒါမှတ်ချက်",
+  placeOrder:"အော်ဒါတင်မည်",
+  loginRequired:"ငွေမရှင်းမီ အကောင့်ဝင်ပါ။",
+  loginRegister:"ဝင်မည် / စာရင်းသွင်း",
+  login:"ဝင်မည်",
+  register:"စာရင်းသွင်း",
+  email:"အီးမေးလ်",
+  password:"စကားဝှက်",
+  fullName:"အမည်",
+  phone:"ဖုန်း",
+  defaultRegion:"မူလဒေသ",
+  registerSuccess:"စာရင်းသွင်းပြီးပါပြီ။",
+  verifyEmail:"အီးမေးလ်အတည်ပြုပြီးနောက် ပြန်ဝင်ပါ။",
+  completeProfile:"အချက်အလက်ဖြည့်ပါ",
+  profileRequired:"အမည်၊ ဖုန်းနှင့် မူလဒေသကို ဖြည့်ပါ။",
+  save:"သိမ်းမည်",
+  account:"ကျွန်ုပ်",
+  accountHint:"အကောင့်၊ လိပ်စာနှင့် ဒေသ",
+  notLoggedIn:"အကောင့်မဝင်ရသေးပါ",
+  loginNow:"ဝင်မည် / စာရင်းသွင်း",
+  logout:"ထွက်မည်",
+  orders:"အော်ဒါ",
+  ordersHint:"ငွေပေးချေမှု၊ ထုပ်ပိုးမှုနှင့် ပို့ဆောင်မှုအခြေအနေ",
+  emptyOrders:"အော်ဒါမရှိသေးပါ",
+  orderDetail:"အော်ဒါအသေးစိတ်",
+  orderNumber:"အော်ဒါနံပါတ်",
+  orderStatus:"အော်ဒါအခြေအနေ",
+  paymentStatus:"ငွေပေးချေမှု",
+  fulfillmentStatus:"ပစ္စည်းပြင်ဆင်မှု",
+  deliveryStatus:"ပို့ဆောင်မှု",
+  recipient:"လက်ခံသူ",
+  orderItems:"ပစ္စည်းစာရင်း",
+  orderTimeline:"အော်ဒါမှတ်တမ်း",
+  cancelOrder:"အော်ဒါပယ်ဖျက်",
+  cancelReason:"ပယ်ဖျက်ရသည့်အကြောင်းထည့်ပါ",
+  submitPayment:"ငွေပေးချေမှုအထောက်အထားတင်",
+  paymentReference:"ငွေပေးချေမှု Reference",
+  proofUrl:"ငွေပေးချေမှုပုံ URL",
+  submit:"တင်မည်",
+  paymentSubmitted:"ငွေပေးချေမှုအထောက်အထား တင်ပြီးပါပြီ။",
+  home:"ပင်မ",
+  region:"ဒေသ",
+  saveAddress:"လိပ်စာသိမ်း",
+  recipientName:"လက်ခံသူ",
+  township:"မြို့နယ်",
+  street:"လမ်း",
+  detailedAddress:"လိပ်စာအသေးစိတ်",
+  addressLabel:"လိပ်စာအမည်",
+  setDefault:"မူလလိပ်စာ",
+  profile:"ကိုယ်ရေးအချက်အလက်",
+  editProfile:"အချက်အလက်ပြင်",
+  joined:"စာရင်းသွင်းရက်",
+  quantity:"အရေအတွက်",
+  itemCount:"ပစ္စည်းအရေအတွက်",
+  selectedRegion:"လက်ရှိဒေသ",
+  noProducts:"ဤဒေသတွင် ရရှိနိုင်သောပစ္စည်းမရှိသေးပါ",
+  orderSuccess:"အော်ဒါအောင်မြင်",
+  orderCreated:"အော်ဒါဖန်တီးပြီးပါပြီ။",
+  viewOrder:"အော်ဒါကြည့်",
+  paymentPending:"ငွေပေးချေပြီးပါက အော်ဒါအသေးစိတ်မှ အထောက်အထားတင်ပါ။",
+  regionMismatch:"ပို့ဆောင်လိပ်စာနှင့် ဝယ်ယူသည့်ဒေသ တူရမည်။",
+  stockInsufficient:"လက်ကျန်မလုံလောက်ပါ",
+  wholesaleMinimum:"လက်ကားအနည်းဆုံးအရေအတွက် မပြည့်ပါ",
+  soldOut:"ဤဒေသတွင် လက်ကျန်မရှိပါ",
+  variant:"အမျိုးအစား",
+  unit:"ယူနစ်",
+  productAdded:"ခြင်းထဲ ထည့်ပြီးပါပြီ",
+  addressSaved:"လိပ်စာသိမ်းပြီးပါပြီ",
+  profileSaved:"အချက်အလက်ပြင်ပြီးပါပြီ",
+  loading:"တင်နေသည်...",
+  networkError:"မဖွင့်နိုင်ပါ။ ပြန်စမ်းပါ။",
+  status:"အခြေအနေ",
+  regionChangedCart:"ဒေသပြောင်းပြီးနောက် လက်ရှိဒေသရှိ ပစ္စည်းများသာပြမည်။",
+  noAddress:"လိပ်စာမရှိသေးပါ",
+  chooseRegion:"ဒေသရွေးပါ",
+  paymentMethodCash:"ငွေသား / အပြင်ပေး",
+  paymentMethodKpay:"KPay",
+  paymentMethodWave:"WavePay",
+  paymentMethodBank:"ဘဏ်လွှဲ"
+},
+
+th:{
+  brandSub:"ขนม · อาหาร · เครื่องดื่ม",
+  heroKicker:"ปลีก & ส่ง",
+  heroTitle:"ขนมอร่อย ส่งถึงเมืองของคุณ",
+  heroText:"ซื้อได้ทั้งปลีกและส่ง และแสดงเฉพาะสินค้าที่มีในพื้นที่ของคุณ",
+  shopNow:"เริ่มช้อป",
+  myOrders:"คำสั่งซื้อของฉัน",
+  searchPlaceholder:"ค้นหาสินค้า แบรนด์ รสชาติ...",
+  categories:"หมวดหมู่",
+  categoryHint:"แตะหมวดหมู่เพื่อกรองสินค้า",
+  all:"ทั้งหมด",
+  products:"สินค้า",
+  productDetail:"รายละเอียดสินค้า",
+  retail:"ราคาปลีก",
+  wholesale:"ราคาส่ง",
+  wholesaleFrom:"ขั้นต่ำ",
+  available:"พร้อมขาย",
+  outOfStock:"สินค้าหมด",
+  addCart:"เพิ่มลงตะกร้า",
+  cart:"ตะกร้า",
+  cartHint:"จำนวนคิดตามหน่วยขายของ SKU",
+  checkout:"ยืนยันคำสั่งซื้อ",
+  subtotal:"ยอดสินค้า",
+  total:"รวม",
+  proceedCheckout:"ชำระเงิน",
+  emptyCart:"ยังไม่มีสินค้าในตะกร้า",
+  continueShopping:"เลือกสินค้าต่อ",
+  address:"ที่อยู่จัดส่ง",
+  chooseAddress:"เลือกที่อยู่จัดส่ง",
+  addAddress:"เพิ่มที่อยู่",
+  paymentMethod:"วิธีชำระเงิน",
+  customerNote:"หมายเหตุ",
+  placeOrder:"สั่งซื้อ",
+  loginRequired:"กรุณาเข้าสู่ระบบก่อนชำระเงิน",
+  loginRegister:"เข้าสู่ระบบ / สมัคร",
+  login:"เข้าสู่ระบบ",
+  register:"สมัคร",
+  email:"อีเมล",
+  password:"รหัสผ่าน",
+  fullName:"ชื่อ",
+  phone:"โทรศัพท์",
+  defaultRegion:"พื้นที่เริ่มต้น",
+  registerSuccess:"สมัครสำเร็จ",
+  verifyEmail:"กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ",
+  completeProfile:"กรอกข้อมูลให้ครบ",
+  profileRequired:"กรุณากรอกชื่อ เบอร์โทร และพื้นที่เริ่มต้น",
+  save:"บันทึก",
+  account:"ของฉัน",
+  accountHint:"บัญชี ที่อยู่ และพื้นที่",
+  notLoggedIn:"คุณยังไม่ได้เข้าสู่ระบบ",
+  loginNow:"เข้าสู่ระบบ / สมัคร",
+  logout:"ออกจากระบบ",
+  orders:"คำสั่งซื้อ",
+  ordersHint:"ดูสถานะการชำระเงิน จัดสินค้า และจัดส่ง",
+  emptyOrders:"ยังไม่มีคำสั่งซื้อ",
+  orderDetail:"รายละเอียดคำสั่งซื้อ",
+  orderNumber:"เลขคำสั่งซื้อ",
+  orderStatus:"สถานะคำสั่งซื้อ",
+  paymentStatus:"สถานะชำระเงิน",
+  fulfillmentStatus:"สถานะจัดสินค้า",
+  deliveryStatus:"สถานะจัดส่ง",
+  recipient:"ผู้รับ",
+  orderItems:"รายการสินค้า",
+  orderTimeline:"ลำดับสถานะ",
+  cancelOrder:"ยกเลิกคำสั่งซื้อ",
+  cancelReason:"ระบุเหตุผลที่ยกเลิก",
+  submitPayment:"ส่งหลักฐานการชำระเงิน",
+  paymentReference:"เลขอ้างอิง",
+  proofUrl:"URL รูปหลักฐาน",
+  submit:"ส่ง",
+  paymentSubmitted:"ส่งหลักฐานแล้ว รอตรวจสอบ",
+  home:"หน้าหลัก",
+  region:"พื้นที่",
+  saveAddress:"บันทึกที่อยู่",
+  recipientName:"ผู้รับ",
+  township:"เขต / Township",
+  street:"ถนน",
+  detailedAddress:"ที่อยู่ละเอียด",
+  addressLabel:"ชื่อที่อยู่",
+  setDefault:"ตั้งเป็นค่าเริ่มต้น",
+  profile:"ข้อมูลส่วนตัว",
+  editProfile:"แก้ไขข้อมูล",
+  joined:"สมัครเมื่อ",
+  quantity:"จำนวน",
+  itemCount:"จำนวนสินค้า",
+  selectedRegion:"พื้นที่ปัจจุบัน",
+  noProducts:"ไม่มีสินค้าพร้อมขายในพื้นที่นี้",
+  orderSuccess:"สั่งซื้อสำเร็จ",
+  orderCreated:"สร้างคำสั่งซื้อแล้ว",
+  viewOrder:"ดูคำสั่งซื้อ",
+  paymentPending:"หากชำระเงินแล้ว ให้ส่งหลักฐานจากหน้ารายละเอียดคำสั่งซื้อ",
+  regionMismatch:"ที่อยู่จัดส่งต้องอยู่ในพื้นที่เดียวกับพื้นที่ช้อป",
+  stockInsufficient:"สต็อกไม่พอ",
+  wholesaleMinimum:"จำนวนไม่ถึงขั้นต่ำราคาส่ง",
+  soldOut:"พื้นที่นี้ไม่มีสต็อก",
+  variant:"ตัวเลือก",
+  unit:"หน่วย",
+  productAdded:"เพิ่มลงตะกร้าแล้ว",
+  addressSaved:"บันทึกที่อยู่แล้ว",
+  profileSaved:"อัปเดตข้อมูลแล้ว",
+  loading:"กำลังโหลด...",
+  networkError:"โหลดไม่สำเร็จ กรุณาลองใหม่",
+  status:"สถานะ",
+  regionChangedCart:"หลังเปลี่ยนพื้นที่ ตะกร้าจะแสดงเฉพาะสินค้าในพื้นที่ปัจจุบัน",
+  noAddress:"ยังไม่มีที่อยู่จัดส่ง",
+  chooseRegion:"เลือกพื้นที่",
+  paymentMethodCash:"เงินสด / ออฟไลน์",
+  paymentMethodKpay:"KPay",
+  paymentMethodWave:"WavePay",
+  paymentMethodBank:"โอนธนาคาร"
+}
+
+};
+
+
+function t(key){
+
+  return (
+    i18n[
+      appLanguage
+    ]?.[key]
+    ||
+    i18n.zh[key]
+    ||
+    key
+  );
+
+}
+
+
+function changeLanguage(lang){
+
+  appLanguage =
+    lang;
+
+  localStorage.setItem(
+    "mallLanguage",
+    lang
+  );
+
+  rebuildMaps();
+
+  applyLanguage();
+
+  renderAll();
+
+}
+
+
+function applyLanguage(){
+
+  document.documentElement.lang =
+    appLanguage === "zh"
+    ?
+    "zh-CN"
+    :
+    appLanguage;
+
+
+  document
+    .querySelectorAll(
+      "[data-i18n]"
+    )
+    .forEach(
+      node => {
+
+        const key =
+          node.getAttribute(
+            "data-i18n"
+          );
+
+        node.textContent =
+          t(key);
+
       }
-    };
+    );
 
-    let currentLanguage = "zh";
 
-    function changeLanguage(language) {
-      currentLanguage = language;
+  document
+    .querySelectorAll(
+      "[data-i18n-placeholder]"
+    )
+    .forEach(
+      node => {
 
-      const t = translations[language];
+        const key =
+          node.getAttribute(
+            "data-i18n-placeholder"
+          );
 
-      document.documentElement.lang = language;
+        node.placeholder =
+          t(key);
 
-      document.querySelectorAll("[data-i18n]").forEach(function(element) {
-        const key = element.getAttribute("data-i18n");
+      }
+    );
 
-        if (t[key]) {
-          element.textContent = t[key];
-        }
-      });
 
-      document.getElementById("searchInput").placeholder =
-        t.searchPlaceholder;
+  el("languageSelect").value =
+    appLanguage;
 
-      document.title = t.pageTitle;
+}
 
-      localStorage.setItem("mallLanguage", language);
 
-      searchProducts();
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function el(id){
+
+  return document
+    .getElementById(id);
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      })[char]
+    );
+
+}
+
+
+function money(
+  value,
+  currency = "MMK"
+){
+
+  return (
+    new Intl.NumberFormat(
+      "en-US",
+      {
+        maximumFractionDigits:0
+      }
+    )
+    .format(
+      Number(value || 0)
+    )
+    +
+    " "
+    +
+    (
+      currency
+      ||
+      "MMK"
+    )
+  );
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "—";
+  }
+
+  return new Date(value)
+    .toLocaleString(
+      appLanguage === "zh"
+      ?
+      "zh-CN"
+      :
+      "en-US",
+      {
+        hour12:false
+      }
+    );
+
+}
+
+
+function statusBadge(status){
+
+  const value =
+    String(status || "—");
+
+
+  const green = [
+    "active",
+    "confirmed",
+    "paid",
+    "completed",
+    "fulfilled",
+    "delivered",
+    "approved",
+    "processed"
+  ];
+
+
+  const red = [
+    "failed",
+    "cancelled",
+    "rejected",
+    "inactive",
+    "deactivated"
+  ];
+
+
+  const amber = [
+    "pending",
+    "pending_confirmation",
+    "unpaid",
+    "submitted",
+    "picking",
+    "packed",
+    "ready_for_delivery",
+    "assigned",
+    "picked_up",
+    "delivering",
+    "partially_refunded",
+    "requested",
+    "processing"
+  ];
+
+
+  let cls =
+    "badge";
+
+
+  if(green.includes(value)){
+    cls += " badge-green";
+  }
+  else if(red.includes(value)){
+    cls += " badge-red";
+  }
+  else if(amber.includes(value)){
+    cls += " badge-amber";
+  }
+
+
+  return (
+    `<span class="${cls}">`
+    +
+    escapeHtml(value)
+    +
+    `</span>`
+  );
+
+}
+
+
+function showMessage(message){
+
+  alert(message);
+
+}
+
+
+function loadLocalCart(){
+
+  try{
+
+    const parsed =
+      JSON.parse(
+        localStorage.getItem(
+          "snacksHubCart"
+        )
+        ||
+        "[]"
+      );
+
+
+    return Array.isArray(parsed)
+      ?
+      parsed
+      :
+      [];
+
+  }
+  catch{
+
+    return [];
+
+  }
+
+}
+
+
+function saveLocalCart(){
+
+  localStorage.setItem(
+    "snacksHubCart",
+    JSON.stringify(
+      localCart
+    )
+  );
+
+  updateCartCount();
+
+}
+
+
+function getCurrentRegion(){
+
+  return regions.find(
+    item =>
+      item.id
+      ===
+      selectedRegionId
+  )
+  ||
+  null;
+
+}
+
+
+function getProductName(product){
+
+  if(!product){
+    return "—";
+  }
+
+  return (
+    product[
+      `name_${appLanguage}`
+    ]
+    ||
+    product.name_zh
+    ||
+    product.name_en
+    ||
+    product.product_code
+    ||
+    "—"
+  );
+
+}
+
+
+function getVariantName(variant){
+
+  if(!variant){
+    return "—";
+  }
+
+  return (
+    variant[
+      `name_${appLanguage}`
+    ]
+    ||
+    variant.name_zh
+    ||
+    variant[
+      `specification_${appLanguage}`
+    ]
+    ||
+    variant.specification_zh
+    ||
+    variant[
+      `flavor_${appLanguage}`
+    ]
+    ||
+    variant.flavor_zh
+    ||
+    variant.sku_code
+  );
+
+}
+
+
+function getCategoryName(category){
+
+  if(!category){
+    return "—";
+  }
+
+  return (
+    category[
+      `name_${appLanguage}`
+    ]
+    ||
+    category.name_zh
+    ||
+    category.name_en
+    ||
+    category.code
+  );
+
+}
+
+
+function getRegionName(region){
+
+  if(!region){
+    return "—";
+  }
+
+  return (
+    region[
+      `name_${appLanguage}`
+    ]
+    ||
+    region.name_zh
+    ||
+    region.name_en
+    ||
+    region.code
+  );
+
+}
+
+
+function productEmoji(product){
+
+  const category =
+    categoryMap[
+      product?.category_id
+    ];
+
+  return (
+    category?.icon
+    ||
+    "🍪"
+  );
+
+}
+
+
+function productImageUrl(productId){
+
+  const images =
+    imageMap[
+      productId
+    ]
+    ||
+    [];
+
+
+  const primary =
+    images.find(
+      item =>
+        item.is_primary
+    )
+    ||
+    images[0];
+
+
+  if(primary?.image_url){
+    return primary.image_url;
+  }
+
+
+  return (
+    productMap[
+      productId
+    ]?.image_url
+    ||
+    ""
+  );
+
+}
+
+
+function inventoryForVariant(
+  variantId
+){
+
+  return inventoryMap[
+    `${selectedRegionId}:${variantId}`
+  ]
+  ||
+  null;
+
+}
+
+
+function availableQty(
+  variantId
+){
+
+  const inv =
+    inventoryForVariant(
+      variantId
+    );
+
+
+  if(!inv){
+    return 0;
+  }
+
+
+  return Math.max(
+    0,
+    Number(
+      inv.stock_on_hand
+      ||
+      0
+    )
+    -
+    Number(
+      inv.reserved_quantity
+      ||
+      0
+    )
+  );
+
+}
+
+
+/* ==========================================================
+   LOAD PUBLIC DATA
+========================================================== */
+
+async function loadPublicData(){
+
+  const results =
+    await Promise.all([
+
+      db
+        .from("regions")
+        .select("*")
+        .eq("is_active",true)
+        .order("sort_order"),
+
+      db
+        .from("categories")
+        .select("*")
+        .eq("is_active",true)
+        .order("level")
+        .order("sort_order"),
+
+      db
+        .from("products")
+        .select("*")
+        .eq("status","active")
+        .order("sort_order"),
+
+      db
+        .from("product_variants")
+        .select("*")
+        .eq("is_active",true)
+        .order("sort_order"),
+
+      db
+        .from("product_images")
+        .select("*")
+        .eq("is_active",true)
+        .order("sort_order"),
+
+      db
+        .from("region_inventory")
+        .select("*")
+
+    ]);
+
+
+  const firstError =
+    results.find(
+      item =>
+        item.error
+    );
+
+
+  if(firstError){
+
+    console.error(
+      firstError.error
+    );
+
+    el("productGrid")
+      .innerHTML =
+      emptyState(
+        t("networkError"),
+        "⚠️"
+      );
+
+    return;
+
+  }
+
+
+  regions =
+    results[0].data
+    ||
+    [];
+
+  categories =
+    results[1].data
+    ||
+    [];
+
+  products =
+    results[2].data
+    ||
+    [];
+
+  variants =
+    results[3].data
+    ||
+    [];
+
+  productImages =
+    results[4].data
+    ||
+    [];
+
+  inventory =
+    results[5].data
+    ||
+    [];
+
+
+  if(
+    !selectedRegionId
+    ||
+    !regions.some(
+      item =>
+        item.id
+        ===
+        selectedRegionId
+    )
+  ){
+
+    selectedRegionId =
+      regions[0]?.id
+      ||
+      null;
+
+
+    if(selectedRegionId){
+
+      localStorage.setItem(
+        "mallRegionId",
+        selectedRegionId
+      );
+
     }
 
-    function searchProducts() {
-      const keyword =
-        document
-          .getElementById("searchInput")
-          .value
-          .trim()
-          .toLowerCase();
+  }
 
-      const products =
-        document.querySelectorAll(".product");
 
-      products.forEach(function(product) {
-        const searchText =
-          (
-            product.getAttribute("data-search-" + currentLanguage) ||
-            product.getAttribute("data-search-zh") ||
-            ""
-          ).toLowerCase();
+  rebuildMaps();
 
-        if (searchText.includes(keyword)) {
-          product.style.display = "block";
-        } else {
-          product.style.display = "none";
-        }
-      });
+  renderPublic();
+
+}
+
+
+/* ==========================================================
+   MAPS
+========================================================== */
+
+function rebuildMaps(){
+
+  regionMap = {};
+  categoryMap = {};
+  productMap = {};
+  variantMap = {};
+  imageMap = {};
+  inventoryMap = {};
+
+
+  regions.forEach(
+    item => {
+
+      regionMap[
+        item.id
+      ] =
+        item;
+
+    }
+  );
+
+
+  categories.forEach(
+    item => {
+
+      categoryMap[
+        item.id
+      ] =
+        item;
+
+    }
+  );
+
+
+  products.forEach(
+    item => {
+
+      productMap[
+        item.id
+      ] =
+        item;
+
+    }
+  );
+
+
+  variants.forEach(
+    item => {
+
+      variantMap[
+        item.id
+      ] =
+        item;
+
+    }
+  );
+
+
+  productImages.forEach(
+    item => {
+
+      if(
+        !imageMap[
+          item.product_id
+        ]
+      ){
+
+        imageMap[
+          item.product_id
+        ] = [];
+
+      }
+
+
+      imageMap[
+        item.product_id
+      ]
+      .push(item);
+
+    }
+  );
+
+
+  inventory.forEach(
+    item => {
+
+      inventoryMap[
+        `${item.region_id}:${item.variant_id}`
+      ] =
+        item;
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   NAVIGATION
+========================================================== */
+
+function goView(
+  viewName,
+  navButton = null
+){
+
+  document
+    .querySelectorAll(
+      ".view"
+    )
+    .forEach(
+      view =>
+        view.classList
+          .remove("active")
+    );
+
+
+  el(viewName)
+    .classList
+    .add("active");
+
+
+  document
+    .querySelectorAll(
+      ".nav-item"
+    )
+    .forEach(
+      button =>
+        button.classList
+          .remove("active")
+    );
+
+
+  if(navButton){
+
+    navButton.classList
+      .add("active");
+
+  }
+  else{
+
+    const matching =
+      document.querySelector(
+        `.nav-item[data-view="${viewName}"]`
+      );
+
+
+    if(matching){
+
+      matching.classList
+        .add("active");
+
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-      const savedLanguage =
-        localStorage.getItem("mallLanguage") || "zh";
+  }
 
-      document.getElementById("languageSelect").value =
-        savedLanguage;
 
-      changeLanguage(savedLanguage);
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
+
+
+  if(
+    viewName
+    ===
+    "cart"
+  ){
+
+    renderCart();
+
+  }
+
+
+  if(
+    viewName
+    ===
+    "orders"
+  ){
+
+    loadOrders();
+
+  }
+
+
+  if(
+    viewName
+    ===
+    "account"
+  ){
+
+    renderAccount();
+
+  }
+
+}
+
+
+function goCategories(){
+
+  goView("home");
+
+  setTimeout(
+    () => {
+
+      document
+        .getElementById(
+          "categoryGrid"
+        )
+        .scrollIntoView(
+          {
+            behavior:"smooth",
+            block:"start"
+          }
+        );
+
+    },
+    80
+  );
+
+}
+
+
+function scrollToProducts(){
+
+  document
+    .getElementById(
+      "productSection"
+    )
+    .scrollIntoView(
+      {
+        behavior:"smooth"
+      }
+    );
+
+}
+
+
+/* ==========================================================
+   PUBLIC RENDER
+========================================================== */
+
+function renderPublic(){
+
+  renderRegions();
+
+  renderCategories();
+
+  applyProductFilters();
+
+  renderRegisterRegions();
+
+  updateCartCount();
+
+}
+
+
+function renderAll(){
+
+  renderPublic();
+
+  if(
+    currentProductId
+  ){
+
+    renderProductDetail();
+
+  }
+
+  renderCart();
+
+  renderAccount();
+
+}
+
+
+function renderRegions(){
+
+  if(
+    regions.length === 0
+  ){
+
+    el("regionStrip")
+      .innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  el("regionStrip")
+    .innerHTML =
+    regions
+      .map(
+        region => `
+
+          <button
+            class="region-pill ${
+              region.id
+              ===
+              selectedRegionId
+              ?
+              "active"
+              :
+              ""
+            }"
+            onclick="selectRegion('${region.id}')"
+          >
+
+            📍 ${escapeHtml(
+              getRegionName(
+                region
+              )
+            )}
+
+          </button>
+
+        `
+      )
+      .join("");
+
+}
+
+
+function selectRegion(regionId){
+
+  if(
+    regionId
+    ===
+    selectedRegionId
+  ){
+    return;
+  }
+
+
+  selectedRegionId =
+    regionId;
+
+
+  localStorage.setItem(
+    "mallRegionId",
+    regionId
+  );
+
+
+  selectedCategoryId =
+    null;
+
+
+  renderRegions();
+
+  renderCategories();
+
+  applyProductFilters();
+
+  renderCart();
+
+
+  showMessage(
+    t("regionChangedCart")
+  );
+
+}
+
+
+function renderCategories(){
+
+  const topCategories =
+    categories
+      .filter(
+        item =>
+          item.level
+          ===
+          1
+      );
+
+
+  el("categoryGrid")
+    .innerHTML =
+    topCategories
+      .map(
+        category => `
+
+          <div
+            class="category-card ${
+              selectedCategoryId
+              ===
+              category.id
+              ?
+              "active"
+              :
+              ""
+            }"
+            onclick="selectCategory('${category.id}')"
+          >
+
+            <div class="category-icon">
+
+              ${
+                escapeHtml(
+                  category.icon
+                  ||
+                  "🍪"
+                )
+              }
+
+            </div>
+
+            <div class="category-name">
+
+              ${
+                escapeHtml(
+                  getCategoryName(
+                    category
+                  )
+                )
+              }
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+function selectCategory(categoryId){
+
+  selectedCategoryId =
+    categoryId;
+
+  renderCategories();
+
+  applyProductFilters();
+
+  scrollToProducts();
+
+}
+
+
+function clearCategoryFilter(){
+
+  selectedCategoryId =
+    null;
+
+  renderCategories();
+
+  applyProductFilters();
+
+}
+
+
+function childCategoryIds(
+  parentId
+){
+
+  return categories
+    .filter(
+      item =>
+        item.parent_id
+        ===
+        parentId
+    )
+    .map(
+      item =>
+        item.id
+    );
+
+}
+
+
+function productHasRegionStock(
+  productId
+){
+
+  const productVariants =
+    variants
+      .filter(
+        variant =>
+          variant.product_id
+          ===
+          productId
+      );
+
+
+  return productVariants
+    .some(
+      variant =>
+        availableQty(
+          variant.id
+        )
+        >
+        0
+    );
+
+}
+
+
+function applyProductFilters(){
+
+  const search =
+    (
+      el("searchInput")
+        ?.value
+      ||
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  const categoryIds =
+    selectedCategoryId
+    ?
+    [
+      selectedCategoryId,
+      ...childCategoryIds(
+        selectedCategoryId
+      )
+    ]
+    :
+    null;
+
+
+  const filtered =
+    products
+      .filter(
+        product => {
+
+          if(
+            categoryIds
+            &&
+            !categoryIds.includes(
+              product.category_id
+            )
+          ){
+
+            return false;
+
+          }
+
+
+          if(search){
+
+            const text = [
+              product.name_zh,
+              product.name_en,
+              product.name_my,
+              product.name_th,
+              product.brand,
+              product.product_code,
+              product.description_zh,
+              product.description_en
+            ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+            if(
+              !text.includes(
+                search
+              )
+            ){
+
+              return false;
+
+            }
+
+          }
+
+
+          return true;
+
+        }
+      );
+
+
+  renderProducts(
+    filtered
+  );
+
+}
+
+
+function productMinimumPrice(
+  productId
+){
+
+  const list =
+    variants
+      .filter(
+        item =>
+          item.product_id
+          ===
+          productId
+      );
+
+
+  if(
+    list.length === 0
+  ){
+
+    return 0;
+
+  }
+
+
+  return Math.min(
+    ...list.map(
+      item =>
+        Number(
+          item.retail_price
+          ||
+          0
+        )
+    )
+  );
+
+}
+
+
+function productWholesalePrice(
+  productId
+){
+
+  const list =
+    variants
+      .filter(
+        item =>
+          item.product_id
+          ===
+          productId
+        &&
+        item.wholesale_price
+        !==
+        null
+      );
+
+
+  if(
+    list.length === 0
+  ){
+
+    return null;
+
+  }
+
+
+  return Math.min(
+    ...list.map(
+      item =>
+        Number(
+          item.wholesale_price
+        )
+    )
+  );
+
+}
+
+
+function productStockQty(
+  productId
+){
+
+  return variants
+    .filter(
+      item =>
+        item.product_id
+        ===
+        productId
+    )
+    .reduce(
+      (
+        sum,
+        variant
+      ) =>
+        sum
+        +
+        availableQty(
+          variant.id
+        ),
+      0
+    );
+
+}
+
+
+function renderProducts(list){
+
+  const region =
+    getCurrentRegion();
+
+
+  el("productSubtitle")
+    .textContent =
+    (
+      region
+      ?
+      `${t("selectedRegion")}：${getRegionName(region)}`
+      :
+      t("chooseRegion")
+    )
+    +
+    ` · ${list.length}`;
+
+
+  if(
+    list.length === 0
+  ){
+
+    el("productGrid")
+      .innerHTML =
+      emptyState(
+        t("noProducts"),
+        "🛍️"
+      );
+
+    return;
+
+  }
+
+
+  el("productGrid")
+    .innerHTML =
+    list
+      .map(
+        product => {
+
+          const image =
+            productImageUrl(
+              product.id
+            );
+
+          const price =
+            productMinimumPrice(
+              product.id
+            );
+
+          const wholesale =
+            productWholesalePrice(
+              product.id
+            );
+
+          const stock =
+            productStockQty(
+              product.id
+            );
+
+
+          return `
+
+            <article class="product-card">
+
+              <div
+                class="product-image-wrap"
+                onclick="openProduct('${product.id}')"
+              >
+
+                ${
+                  image
+                  ?
+
+                  `
+
+                  <img
+                    class="product-image"
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(getProductName(product))}"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                  >
+
+                  <div
+                    class="product-placeholder"
+                    style="display:none"
+                  >
+                    ${escapeHtml(productEmoji(product))}
+                  </div>
+
+                  `
+
+                  :
+
+                  `
+
+                  <div class="product-placeholder">
+
+                    ${escapeHtml(productEmoji(product))}
+
+                  </div>
+
+                  `
+                }
+
+
+                ${
+                  product.is_featured
+                  ?
+
+                  `
+
+                  <span class="featured-tag">
+                    HOT
+                  </span>
+
+                  `
+
+                  :
+                  ""
+                }
+
+
+                <span
+                  class="stock-tag ${
+                    stock <= 0
+                    ?
+                    "out"
+                    :
+                    ""
+                  }"
+                >
+
+                  ${
+                    stock > 0
+                    ?
+                    `${t("available")} ${stock}`
+                    :
+                    t("outOfStock")
+                  }
+
+                </span>
+
+              </div>
+
+
+              <div class="product-body">
+
+                <div class="product-brand">
+
+                  ${
+                    escapeHtml(
+                      product.brand
+                      ||
+                      product.origin_country
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+                <div
+                  class="product-name"
+                  onclick="openProduct('${product.id}')"
+                  style="cursor:pointer"
+                >
+
+                  ${
+                    escapeHtml(
+                      getProductName(
+                        product
+                      )
+                    )
+                  }
+
+                </div>
+
+
+                <div class="product-price">
+
+                  ${money(price)}
+
+                </div>
+
+
+                <div class="product-wholesale">
+
+                  ${
+                    wholesale !== null
+                    ?
+                    `${t("wholesale")} ${money(wholesale)}`
+                    :
+                    "&nbsp;"
+                  }
+
+                </div>
+
+
+                <div class="product-actions">
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="openProduct('${product.id}')"
+                  >
+                    ${escapeHtml(t("productDetail"))}
+                  </button>
+
+                  <button
+                    class="btn btn-primary btn-small"
+                    onclick="quickAddProduct('${product.id}')"
+                    ${stock <= 0 ? "disabled" : ""}
+                  >
+                    +
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* ==========================================================
+   PRODUCT DETAIL
+========================================================== */
+
+function openProduct(productId){
+
+  currentProductId =
+    productId;
+
+
+  const list =
+    variants
+      .filter(
+        item =>
+          item.product_id
+          ===
+          productId
+      );
+
+
+  currentVariantId =
+    list.find(
+      variant =>
+        availableQty(
+          variant.id
+        )
+        >
+        0
+    )?.id
+    ||
+    list[0]?.id
+    ||
+    null;
+
+
+  currentPurchaseMode =
+    "retail";
+
+  currentProductQty =
+    1;
+
+
+  renderProductDetail();
+
+  goView(
+    "productDetail"
+  );
+
+}
+
+
+function renderProductDetail(){
+
+  const product =
+    productMap[
+      currentProductId
+    ];
+
+
+  if(!product){
+
+    el("productDetailContent")
+      .innerHTML =
+      emptyState(
+        t("networkError"),
+        "⚠️"
+      );
+
+    return;
+
+  }
+
+
+  const list =
+    variants
+      .filter(
+        item =>
+          item.product_id
+          ===
+          product.id
+      );
+
+
+  const variant =
+    variantMap[
+      currentVariantId
+    ]
+    ||
+    list[0];
+
+
+  if(
+    variant
+    &&
+    !currentVariantId
+  ){
+
+    currentVariantId =
+      variant.id;
+
+  }
+
+
+  const image =
+    productImageUrl(
+      product.id
+    );
+
+
+  const stock =
+    variant
+    ?
+    availableQty(
+      variant.id
+    )
+    :
+    0;
+
+
+  const wholesaleAvailable =
+    variant
+    &&
+    variant.wholesale_price
+    !==
+    null;
+
+
+  if(
+    currentPurchaseMode
+    ===
+    "wholesale"
+    &&
+    !wholesaleAvailable
+  ){
+
+    currentPurchaseMode =
+      "retail";
+
+  }
+
+
+  const price =
+    variant
+    ?
+    (
+      currentPurchaseMode
+      ===
+      "wholesale"
+      ?
+      Number(
+        variant.wholesale_price
+        ||
+        0
+      )
+      :
+      Number(
+        variant.retail_price
+        ||
+        0
+      )
+    )
+    :
+    0;
+
+
+  el("productDetailContent")
+    .innerHTML = `
+
+      <div class="detail-grid">
+
+        <div class="detail-image">
+
+          ${
+            image
+            ?
+
+            `
+
+            <img
+              src="${escapeHtml(image)}"
+              alt="${escapeHtml(getProductName(product))}"
+            >
+
+            `
+
+            :
+
+            `
+
+            <div class="detail-placeholder">
+
+              ${escapeHtml(productEmoji(product))}
+
+            </div>
+
+            `
+          }
+
+        </div>
+
+
+        <div class="detail-info">
+
+          <div class="detail-brand">
+
+            ${
+              escapeHtml(
+                product.brand
+                ||
+                product.origin_country
+                ||
+                ""
+              )
+            }
+
+          </div>
+
+
+          <div class="detail-title">
+
+            ${
+              escapeHtml(
+                getProductName(
+                  product
+                )
+              )
+            }
+
+          </div>
+
+
+          <div class="detail-description">
+
+            ${
+              escapeHtml(
+                product[
+                  `description_${appLanguage}`
+                ]
+                ||
+                product.description_zh
+                ||
+                ""
+              )
+            }
+
+          </div>
+
+
+          <div class="variant-list">
+
+            ${
+              list
+                .map(
+                  item => `
+
+                    <button
+                      class="variant-chip ${
+                        item.id
+                        ===
+                        currentVariantId
+                        ?
+                        "active"
+                        :
+                        ""
+                      }"
+                      onclick="selectVariant('${item.id}')"
+                    >
+
+                      ${
+                        escapeHtml(
+                          getVariantName(
+                            item
+                          )
+                        )
+                      }
+
+                    </button>
+
+                  `
+                )
+                .join("")
+            }
+
+          </div>
+
+
+          ${
+            variant
+            ?
+
+            `
+
+            <div class="purchase-mode">
+
+              <div
+                class="mode-card ${
+                  currentPurchaseMode
+                  ===
+                  "retail"
+                  ?
+                  "active"
+                  :
+                  ""
+                }"
+                onclick="setPurchaseMode('retail')"
+              >
+
+                <div class="mode-title">
+                  ${escapeHtml(t("retail"))}
+                </div>
+
+                <div class="mode-price">
+
+                  ${money(variant.retail_price)}
+
+                </div>
+
+                <div class="mode-note">
+
+                  ${
+                    escapeHtml(
+                      variant.sales_unit_zh
+                      ||
+                      variant.sales_unit_code
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+              </div>
+
+
+              <div
+                class="mode-card ${
+                  currentPurchaseMode
+                  ===
+                  "wholesale"
+                  ?
+                  "active"
+                  :
+                  ""
+                }"
+                onclick="${
+                  wholesaleAvailable
+                  ?
+                  "setPurchaseMode('wholesale')"
+                  :
+                  ""
+                }"
+                style="${
+                  wholesaleAvailable
+                  ?
+                  ""
+                  :
+                  "opacity:.45;cursor:not-allowed"
+                }"
+              >
+
+                <div class="mode-title">
+                  ${escapeHtml(t("wholesale"))}
+                </div>
+
+                <div class="mode-price">
+
+                  ${
+                    wholesaleAvailable
+                    ?
+                    money(
+                      variant.wholesale_price
+                    )
+                    :
+                    "—"
+                  }
+
+                </div>
+
+                <div class="mode-note">
+
+                  ${
+                    wholesaleAvailable
+                    ?
+                    `${t("wholesaleFrom")} ${variant.wholesale_min_qty || 1}`
+                    :
+                    "—"
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="qty-row">
+
+              <div>
+
+                <div style="font-size:11px;font-weight:900">
+
+                  ${escapeHtml(t("quantity"))}
+
+                </div>
+
+                <div
+                  style="
+                    margin-top:3px;
+                    color:var(--muted);
+                    font-size:9px
+                  "
+                >
+
+                  ${escapeHtml(t("available"))} ${stock}
+
+                </div>
+
+              </div>
+
+
+              <div class="qty-control">
+
+                <button onclick="changeDetailQty(-1)">
+                  −
+                </button>
+
+                <span>
+                  ${currentProductQty}
+                </span>
+
+                <button onclick="changeDetailQty(1)">
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              style="
+                margin-top:15px;
+                font-size:21px;
+                color:var(--orange);
+                font-weight:1000
+              "
+            >
+
+              ${money(
+                price
+                *
+                currentProductQty
+              )}
+
+            </div>
+
+
+            <button
+              class="btn btn-primary btn-block"
+              style="margin-top:12px"
+              onclick="addCurrentProductToCart()"
+              ${stock <= 0 ? "disabled" : ""}
+            >
+
+              ${
+                stock <= 0
+                ?
+                escapeHtml(t("soldOut"))
+                :
+                `🛒 ${escapeHtml(t("addCart"))}`
+              }
+
+            </button>
+
+            `
+
+            :
+
+            emptyState(
+              t("noProducts"),
+              "📦"
+            )
+          }
+
+        </div>
+
+      </div>
+
+  `;
+
+}
+
+
+function selectVariant(
+  variantId
+){
+
+  currentVariantId =
+    variantId;
+
+  currentPurchaseMode =
+    "retail";
+
+  currentProductQty =
+    1;
+
+  renderProductDetail();
+
+}
+
+
+function setPurchaseMode(mode){
+
+  const variant =
+    variantMap[
+      currentVariantId
+    ];
+
+
+  if(!variant){
+    return;
+  }
+
+
+  if(
+    mode
+    ===
+    "wholesale"
+    &&
+    variant.wholesale_price
+    ===
+    null
+  ){
+
+    return;
+
+  }
+
+
+  currentPurchaseMode =
+    mode;
+
+
+  if(
+    mode
+    ===
+    "wholesale"
+  ){
+
+    currentProductQty =
+      Math.max(
+        currentProductQty,
+        Number(
+          variant.wholesale_min_qty
+          ||
+          1
+        )
+      );
+
+  }
+
+
+  renderProductDetail();
+
+}
+
+
+function changeDetailQty(delta){
+
+  const variant =
+    variantMap[
+      currentVariantId
+    ];
+
+
+  if(!variant){
+    return;
+  }
+
+
+  const max =
+    availableQty(
+      variant.id
+    );
+
+
+  const min =
+    currentPurchaseMode
+    ===
+    "wholesale"
+    ?
+    Number(
+      variant.wholesale_min_qty
+      ||
+      1
+    )
+    :
+    1;
+
+
+  currentProductQty =
+    Math.max(
+      min,
+      Math.min(
+        max || min,
+        currentProductQty
+        +
+        delta
+      )
+    );
+
+
+  renderProductDetail();
+
+}
+
+
+function addCurrentProductToCart(){
+
+  addVariantToCart(
+    currentVariantId,
+    currentPurchaseMode,
+    currentProductQty
+  );
+
+}
+
+
+function quickAddProduct(
+  productId
+){
+
+  const variant =
+    variants
+      .find(
+        item =>
+          item.product_id
+          ===
+          productId
+        &&
+        availableQty(
+          item.id
+        )
+        >
+        0
+      );
+
+
+  if(!variant){
+
+    showMessage(
+      t("soldOut")
+    );
+
+    return;
+
+  }
+
+
+  addVariantToCart(
+    variant.id,
+    "retail",
+    1
+  );
+
+}
+
+
+/* ==========================================================
+   CART
+========================================================== */
+
+function addVariantToCart(
+  variantId,
+  mode,
+  quantity
+){
+
+  const variant =
+    variantMap[
+      variantId
+    ];
+
+
+  if(!variant){
+    return;
+  }
+
+
+  const stock =
+    availableQty(
+      variantId
+    );
+
+
+  if(
+    stock <= 0
+  ){
+
+    showMessage(
+      t("soldOut")
+    );
+
+    return;
+
+  }
+
+
+  if(
+    mode
+    ===
+    "wholesale"
+  ){
+
+    const min =
+      Number(
+        variant.wholesale_min_qty
+        ||
+        1
+      );
+
+
+    if(
+      quantity < min
+    ){
+
+      showMessage(
+        t("wholesaleMinimum")
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  const existing =
+    localCart.find(
+      item =>
+        item.region_id
+        ===
+        selectedRegionId
+      &&
+        item.variant_id
+        ===
+        variantId
+      &&
+        item.purchase_mode
+        ===
+        mode
+    );
+
+
+  if(existing){
+
+    existing.quantity =
+      Math.min(
+        stock,
+        existing.quantity
+        +
+        quantity
+      );
+
+  }
+  else{
+
+    localCart.push({
+
+      region_id:
+        selectedRegionId,
+
+      variant_id:
+        variantId,
+
+      purchase_mode:
+        mode,
+
+      quantity:
+        Math.min(
+          stock,
+          quantity
+        )
+
     });
-  </script>
+
+  }
+
+
+  saveLocalCart();
+
+  renderCart();
+
+  showMessage(
+    t("productAdded")
+  );
+
+}
+
+
+function currentRegionCart(){
+
+  return localCart
+    .filter(
+      item =>
+        item.region_id
+        ===
+        selectedRegionId
+    );
+
+}
+
+
+function updateCartCount(){
+
+  const count =
+    currentRegionCart()
+      .reduce(
+        (
+          sum,
+          item
+        ) =>
+          sum
+          +
+          Number(
+            item.quantity
+            ||
+            0
+          ),
+        0
+      );
+
+
+  [
+    "topCartCount",
+    "bottomCartCount"
+  ]
+  .forEach(
+    id => {
+
+      const node =
+        el(id);
+
+
+      if(!node){
+        return;
+      }
+
+
+      node.textContent =
+        count;
+
+
+      node.classList
+        .toggle(
+          "hidden",
+          count <= 0
+        );
+
+    }
+  );
+
+}
+
+
+function cartItemPrice(item){
+
+  const variant =
+    variantMap[
+      item.variant_id
+    ];
+
+
+  if(!variant){
+    return 0;
+  }
+
+
+  return item.purchase_mode
+    ===
+    "wholesale"
+    ?
+    Number(
+      variant.wholesale_price
+      ||
+      0
+    )
+    :
+    Number(
+      variant.retail_price
+      ||
+      0
+    );
+
+}
+
+
+function cartSubtotal(){
+
+  return currentRegionCart()
+    .reduce(
+      (
+        sum,
+        item
+      ) =>
+        sum
+        +
+        cartItemPrice(
+          item
+        )
+        *
+        Number(
+          item.quantity
+        ),
+      0
+    );
+
+}
+
+
+function renderCart(){
+
+  const list =
+    currentRegionCart();
+
+
+  updateCartCount();
+
+
+  if(
+    list.length === 0
+  ){
+
+    el("cartContent")
+      .innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            🛒
+          </div>
+
+          ${escapeHtml(t("emptyCart"))}
+
+          <div style="margin-top:12px">
+
+            <button
+              class="btn btn-primary"
+              onclick="goView('home')"
+            >
+
+              ${escapeHtml(t("continueShopping"))}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    return;
+
+  }
+
+
+  const itemHtml =
+    list
+      .map(
+        item => {
+
+          const variant =
+            variantMap[
+              item.variant_id
+            ];
+
+          const product =
+            productMap[
+              variant?.product_id
+            ];
+
+          const image =
+            product
+            ?
+            productImageUrl(
+              product.id
+            )
+            :
+            "";
+
+          const price =
+            cartItemPrice(
+              item
+            );
+
+          const stock =
+            availableQty(
+              item.variant_id
+            );
+
+
+          return `
+
+            <div class="cart-item">
+
+              <div class="cart-thumb">
+
+                ${
+                  image
+                  ?
+
+                  `
+
+                  <img
+                    src="${escapeHtml(image)}"
+                    alt=""
+                  >
+
+                  `
+
+                  :
+
+                  `
+
+                  <div class="cart-thumb-placeholder">
+
+                    ${
+                      escapeHtml(
+                        productEmoji(
+                          product
+                        )
+                      )
+                    }
+
+                  </div>
+
+                  `
+                }
+
+              </div>
+
+
+              <div>
+
+                <div class="cart-name">
+
+                  ${
+                    escapeHtml(
+                      getProductName(
+                        product
+                      )
+                    )
+                  }
+
+                </div>
+
+
+                <div class="cart-meta">
+
+                  ${
+                    escapeHtml(
+                      getVariantName(
+                        variant
+                      )
+                    )
+                  }
+
+                  ·
+
+                  ${
+                    item.purchase_mode
+                    ===
+                    "wholesale"
+                    ?
+                    escapeHtml(
+                      t("wholesale")
+                    )
+                    :
+                    escapeHtml(
+                      t("retail")
+                    )
+                  }
+
+                </div>
+
+
+                <div class="cart-line">
+
+                  <div>
+
+                    <div class="cart-price">
+
+                      ${
+                        money(
+                          price
+                          *
+                          item.quantity
+                        )
+                      }
+
+                    </div>
+
+                    <div class="small">
+
+                      ${
+                        escapeHtml(
+                          t("available")
+                        )
+                      }
+                      ${stock}
+
+                    </div>
+
+                  </div>
+
+
+                  <div>
+
+                    <div class="mini-qty">
+
+                      <button
+                        onclick="changeCartQty(
+                          '${item.variant_id}',
+                          '${item.purchase_mode}',
+                          -1
+                        )"
+                      >
+                        −
+                      </button>
+
+                      <strong>
+                        ${item.quantity}
+                      </strong>
+
+                      <button
+                        onclick="changeCartQty(
+                          '${item.variant_id}',
+                          '${item.purchase_mode}',
+                          1
+                        )"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+
+                    <button
+                      class="remove-btn"
+                      onclick="removeCartItem(
+                        '${item.variant_id}',
+                        '${item.purchase_mode}'
+                      )"
+                    >
+                      ×
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  const subtotal =
+    cartSubtotal();
+
+
+  el("cartContent")
+    .innerHTML = `
+
+      <div class="cart-layout">
+
+        <div class="cart-list">
+
+          ${itemHtml}
+
+        </div>
+
+
+        <aside class="summary-card">
+
+          <div class="summary-title">
+
+            ${escapeHtml(t("checkout"))}
+
+          </div>
+
+
+          <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("itemCount"))}
+            </span>
+
+            <strong>
+              ${
+                list.reduce(
+                  (
+                    sum,
+                    item
+                  ) =>
+                    sum
+                    +
+                    item.quantity,
+                  0
+                )
+              }
+            </strong>
+
+          </div>
+
+
+          <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("subtotal"))}
+            </span>
+
+            <strong>
+              ${money(subtotal)}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-total">
+
+            <span>
+              ${escapeHtml(t("total"))}
+            </span>
+
+            <span>
+              ${money(subtotal)}
+            </span>
+
+          </div>
+
+
+          <button
+            class="btn btn-primary btn-block"
+            onclick="startCheckout()"
+          >
+
+            ${escapeHtml(t("proceedCheckout"))}
+
+          </button>
+
+        </aside>
+
+      </div>
+
+    `;
+
+}
+
+
+function changeCartQty(
+  variantId,
+  mode,
+  delta
+){
+
+  const item =
+    localCart.find(
+      item =>
+        item.region_id
+        ===
+        selectedRegionId
+      &&
+        item.variant_id
+        ===
+        variantId
+      &&
+        item.purchase_mode
+        ===
+        mode
+    );
+
+
+  if(!item){
+    return;
+  }
+
+
+  const variant =
+    variantMap[
+      variantId
+    ];
+
+
+  const stock =
+    availableQty(
+      variantId
+    );
+
+
+  let min =
+    1;
+
+
+  if(
+    mode
+    ===
+    "wholesale"
+  ){
+
+    min =
+      Number(
+        variant?.wholesale_min_qty
+        ||
+        1
+      );
+
+  }
+
+
+  const next =
+    item.quantity
+    +
+    delta;
+
+
+  if(
+    next < min
+  ){
+
+    if(
+      confirm(
+        t("cancelOrder")
+        +
+        "?"
+      )
+    ){
+
+      removeCartItem(
+        variantId,
+        mode
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  item.quantity =
+    Math.min(
+      stock,
+      next
+    );
+
+
+  saveLocalCart();
+
+  renderCart();
+
+}
+
+
+function removeCartItem(
+  variantId,
+  mode
+){
+
+  localCart =
+    localCart.filter(
+      item =>
+        !(
+          item.region_id
+          ===
+          selectedRegionId
+          &&
+          item.variant_id
+          ===
+          variantId
+          &&
+          item.purchase_mode
+          ===
+          mode
+        )
+    );
+
+
+  saveLocalCart();
+
+  renderCart();
+
+}
+
+
+/* ==========================================================
+   AUTH
+========================================================== */
+
+function openAuthModal(
+  mode = "login"
+){
+
+  setAuthMode(
+    mode
+  );
+
+  el("authOverlay")
+    .classList
+    .remove("hidden");
+
+  document.body
+    .classList
+    .add("no-scroll");
+
+}
+
+
+function closeAuthModal(){
+
+  el("authOverlay")
+    .classList
+    .add("hidden");
+
+  document.body
+    .classList
+    .remove("no-scroll");
+
+}
+
+
+function setAuthMode(mode){
+
+  authMode =
+    mode;
+
+
+  el("loginTab")
+    .classList
+    .toggle(
+      "active",
+      mode === "login"
+    );
+
+
+  el("registerTab")
+    .classList
+    .toggle(
+      "active",
+      mode === "register"
+    );
+
+
+  el("authLoginForm")
+    .classList
+    .toggle(
+      "hidden",
+      mode !== "login"
+    );
+
+
+  el("authRegisterForm")
+    .classList
+    .toggle(
+      "hidden",
+      mode !== "register"
+    );
+
+
+  hideAuthMessage();
+
+}
+
+
+function showAuthMessage(
+  message
+){
+
+  el("authMessage")
+    .textContent =
+    message;
+
+  el("authMessage")
+    .classList
+    .remove("hidden");
+
+}
+
+
+function hideAuthMessage(){
+
+  el("authMessage")
+    .classList
+    .add("hidden");
+
+}
+
+
+function renderRegisterRegions(){
+
+  const options =
+    regions
+      .map(
+        region => `
+
+          <option value="${region.id}">
+
+            ${
+              escapeHtml(
+                getRegionName(
+                  region
+                )
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  el("registerRegion")
+    .innerHTML =
+    options;
+
+
+  el("profileSetupRegion")
+    .innerHTML =
+    options;
+
+
+  if(selectedRegionId){
+
+    el("registerRegion").value =
+      selectedRegionId;
+
+    el("profileSetupRegion").value =
+      selectedRegionId;
+
+  }
+
+}
+
+
+async function customerLogin(){
+
+  const email =
+    el("loginEmail")
+      .value
+      .trim();
+
+  const password =
+    el("loginPassword")
+      .value;
+
+
+  if(
+    !email
+    ||
+    !password
+  ){
+
+    showAuthMessage(
+      "Email / Password required."
+    );
+
+    return;
+
+  }
+
+
+  showAuthMessage(
+    t("loading")
+  );
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth
+      .signInWithPassword({
+
+        email:
+          email,
+
+        password:
+          password
+
+      });
+
+
+  if(error){
+
+    showAuthMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  currentUser =
+    data.user;
+
+
+  closeAuthModal();
+
+  await initializeCustomer();
+
+}
+
+
+async function customerRegister(){
+
+  const name =
+    el("registerName")
+      .value
+      .trim();
+
+  const phone =
+    el("registerPhone")
+      .value
+      .trim();
+
+  const email =
+    el("registerEmail")
+      .value
+      .trim();
+
+  const password =
+    el("registerPassword")
+      .value;
+
+  const regionId =
+    el("registerRegion")
+      .value;
+
+
+  if(
+    !name
+    ||
+    !phone
+    ||
+    !email
+    ||
+    password.length < 8
+    ||
+    !regionId
+  ){
+
+    showAuthMessage(
+      "Please complete all fields. Password minimum 8 characters."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth
+      .signUp({
+
+        email:
+          email,
+
+        password:
+          password
+
+      });
+
+
+  if(error){
+
+    showAuthMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    data.session
+    &&
+    data.user
+  ){
+
+    currentUser =
+      data.user;
+
+
+    const profileResult =
+      await db
+        .from(
+          "customer_profiles"
+        )
+        .insert({
+
+          id:
+            data.user.id,
+
+          full_name:
+            name,
+
+          phone:
+            phone,
+
+          default_region_id:
+            regionId,
+
+          preferred_language:
+            appLanguage,
+
+          status:
+            "active"
+
+        });
+
+
+    if(
+      profileResult.error
+    ){
+
+      showAuthMessage(
+        profileResult.error.message
+      );
+
+      return;
+
+    }
+
+
+    closeAuthModal();
+
+    await initializeCustomer();
+
+    showMessage(
+      t("registerSuccess")
+    );
+
+  }
+  else{
+
+    localStorage.setItem(
+      "pendingCustomerProfile",
+      JSON.stringify({
+
+        full_name:
+          name,
+
+        phone:
+          phone,
+
+        default_region_id:
+          regionId,
+
+        preferred_language:
+          appLanguage
+
+      })
+    );
+
+
+    showAuthMessage(
+      t("verifyEmail")
+    );
+
+  }
+
+}
+
+
+async function checkSession(){
+
+  const {
+    data
+  } =
+    await db.auth
+      .getSession();
+
+
+  if(
+    data.session
+  ){
+
+    currentUser =
+      data.session.user;
+
+    await initializeCustomer();
+
+  }
+
+}
+
+
+/* ==========================================================
+   CUSTOMER PROFILE
+========================================================== */
+
+async function initializeCustomer(){
+
+  if(!currentUser){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "customer_profiles"
+      )
+      .select("*")
+      .eq(
+        "id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  if(!data){
+
+    const pending =
+      localStorage.getItem(
+        "pendingCustomerProfile"
+      );
+
+
+    if(pending){
+
+      try{
+
+        const profile =
+          JSON.parse(
+            pending
+          );
+
+
+        const {
+          error:
+          insertError
+        } =
+          await db
+            .from(
+              "customer_profiles"
+            )
+            .insert({
+
+              id:
+                currentUser.id,
+
+              full_name:
+                profile.full_name,
+
+              phone:
+                profile.phone,
+
+              default_region_id:
+                profile.default_region_id,
+
+              preferred_language:
+                profile.preferred_language
+                ||
+                appLanguage,
+
+              status:
+                "active"
+
+            });
+
+
+        if(!insertError){
+
+          localStorage.removeItem(
+            "pendingCustomerProfile"
+          );
+
+          return await initializeCustomer();
+
+        }
+
+      }
+      catch{}
+
+    }
+
+
+    openProfileSetup();
+
+    return;
+
+  }
+
+
+  customerProfile =
+    data;
+
+
+  if(
+    customerProfile
+      .preferred_language
+  ){
+
+    appLanguage =
+      customerProfile
+        .preferred_language;
+
+    localStorage.setItem(
+      "mallLanguage",
+      appLanguage
+    );
+
+  }
+
+
+  if(
+    !selectedRegionId
+    &&
+    customerProfile
+      .default_region_id
+  ){
+
+    selectedRegionId =
+      customerProfile
+        .default_region_id;
+
+  }
+
+
+  await Promise.all([
+
+    loadAddresses(),
+    loadOrders()
+
+  ]);
+
+
+  applyLanguage();
+
+  renderPublic();
+
+  renderAccount();
+
+}
+
+
+function openProfileSetup(){
+
+  el("profileOverlay")
+    .classList
+    .remove("hidden");
+
+  document.body
+    .classList
+    .add("no-scroll");
+
+}
+
+
+async function saveInitialProfile(){
+
+  const name =
+    el("profileSetupName")
+      .value
+      .trim();
+
+  const phone =
+    el("profileSetupPhone")
+      .value
+      .trim();
+
+  const regionId =
+    el("profileSetupRegion")
+      .value;
+
+
+  if(
+    !name
+    ||
+    !phone
+    ||
+    !regionId
+  ){
+
+    showMessage(
+      "Please complete all fields."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "customer_profiles"
+      )
+      .insert({
+
+        id:
+          currentUser.id,
+
+        full_name:
+          name,
+
+        phone:
+          phone,
+
+        default_region_id:
+          regionId,
+
+        preferred_language:
+          appLanguage,
+
+        status:
+          "active"
+
+      });
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  el("profileOverlay")
+    .classList
+    .add("hidden");
+
+  document.body
+    .classList
+    .remove("no-scroll");
+
+
+  await initializeCustomer();
+
+}
+
+
+async function logoutCustomer(){
+
+  await db.auth.signOut();
+
+  currentUser =
+    null;
+
+  customerProfile =
+    null;
+
+  addresses = [];
+  orders = [];
+
+  renderAccount();
+
+  renderOrders();
+
+}
+
+
+/* ==========================================================
+   ADDRESS
+========================================================== */
+
+async function loadAddresses(){
+
+  if(!currentUser){
+
+    addresses = [];
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "customer_addresses"
+      )
+      .select("*")
+      .eq(
+        "customer_id",
+        currentUser.id
+      )
+      .eq(
+        "is_active",
+        true
+      )
+      .order(
+        "is_default",
+        {
+          ascending:false
+        }
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  addresses =
+    data
+    ||
+    [];
+
+
+  if(
+    !selectedCheckoutAddressId
+  ){
+
+    selectedCheckoutAddressId =
+      addresses.find(
+        item =>
+          item.is_default
+      )?.id
+      ||
+      addresses[0]?.id
+      ||
+      null;
+
+  }
+
+}
+
+
+async function saveAddress(){
+
+  if(!currentUser){
+
+    openAuthModal();
+
+    return;
+
+  }
+
+
+  const name =
+    el("newAddressName")
+      ?.value
+      .trim();
+
+  const phone =
+    el("newAddressPhone")
+      ?.value
+      .trim();
+
+  const regionId =
+    el("newAddressRegion")
+      ?.value;
+
+  const detail =
+    el("newAddressDetail")
+      ?.value
+      .trim();
+
+
+  if(
+    !name
+    ||
+    !phone
+    ||
+    !regionId
+    ||
+    !detail
+  ){
+
+    showMessage(
+      "Please complete recipient, phone, region and detailed address."
+    );
+
+    return;
+
+  }
+
+
+  const isDefault =
+    !!el("newAddressDefault")
+      ?.checked;
+
+
+  if(isDefault){
+
+    await db
+      .from(
+        "customer_addresses"
+      )
+      .update({
+        is_default:false
+      })
+      .eq(
+        "customer_id",
+        currentUser.id
+      );
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "customer_addresses"
+      )
+      .insert({
+
+        customer_id:
+          currentUser.id,
+
+        recipient_name:
+          name,
+
+        phone:
+          phone,
+
+        region_id:
+          regionId,
+
+        township:
+          el("newAddressTownship")
+            ?.value
+          ||
+          null,
+
+        street:
+          el("newAddressStreet")
+            ?.value
+          ||
+          null,
+
+        detailed_address:
+          detail,
+
+        label:
+          el("newAddressLabel")
+            ?.value
+          ||
+          null,
+
+        is_default:
+          isDefault,
+
+        is_active:
+          true
+
+      });
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  await loadAddresses();
+
+  showMessage(
+    t("addressSaved")
+  );
+
+
+  if(
+    document
+      .getElementById("checkout")
+      .classList
+      .contains("active")
+  ){
+
+    renderCheckout();
+
+  }
+  else{
+
+    renderAccount();
+
+  }
+
+}
+
+
+/* ==========================================================
+   CHECKOUT
+========================================================== */
+
+async function startCheckout(){
+
+  if(
+    currentRegionCart()
+      .length
+    ===
+    0
+  ){
+
+    return;
+
+  }
+
+
+  if(!currentUser){
+
+    openAuthModal(
+      "login"
+    );
+
+    showAuthMessage(
+      t("loginRequired")
+    );
+
+    return;
+
+  }
+
+
+  if(!customerProfile){
+
+    await initializeCustomer();
+
+    if(!customerProfile){
+      return;
+    }
+
+  }
+
+
+  await loadAddresses();
+
+  renderCheckout();
+
+  goView(
+    "checkout"
+  );
+
+}
+
+
+function renderAddressCards(){
+
+  if(
+    addresses.length === 0
+  ){
+
+    return `
+
+      <div class="empty">
+
+        ${escapeHtml(t("noAddress"))}
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="address-list">
+
+      ${
+        addresses
+          .map(
+            address => `
+
+              <div
+                class="address-card ${
+                  selectedCheckoutAddressId
+                  ===
+                  address.id
+                  ?
+                  "selected"
+                  :
+                  ""
+                }"
+                onclick="selectCheckoutAddress('${address.id}')"
+              >
+
+                <div class="address-head">
+
+                  <div class="address-name">
+
+                    ${
+                      escapeHtml(
+                        address.recipient_name
+                      )
+                    }
+
+                    ·
+
+                    ${
+                      escapeHtml(
+                        address.phone
+                      )
+                    }
+
+                  </div>
+
+
+                  ${
+                    address.is_default
+                    ?
+
+                    `
+
+                    <span class="default-badge">
+
+                      DEFAULT
+
+                    </span>
+
+                    `
+
+                    :
+                    ""
+                  }
+
+                </div>
+
+
+                <div class="address-detail">
+
+                  ${
+                    escapeHtml(
+                      getRegionName(
+                        regionMap[
+                          address.region_id
+                        ]
+                      )
+                    )
+                  }
+
+                  ${
+                    address.township
+                    ?
+                    " · "
+                    +
+                    escapeHtml(
+                      address.township
+                    )
+                    :
+                    ""
+                  }
+
+                  ${
+                    address.street
+                    ?
+                    " · "
+                    +
+                    escapeHtml(
+                      address.street
+                    )
+                    :
+                    ""
+                  }
+
+                  <br>
+
+                  ${
+                    escapeHtml(
+                      address.detailed_address
+                    )
+                  }
+
+                </div>
+
+              </div>
+
+            `
+          )
+          .join("")
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+function renderCheckout(){
+
+  const list =
+    currentRegionCart();
+
+
+  if(
+    list.length === 0
+  ){
+
+    el("checkoutContent")
+      .innerHTML =
+      emptyState(
+        t("emptyCart"),
+        "🛒"
+      );
+
+    return;
+
+  }
+
+
+  const regionOptions =
+    regions
+      .map(
+        region => `
+
+          <option
+            value="${region.id}"
+            ${
+              region.id
+              ===
+              selectedRegionId
+              ?
+              "selected"
+              :
+              ""
+            }
+          >
+
+            ${
+              escapeHtml(
+                getRegionName(
+                  region
+                )
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  el("checkoutContent")
+    .innerHTML = `
+
+      <div class="cart-layout">
+
+        <div>
+
+          <div class="form-card">
+
+            <div class="form-title">
+
+              ${escapeHtml(t("address"))}
+
+            </div>
+
+
+            ${renderAddressCards()}
+
+          </div>
+
+
+          <div class="form-card">
+
+            <div class="form-title">
+
+              ${escapeHtml(t("addAddress"))}
+
+            </div>
+
+
+            <div class="form-grid">
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("recipientName"))}
+                </label>
+
+                <input id="newAddressName">
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("phone"))}
+                </label>
+
+                <input
+                  id="newAddressPhone"
+                  type="tel"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("region"))}
+                </label>
+
+                <select id="newAddressRegion">
+
+                  ${regionOptions}
+
+                </select>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("township"))}
+                </label>
+
+                <input id="newAddressTownship">
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("street"))}
+                </label>
+
+                <input id="newAddressStreet">
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  ${escapeHtml(t("addressLabel"))}
+                </label>
+
+                <input
+                  id="newAddressLabel"
+                  placeholder="Home / Office"
+                >
+
+              </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                ${escapeHtml(t("detailedAddress"))}
+              </label>
+
+              <textarea id="newAddressDetail"></textarea>
+
+            </div>
+
+
+            <label
+              style="
+                display:flex;
+                gap:7px;
+                align-items:center;
+                font-size:10px;
+                margin-bottom:10px
+              "
+            >
+
+              <input
+                id="newAddressDefault"
+                type="checkbox"
+                style="width:auto"
+              >
+
+              ${escapeHtml(t("setDefault"))}
+
+            </label>
+
+
+            <button
+              class="btn btn-light"
+              onclick="saveAddress()"
+            >
+
+              ${escapeHtml(t("saveAddress"))}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <aside class="summary-card">
+
+          <div class="summary-title">
+
+            ${escapeHtml(t("checkout"))}
+
+          </div>
+
+
+          <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("selectedRegion"))}
+            </span>
+
+            <strong>
+
+              ${
+                escapeHtml(
+                  getRegionName(
+                    getCurrentRegion()
+                  )
+                )
+              }
+
+            </strong>
+
+          </div>
+
+
+          <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("itemCount"))}
+            </span>
+
+            <strong>
+
+              ${
+                list.reduce(
+                  (
+                    sum,
+                    item
+                  ) =>
+                    sum
+                    +
+                    item.quantity,
+                  0
+                )
+              }
+
+            </strong>
+
+          </div>
+
+
+          <div class="summary-total">
+
+            <span>
+              ${escapeHtml(t("subtotal"))}
+            </span>
+
+            <span>
+              ${money(cartSubtotal())}
+            </span>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("paymentMethod"))}
+            </label>
+
+            <select id="checkoutPaymentMethod">
+
+              <option value="cash">
+                ${escapeHtml(t("paymentMethodCash"))}
+              </option>
+
+              <option value="kpay">
+                ${escapeHtml(t("paymentMethodKpay"))}
+              </option>
+
+              <option value="wavepay">
+                ${escapeHtml(t("paymentMethodWave"))}
+              </option>
+
+              <option value="bank_transfer">
+                ${escapeHtml(t("paymentMethodBank"))}
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("customerNote"))}
+            </label>
+
+            <textarea id="checkoutNote"></textarea>
+
+          </div>
+
+
+          <button
+            id="checkoutSubmitButton"
+            class="btn btn-primary btn-block"
+            onclick="placeOrder()"
+          >
+
+            ${escapeHtml(t("placeOrder"))}
+
+          </button>
+
+        </aside>
+
+      </div>
+
+    `;
+
+}
+
+
+function selectCheckoutAddress(
+  addressId
+){
+
+  selectedCheckoutAddressId =
+    addressId;
+
+  renderCheckout();
+
+}
+
+
+async function syncCartToDatabase(){
+
+  if(
+    !currentUser
+  ){
+
+    throw new Error(
+      "Not authenticated"
+    );
+
+  }
+
+
+  const list =
+    currentRegionCart();
+
+
+  if(
+    list.length === 0
+  ){
+
+    throw new Error(
+      t("emptyCart")
+    );
+
+  }
+
+
+  let {
+    data:
+    existingCarts,
+    error:
+    cartReadError
+  } =
+    await db
+      .from("carts")
+      .select("*")
+      .eq(
+        "customer_id",
+        currentUser.id
+      )
+      .eq(
+        "region_id",
+        selectedRegionId
+      )
+      .eq(
+        "status",
+        "active"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(1);
+
+
+  if(cartReadError){
+
+    throw cartReadError;
+
+  }
+
+
+  let cart =
+    existingCarts?.[0];
+
+
+  if(!cart){
+
+    const {
+      data:
+      newCart,
+      error:
+      createError
+    } =
+      await db
+        .from("carts")
+        .insert({
+
+          customer_id:
+            currentUser.id,
+
+          region_id:
+            selectedRegionId,
+
+          status:
+            "active"
+
+        })
+        .select()
+        .single();
+
+
+    if(createError){
+
+      throw createError;
+
+    }
+
+
+    cart =
+      newCart;
+
+  }
+
+
+  const {
+    error:
+    deleteError
+  } =
+    await db
+      .from("cart_items")
+      .delete()
+      .eq(
+        "cart_id",
+        cart.id
+      );
+
+
+  if(deleteError){
+
+    throw deleteError;
+
+  }
+
+
+  const rows =
+    list.map(
+      item => ({
+
+        cart_id:
+          cart.id,
+
+        variant_id:
+          item.variant_id,
+
+        purchase_mode:
+          item.purchase_mode,
+
+        quantity:
+          item.quantity
+
+      })
+    );
+
+
+  const {
+    error:
+    insertError
+  } =
+    await db
+      .from("cart_items")
+      .insert(rows);
+
+
+  if(insertError){
+
+    throw insertError;
+
+  }
+
+
+  return cart;
+
+}
+
+
+async function placeOrder(){
+
+  if(
+    !currentUser
+  ){
+
+    openAuthModal();
+
+    return;
+
+  }
+
+
+  const address =
+    addresses.find(
+      item =>
+        item.id
+        ===
+        selectedCheckoutAddressId
+    );
+
+
+  if(!address){
+
+    showMessage(
+      t("chooseAddress")
+    );
+
+    return;
+
+  }
+
+
+  if(
+    address.region_id
+    !==
+    selectedRegionId
+  ){
+
+    showMessage(
+      t("regionMismatch")
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    el("checkoutSubmitButton");
+
+
+  if(button){
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      t("loading");
+
+  }
+
+
+  try{
+
+    const cart =
+      await syncCartToDatabase();
+
+
+    const {
+      data,
+      error
+    } =
+      await db.rpc(
+        "checkout_cart",
+        {
+
+          p_cart_id:
+            cart.id,
+
+          p_address_id:
+            address.id,
+
+          p_payment_method:
+            el("checkoutPaymentMethod")
+              .value,
+
+          p_customer_note:
+            el("checkoutNote")
+              .value
+            ||
+            null
+
+        }
+      );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    const result =
+      Array.isArray(data)
+      ?
+      data[0]
+      :
+      data;
+
+
+    if(
+      !result
+      ||
+      !result.order_id
+    ){
+
+      throw new Error(
+        "Order creation returned no order id."
+      );
+
+    }
+
+
+    currentOrderId =
+      result.order_id;
+
+
+    localCart =
+      localCart.filter(
+        item =>
+          item.region_id
+          !==
+          selectedRegionId
+      );
+
+
+    saveLocalCart();
+
+
+    await loadOrders();
+
+
+    el("checkoutContent")
+      .innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            ✅
+          </div>
+
+          <div
+            style="
+              font-size:19px;
+              color:var(--text);
+              font-weight:1000
+            "
+          >
+
+            ${escapeHtml(t("orderSuccess"))}
+
+          </div>
+
+
+          <div style="margin-top:7px">
+
+            ${escapeHtml(t("orderCreated"))}
+
+          </div>
+
+
+          <div
+            style="
+              margin-top:8px;
+              color:var(--orange);
+              font-weight:900
+            "
+          >
+
+            ${
+              escapeHtml(
+                result.order_number
+              )
+            }
+
+          </div>
+
+
+          <div style="margin-top:7px">
+
+            ${money(result.total_amount)}
+
+          </div>
+
+
+          <div style="margin-top:7px">
+
+            ${escapeHtml(t("paymentPending"))}
+
+          </div>
+
+
+          <div style="margin-top:15px">
+
+            <button
+              class="btn btn-primary"
+              onclick="openOrder('${result.order_id}')"
+            >
+
+              ${escapeHtml(t("viewOrder"))}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    showMessage(
+      error.message
+      ||
+      t("networkError")
+    );
+
+  }
+  finally{
+
+    if(button){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        t("placeOrder");
+
+    }
+
+  }
+
+}
+
+
+/* ==========================================================
+   ORDERS
+========================================================== */
+
+async function loadOrders(){
+
+  if(!currentUser){
+
+    orders = [];
+
+    renderOrders();
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("orders")
+      .select("*")
+      .eq(
+        "customer_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  orders =
+    data
+    ||
+    [];
+
+
+  renderOrders();
+
+}
+
+
+function renderOrders(){
+
+  if(!el("ordersContent")){
+    return;
+  }
+
+
+  if(!currentUser){
+
+    el("ordersContent")
+      .innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            🔐
+          </div>
+
+          ${escapeHtml(t("notLoggedIn"))}
+
+          <div style="margin-top:12px">
+
+            <button
+              class="btn btn-primary"
+              onclick="openAuthModal()"
+            >
+
+              ${escapeHtml(t("loginNow"))}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    return;
+
+  }
+
+
+  if(
+    orders.length === 0
+  ){
+
+    el("ordersContent")
+      .innerHTML =
+      emptyState(
+        t("emptyOrders"),
+        "📦"
+      );
+
+    return;
+
+  }
+
+
+  el("ordersContent")
+    .innerHTML =
+    orders
+      .map(
+        order => `
+
+          <article class="order-card">
+
+            <div class="order-head">
+
+              <div>
+
+                <div class="order-number">
+
+                  ${
+                    escapeHtml(
+                      order.order_number
+                    )
+                  }
+
+                </div>
+
+                <div class="order-time">
+
+                  ${
+                    formatDate(
+                      order.created_at
+                    )
+                  }
+
+                  ·
+
+                  ${
+                    escapeHtml(
+                      order[
+                        `region_name_${appLanguage}_snapshot`
+                      ]
+                      ||
+                      order.region_name_zh_snapshot
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+              </div>
+
+
+              <div class="status-row">
+
+                ${
+                  statusBadge(
+                    order.order_status
+                  )
+                }
+
+              </div>
+
+            </div>
+
+
+            <div class="status-row">
+
+              ${
+                statusBadge(
+                  order.payment_status
+                )
+              }
+
+              ${
+                statusBadge(
+                  order.fulfillment_status
+                )
+              }
+
+              ${
+                statusBadge(
+                  order.delivery_status
+                )
+              }
+
+            </div>
+
+
+            <div class="order-bottom">
+
+              <div class="order-total">
+
+                ${
+                  money(
+                    order.total_amount,
+                    order.currency_code
+                  )
+                }
+
+              </div>
+
+
+              <div class="order-actions">
+
+                <button
+                  class="btn btn-light btn-small"
+                  onclick="openOrder('${order.id}')"
+                >
+
+                  ${escapeHtml(t("viewOrder"))}
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* ==========================================================
+   ORDER DETAIL
+========================================================== */
+
+async function openOrder(
+  orderId
+){
+
+  if(!currentUser){
+
+    openAuthModal();
+
+    return;
+
+  }
+
+
+  currentOrderId =
+    orderId;
+
+
+  goView(
+    "orderDetail"
+  );
+
+
+  el("orderDetailContent")
+    .innerHTML =
+    emptyState(
+      t("loading"),
+      "⏳"
+    );
+
+
+  const results =
+    await Promise.all([
+
+      db
+        .from("orders")
+        .select("*")
+        .eq(
+          "id",
+          orderId
+        )
+        .single(),
+
+      db
+        .from("order_items")
+        .select(
+          `
+          id,
+          order_id,
+          product_id,
+          variant_id,
+          product_code_snapshot,
+          sku_code_snapshot,
+          product_name_zh_snapshot,
+          product_name_en_snapshot,
+          product_name_my_snapshot,
+          product_name_th_snapshot,
+          variant_name_zh_snapshot,
+          variant_name_en_snapshot,
+          variant_name_my_snapshot,
+          variant_name_th_snapshot,
+          specification_zh_snapshot,
+          specification_en_snapshot,
+          specification_my_snapshot,
+          specification_th_snapshot,
+          sales_unit_code_snapshot,
+          units_per_case_snapshot,
+          purchase_mode,
+          quantity,
+          unit_price,
+          line_total,
+          created_at
+          `
+        )
+        .eq(
+          "order_id",
+          orderId
+        ),
+
+      db
+        .from("order_status_history")
+        .select("*")
+        .eq(
+          "order_id",
+          orderId
+        )
+        .order(
+          "created_at",
+          {
+            ascending:true
+          }
+        ),
+
+      db
+        .from("payment_transactions")
+        .select("*")
+        .eq(
+          "order_id",
+          orderId
+        )
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        )
+
+    ]);
+
+
+  if(
+    results[0].error
+  ){
+
+    el("orderDetailContent")
+      .innerHTML =
+      emptyState(
+        results[0].error.message,
+        "⚠️"
+      );
+
+    return;
+
+  }
+
+
+  const order =
+    results[0].data;
+
+  const items =
+    results[1].data
+    ||
+    [];
+
+  const history =
+    results[2].data
+    ||
+    [];
+
+  const payments =
+    results[3].data
+    ||
+    [];
+
+
+  renderOrderDetail(
+    order,
+    items,
+    history,
+    payments
+  );
+
+}
+
+
+function orderItemName(item){
+
+  return (
+    item[
+      `product_name_${appLanguage}_snapshot`
+    ]
+    ||
+    item.product_name_zh_snapshot
+    ||
+    item.product_name_en_snapshot
+    ||
+    "—"
+  );
+
+}
+
+
+function orderVariantName(item){
+
+  return (
+    item[
+      `variant_name_${appLanguage}_snapshot`
+    ]
+    ||
+    item.variant_name_zh_snapshot
+    ||
+    item[
+      `specification_${appLanguage}_snapshot`
+    ]
+    ||
+    item.specification_zh_snapshot
+    ||
+    item.sku_code_snapshot
+    ||
+    "—"
+  );
+
+}
+
+
+function renderOrderDetail(
+  order,
+  items,
+  history,
+  payments
+){
+
+  const canCancel =
+    order.order_status
+    ===
+    "pending_confirmation";
+
+
+  const newestPayment =
+    payments[0];
+
+
+  el("orderDetailContent")
+    .innerHTML = `
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(order.order_number)}
+
+        </div>
+
+
+        <div class="status-row">
+
+          ${statusBadge(order.order_status)}
+
+          ${statusBadge(order.payment_status)}
+
+          ${statusBadge(order.fulfillment_status)}
+
+          ${statusBadge(order.delivery_status)}
+
+        </div>
+
+
+        <div
+          class="summary-line"
+          style="margin-top:10px"
+        >
+
+          <span>
+            ${escapeHtml(t("total"))}
+          </span>
+
+          <strong>
+            ${
+              money(
+                order.total_amount,
+                order.currency_code
+              )
+            }
+          </strong>
+
+        </div>
+
+
+        <div class="summary-line">
+
+          <span>
+            ${escapeHtml(t("recipient"))}
+          </span>
+
+          <strong>
+            ${
+              escapeHtml(
+                order.recipient_name_snapshot
+              )
+            }
+          </strong>
+
+        </div>
+
+
+        <div class="summary-line">
+
+          <span>
+            ${escapeHtml(t("phone"))}
+          </span>
+
+          <strong>
+            ${
+              escapeHtml(
+                order.recipient_phone_snapshot
+              )
+            }
+          </strong>
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:10px;
+            color:var(--muted);
+            font-size:10px;
+            line-height:1.65
+          "
+        >
+
+          ${
+            escapeHtml(
+              order.full_address_snapshot
+            )
+          }
+
+        </div>
+
+
+        ${
+          canCancel
+          ?
+
+          `
+
+          <button
+            class="btn btn-red btn-small"
+            style="margin-top:12px"
+            onclick="cancelCustomerOrder('${order.id}')"
+          >
+
+            ${escapeHtml(t("cancelOrder"))}
+
+          </button>
+
+          `
+
+          :
+          ""
+        }
+
+      </div>
+
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(t("orderItems"))}
+
+        </div>
+
+
+        ${
+          items
+            .map(
+              item => `
+
+                <div class="summary-line">
+
+                  <div>
+
+                    <strong>
+
+                      ${
+                        escapeHtml(
+                          orderItemName(
+                            item
+                          )
+                        )
+                      }
+
+                    </strong>
+
+                    <div class="small">
+
+                      ${
+                        escapeHtml(
+                          orderVariantName(
+                            item
+                          )
+                        )
+                      }
+
+                      ·
+
+                      ${
+                        escapeHtml(
+                          item.purchase_mode
+                        )
+                      }
+
+                      ×
+                      ${item.quantity}
+
+                    </div>
+
+                  </div>
+
+
+                  <strong>
+
+                    ${
+                      money(
+                        item.line_total,
+                        order.currency_code
+                      )
+                    }
+
+                  </strong>
+
+                </div>
+
+              `
+            )
+            .join("")
+        }
+
+      </div>
+
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(t("submitPayment"))}
+
+        </div>
+
+
+        ${
+          newestPayment
+          ?
+
+          `
+
+          <div class="notice">
+
+            ${
+              escapeHtml(
+                t("status")
+              )
+            }:
+
+            ${newestPayment.status}
+
+            ${
+              newestPayment.external_reference
+              ?
+              "<br>"
+              +
+              escapeHtml(
+                newestPayment.external_reference
+              )
+              :
+              ""
+            }
+
+          </div>
+
+          `
+
+          :
+          ""
+        }
+
+
+        ${
+          [
+            "unpaid",
+            "pending",
+            "failed"
+          ]
+          .includes(
+            order.payment_status
+          )
+
+          ?
+
+          `
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("paymentMethod"))}
+            </label>
+
+            <select id="proofPaymentMethod">
+
+              <option value="kpay">
+                KPay
+              </option>
+
+              <option value="wavepay">
+                WavePay
+              </option>
+
+              <option value="bank_transfer">
+                Bank Transfer
+              </option>
+
+              <option value="cash">
+                Cash / Offline
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("paymentReference"))}
+            </label>
+
+            <input id="paymentReference">
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("proofUrl"))}
+            </label>
+
+            <input
+              id="paymentProofUrl"
+              type="url"
+              placeholder="https://..."
+            >
+
+          </div>
+
+
+          <button
+            class="btn btn-primary"
+            onclick="submitPaymentProof('${order.id}')"
+          >
+
+            ${escapeHtml(t("submit"))}
+
+          </button>
+
+          `
+
+          :
+
+          `<div class="notice">${escapeHtml(order.payment_status)}</div>`
+        }
+
+      </div>
+
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(t("orderTimeline"))}
+
+        </div>
+
+
+        <div class="timeline">
+
+          ${
+            history.length
+            ?
+
+            history
+              .map(
+                item => `
+
+                  <div class="timeline-item">
+
+                    <div class="timeline-marker">
+
+                      <span class="timeline-dot"></span>
+
+                    </div>
+
+
+                    <div class="timeline-body">
+
+                      <div class="timeline-status">
+
+                        ${
+                          escapeHtml(
+                            item.status_group
+                          )
+                        }
+
+                        ·
+
+                        ${
+                          escapeHtml(
+                            item.new_status
+                          )
+                        }
+
+                      </div>
+
+                      <div class="timeline-note">
+
+                        ${
+                          item.note
+                          ?
+                          escapeHtml(
+                            item.note
+                          )
+                          +
+                          "<br>"
+                          :
+                          ""
+                        }
+
+                        ${
+                          item.reason
+                          ?
+                          escapeHtml(
+                            item.reason
+                          )
+                          +
+                          "<br>"
+                          :
+                          ""
+                        }
+
+                        ${
+                          formatDate(
+                            item.created_at
+                          )
+                        }
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                `
+              )
+              .join("")
+
+            :
+
+            `<div class="small">—</div>`
+          }
+
+        </div>
+
+      </div>
+
+    `;
+
+}
+
+
+async function cancelCustomerOrder(
+  orderId
+){
+
+  const reason =
+    prompt(
+      t("cancelReason")
+    );
+
+
+  if(!reason){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "cancel_order",
+      {
+
+        p_order_id:
+          orderId,
+
+        p_reason:
+          reason
+
+      }
+    );
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  await loadOrders();
+
+  await openOrder(
+    orderId
+  );
+
+}
+
+
+async function submitPaymentProof(
+  orderId
+){
+
+  const method =
+    el("proofPaymentMethod")
+      .value;
+
+  const reference =
+    el("paymentReference")
+      .value
+      .trim();
+
+  const proofUrl =
+    el("paymentProofUrl")
+      .value
+      .trim();
+
+
+  if(
+    !reference
+    &&
+    !proofUrl
+  ){
+
+    showMessage(
+      "Payment reference or proof URL required."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "submit_payment_proof",
+      {
+
+        p_order_id:
+          orderId,
+
+        p_payment_method:
+          method,
+
+        p_external_reference:
+          reference
+          ||
+          null,
+
+        p_proof_url:
+          proofUrl
+          ||
+          null
+
+      }
+    );
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    t("paymentSubmitted")
+  );
+
+
+  await loadOrders();
+
+  await openOrder(
+    orderId
+  );
+
+}
+
+
+/* ==========================================================
+   ACCOUNT
+========================================================== */
+
+function renderAccount(){
+
+  if(!el("accountContent")){
+    return;
+  }
+
+
+  if(
+    !currentUser
+    ||
+    !customerProfile
+  ){
+
+    el("accountContent")
+      .innerHTML = `
+
+        <div class="empty">
+
+          <div class="empty-icon">
+            👤
+          </div>
+
+          ${escapeHtml(t("notLoggedIn"))}
+
+          <div style="margin-top:12px">
+
+            <button
+              class="btn btn-primary"
+              onclick="openAuthModal()"
+            >
+
+              ${escapeHtml(t("loginNow"))}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    return;
+
+  }
+
+
+  const regionOptions =
+    regions
+      .map(
+        region => `
+
+          <option
+            value="${region.id}"
+            ${
+              customerProfile.default_region_id
+              ===
+              region.id
+              ?
+              "selected"
+              :
+              ""
+            }
+          >
+
+            ${
+              escapeHtml(
+                getRegionName(
+                  region
+                )
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  el("accountContent")
+    .innerHTML = `
+
+      <div class="account-hero">
+
+        <div
+          style="
+            display:flex;
+            align-items:center;
+            gap:11px
+          "
+        >
+
+          <div class="avatar">
+            👤
+          </div>
+
+          <div>
+
+            <div class="account-name">
+
+              ${
+                escapeHtml(
+                  customerProfile.full_name
+                )
+              }
+
+            </div>
+
+            <div class="account-phone">
+
+              ${
+                escapeHtml(
+                  customerProfile.phone
+                )
+              }
+
+              ·
+
+              ${
+                escapeHtml(
+                  currentUser.email
+                  ||
+                  ""
+                )
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        ${statusBadge(customerProfile.status)}
+
+      </div>
+
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(t("profile"))}
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("fullName"))}
+            </label>
+
+            <input
+              id="accountName"
+              value="${escapeHtml(customerProfile.full_name)}"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("phone"))}
+            </label>
+
+            <input
+              id="accountPhone"
+              value="${escapeHtml(customerProfile.phone)}"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(t("defaultRegion"))}
+            </label>
+
+            <select id="accountRegion">
+
+              ${regionOptions}
+
+            </select>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              Language
+            </label>
+
+            <select id="accountLanguage">
+
+              <option
+                value="zh"
+                ${
+                  customerProfile.preferred_language
+                  ===
+                  "zh"
+                  ?
+                  "selected"
+                  :
+                  ""
+                }
+              >
+                中文
+              </option>
+
+              <option
+                value="en"
+                ${
+                  customerProfile.preferred_language
+                  ===
+                  "en"
+                  ?
+                  "selected"
+                  :
+                  ""
+                }
+              >
+                English
+              </option>
+
+              <option
+                value="my"
+                ${
+                  customerProfile.preferred_language
+                  ===
+                  "my"
+                  ?
+                  "selected"
+                  :
+                  ""
+                }
+              >
+                မြန်မာ
+              </option>
+
+              <option
+                value="th"
+                ${
+                  customerProfile.preferred_language
+                  ===
+                  "th"
+                  ?
+                  "selected"
+                  :
+                  ""
+                }
+              >
+                ไทย
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          onclick="updateProfile()"
+        >
+
+          ${escapeHtml(t("editProfile"))}
+
+        </button>
+
+      </div>
+
+
+      <div class="form-card">
+
+        <div class="form-title">
+
+          ${escapeHtml(t("address"))}
+
+        </div>
+
+
+        ${renderAccountAddresses()}
+
+      </div>
+
+
+      <button
+        class="btn btn-red btn-block"
+        onclick="logoutCustomer()"
+      >
+
+        ${escapeHtml(t("logout"))}
+
+      </button>
+
+    `;
+
+}
+
+
+function renderAccountAddresses(){
+
+  if(
+    addresses.length === 0
+  ){
+
+    return `
+
+      <div class="empty">
+
+        ${escapeHtml(t("noAddress"))}
+
+      </div>
+
+      <div style="margin-top:10px">
+
+        <button
+          class="btn btn-primary"
+          onclick="startCheckout()"
+        >
+
+          ${escapeHtml(t("addAddress"))}
+
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return addresses
+    .map(
+      address => `
+
+        <div
+          class="address-card"
+          style="margin-bottom:7px"
+        >
+
+          <div class="address-head">
+
+            <div class="address-name">
+
+              ${
+                escapeHtml(
+                  address.recipient_name
+                )
+              }
+
+              ·
+
+              ${
+                escapeHtml(
+                  address.phone
+                )
+              }
+
+            </div>
+
+            ${
+              address.is_default
+              ?
+
+              `<span class="default-badge">DEFAULT</span>`
+
+              :
+              ""
+            }
+
+          </div>
+
+
+          <div class="address-detail">
+
+            ${
+              escapeHtml(
+                getRegionName(
+                  regionMap[
+                    address.region_id
+                  ]
+                )
+              )
+            }
+
+            <br>
+
+            ${
+              escapeHtml(
+                address.detailed_address
+              )
+            }
+
+          </div>
+
+        </div>
+
+      `
+    )
+    .join("");
+
+}
+
+
+async function updateProfile(){
+
+  const name =
+    el("accountName")
+      .value
+      .trim();
+
+  const phone =
+    el("accountPhone")
+      .value
+      .trim();
+
+  const regionId =
+    el("accountRegion")
+      .value;
+
+  const language =
+    el("accountLanguage")
+      .value;
+
+
+  if(
+    !name
+    ||
+    !phone
+    ||
+    !regionId
+  ){
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "customer_profiles"
+      )
+      .update({
+
+        full_name:
+          name,
+
+        phone:
+          phone,
+
+        default_region_id:
+          regionId,
+
+        preferred_language:
+          language,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        currentUser.id
+      );
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  appLanguage =
+    language;
+
+  localStorage.setItem(
+    "mallLanguage",
+    language
+  );
+
+
+  await initializeCustomer();
+
+  showMessage(
+    t("profileSaved")
+  );
+
+}
+
+
+/* ==========================================================
+   EMPTY
+========================================================== */
+
+function emptyState(
+  message,
+  icon = "📦"
+){
+
+  return `
+
+    <div class="empty">
+
+      <div class="empty-icon">
+
+        ${icon}
+
+      </div>
+
+      ${escapeHtml(message)}
+
+    </div>
+
+  `;
+
+}
+
+
+/* ==========================================================
+   AUTH LISTENER
+========================================================== */
+
+db.auth.onAuthStateChange(
+  (
+    event,
+    session
+  ) => {
+
+    if(
+      event
+      ===
+      "SIGNED_OUT"
+    ){
+
+      currentUser =
+        null;
+
+      customerProfile =
+        null;
+
+      addresses = [];
+
+      orders = [];
+
+      renderAccount();
+
+      renderOrders();
+
+    }
+
+
+    if(
+      event
+      ===
+      "SIGNED_IN"
+      &&
+      session?.user
+    ){
+
+      currentUser =
+        session.user;
+
+    }
+
+  }
+);
+
+
+/* ==========================================================
+   INIT
+========================================================== */
+
+async function initialize(){
+
+  applyLanguage();
+
+  updateCartCount();
+
+
+  el("productGrid")
+    .innerHTML =
+    emptyState(
+      t("loading"),
+      "⏳"
+    );
+
+
+  await loadPublicData();
+
+  await checkSession();
+
+  renderAll();
+
+}
+
+
+initialize();
+
+</script>
 
 </body>
 </html>
