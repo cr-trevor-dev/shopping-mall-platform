@@ -3951,7 +3951,17 @@ function applyProductFilters(){
     products
       .filter(
         product => {
+          if(
+            selectedRegionId
+            &&
+            !productHasRegionStock(
+              product.id
+            )
+          ){
 
+            return false;
+
+          }
           if(
             categoryIds
             &&
@@ -8086,9 +8096,13 @@ function renderOrderDetail(
 ){
 
   const canCancel =
-    order.order_status
-    ===
-    "pending_confirmation";
+  order.order_status
+  ===
+  "pending_confirmation"
+  &&
+  order.payment_status
+  ===
+  "unpaid";
 
 
   const newestPayment =
@@ -8984,11 +8998,51 @@ function renderAccount(){
 
 function renderAccountAddresses(){
 
-  if(
-    addresses.length === 0
-  ){
+  const defaultRegionId =
+    customerProfile
+      ?.default_region_id
+    ||
+    selectedRegionId
+    ||
+    "";
 
-    return `
+  const regionOptions =
+    regions
+      .map(
+        region => `
+
+          <option
+            value="${region.id}"
+            ${
+              region.id
+              ===
+              defaultRegionId
+              ?
+              "selected"
+              :
+              ""
+            }
+          >
+
+            ${
+              escapeHtml(
+                getRegionName(
+                  region
+                )
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  const addressList =
+    addresses.length === 0
+    ?
+    `
 
       <div class="empty">
 
@@ -8996,93 +9050,424 @@ function renderAccountAddresses(){
 
       </div>
 
-      <div style="margin-top:10px">
+    `
+    :
+    addresses
+      .map(
+        address => `
 
-        <button
-          class="btn btn-primary"
-          onclick="startCheckout()"
-        >
+          <div
+            class="address-card"
+            style="margin-bottom:7px"
+          >
 
-          ${escapeHtml(t("addAddress"))}
+            <div class="address-head">
 
-        </button>
+              <div class="address-name">
 
-      </div>
+                ${
+                  escapeHtml(
+                    address.recipient_name
+                  )
+                }
 
-    `;
+                ·
 
-  }
+                ${
+                  escapeHtml(
+                    address.phone
+                  )
+                }
+
+              </div>
 
 
-  return addresses
-    .map(
-      address => `
+              ${
+                address.is_default
+                ?
 
-        <div
-          class="address-card"
-          style="margin-bottom:7px"
-        >
+                `<span class="default-badge">DEFAULT</span>`
 
-          <div class="address-head">
+                :
+                ""
+              }
 
-            <div class="address-name">
+            </div>
+
+
+            <div class="address-detail">
 
               ${
                 escapeHtml(
-                  address.recipient_name
+                  getRegionName(
+                    regionMap[
+                      address.region_id
+                    ]
+                  )
                 )
               }
 
-              ·
+              ${
+                address.township
+                ?
+                " · "
+                +
+                escapeHtml(
+                  address.township
+                )
+                :
+                ""
+              }
+
+              ${
+                address.street
+                ?
+                " · "
+                +
+                escapeHtml(
+                  address.street
+                )
+                :
+                ""
+              }
+
+              <br>
 
               ${
                 escapeHtml(
-                  address.phone
+                  address.detailed_address
                 )
               }
 
             </div>
 
-            ${
-              address.is_default
-              ?
-
-              `<span class="default-badge">DEFAULT</span>`
-
-              :
-              ""
-            }
-
           </div>
 
+        `
+      )
+      .join("");
 
-          <div class="address-detail">
 
-            ${
-              escapeHtml(
-                getRegionName(
-                  regionMap[
-                    address.region_id
-                  ]
-                )
-              )
-            }
+  return `
 
-            <br>
+    ${addressList}
 
-            ${
-              escapeHtml(
-                address.detailed_address
-              )
-            }
 
-          </div>
+    <div
+      style="
+        margin-top:14px;
+        padding-top:14px;
+        border-top:1px solid var(--line)
+      "
+    >
+
+      <div
+        style="
+          font-size:13px;
+          font-weight:900;
+          margin-bottom:12px
+        "
+      >
+        ${escapeHtml(t("addAddress"))}
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("recipientName"))}
+          </label>
+
+          <input id="accountAddressName">
 
         </div>
 
-      `
-    )
-    .join("");
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("phone"))}
+          </label>
+
+          <input
+            id="accountAddressPhone"
+            type="tel"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("region"))}
+          </label>
+
+          <select id="accountAddressRegion">
+
+            ${regionOptions}
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("township"))}
+          </label>
+
+          <input id="accountAddressTownship">
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("street"))}
+          </label>
+
+          <input id="accountAddressStreet">
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            ${escapeHtml(t("addressLabel"))}
+          </label>
+
+          <input
+            id="accountAddressLabel"
+            placeholder="Home / Office"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          ${escapeHtml(t("detailedAddress"))}
+        </label>
+
+        <textarea id="accountAddressDetail"></textarea>
+
+      </div>
+
+
+      <label
+        style="
+          display:flex;
+          gap:7px;
+          align-items:center;
+          font-size:10px;
+          margin-bottom:10px
+        "
+      >
+
+        <input
+          id="accountAddressDefault"
+          type="checkbox"
+          style="width:auto"
+          ${
+            addresses.length === 0
+            ?
+            "checked"
+            :
+            ""
+          }
+        >
+
+        ${escapeHtml(t("setDefault"))}
+
+      </label>
+
+
+      <button
+        class="btn btn-primary"
+        onclick="saveAccountAddress()"
+      >
+
+        ${escapeHtml(t("saveAddress"))}
+
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+async function saveAccountAddress(){
+
+  if(!currentUser){
+
+    openAuthModal();
+
+    return;
+
+  }
+
+
+  const name =
+    el("accountAddressName")
+      ?.value
+      .trim();
+
+  const phone =
+    el("accountAddressPhone")
+      ?.value
+      .trim();
+
+  const regionId =
+    el("accountAddressRegion")
+      ?.value;
+
+  const detail =
+    el("accountAddressDetail")
+      ?.value
+      .trim();
+
+
+  if(
+    !name
+    ||
+    !phone
+    ||
+    !regionId
+    ||
+    !detail
+  ){
+
+    showMessage(
+      "Please complete recipient, phone, region and detailed address."
+    );
+
+    return;
+
+  }
+
+
+  const isDefault =
+    addresses.length === 0
+    ||
+    !!el("accountAddressDefault")
+      ?.checked;
+
+
+  if(isDefault){
+
+    const {
+      error:
+        defaultError
+    } =
+      await db
+        .from(
+          "customer_addresses"
+        )
+        .update({
+          is_default:false
+        })
+        .eq(
+          "customer_id",
+          currentUser.id
+        );
+
+
+    if(defaultError){
+
+      showMessage(
+        defaultError.message
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "customer_addresses"
+      )
+      .insert({
+
+        customer_id:
+          currentUser.id,
+
+        recipient_name:
+          name,
+
+        phone:
+          phone,
+
+        region_id:
+          regionId,
+
+        township:
+          el("accountAddressTownship")
+            ?.value
+            .trim()
+          ||
+          null,
+
+        street:
+          el("accountAddressStreet")
+            ?.value
+            .trim()
+          ||
+          null,
+
+        detailed_address:
+          detail,
+
+        label:
+          el("accountAddressLabel")
+            ?.value
+            .trim()
+          ||
+          null,
+
+        is_default:
+          isDefault,
+
+        is_active:
+          true
+
+      });
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  await loadAddresses();
+
+  renderAccount();
+
+  showMessage(
+    t("addressSaved")
+  );
 
 }
 
