@@ -3303,7 +3303,7 @@ async function loadPublicData(){
         .order("sort_order"),
 
       db
-        .from("product_variants")
+        .from("public_product_variants")
         .select("*")
         .eq("is_active",true)
         .order("sort_order"),
