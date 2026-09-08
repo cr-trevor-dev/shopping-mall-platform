@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商城</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      padding-bottom: 80px;
+    }
+
+    /* 顶部 */
+    .header {
+      background: linear-gradient(135deg, #ff5a36, #ff7a35);
+      padding: 18px 16px 22px;
+      color: white;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .header-action {
+      font-size: 14px;
+    }
+
+    /* 搜索 */
+    .search-box {
+      background: white;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 11px 16px;
+      color: #999;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 15px;
+      margin-left: 8px;
+    }
+
+    /* 内容 */
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    /* 分类 */
+    .category-section {
+      background: white;
+      padding: 20px 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      padding: 0 8px;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px 6px;
+    }
+
+    .category {
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .category-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      margin: 0 auto 7px;
+      background: #fff1ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 27px;
+    }
+
+    /* 活动 */
+    .promotion {
+      margin: 10px;
+      padding: 20px;
+      border-radius: 18px;
+      color: white;
+      background: linear-gradient(135deg, #ff3f32, #ff8b35);
+    }
+
+    .promotion h2 {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .promotion p {
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    /* 商品 */
+    .products-section {
+      padding: 10px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-image {
+      height: 170px;
+      background: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 60px;
+    }
+
+    .discount {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #ff3b30;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .product-info {
+      padding: 11px;
+    }
+
+    .product-name {
+      font-size: 15px;
+      line-height: 1.4;
+      margin-bottom: 7px;
+    }
+
+    .expiry {
+      color: #888;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      color: #f04432;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .old-price {
+      color: #aaa;
+      font-size: 12px;
+      text-decoration: line-through;
+      margin-left: 5px;
+    }
+
+    /* 底部导航 */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: white;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+    }
+
+    .nav-item {
+      width: 20%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 11px;
+      color: #777;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      margin-bottom: 3px;
+    }
+
+    .nav-item.active {
+      color: #ff572f;
+      font-weight: 600;
+    }
+
+    @media (min-width: 700px) {
+      .product-image {
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header class="header">
+      <div class="header-top">
+        <div class="logo">商城</div>
+        <div class="header-action">消息</div>
+      </div>
+
+      <div class="search-box">
+        🔍
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="搜索商品、零食、家具..."
+          oninput="searchProducts()"
+        >
+      </div>
+    </header>
+
+    <section class="category-section">
+      <div class="section-title">商品分类</div>
+
+      <div class="categories">
+        <div class="category">
+          <div class="category-icon">🍪</div>
+          零食
+        </div>
+
+        <div class="category">
+          <div class="category-icon">🥤</div>
+          饮料
+        </div>
+
+        <div class="category">
+          <div class="category-icon">🛋️</div>
+          家具
+        </div>
+
+        <div class="category">
+          <div class="category-icon">👕</div>
+          服装
+        </div>
+
+        <div class="category">
+          <div class="category-icon">📱</div>
+          数码
+        </div>
+
+        <div class="category">
+          <div class="category-icon">🧴</div>
+          日用品
+        </div>
+
+        <div class="category">
+          <div class="category-icon">💄</div>
+          美妆
+        </div>
+
+        <div class="category">
+          <div class="category-icon">👟</div>
+          鞋包
+        </div>
+
+        <div class="category">
+          <div class="category-icon">🏠</div>
+          家居
+        </div>
+
+        <div class="category">
+          <div class="category-icon">•••</div>
+          全部
+        </div>
+      </div>
+    </section>
+
+    <section class="promotion">
+      <h2>限时特惠</h2>
+      <p>精选商品 · 每日优惠</p>
+    </section>
+
+    <section class="products-section">
+
+      <div class="section-title">猜你喜欢</div>
+
+      <div class="products" id="productList">
+
+        <div class="product" data-name="进口巧克力零食">
+          <div class="discount">8折</div>
+          <div class="product-image">🍫</div>
+
+          <div class="product-info">
+            <div class="product-name">进口巧克力零食</div>
+            <div class="expiry">保质期至：2027-03-20</div>
+
+            <span class="price">K 8,000</span>
+            <span class="old-price">K 10,000</span>
+          </div>
+        </div>
+
+        <div class="product" data-name="薯片休闲零食">
+          <div class="discount">特价</div>
+          <div class="product-image">🍟</div>
+
+          <div class="product-info">
+            <div class="product-name">薯片休闲零食</div>
+            <div class="expiry">保质期至：2027-01-15</div>
+
+            <span class="price">K 3,500</span>
+            <span class="old-price">K 4,500</span>
+          </div>
+        </div>
+
+        <div class="product" data-name="现代简约沙发家具">
+          <div class="product-image">🛋️</div>
+
+          <div class="product-info">
+            <div class="product-name">现代简约沙发</div>
+
+            <span class="price">K 680,000</span>
+          </div>
+        </div>
+
+        <div class="product" data-name="无线蓝牙耳机数码">
+          <div class="discount">9折</div>
+          <div class="product-image">🎧</div>
+
+          <div class="product-info">
+            <div class="product-name">无线蓝牙耳机</div>
+
+            <span class="price">K 45,000</span>
+            <span class="old-price">K 50,000</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-icon">🏠</div>
+      首页
+    </div>
+
+    <div class="nav-item">
+      <div class="nav-icon">▦</div>
+      分类
+    </div>
+
+    <div class="nav-item">
+      <div class="nav-icon">🛒</div>
+      购物车
+    </div>
+
+    <div class="nav-item">
+      <div class="nav-icon">💬</div>
+      消息
+    </div>
+
+    <div class="nav-item">
+      <div class="nav-icon">👤</div>
+      我的
+    </div>
+  </nav>
+
+  <script>
+    function searchProducts() {
+      const keyword =
+        document.getElementById("searchInput").value.toLowerCase();
+
+      const products =
+        document.querySelectorAll(".product");
+
+      products.forEach(function(product) {
+        const name =
+          product.getAttribute("data-name").toLowerCase();
+
+        if (name.includes(keyword)) {
+          product.style.display = "block";
+        } else {
+          product.style.display = "none";
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
