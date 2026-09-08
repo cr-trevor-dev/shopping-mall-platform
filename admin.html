@@ -230,7 +230,7 @@ textarea:focus{
 
 .login-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   gap:9px;
   margin-top:16px;
 }
@@ -688,12 +688,7 @@ tr:last-child td{
         登录
       </button>
 
-      <button
-        class="btn btn-light"
-        onclick="registerAdmin()"
-      >
-        第一次注册
-      </button>
+      
 
     </div>
 
@@ -3062,69 +3057,7 @@ function selectedRegionIds(
    登录
 ========================= */
 
-async function registerAdmin(){
 
-  const password =
-    el("loginPassword").value;
-
-  if(
-    password.length < 8
-  ){
-
-    showLoginMessage(
-      "密码至少需要 8 位。",
-      "#B42318"
-    );
-
-    return;
-
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await db.auth.signUp({
-
-      email:
-        ADMIN_EMAIL,
-
-      password:
-        password
-
-    });
-
-
-  if(error){
-
-    showLoginMessage(
-      error.message,
-      "#B42318"
-    );
-
-    return;
-
-  }
-
-
-  if(
-    data.session
-  ){
-
-    await checkSession();
-
-  }
-  else{
-
-    showLoginMessage(
-      "请先到邮箱完成验证，然后回来登录。",
-      "#2F6A42"
-    );
-
-  }
-
-}
 
 
 async function login(){
@@ -4176,7 +4109,7 @@ async function loadDashboard(){
               ${
                 money(
                   order.total_amount,
-                  order.currency_code
+                  order.currency
                 )
               }
 
@@ -4614,7 +4547,7 @@ async function loadOrders(){
                 ${
                   money(
                     order.total_amount,
-                    order.currency_code
+                    order.currency
                   )
                 }
 
