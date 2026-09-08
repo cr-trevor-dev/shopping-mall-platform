@@ -4148,6 +4148,337 @@ async function requestInventoryAdjustment(){
   }
 
 
+  const {
+    data:
+      approvalRows,
+    error:
+      approvalError
+  } =
+    await db
+      .from(
+        "approval_requests"
+      )
+      .select(
+        "id,status,reason,payload,requested_at,reviewed_at"
+      )
+      .eq(
+        "action_type",
+        "inventory_adjust"
+      )
+      .eq(
+        "region_id",
+        regionId
+      )
+      .eq(
+        "target_id",
+        variantId
+      )
+      .eq(
+        "requested_by",
+        currentUser.id
+      )
+      .in(
+        "status",
+        [
+          "pending",
+          "approved"
+        ]
+      )
+      .order(
+        "requested_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(20);
+
+
+  if(approvalError){
+
+    alert(
+      "Cannot check approval status:\n"
+      +
+      approvalError.message
+    );
+
+    return;
+
+  }
+
+
+  const approved =
+    (approvalRows || [])
+      .find(
+        item =>
+          item.status
+          ===
+          "approved"
+          &&
+          Number(
+            item.payload?.delta
+          )
+          ===
+          delta
+      );
+
+
+  if(approved){
+
+    const {
+      data:
+        inventory,
+      error:
+        inventoryError
+    } =
+      await db
+        .from(
+          "region_inventory"
+        )
+        .select("id")
+        .eq(
+          "region_id",
+          regionId
+        )
+        .eq(
+          "variant_id",
+          variantId
+        )
+        .single();
+
+
+    if(inventoryError){
+
+      alert(
+        "Cannot find inventory:\n"
+        +
+        inventoryError.message
+      );
+
+      return;
+
+    }
+
+
+    const {
+      data:
+        batches,
+      error:
+        batchError
+    } =
+      await db
+        .from(
+          "inventory_batches"
+        )
+        .select(
+          "id,batch_code,quantity_remaining,expiry_date,status,created_at"
+        )
+        .eq(
+          "region_inventory_id",
+          inventory.id
+        )
+        .order(
+          "expiry_date",
+          {
+            ascending:true,
+            nullsFirst:false
+          }
+        )
+        .order(
+          "created_at",
+          {
+            ascending:true
+          }
+        );
+
+
+    if(batchError){
+
+      alert(
+        "Cannot load inventory batches:\n"
+        +
+        batchError.message
+      );
+
+      return;
+
+    }
+
+
+    let batchId =
+      null;
+
+
+    if(
+      batches
+      &&
+      batches.length
+      ===
+      1
+    ){
+
+      batchId =
+        batches[0].id;
+
+    }
+
+
+    if(
+      batches
+      &&
+      batches.length
+      >
+      1
+    ){
+
+      const batchText =
+        batches
+          .map(
+            (
+              batch,
+              index
+            ) =>
+              (
+                (index + 1)
+                +
+                ". "
+                +
+                (
+                  batch.batch_code
+                  ||
+                  "No batch code"
+                )
+                +
+                " | Remaining: "
+                +
+                batch.quantity_remaining
+                +
+                " | Expiry: "
+                +
+                (
+                  batch.expiry_date
+                  ||
+                  "—"
+                )
+              )
+          )
+          .join("\n");
+
+
+      const choice =
+        prompt(
+          "Choose the batch number for this adjustment:\n\n"
+          +
+          batchText
+        );
+
+
+      if(!choice){
+        return;
+      }
+
+
+      const batchIndex =
+        Number(choice)
+        -
+        1;
+
+
+      if(
+        !Number.isInteger(
+          batchIndex
+        )
+        ||
+        batchIndex < 0
+        ||
+        batchIndex >=
+          batches.length
+      ){
+
+        alert(
+          "Invalid batch selection."
+        );
+
+        return;
+
+      }
+
+
+      batchId =
+        batches[
+          batchIndex
+        ].id;
+
+    }
+
+
+    if(
+      !confirm(
+        "This inventory adjustment has been approved. Execute it now?"
+      )
+    ){
+      return;
+    }
+
+
+    await callRpc(
+
+      "adjust_inventory_stock",
+
+      {
+        p_region_id:
+          regionId,
+
+        p_variant_id:
+          variantId,
+
+        p_delta:
+          delta,
+
+        p_reason:
+          approved.reason
+          ||
+          reason,
+
+        p_batch_id:
+          batchId
+      },
+
+      "Inventory adjustment completed."
+
+    );
+
+    return;
+
+  }
+
+
+  const pending =
+    (approvalRows || [])
+      .find(
+        item =>
+          item.status
+          ===
+          "pending"
+          &&
+          Number(
+            item.payload?.delta
+          )
+          ===
+          delta
+      );
+
+
+  if(pending){
+
+    alert(
+      "This inventory adjustment is still waiting for Super Admin approval."
+    );
+
+    return;
+
+  }
+
+
   await callRpc(
 
     "request_dangerous_action",
