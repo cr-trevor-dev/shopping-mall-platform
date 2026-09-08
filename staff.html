@@ -1736,10 +1736,11 @@ function changeLoginLanguage(){
 }
 
 
-function changeAppLanguage(){
+async function changeAppLanguage(){
 
   appLanguage =
     el("appLanguage").value;
+
 
   localStorage
     .setItem(
@@ -1747,7 +1748,13 @@ function changeAppLanguage(){
       appLanguage
     );
 
+
   applyLanguage();
+
+
+  await loadBaseData();
+
+  await refreshCurrent();
 
 }
 
@@ -1780,7 +1787,46 @@ function escapeHtml(value){
 
 }
 
+function safeExternalUrl(value){
 
+  if(!value){
+    return "";
+  }
+
+
+  try{
+
+    const url =
+      new URL(
+        String(value)
+      );
+
+
+    if(
+      url.protocol
+      !==
+      "https:"
+      &&
+      url.protocol
+      !==
+      "http:"
+    ){
+
+      return "";
+
+    }
+
+
+    return url.href;
+
+  }
+  catch(error){
+
+    return "";
+
+  }
+
+}
 function formatDate(value){
 
   if(!value){
@@ -4860,10 +4906,26 @@ async function loadPayments(){
 
               <td>
 
-                ${
-                  payment.proof_url
+                                ${
+                  safeExternalUrl(
+                    payment.proof_url
+                  )
                   ?
-                  `<a href="${escapeHtml(payment.proof_url)}" target="_blank">Proof</a>`
+                  `
+                    <a
+                      href="${
+                        escapeHtml(
+                          safeExternalUrl(
+                            payment.proof_url
+                          )
+                        )
+                      }"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Proof
+                    </a>
+                  `
                   :
                   "—"
                 }
