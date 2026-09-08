@@ -1,0 +1,4614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>零食平台 · 员工工作台</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#FFF9F1;
+  --card:#FFFFFF;
+  --soft:#FFF3E4;
+  --orange:#F47B35;
+  --orange-dark:#D96525;
+  --text:#35251D;
+  --muted:#8B776C;
+  --line:#EEDFD2;
+  --green:#4F8A62;
+  --green-soft:#EAF4ED;
+  --red:#B42318;
+  --red-soft:#FEECE8;
+  --amber:#9A6700;
+  --amber-soft:#FFF5DF;
+  --gray:#667085;
+  --gray-soft:#F2F4F7;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  color:var(--text);
+  background:var(--bg);
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+a{
+  color:var(--orange);
+}
+
+/* Login */
+
+.login-page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  background:
+    linear-gradient(
+      180deg,
+      #FFF9F1,
+      #FFF3E4
+    );
+}
+
+.login-card{
+  width:100%;
+  max-width:430px;
+  padding:28px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:
+    0 14px 40px
+    rgba(53,37,29,.09);
+}
+
+.brand{
+  color:var(--orange);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.06em;
+  margin-bottom:8px;
+}
+
+.login-card h1{
+  margin:0 0 8px;
+  font-size:27px;
+}
+
+.login-note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+
+/* Forms */
+
+.form-group{
+  margin-bottom:13px;
+}
+
+.form-group label{
+  display:block;
+  margin-bottom:7px;
+  font-size:13px;
+  font-weight:800;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:white;
+  color:var(--text);
+  outline:none;
+}
+
+textarea{
+  min-height:86px;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--orange);
+  box-shadow:
+    0 0 0 3px
+    rgba(244,123,53,.12);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+
+/* Buttons */
+
+.btn{
+  border:0;
+  border-radius:11px;
+  padding:10px 14px;
+  font-weight:800;
+}
+
+.btn-small{
+  padding:7px 9px;
+  font-size:11px;
+}
+
+.btn-primary{
+  background:var(--orange);
+  color:white;
+}
+
+.btn-light{
+  background:#F5EEE8;
+  color:var(--text);
+}
+
+.btn-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.btn-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.btn-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.login-btn{
+  width:100%;
+  margin-top:4px;
+}
+
+/* Topbar */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 16px;
+  background:white;
+  border-bottom:1px solid var(--line);
+}
+
+.top-title{
+  font-size:18px;
+  font-weight:900;
+}
+
+.top-title span{
+  color:var(--orange);
+}
+
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.staff-name{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Layout */
+
+.layout{
+  display:flex;
+  min-height:
+    calc(100vh - 64px);
+}
+
+.sidebar{
+  flex:none;
+  width:225px;
+  padding:13px 10px;
+  background:white;
+  border-right:1px solid var(--line);
+}
+
+.menu-title{
+  padding:14px 11px 5px;
+  color:#AA9386;
+  font-size:10px;
+  font-weight:900;
+}
+
+.menu-item{
+  padding:11px 12px;
+  border-radius:11px;
+  margin:3px 0;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.menu-item.active{
+  background:var(--soft);
+  color:var(--orange);
+}
+
+.content{
+  flex:1;
+  min-width:0;
+  max-width:1400px;
+  padding:20px;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+.page-title{
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.page-subtitle{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+/* Cards */
+
+.stats{
+  display:grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+  gap:11px;
+  margin-bottom:16px;
+}
+
+.stat{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:16px;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.stat-value{
+  font-size:25px;
+  font-weight:900;
+  margin-top:6px;
+}
+
+.panel{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:16px;
+}
+
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:9px;
+  margin-bottom:12px;
+}
+
+.panel-title{
+  font-size:16px;
+  font-weight:900;
+}
+
+.note{
+  padding:11px 12px;
+  margin-bottom:13px;
+  border:1px solid #F4D59A;
+  border-radius:12px;
+  background:var(--amber-soft);
+  color:#72510B;
+  font-size:12px;
+  line-height:1.6;
+}
+
+/* Table */
+
+.table-wrap{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+
+table{
+  width:100%;
+  min-width:760px;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  padding:10px 11px;
+  text-align:left;
+  vertical-align:top;
+  border-bottom:1px solid #F1E7DF;
+  font-size:12px;
+}
+
+th{
+  background:#FFF8F2;
+  color:#735F54;
+  font-size:10px;
+}
+
+tr:last-child td{
+  border-bottom:0;
+}
+
+.operation-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.small{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.mono{
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
+.empty{
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* Badges */
+
+.badge{
+  display:inline-block;
+  margin:1px;
+  padding:4px 7px;
+  border-radius:999px;
+  color:var(--gray);
+  background:var(--gray-soft);
+  font-size:10px;
+  font-weight:900;
+}
+
+.badge-green{
+  color:#2F6A42;
+  background:var(--green-soft);
+}
+
+.badge-red{
+  color:var(--red);
+  background:var(--red-soft);
+}
+
+.badge-amber{
+  color:var(--amber);
+  background:var(--amber-soft);
+}
+
+/* Profile */
+
+.profile-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.profile-item{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+
+.profile-label{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.profile-value{
+  margin-top:5px;
+  font-size:13px;
+  font-weight:800;
+}
+
+/* Toolbar */
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:12px;
+}
+
+.toolbar select,
+.toolbar input{
+  width:auto;
+  min-width:150px;
+}
+
+/* Mobile */
+
+@media(max-width:900px){
+
+  .stats{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:760px){
+
+  .topbar{
+    min-height:60px;
+    padding:8px 11px;
+  }
+
+  .staff-name{
+    display:none;
+  }
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    position:sticky;
+    top:60px;
+    z-index:20;
+    display:flex;
+    width:100%;
+    overflow-x:auto;
+    padding:8px;
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .menu-title{
+    display:none;
+  }
+
+  .menu-item{
+    flex:none;
+    white-space:nowrap;
+  }
+
+  .content{
+    padding:12px;
+  }
+
+  .form-grid,
+  .profile-grid{
+    grid-template-columns:1fr;
+  }
+
+  .toolbar input,
+  .toolbar select{
+    width:100%;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div
+  id="loginPage"
+  class="login-page"
+>
+
+  <div class="login-card">
+
+    <div class="brand">
+      SNACK PLATFORM · STAFF
+    </div>
+
+    <h1 id="loginTitle">
+      员工工作台
+    </h1>
+
+    <div
+      id="loginDescription"
+      class="login-note"
+    >
+      请使用公司提供的员工账号登录。
+    </div>
+
+
+    <div class="form-group">
+
+      <label id="emailLabel">
+        邮箱
+      </label>
+
+      <input
+        id="loginEmail"
+        type="email"
+        autocomplete="email"
+      >
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label id="passwordLabel">
+        密码
+      </label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        autocomplete="current-password"
+      >
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>
+        Language / 语言
+      </label>
+
+      <select
+        id="loginLanguage"
+        onchange="changeLoginLanguage()"
+      >
+
+        <option value="zh">
+          中文
+        </option>
+
+        <option value="en">
+          English
+        </option>
+
+        <option value="my">
+          မြန်မာ
+        </option>
+
+        <option value="th">
+          ไทย
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      id="loginButton"
+      class="btn btn-primary login-btn"
+      onclick="login()"
+    >
+      登录
+    </button>
+
+
+    <div
+      id="loginMessage"
+      class="small"
+      style="margin-top:12px"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<!-- APP -->
+
+<div
+  id="staffApp"
+  class="hidden"
+>
+
+<header class="topbar">
+
+  <div class="top-title">
+
+    <span>
+      SnacksHub
+    </span>
+
+    ·
+
+    <span
+      id="workspaceTitle"
+      style="color:var(--text)"
+    >
+      员工工作台
+    </span>
+
+  </div>
+
+
+  <div class="top-right">
+
+    <span
+      id="staffDisplay"
+      class="staff-name"
+    ></span>
+
+    <select
+      id="appLanguage"
+      style="width:auto;padding:7px"
+      onchange="changeAppLanguage()"
+    >
+
+      <option value="zh">
+        中文
+      </option>
+
+      <option value="en">
+        EN
+      </option>
+
+      <option value="my">
+        MY
+      </option>
+
+      <option value="th">
+        TH
+      </option>
+
+    </select>
+
+
+    <button
+      class="btn btn-light btn-small"
+      onclick="refreshCurrent()"
+      data-i18n="refresh"
+    >
+      刷新
+    </button>
+
+
+    <button
+      class="btn btn-light btn-small"
+      onclick="logout()"
+      data-i18n="logout"
+    >
+      退出
+    </button>
+
+  </div>
+
+</header>
+
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+  <div class="menu-title">
+    WORK
+  </div>
+
+
+  <div
+    class="menu-item active"
+    data-section="dashboard"
+    onclick="showSection('dashboard',this)"
+    data-i18n="dashboard"
+  >
+    工作台
+  </div>
+
+
+  <div
+    id="menuOrders"
+    class="menu-item hidden"
+    data-section="orders"
+    onclick="showSection('orders',this)"
+    data-i18n="orders"
+  >
+    订单
+  </div>
+
+
+  <div
+    id="menuInventory"
+    class="menu-item hidden"
+    data-section="inventory"
+    onclick="showSection('inventory',this)"
+    data-i18n="inventory"
+  >
+    库存
+  </div>
+
+
+  <div
+    id="menuPayments"
+    class="menu-item hidden"
+    data-section="payments"
+    onclick="showSection('payments',this)"
+    data-i18n="payments"
+  >
+    付款审核
+  </div>
+
+
+  <div
+    id="menuCustomers"
+    class="menu-item hidden"
+    data-section="customers"
+    onclick="showSection('customers',this)"
+    data-i18n="customers"
+  >
+    客户
+  </div>
+
+
+  <div
+    class="menu-title">
+    ACCOUNT
+  </div>
+
+
+  <div
+    class="menu-item"
+    data-section="profile"
+    onclick="showSection('profile',this)"
+    data-i18n="myProfile"
+  >
+    我的账号
+  </div>
+
+</aside>
+
+
+<!-- CONTENT -->
+
+<main class="content">
+
+<!-- DASHBOARD -->
+
+<section
+  id="dashboard"
+  class="section active"
+>
+
+  <div
+    class="page-title"
+    data-i18n="dashboard"
+  >
+    工作台
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="dashboardDesc"
+  >
+    这里只显示你有权限处理的地区和工作。
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="pendingOrders"
+      >
+        待确认订单
+      </div>
+
+      <div
+        id="statPending"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="pickingOrders"
+      >
+        拣货中
+      </div>
+
+      <div
+        id="statPicking"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="submittedPayments"
+      >
+        待审核付款
+      </div>
+
+      <div
+        id="statPayments"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="myRegions"
+      >
+        负责地区
+      </div>
+
+      <div
+        id="statRegions"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="recentOrders"
+    >
+      最近订单
+    </div>
+
+    <div id="dashboardOrders"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ORDERS -->
+
+<section
+  id="orders"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="orders"
+  >
+    订单
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="ordersDesc"
+  >
+    只会看到你负责地区内的订单。
+  </div>
+
+
+  <div class="toolbar">
+
+    <select
+      id="orderStatusFilter"
+      onchange="loadOrders()"
+    >
+
+      <option
+        value=""
+        data-i18n="allOrders"
+      >
+        全部订单
+      </option>
+
+      <option value="pending_confirmation">
+        pending_confirmation
+      </option>
+
+      <option value="confirmed">
+        confirmed
+      </option>
+
+      <option value="cancelled">
+        cancelled
+      </option>
+
+      <option value="completed">
+        completed
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div id="ordersTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- INVENTORY -->
+
+<section
+  id="inventory"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="inventory"
+  >
+    库存
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="inventoryDesc"
+  >
+    入库、库存查看以及库存调整申请。
+  </div>
+
+
+  <div
+    id="receivePanel"
+    class="panel hidden"
+  >
+
+    <div
+      class="panel-title"
+      data-i18n="receiveStock"
+    >
+      商品入库
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label data-i18n="region">
+          地区
+        </label>
+
+        <select id="receiveRegion"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          SKU
+        </label>
+
+        <select id="receiveVariant"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="quantity">
+          数量
+        </label>
+
+        <input
+          id="receiveQuantity"
+          type="number"
+          min="1"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="batchCode">
+          批次编号
+        </label>
+
+        <input id="receiveBatch">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="productionDate">
+          生产日期
+        </label>
+
+        <input
+          id="productionDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="expiryDate">
+          到期日期
+        </label>
+
+        <input
+          id="expiryDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="unitCost">
+          单位成本
+        </label>
+
+        <input
+          id="unitCost"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="note">
+          备注
+        </label>
+
+        <input id="receiveNote">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="receiveStock()"
+      data-i18n="confirmReceive"
+    >
+      确认入库
+    </button>
+
+  </div>
+
+
+  <div
+    id="adjustPanel"
+    class="panel hidden"
+  >
+
+    <div
+      class="panel-title"
+      data-i18n="inventoryAdjustment"
+    >
+      库存调整申请
+    </div>
+
+    <div
+      class="note"
+      data-i18n="adjustmentWarning"
+    >
+      员工修改库存属于高风险操作。这里会提交审批申请，不会绕过 Super Admin。
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label data-i18n="region">
+          地区
+        </label>
+
+        <select id="adjustRegion"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          SKU
+        </label>
+
+        <select id="adjustVariant"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="adjustQuantity">
+          调整数量
+        </label>
+
+        <input
+          id="adjustDelta"
+          type="number"
+          placeholder="+5 / -3"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label data-i18n="reason">
+          原因
+        </label>
+
+        <input id="adjustReason">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-amber"
+      onclick="requestInventoryAdjustment()"
+      data-i18n="submitApproval"
+    >
+      提交审批
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="inventoryList"
+    >
+      当前库存
+    </div>
+
+    <div id="inventoryTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="inventoryBatches"
+    >
+      库存批次
+    </div>
+
+    <div id="batchTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- PAYMENTS -->
+
+<section
+  id="payments"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="payments"
+  >
+    付款审核
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="paymentsDesc"
+  >
+    客户提交付款证明后，由有权限的员工审核。
+  </div>
+
+
+  <div class="panel">
+
+    <div id="paymentsTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- CUSTOMERS -->
+
+<section
+  id="customers"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="customers"
+  >
+    客户
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="customersDesc"
+  >
+    查看客户基础资料。
+  </div>
+
+
+  <div class="panel">
+
+    <div id="customersTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section
+  id="profile"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="myProfile"
+  >
+    我的账号
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="profileDesc"
+  >
+    当前员工身份、角色、地区和权限。
+  </div>
+
+
+  <div class="panel">
+
+    <div id="profileContent"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="permissions"
+    >
+      我的权限
+    </div>
+
+    <div id="permissionsContent"></div>
+
+  </div>
+
+</section>
+
+</main>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const SUPABASE_URL =
+  "https://aymicuawrlylpqnipwky.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
+
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+let currentSection =
+  "dashboard";
+
+let currentUser = null;
+let staffProfile = null;
+
+let roles = [];
+let roleAssignments = [];
+let regionAssignments = [];
+let permissions = [];
+let rolePermissions = [];
+
+let myPermissionCodes = [];
+let myRegionIds = [];
+
+let regions = [];
+let variants = [];
+let products = [];
+
+let regionMap = {};
+let variantMap = {};
+let productMap = {};
+
+let appLanguage =
+  localStorage
+    .getItem(
+      "staffLanguage"
+    )
+  ||
+  "zh";
+
+
+/* ==========================================
+   I18N
+========================================== */
+
+const i18n = {
+
+zh:{
+  loginTitle:"员工工作台",
+  loginDescription:"请使用公司提供的员工账号登录。",
+  email:"邮箱",
+  password:"密码",
+  login:"登录",
+  refresh:"刷新",
+  logout:"退出",
+  workspace:"员工工作台",
+  dashboard:"工作台",
+  dashboardDesc:"这里只显示你有权限处理的地区和工作。",
+  orders:"订单",
+  ordersDesc:"只会看到你负责地区内的订单。",
+  inventory:"库存",
+  inventoryDesc:"入库、库存查看以及库存调整申请。",
+  payments:"付款审核",
+  paymentsDesc:"客户提交付款证明后，由有权限的员工审核。",
+  customers:"客户",
+  customersDesc:"查看客户基础资料。",
+  myProfile:"我的账号",
+  profileDesc:"当前员工身份、角色、地区和权限。",
+  pendingOrders:"待确认订单",
+  pickingOrders:"拣货中",
+  submittedPayments:"待审核付款",
+  myRegions:"负责地区",
+  recentOrders:"最近订单",
+  allOrders:"全部订单",
+  receiveStock:"商品入库",
+  region:"地区",
+  quantity:"数量",
+  batchCode:"批次编号",
+  productionDate:"生产日期",
+  expiryDate:"到期日期",
+  unitCost:"单位成本",
+  note:"备注",
+  confirmReceive:"确认入库",
+  inventoryAdjustment:"库存调整申请",
+  adjustmentWarning:"员工修改库存属于高风险操作。这里会提交审批申请，不会绕过 Super Admin。",
+  adjustQuantity:"调整数量",
+  reason:"原因",
+  submitApproval:"提交审批",
+  inventoryList:"当前库存",
+  inventoryBatches:"库存批次",
+  permissions:"我的权限",
+  noData:"目前没有数据"
+},
+
+en:{
+  loginTitle:"Staff Workspace",
+  loginDescription:"Sign in with your company staff account.",
+  email:"Email",
+  password:"Password",
+  login:"Login",
+  refresh:"Refresh",
+  logout:"Logout",
+  workspace:"Staff Workspace",
+  dashboard:"Dashboard",
+  dashboardDesc:"Only work and regions you are authorized to access are shown.",
+  orders:"Orders",
+  ordersDesc:"Only orders from your assigned regions are visible.",
+  inventory:"Inventory",
+  inventoryDesc:"Receive stock, view inventory and request adjustments.",
+  payments:"Payment Review",
+  paymentsDesc:"Review customer payment submissions.",
+  customers:"Customers",
+  customersDesc:"View customer profiles.",
+  myProfile:"My Account",
+  profileDesc:"Your staff identity, roles, regions and permissions.",
+  pendingOrders:"Pending Orders",
+  pickingOrders:"Picking",
+  submittedPayments:"Payments to Review",
+  myRegions:"My Regions",
+  recentOrders:"Recent Orders",
+  allOrders:"All Orders",
+  receiveStock:"Receive Stock",
+  region:"Region",
+  quantity:"Quantity",
+  batchCode:"Batch Code",
+  productionDate:"Production Date",
+  expiryDate:"Expiry Date",
+  unitCost:"Unit Cost",
+  note:"Note",
+  confirmReceive:"Confirm Receipt",
+  inventoryAdjustment:"Inventory Adjustment",
+  adjustmentWarning:"Inventory adjustment is a high-risk operation and requires approval.",
+  adjustQuantity:"Adjustment",
+  reason:"Reason",
+  submitApproval:"Submit Approval",
+  inventoryList:"Current Inventory",
+  inventoryBatches:"Inventory Batches",
+  permissions:"My Permissions",
+  noData:"No data"
+},
+
+my:{
+  loginTitle:"ဝန်ထမ်းအလုပ်စခန်း",
+  loginDescription:"ကုမ္ပဏီမှပေးထားသော ဝန်ထမ်းအကောင့်ဖြင့် ဝင်ရောက်ပါ။",
+  email:"အီးမေးလ်",
+  password:"စကားဝှက်",
+  login:"ဝင်မည်",
+  refresh:"ပြန်လည်စစ်ဆေး",
+  logout:"ထွက်မည်",
+  workspace:"ဝန်ထမ်းအလုပ်စခန်း",
+  dashboard:"အလုပ်စခန်း",
+  dashboardDesc:"သင့်ခွင့်ပြုချက်ရှိသော ဒေသနှင့်အလုပ်များကိုသာ ပြသပါသည်။",
+  orders:"အော်ဒါ",
+  ordersDesc:"သင်တာဝန်ယူထားသော ဒေသ၏အော်ဒါများကိုသာ ကြည့်နိုင်သည်။",
+  inventory:"ကုန်ပစ္စည်းစာရင်း",
+  inventoryDesc:"ကုန်သွင်းခြင်း၊ လက်ကျန်ကြည့်ခြင်းနှင့် ပြင်ဆင်ရန်တင်ပြခြင်း။",
+  payments:"ငွေပေးချေမှုစစ်ဆေး",
+  paymentsDesc:"ဖောက်သည်ပေးပို့သော ငွေပေးချေမှုကို စစ်ဆေးပါ။",
+  customers:"ဖောက်သည်များ",
+  customersDesc:"ဖောက်သည်အချက်အလက်ကြည့်ရန်။",
+  myProfile:"ကျွန်ုပ်အကောင့်",
+  profileDesc:"သင့်ဝန်ထမ်းအချက်အလက်၊ အခန်းကဏ္ဍနှင့် ခွင့်ပြုချက်များ။",
+  pendingOrders:"အတည်ပြုရန်အော်ဒါ",
+  pickingOrders:"ပစ္စည်းရွေးနေ",
+  submittedPayments:"စစ်ဆေးရန်ငွေပေးချေမှု",
+  myRegions:"တာဝန်ယူဒေသ",
+  recentOrders:"နောက်ဆုံးအော်ဒါ",
+  allOrders:"အော်ဒါအားလုံး",
+  receiveStock:"ကုန်ပစ္စည်းသွင်း",
+  region:"ဒေသ",
+  quantity:"အရေအတွက်",
+  batchCode:"Batch",
+  productionDate:"ထုတ်လုပ်ရက်",
+  expiryDate:"သက်တမ်းကုန်ရက်",
+  unitCost:"တစ်ခုချင်းကုန်ကျစရိတ်",
+  note:"မှတ်ချက်",
+  confirmReceive:"အတည်ပြုသွင်းမည်",
+  inventoryAdjustment:"လက်ကျန်ပြင်ဆင်ရန်",
+  adjustmentWarning:"လက်ကျန်ပြင်ဆင်ခြင်းသည် အန္တရာယ်မြင့်လုပ်ဆောင်ချက်ဖြစ်ပြီး အတည်ပြုချက်လိုအပ်သည်။",
+  adjustQuantity:"ပြင်ဆင်ပမာဏ",
+  reason:"အကြောင်းပြချက်",
+  submitApproval:"အတည်ပြုရန်တင်မည်",
+  inventoryList:"လက်ရှိလက်ကျန်",
+  inventoryBatches:"ကုန်ပစ္စည်း Batch",
+  permissions:"ကျွန်ုပ်ခွင့်ပြုချက်",
+  noData:"ဒေတာမရှိသေးပါ"
+},
+
+th:{
+  loginTitle:"ระบบพนักงาน",
+  loginDescription:"เข้าสู่ระบบด้วยบัญชีพนักงานของบริษัท",
+  email:"อีเมล",
+  password:"รหัสผ่าน",
+  login:"เข้าสู่ระบบ",
+  refresh:"รีเฟรช",
+  logout:"ออกจากระบบ",
+  workspace:"ระบบพนักงาน",
+  dashboard:"หน้าหลัก",
+  dashboardDesc:"แสดงเฉพาะงานและพื้นที่ที่คุณมีสิทธิ์",
+  orders:"คำสั่งซื้อ",
+  ordersDesc:"ดูได้เฉพาะคำสั่งซื้อในพื้นที่ที่ได้รับมอบหมาย",
+  inventory:"สต็อก",
+  inventoryDesc:"รับสินค้า ดูสต็อก และขอปรับปรุงสต็อก",
+  payments:"ตรวจสอบการชำระเงิน",
+  paymentsDesc:"ตรวจสอบหลักฐานการชำระเงินของลูกค้า",
+  customers:"ลูกค้า",
+  customersDesc:"ดูข้อมูลลูกค้า",
+  myProfile:"บัญชีของฉัน",
+  profileDesc:"ข้อมูลพนักงาน บทบาท พื้นที่ และสิทธิ์ของคุณ",
+  pendingOrders:"รอยืนยัน",
+  pickingOrders:"กำลังจัดสินค้า",
+  submittedPayments:"รอตรวจชำระเงิน",
+  myRegions:"พื้นที่รับผิดชอบ",
+  recentOrders:"คำสั่งซื้อล่าสุด",
+  allOrders:"คำสั่งซื้อทั้งหมด",
+  receiveStock:"รับสินค้าเข้า",
+  region:"พื้นที่",
+  quantity:"จำนวน",
+  batchCode:"เลขล็อต",
+  productionDate:"วันที่ผลิต",
+  expiryDate:"วันหมดอายุ",
+  unitCost:"ต้นทุนต่อหน่วย",
+  note:"หมายเหตุ",
+  confirmReceive:"ยืนยันรับสินค้า",
+  inventoryAdjustment:"ขอปรับสต็อก",
+  adjustmentWarning:"การปรับสต็อกเป็นการดำเนินการความเสี่ยงสูงและต้องได้รับอนุมัติ",
+  adjustQuantity:"จำนวนที่ปรับ",
+  reason:"เหตุผล",
+  submitApproval:"ส่งขออนุมัติ",
+  inventoryList:"สต็อกปัจจุบัน",
+  inventoryBatches:"ล็อตสินค้า",
+  permissions:"สิทธิ์ของฉัน",
+  noData:"ยังไม่มีข้อมูล"
+}
+
+};
+
+
+function t(key){
+
+  return (
+    i18n[
+      appLanguage
+    ]?.[key]
+    ||
+    i18n.zh[key]
+    ||
+    key
+  );
+
+}
+
+
+function applyLanguage(){
+
+  document
+    .documentElement
+    .lang =
+    appLanguage === "zh"
+    ?
+    "zh-CN"
+    :
+    appLanguage;
+
+
+  document
+    .querySelectorAll(
+      "[data-i18n]"
+    )
+    .forEach(
+      item => {
+
+        const key =
+          item.getAttribute(
+            "data-i18n"
+          );
+
+        item.textContent =
+          t(key);
+
+      }
+    );
+
+
+  el("workspaceTitle")
+    .textContent =
+    t("workspace");
+
+
+  el("appLanguage").value =
+    appLanguage;
+
+  el("loginLanguage").value =
+    appLanguage;
+
+}
+
+
+function changeLoginLanguage(){
+
+  appLanguage =
+    el("loginLanguage").value;
+
+  localStorage
+    .setItem(
+      "staffLanguage",
+      appLanguage
+    );
+
+
+  el("loginTitle")
+    .textContent =
+    t("loginTitle");
+
+  el("loginDescription")
+    .textContent =
+    t("loginDescription");
+
+  el("emailLabel")
+    .textContent =
+    t("email");
+
+  el("passwordLabel")
+    .textContent =
+    t("password");
+
+  el("loginButton")
+    .textContent =
+    t("login");
+
+}
+
+
+function changeAppLanguage(){
+
+  appLanguage =
+    el("appLanguage").value;
+
+  localStorage
+    .setItem(
+      "staffLanguage",
+      appLanguage
+    );
+
+  applyLanguage();
+
+}
+
+
+/* ==========================================
+   TOOLS
+========================================== */
+
+function el(id){
+
+  return document
+    .getElementById(id);
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      })[char]
+    );
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "—";
+  }
+
+  return new Date(value)
+    .toLocaleString(
+      appLanguage === "zh"
+      ?
+      "zh-CN"
+      :
+      "en-US",
+      {
+        hour12:false
+      }
+    );
+
+}
+
+
+function money(
+  value,
+  currency = "MMK"
+){
+
+  return (
+    new Intl.NumberFormat(
+      "en-US",
+      {
+        maximumFractionDigits:0
+      }
+    )
+    .format(
+      Number(value || 0)
+    )
+    +
+    " "
+    +
+    (currency || "MMK")
+  );
+
+}
+
+
+function statusBadge(status){
+
+  const value =
+    String(status ?? "—");
+
+  const green = [
+    "active",
+    "confirmed",
+    "paid",
+    "completed",
+    "packed",
+    "fulfilled",
+    "delivered",
+    "approved",
+    "processed"
+  ];
+
+  const red = [
+    "failed",
+    "cancelled",
+    "rejected",
+    "inactive",
+    "suspended",
+    "deactivated",
+    "expired"
+  ];
+
+  const amber = [
+    "submitted",
+    "pending",
+    "pending_confirmation",
+    "unpaid",
+    "picking",
+    "assigned",
+    "picked_up",
+    "delivering",
+    "requested",
+    "processing",
+    "partially_refunded"
+  ];
+
+  let className =
+    "badge";
+
+  if(
+    green.includes(value)
+  ){
+    className +=
+      " badge-green";
+  }
+  else if(
+    red.includes(value)
+  ){
+    className +=
+      " badge-red";
+  }
+  else if(
+    amber.includes(value)
+  ){
+    className +=
+      " badge-amber";
+  }
+
+
+  return (
+    `<span class="${className}">` +
+    escapeHtml(value) +
+    `</span>`
+  );
+
+}
+
+
+function makeTable(
+  headers,
+  rows
+){
+
+  if(
+    !rows
+    ||
+    rows.length === 0
+  ){
+
+    return (
+      `<div class="empty">` +
+      t("noData") +
+      `</div>`
+    );
+
+  }
+
+
+  return `
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            ${
+              headers
+                .map(
+                  item =>
+                    `<th>${item}</th>`
+                )
+                .join("")
+            }
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+          ${rows.join("")}
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+function errorBox(message){
+
+  return `
+
+    <div
+      class="empty"
+      style="color:#B42318"
+    >
+
+      ${escapeHtml(message)}
+
+    </div>
+
+  `;
+
+}
+
+
+function hasPermission(code){
+
+  return myPermissionCodes
+    .includes(code);
+
+}
+
+
+/* ==========================================
+   AUTH
+========================================== */
+
+async function login(){
+
+  const email =
+    el("loginEmail")
+      .value
+      .trim();
+
+  const password =
+    el("loginPassword")
+      .value;
+
+
+  if(
+    !email
+    ||
+    !password
+  ){
+
+    el("loginMessage")
+      .textContent =
+      "Email / Password required.";
+
+    return;
+
+  }
+
+
+  el("loginMessage")
+    .textContent =
+    "...";
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth
+      .signInWithPassword({
+
+        email:
+          email,
+
+        password:
+          password
+
+      });
+
+
+  if(error){
+
+    el("loginMessage")
+      .textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  currentUser =
+    data.user;
+
+
+  await initializeStaff();
+
+}
+
+
+async function checkSession(){
+
+  const {
+    data
+  } =
+    await db.auth
+      .getSession();
+
+
+  if(
+    data.session
+  ){
+
+    currentUser =
+      data.session.user;
+
+    await initializeStaff();
+
+  }
+
+}
+
+
+async function initializeStaff(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "staff_profiles"
+      )
+      .select("*")
+      .eq(
+        "id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(
+    error
+    ||
+    !data
+  ){
+
+    await db.auth
+      .signOut();
+
+    el("loginMessage")
+      .textContent =
+      "This account is not an authorized staff account.";
+
+    return;
+
+  }
+
+
+  if(
+    data.status
+    !==
+    "active"
+  ){
+
+    await db.auth
+      .signOut();
+
+    el("loginMessage")
+      .textContent =
+      "Staff account is not active.";
+
+    return;
+
+  }
+
+
+  staffProfile =
+    data;
+
+
+  appLanguage =
+    staffProfile.preferred_language
+    ||
+    appLanguage;
+
+
+  localStorage
+    .setItem(
+      "staffLanguage",
+      appLanguage
+    );
+
+
+  await loadAccessControl();
+
+  await loadBaseData();
+
+
+  el("loginPage")
+    .classList
+    .add("hidden");
+
+  el("staffApp")
+    .classList
+    .remove("hidden");
+
+
+  el("staffDisplay")
+    .textContent =
+    `${staffProfile.display_name} · ${staffProfile.staff_code}`;
+
+
+  applyLanguage();
+
+  applyMenuPermissions();
+
+  await loadDashboard();
+
+}
+
+
+async function logout(){
+
+  await db.auth
+    .signOut();
+
+  location.reload();
+
+}
+
+
+/* ==========================================
+   ACCESS CONTROL
+========================================== */
+
+async function loadAccessControl(){
+
+  const results =
+    await Promise.all([
+
+      db
+        .from(
+          "staff_role_assignments"
+        )
+        .select("*")
+        .eq(
+          "staff_id",
+          currentUser.id
+        )
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from(
+          "staff_region_assignments"
+        )
+        .select("*")
+        .eq(
+          "staff_id",
+          currentUser.id
+        )
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from(
+          "staff_roles"
+        )
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from(
+          "permission_definitions"
+        )
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from(
+          "role_permissions"
+        )
+        .select("*")
+
+    ]);
+
+
+  roleAssignments =
+    results[0].data
+    ||
+    [];
+
+  regionAssignments =
+    results[1].data
+    ||
+    [];
+
+  roles =
+    results[2].data
+    ||
+    [];
+
+  permissions =
+    results[3].data
+    ||
+    [];
+
+  rolePermissions =
+    results[4].data
+    ||
+    [];
+
+
+  myRegionIds =
+    regionAssignments
+      .map(
+        item =>
+          item.region_id
+      );
+
+
+  const myRoleIds =
+    roleAssignments
+      .map(
+        item =>
+          item.role_id
+      );
+
+
+  const permissionIds =
+    rolePermissions
+      .filter(
+        item =>
+          myRoleIds.includes(
+            item.role_id
+          )
+      )
+      .map(
+        item =>
+          item.permission_id
+      );
+
+
+  myPermissionCodes =
+    permissions
+      .filter(
+        item =>
+          permissionIds.includes(
+            item.id
+          )
+      )
+      .map(
+        item =>
+          item.code
+      );
+
+}
+
+
+function applyMenuPermissions(){
+
+  if(
+    hasPermission(
+      "orders.view"
+    )
+  ){
+
+    el("menuOrders")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
+      "inventory.view"
+    )
+  ){
+
+    el("menuInventory")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
+      "payments.view"
+    )
+  ){
+
+    el("menuPayments")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
+      "customers.view"
+    )
+  ){
+
+    el("menuCustomers")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
+      "inventory.receive"
+    )
+  ){
+
+    el("receivePanel")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
+      "inventory.adjust"
+    )
+  ){
+
+    el("adjustPanel")
+      .classList
+      .remove("hidden");
+
+  }
+
+}
+
+
+/* ==========================================
+   BASE DATA
+========================================== */
+
+async function loadBaseData(){
+
+  await Promise.all([
+
+    loadRegions(),
+    loadProducts(),
+    loadVariants()
+
+  ]);
+
+
+  renderSelects();
+
+}
+
+
+async function loadRegions(){
+
+  const {
+    data
+  } =
+    await db
+      .from(
+        "regions"
+      )
+      .select("*")
+      .in(
+        "id",
+        myRegionIds.length
+        ?
+        myRegionIds
+        :
+        [
+          "00000000-0000-0000-0000-000000000000"
+        ]
+      );
+
+
+  regions =
+    data
+    ||
+    [];
+
+
+  regionMap = {};
+
+
+  regions.forEach(
+    region => {
+
+      regionMap[
+        region.id
+      ] =
+        region[
+          `name_${appLanguage}`
+        ]
+        ||
+        region.name_zh
+        ||
+        region.name_en;
+
+    }
+  );
+
+}
+
+
+async function loadProducts(){
+
+  const {
+    data
+  } =
+    await db
+      .from(
+        "products"
+      )
+      .select("*")
+      .eq(
+        "status",
+        "active"
+      );
+
+
+  products =
+    data
+    ||
+    [];
+
+
+  productMap = {};
+
+
+  products.forEach(
+    product => {
+
+      productMap[
+        product.id
+      ] =
+        product[
+          `name_${appLanguage}`
+        ]
+        ||
+        product.name_zh
+        ||
+        product.name_en;
+
+    }
+  );
+
+}
+
+
+async function loadVariants(){
+
+  const {
+    data
+  } =
+    await db
+      .from(
+        "product_variants"
+      )
+      .select("*")
+      .eq(
+        "is_active",
+        true
+      );
+
+
+  variants =
+    data
+    ||
+    [];
+
+
+  variantMap = {};
+
+
+  variants.forEach(
+    variant => {
+
+      variantMap[
+        variant.id
+      ] =
+        (
+          variant.sku_code
+          ||
+          ""
+        )
+        +
+        " · "
+        +
+        (
+          variant[
+            `name_${appLanguage}`
+          ]
+          ||
+          variant.name_zh
+          ||
+          variant[
+            `specification_${appLanguage}`
+          ]
+          ||
+          variant.specification_zh
+          ||
+          productMap[
+            variant.product_id
+          ]
+          ||
+          ""
+        );
+
+    }
+  );
+
+}
+
+
+function renderSelects(){
+
+  const regionOptions =
+    regions
+      .map(
+        region => `
+
+          <option value="${region.id}">
+
+            ${
+              escapeHtml(
+                regionMap[
+                  region.id
+                ]
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  [
+    "receiveRegion",
+    "adjustRegion"
+  ]
+  .forEach(
+    id => {
+
+      if(el(id)){
+
+        el(id)
+          .innerHTML =
+          regionOptions;
+
+      }
+
+    }
+  );
+
+
+  const variantOptions =
+    variants
+      .map(
+        variant => `
+
+          <option value="${variant.id}">
+
+            ${
+              escapeHtml(
+                variantMap[
+                  variant.id
+                ]
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  [
+    "receiveVariant",
+    "adjustVariant"
+  ]
+  .forEach(
+    id => {
+
+      if(el(id)){
+
+        el(id)
+          .innerHTML =
+          variantOptions;
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+
+function showSection(
+  name,
+  menu
+){
+
+  currentSection =
+    name;
+
+
+  document
+    .querySelectorAll(
+      ".section"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  el(name)
+    .classList
+    .add("active");
+
+
+  document
+    .querySelectorAll(
+      ".menu-item"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  menu.classList
+    .add("active");
+
+
+  refreshCurrent();
+
+}
+
+
+async function refreshCurrent(){
+
+  const map = {
+
+    dashboard:
+      loadDashboard,
+
+    orders:
+      loadOrders,
+
+    inventory:
+      loadInventory,
+
+    payments:
+      loadPayments,
+
+    customers:
+      loadCustomers,
+
+    profile:
+      loadProfile
+
+  };
+
+
+  if(
+    map[currentSection]
+  ){
+
+    await map[
+      currentSection
+    ]();
+
+  }
+
+}
+
+
+/* ==========================================
+   RPC
+========================================== */
+
+async function callRpc(
+  name,
+  params,
+  successMessage
+){
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      name,
+      params
+    );
+
+
+  if(error){
+
+    alert(
+      "Operation failed:\n"
+      +
+      error.message
+    );
+
+    return null;
+
+  }
+
+
+  if(successMessage){
+
+    alert(
+      successMessage
+    );
+
+  }
+
+
+  await refreshCurrent();
+
+  return data;
+
+}
+
+
+/* ==========================================
+   DASHBOARD
+========================================== */
+
+async function countRows(
+  table,
+  modifier
+){
+
+  let query =
+    db
+      .from(table)
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      );
+
+
+  if(modifier){
+
+    query =
+      modifier(
+        query
+      );
+
+  }
+
+
+  const {
+    count,
+    error
+  } =
+    await query;
+
+
+  return error
+    ?
+    "—"
+    :
+    (
+      count
+      ??
+      0
+    );
+
+}
+
+
+async function loadDashboard(){
+
+  let pending =
+    "—";
+
+  let picking =
+    "—";
+
+  let paymentCount =
+    "—";
+
+
+  if(
+    hasPermission(
+      "orders.view"
+    )
+  ){
+
+    pending =
+      await countRows(
+
+        "orders",
+
+        query =>
+          query.eq(
+            "order_status",
+            "pending_confirmation"
+          )
+
+      );
+
+
+    picking =
+      await countRows(
+
+        "orders",
+
+        query =>
+          query.eq(
+            "fulfillment_status",
+            "picking"
+          )
+
+      );
+
+  }
+
+
+  if(
+    hasPermission(
+      "payments.view"
+    )
+  ){
+
+    paymentCount =
+      await countRows(
+
+        "payment_transactions",
+
+        query =>
+          query.eq(
+            "status",
+            "submitted"
+          )
+
+      );
+
+  }
+
+
+  el("statPending")
+    .textContent =
+    pending;
+
+  el("statPicking")
+    .textContent =
+    picking;
+
+  el("statPayments")
+    .textContent =
+    paymentCount;
+
+  el("statRegions")
+    .textContent =
+    myRegionIds.length;
+
+
+  if(
+    !hasPermission(
+      "orders.view"
+    )
+  ){
+
+    el("dashboardOrders")
+      .innerHTML =
+      `<div class="empty">No order permission</div>`;
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "orders"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(10);
+
+
+  if(error){
+
+    el("dashboardOrders")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        order => `
+
+          <tr>
+
+            <td class="mono">
+
+              ${
+                escapeHtml(
+                  order.order_number
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    order.region_id
+                  ]
+                  ||
+                  order.region_name_zh_snapshot
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  order.order_status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  order.fulfillment_status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                money(
+                  order.total_amount,
+                  order.currency_code
+                )
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("dashboardOrders")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Order",
+        "Region",
+        "Status",
+        "Fulfillment",
+        "Total"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* ==========================================
+   ORDERS
+========================================== */
+
+async function loadOrders(){
+
+  if(
+    !hasPermission(
+      "orders.view"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  let query =
+    db
+      .from(
+        "orders"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(250);
+
+
+  const status =
+    el(
+      "orderStatusFilter"
+    ).value;
+
+
+  if(status){
+
+    query =
+      query.eq(
+        "order_status",
+        status
+      );
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await query;
+
+
+  if(error){
+
+    el("ordersTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        order => {
+
+          let buttons = "";
+
+
+          if(
+            order.order_status
+            ===
+            "pending_confirmation"
+            &&
+            hasPermission(
+              "orders.confirm"
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="confirmOrder('${order.id}')"
+              >
+                Confirm
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.order_status
+            ===
+            "confirmed"
+            &&
+            order.fulfillment_status
+            ===
+            "unfulfilled"
+            &&
+            hasPermission(
+              "orders.pack"
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-light btn-small"
+                onclick="startPicking('${order.id}')"
+              >
+                Start Picking
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "picking"
+            &&
+            hasPermission(
+              "orders.pack"
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="markPacked('${order.id}')"
+              >
+                Packed
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "packed"
+            &&
+            hasPermission(
+              "orders.pack"
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-primary btn-small"
+                onclick="finalizeOrder('${order.id}')"
+              >
+                Fulfill
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            hasPermission(
+              "orders.cancel"
+            )
+            &&
+            ![
+              "cancelled",
+              "completed"
+            ].includes(
+              order.order_status
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="requestOrderCancellation('${order.id}','${order.region_id}')"
+              >
+                Request Cancel
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <div class="mono">
+
+                  ${
+                    escapeHtml(
+                      order.order_number
+                    )
+                  }
+
+                </div>
+
+                <div class="small">
+
+                  ${
+                    formatDate(
+                      order.created_at
+                    )
+                  }
+
+                </div>
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      order.region_id
+                    ]
+                    ||
+                    order.region_name_zh_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    order.recipient_name_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+                <div class="small">
+
+                  ${
+                    escapeHtml(
+                      order.recipient_phone_snapshot
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    order.full_address_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    order.order_status
+                  )
+                }
+
+                ${
+                  statusBadge(
+                    order.fulfillment_status
+                  )
+                }
+
+                ${
+                  statusBadge(
+                    order.delivery_status
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    order.payment_status
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  money(
+                    order.total_amount,
+                    order.currency_code
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("ordersTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Order",
+        "Region",
+        "Customer",
+        "Address",
+        "Status",
+        "Payment",
+        "Total",
+        "Action"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function confirmOrder(
+  id
+){
+
+  if(
+    !confirm(
+      "Confirm this order?"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "confirm_order",
+
+    {
+      p_order_id:
+        id,
+
+      p_note:
+        "Staff confirmed order"
+    },
+
+    "Confirmed"
+
+  );
+
+}
+
+
+async function startPicking(
+  id
+){
+
+  await callRpc(
+
+    "start_order_picking",
+
+    {
+      p_order_id:
+        id,
+
+      p_note:
+        "Staff started picking"
+    },
+
+    "Picking started"
+
+  );
+
+}
+
+
+async function markPacked(
+  id
+){
+
+  await callRpc(
+
+    "mark_order_packed",
+
+    {
+      p_order_id:
+        id,
+
+      p_note:
+        "Staff marked order packed"
+    },
+
+    "Packed"
+
+  );
+
+}
+
+
+async function finalizeOrder(
+  id
+){
+
+  if(
+    !confirm(
+      "This will deduct physical stock. Continue?"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "finalize_order_fulfillment",
+
+    {
+      p_order_id:
+        id,
+
+      p_note:
+        "Staff fulfilled order"
+    },
+
+    "Fulfilled"
+
+  );
+
+}
+
+
+async function requestOrderCancellation(
+  orderId,
+  regionId
+){
+
+  const reason =
+    prompt(
+      "Reason for cancellation:"
+    );
+
+
+  if(!reason){
+    return;
+  }
+
+
+  await callRpc(
+
+    "request_dangerous_action",
+
+    {
+      p_action_type:
+        "order_cancel",
+
+      p_region_id:
+        regionId,
+
+      p_target_type:
+        "order",
+
+      p_target_id:
+        orderId,
+
+      p_payload:{
+        order_id:
+          orderId
+      },
+
+      p_reason:
+        reason
+
+    },
+
+    "Cancellation approval request submitted."
+
+  );
+
+}
+
+
+/* ==========================================
+   INVENTORY
+========================================== */
+
+async function loadInventory(){
+
+  if(
+    !hasPermission(
+      "inventory.view"
+    )
+  ){
+    return;
+  }
+
+
+  await Promise.all([
+
+    loadInventoryList(),
+    loadBatchList()
+
+  ]);
+
+}
+
+
+async function loadInventoryList(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "region_inventory"
+      )
+      .select("*")
+      .order(
+        "updated_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    el("inventoryTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        item => `
+
+          <tr>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    item.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  variantMap[
+                    item.variant_id
+                  ]
+                  ||
+                  item.variant_id
+                )
+              }
+
+            </td>
+
+            <td>
+              ${item.stock_on_hand}
+            </td>
+
+            <td>
+              ${item.reserved_quantity}
+            </td>
+
+            <td>
+
+              ${
+                Number(
+                  item.stock_on_hand
+                  ||
+                  0
+                )
+                -
+                Number(
+                  item.reserved_quantity
+                  ||
+                  0
+                )
+              }
+
+            </td>
+
+            <td>
+              ${item.low_stock_threshold}
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  item.is_available
+                  ?
+                  "active"
+                  :
+                  "inactive"
+                )
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("inventoryTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Region",
+        "SKU",
+        "On Hand",
+        "Reserved",
+        "Available",
+        "Low Stock",
+        "Status"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function loadBatchList(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "inventory_batches"
+      )
+      .select(
+        `
+        *,
+        region_inventory(
+          region_id,
+          variant_id
+        )
+        `
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(250);
+
+
+  if(error){
+
+    el("batchTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        batch => {
+
+          const inventory =
+            batch.region_inventory
+            ||
+            {};
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      inventory.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    variantMap[
+                      inventory.variant_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    batch.batch_code
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${batch.quantity_remaining}
+              </td>
+
+              <td>
+                ${batch.expiry_date || "—"}
+              </td>
+
+              <td>
+                ${statusBadge(batch.status)}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("batchTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Region",
+        "SKU",
+        "Batch",
+        "Remaining",
+        "Expiry",
+        "Status"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function receiveStock(){
+
+  const quantity =
+    Number(
+      el("receiveQuantity")
+        .value
+    );
+
+
+  if(
+    !quantity
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "Invalid quantity."
+    );
+
+    return;
+
+  }
+
+
+  await callRpc(
+
+    "receive_inventory_batch",
+
+    {
+      p_region_id:
+        el("receiveRegion").value,
+
+      p_variant_id:
+        el("receiveVariant").value,
+
+      p_quantity:
+        quantity,
+
+      p_batch_code:
+        el("receiveBatch").value
+        ||
+        null,
+
+      p_received_date:
+        new Date()
+          .toISOString()
+          .slice(0,10),
+
+      p_production_date:
+        el("productionDate").value
+        ||
+        null,
+
+      p_expiry_date:
+        el("expiryDate").value
+        ||
+        null,
+
+      p_unit_cost:
+        el("unitCost").value
+        ?
+        Number(
+          el("unitCost").value
+        )
+        :
+        null,
+
+      p_notes:
+        el("receiveNote").value
+        ||
+        null
+    },
+
+    "Stock received."
+
+  );
+
+}
+
+
+async function requestInventoryAdjustment(){
+
+  const delta =
+    Number(
+      el("adjustDelta").value
+    );
+
+  const reason =
+    el("adjustReason")
+      .value
+      .trim();
+
+  const regionId =
+    el("adjustRegion").value;
+
+  const variantId =
+    el("adjustVariant").value;
+
+
+  if(
+    !delta
+    ||
+    !reason
+    ||
+    !regionId
+    ||
+    !variantId
+  ){
+
+    alert(
+      "Quantity and reason are required."
+    );
+
+    return;
+
+  }
+
+
+  await callRpc(
+
+    "request_dangerous_action",
+
+    {
+      p_action_type:
+        "inventory_adjust",
+
+      p_region_id:
+        regionId,
+
+      p_target_type:
+        "product_variant",
+
+      p_target_id:
+        variantId,
+
+      p_payload:{
+        region_id:
+          regionId,
+
+        variant_id:
+          variantId,
+
+        delta:
+          delta
+      },
+
+      p_reason:
+        reason
+
+    },
+
+    "Inventory adjustment approval submitted."
+
+  );
+
+}
+
+
+/* ==========================================
+   PAYMENTS
+========================================== */
+
+async function loadPayments(){
+
+  if(
+    !hasPermission(
+      "payments.view"
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "payment_transactions"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(250);
+
+
+  if(error){
+
+    el("paymentsTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        payment => {
+
+          let buttons = "";
+
+
+          if(
+            payment.status
+            ===
+            "submitted"
+            &&
+            hasPermission(
+              "payments.confirm"
+            )
+          ){
+
+            buttons = `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="reviewPayment('${payment.id}',true)"
+              >
+                Approve
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="reviewPayment('${payment.id}',false)"
+              >
+                Reject
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+
+                ${
+                  escapeHtml(
+                    payment.order_id
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      payment.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  money(
+                    payment.amount,
+                    payment.currency_code
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    payment.payment_method
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${statusBadge(payment.status)}
+              </td>
+
+              <td>
+
+                ${
+                  payment.proof_url
+                  ?
+                  `<a href="${escapeHtml(payment.proof_url)}" target="_blank">Proof</a>`
+                  :
+                  "—"
+                }
+
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("paymentsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Order",
+        "Region",
+        "Amount",
+        "Method",
+        "Status",
+        "Proof",
+        "Action"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function reviewPayment(
+  id,
+  approve
+){
+
+  const note =
+    prompt(
+      approve
+      ?
+      "Note (optional):"
+      :
+      "Rejection reason:"
+    )
+    ||
+    "";
+
+
+  if(
+    !approve
+    &&
+    !note
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "review_payment",
+
+    {
+      p_payment_id:
+        id,
+
+      p_approve:
+        approve,
+
+      p_note:
+        note
+    },
+
+    approve
+    ?
+    "Payment approved."
+    :
+    "Payment rejected."
+
+  );
+
+}
+
+
+/* ==========================================
+   CUSTOMERS
+========================================== */
+
+async function loadCustomers(){
+
+  if(
+    !hasPermission(
+      "customers.view"
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "customer_profiles"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(250);
+
+
+  if(error){
+
+    el("customersTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        customer => `
+
+          <tr>
+
+            <td>
+              ${escapeHtml(customer.full_name)}
+            </td>
+
+            <td>
+              ${escapeHtml(customer.phone)}
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    customer.default_region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+              ${escapeHtml(customer.preferred_language)}
+            </td>
+
+            <td>
+              ${statusBadge(customer.status)}
+            </td>
+
+            <td>
+              ${formatDate(customer.created_at)}
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("customersTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "Name",
+        "Phone",
+        "Region",
+        "Language",
+        "Status",
+        "Joined"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* ==========================================
+   PROFILE
+========================================== */
+
+async function loadProfile(){
+
+  const roleIds =
+    roleAssignments
+      .map(
+        item =>
+          item.role_id
+      );
+
+
+  const myRoles =
+    roles
+      .filter(
+        role =>
+          roleIds.includes(
+            role.id
+          )
+      );
+
+
+  const regionNames =
+    regions
+      .map(
+        region =>
+          regionMap[
+            region.id
+          ]
+      )
+      .join("、")
+    ||
+    "—";
+
+
+  el("profileContent")
+    .innerHTML = `
+
+      <div class="profile-grid">
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Staff Code
+          </div>
+
+          <div class="profile-value">
+            ${escapeHtml(staffProfile.staff_code)}
+          </div>
+
+        </div>
+
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Name
+          </div>
+
+          <div class="profile-value">
+            ${escapeHtml(staffProfile.display_name)}
+          </div>
+
+        </div>
+
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Phone
+          </div>
+
+          <div class="profile-value">
+            ${escapeHtml(staffProfile.phone || "—")}
+          </div>
+
+        </div>
+
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Status
+          </div>
+
+          <div class="profile-value">
+            ${statusBadge(staffProfile.status)}
+          </div>
+
+        </div>
+
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Role
+          </div>
+
+          <div class="profile-value">
+
+            ${
+              escapeHtml(
+                myRoles
+                  .map(
+                    role =>
+                      role.name_zh
+                      ||
+                      role.code
+                  )
+                  .join("、")
+                ||
+                "—"
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="profile-item">
+
+          <div class="profile-label">
+            Region
+          </div>
+
+          <div class="profile-value">
+            ${escapeHtml(regionNames)}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+  const permissionHtml =
+    myPermissionCodes
+      .map(
+        code => `
+
+          <span class="badge">
+
+            ${escapeHtml(code)}
+
+          </span>
+
+        `
+      )
+      .join("");
+
+
+  el("permissionsContent")
+    .innerHTML =
+    permissionHtml
+    ||
+    `<div class="empty">No permissions</div>`;
+
+}
+
+
+/* ==========================================
+   AUTH STATE
+========================================== */
+
+db.auth.onAuthStateChange(
+  event => {
+
+    if(
+      event
+      ===
+      "SIGNED_OUT"
+    ){
+
+      location.reload();
+
+    }
+
+  }
+);
+
+
+changeLoginLanguage();
+
+checkSession();
+
+</script>
+
+</body>
+</html>
