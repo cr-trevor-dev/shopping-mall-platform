@@ -1,1663 +1,4133 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>商城管理后台</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>零食平台 Super Admin</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+:root{
+  --bg:#FFF9F1;
+  --card:#FFFFFF;
+  --soft:#FFF3E4;
+  --orange:#F47B35;
+  --text:#35251D;
+  --muted:#8B776C;
+  --line:#EEDFD2;
+  --green:#4F8A62;
+  --red:#B42318;
+}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f6f8;
-      color: #222;
-    }
+*{
+  box-sizing:border-box;
+}
 
-    .hidden {
-      display: none !important;
-    }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,
+  "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
 
-    .login-page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: #f3f4f6;
-    }
+.hidden{
+  display:none !important;
+}
 
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      padding: 28px;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-    }
+button,
+input,
+select{
+  font:inherit;
+}
 
-    .login-card h1 {
-      font-size: 25px;
-      margin-bottom: 8px;
-    }
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:11px 15px;
+  font-weight:800;
+  cursor:pointer;
+}
 
-    .login-card p {
-      color: #777;
-      font-size: 14px;
-      margin-bottom: 22px;
-    }
+.btn-primary{
+  background:var(--orange);
+  color:white;
+}
 
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #d7dce2;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 14px;
-      outline: none;
-      background: white;
-    }
+.btn-light{
+  background:#F5EEE8;
+  color:var(--text);
+}
 
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
+.btn-green{
+  background:#EAF4ED;
+  color:#2F6A42;
+}
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 7px;
-    }
+.btn-red{
+  background:#FEECE8;
+  color:#B42318;
+}
 
-    .form-group {
-      margin-bottom: 14px;
-    }
+.btn-small{
+  padding:8px 10px;
+  font-size:12px;
+}
 
-    .btn {
-      border: none;
-      padding: 12px 17px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-    }
+/* 登录 */
 
-    .btn-primary {
-      background: #ff572f;
-      color: white;
-    }
+.login-page{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
 
-    .btn-dark {
-      background: #111827;
-      color: white;
-    }
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:26px;
+  box-shadow:0 10px 30px rgba(53,37,29,.08);
+}
 
-    .btn-light {
-      background: #eceff3;
-      color: #333;
-    }
+.brand{
+  font-size:12px;
+  font-weight:900;
+  color:var(--orange);
+  margin-bottom:7px;
+}
 
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
+.login-card h1{
+  margin:0 0 8px;
+  font-size:27px;
+}
 
-    .login-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 18px;
-    }
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
 
-    .message {
-      font-size: 13px;
-      margin-top: 15px;
-      line-height: 1.5;
-    }
+.form-group{
+  margin-top:15px;
+}
 
-    .topbar {
-      background: #111827;
-      color: white;
-      padding: 15px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.form-group label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
 
-    .topbar-title {
-      font-size: 19px;
-      font-weight: 800;
-    }
+.form-group input{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  outline:none;
+}
 
-    .topbar-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-    }
+.form-group input:focus{
+  border-color:var(--orange);
+}
 
-    .layout {
-      display: flex;
-      min-height: calc(100vh - 60px);
-    }
+.login-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:17px;
+}
 
-    .sidebar {
-      width: 220px;
-      background: white;
-      border-right: 1px solid #e5e7eb;
-      padding: 15px 10px;
-    }
+.message{
+  margin-top:13px;
+  font-size:13px;
+  line-height:1.5;
+}
 
-    .menu-item {
-      padding: 12px 14px;
-      margin-bottom: 7px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+/* 顶部 */
 
-    .menu-item.active {
-      background: #fff0eb;
-      color: #ff572f;
-      font-weight: 700;
-    }
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  min-height:62px;
+  background:white;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 17px;
+}
 
-    .content {
-      flex: 1;
-      padding: 22px;
-      max-width: 1100px;
-    }
+.topbar-title{
+  font-size:18px;
+  font-weight:900;
+}
 
-    .page-title {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 20px;
-    }
+.topbar-title span{
+  color:var(--orange);
+}
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-    }
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:var(--muted);
+}
 
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
+/* 页面 */
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
+.layout{
+  display:flex;
+  min-height:calc(100vh - 62px);
+}
 
-    .full {
-      grid-column: 1 / -1;
-    }
+.sidebar{
+  width:230px;
+  flex:none;
+  background:white;
+  border-right:1px solid var(--line);
+  padding:13px 10px;
+}
 
-    .actions {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-    }
+.menu-title{
+  padding:12px 12px 5px;
+  color:#AA9386;
+  font-size:11px;
+  font-weight:800;
+}
 
-    .list {
-      display: grid;
-      gap: 10px;
-    }
+.menu-item{
+  padding:11px 12px;
+  margin:3px 0;
+  border-radius:11px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
 
-    .list-item {
-      background: #f8f9fb;
-      padding: 13px;
-      border-radius: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+.menu-item.active{
+  background:var(--soft);
+  color:var(--orange);
+}
 
-    .item-left {
-      display: flex;
-      gap: 11px;
-      align-items: center;
-    }
+.content{
+  flex:1;
+  min-width:0;
+  padding:21px;
+  max-width:1400px;
+}
 
-    .item-icon {
-      width: 45px;
-      height: 45px;
-      border-radius: 11px;
-      background: #fff0eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-    }
+.section{
+  display:none;
+}
 
-    .small {
-      color: #777;
-      font-size: 12px;
-      margin-top: 4px;
-    }
+.section.active{
+  display:block;
+}
 
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #dcfce7;
-      color: #166534;
-      font-size: 11px;
-      margin-top: 5px;
-    }
+.page-title{
+  font-size:25px;
+  font-weight:900;
+  margin-bottom:4px;
+}
 
-    @media (max-width: 760px) {
-      .layout {
-        display: block;
-      }
+.page-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:17px;
+}
 
-      .sidebar {
-        width: 100%;
-        display: flex;
-        overflow-x: auto;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-      }
+/* 卡片 */
 
-      .menu-item {
-        white-space: nowrap;
-      }
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:17px;
+}
 
-      .content {
-        padding: 15px;
-      }
+.stat-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:17px;
+}
 
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
+.stat-label{
+  font-size:12px;
+  color:var(--muted);
+}
 
-      .full {
-        grid-column: auto;
-      }
+.stat-value{
+  margin-top:7px;
+  font-size:27px;
+  font-weight:900;
+}
 
-      .topbar-user span {
-        display: none;
-      }
+.panel{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:16px;
+  margin-bottom:17px;
+}
 
-      .list-item {
-        align-items: flex-start;
-      }
-    }
-  </style>
+.panel-title{
+  font-size:17px;
+  font-weight:900;
+  margin-bottom:13px;
+}
+
+/* 表格 */
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:13px;
+}
+
+table{
+  width:100%;
+  min-width:760px;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  text-align:left;
+  padding:11px 12px;
+  border-bottom:1px solid #F1E7DF;
+  font-size:12px;
+  vertical-align:top;
+}
+
+th{
+  background:#FFF8F2;
+  color:#735F54;
+  font-size:11px;
+}
+
+tr:last-child td{
+  border-bottom:none;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#F2F4F7;
+  font-size:11px;
+  font-weight:800;
+  margin:1px;
+}
+
+.badge-green{
+  background:#EAF4ED;
+  color:#2F6A42;
+}
+
+.badge-red{
+  background:#FEECE8;
+  color:#B42318;
+}
+
+.badge-amber{
+  background:#FFF5DF;
+  color:#9A6700;
+}
+
+.empty{
+  padding:25px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.operation-buttons{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+.mono{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+/* 手机 */
+
+@media(max-width:900px){
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:760px){
+
+  .topbar-right span{
+    display:none;
+  }
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    position:sticky;
+    top:62px;
+    z-index:10;
+    width:100%;
+    display:flex;
+    overflow-x:auto;
+    padding:8px;
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .menu-title{
+    display:none;
+  }
+
+  .menu-item{
+    flex:none;
+    white-space:nowrap;
+  }
+
+  .content{
+    padding:13px;
+  }
+
+  .page-title{
+    font-size:22px;
+  }
+
+  .stat-card{
+    padding:14px;
+  }
+
+  .stat-value{
+    font-size:23px;
+  }
+
+}
+</style>
 </head>
 
 <body>
 
-  <!-- 登录 -->
-  <div id="loginPage" class="login-page">
+<!-- 登录 -->
 
-    <div class="login-card">
+<div id="loginPage" class="login-page">
 
-      <h1>商城管理后台</h1>
-      <p>管理员登录</p>
+  <div class="login-card">
 
-      <div class="form-group">
-        <label>管理员邮箱</label>
-        <input
-          id="loginEmail"
-          type="email"
-          value="lhl145600@gmail.com"
-          readonly
-        >
-      </div>
+    <div class="brand">
+      SNACK PLATFORM · OWNER
+    </div>
 
-      <div class="form-group">
-        <label>密码</label>
-        <input
-          id="loginPassword"
-          type="password"
-          placeholder="请输入管理员密码"
-        >
-      </div>
+    <h1>
+      Super Admin 后台
+    </h1>
 
-      <div class="login-actions">
+    <div class="subtitle">
+      平台最高管理后台，仅平台所有者账号可以进入。
+    </div>
 
-        <button class="btn btn-primary" onclick="login()">
-          登录
-        </button>
+    <div class="form-group">
 
-        <button class="btn btn-dark" onclick="registerAdmin()">
-          第一次注册
-        </button>
+      <label>
+        管理员邮箱
+      </label>
 
-      </div>
-
-      <div id="loginMessage" class="message"></div>
+      <input
+        id="loginEmail"
+        type="email"
+        value="lhl145600@gmail.com"
+        readonly
+      >
 
     </div>
 
+    <div class="form-group">
+
+      <label>
+        密码
+      </label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="请输入管理员密码"
+      >
+
+    </div>
+
+    <div class="login-actions">
+
+      <button
+        class="btn btn-primary"
+        onclick="login()"
+      >
+        登录
+      </button>
+
+      <button
+        class="btn btn-light"
+        onclick="registerAdmin()"
+      >
+        第一次注册
+      </button>
+
+    </div>
+
+    <div
+      id="loginMessage"
+      class="message"
+    ></div>
+
   </div>
 
+</div>
 
-  <!-- 后台 -->
-  <div id="adminApp" class="hidden">
 
-    <header class="topbar">
+<!-- 后台 -->
 
-      <div class="topbar-title">
-        商城管理后台
+<div
+  id="adminApp"
+  class="hidden"
+>
+
+  <header class="topbar">
+
+    <div class="topbar-title">
+
+      <span>
+        零食平台
+      </span>
+
+      · Super Admin
+
+    </div>
+
+    <div class="topbar-right">
+
+      <span id="adminEmail"></span>
+
+      <button
+        class="btn btn-light btn-small"
+        onclick="refreshCurrentSection()"
+      >
+        刷新
+      </button>
+
+      <button
+        class="btn btn-light btn-small"
+        onclick="logout()"
+      >
+        退出
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div class="layout">
+
+    <!-- 菜单 -->
+
+    <aside class="sidebar">
+
+      <div class="menu-title">
+        总览
       </div>
 
-      <div class="topbar-user">
-
-        <span id="adminEmail"></span>
-
-        <button
-          class="btn btn-light"
-          onclick="logout()"
-        >
-          退出
-        </button>
-
+      <div
+        class="menu-item active"
+        onclick="showSection('dashboard',this)"
+      >
+        仪表盘
       </div>
 
-    </header>
+
+      <div class="menu-title">
+        业务
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('orders',this)"
+      >
+        订单
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('inventory',this)"
+      >
+        库存
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('payments',this)"
+      >
+        付款退款
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('delivery',this)"
+      >
+        配送
+      </div>
 
 
-    <div class="layout">
+      <div class="menu-title">
+        人员与安全
+      </div>
 
-      <aside class="sidebar">
+      <div
+        class="menu-item"
+        onclick="showSection('staff',this)"
+      >
+        员工
+      </div>
 
-        <div
-          class="menu-item active"
-          onclick="showSection('dashboard', this)"
-        >
+      <div
+        class="menu-item"
+        onclick="showSection('approvals',this)"
+      >
+        审批
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('audit',this)"
+      >
+        审计日志
+      </div>
+
+
+      <div class="menu-title">
+        基础资料
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('regions',this)"
+      >
+        地区
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('categories',this)"
+      >
+        分类
+      </div>
+
+      <div
+        class="menu-item"
+        onclick="showSection('products',this)"
+      >
+        商品
+      </div>
+
+    </aside>
+
+
+    <!-- 内容 -->
+
+    <main class="content">
+
+      <!-- 仪表盘 -->
+
+      <section
+        id="dashboard"
+        class="section active"
+      >
+
+        <div class="page-title">
           仪表盘
         </div>
 
-        <div
-          class="menu-item"
-          onclick="showSection('categories', this)"
-        >
-          分类管理
+        <div class="page-subtitle">
+          平台实时业务总览
         </div>
 
-        <div
-          class="menu-item"
-          onclick="showSection('products', this)"
-        >
-          商品管理
-        </div>
 
-        <div
-          class="menu-item"
-          onclick="showSection('orders', this)"
-        >
-          订单管理
-        </div>
+        <div class="stats">
 
-        <div
-          class="menu-item"
-          onclick="showSection('messages', this)"
-        >
-          消息管理
-        </div>
+          <div class="stat-card">
 
-      </aside>
-
-
-      <main class="content">
-
-        <!-- 仪表盘 -->
-        <section id="dashboard">
-
-          <div class="page-title">
-            仪表盘
-          </div>
-
-          <div class="card">
-
-            <div class="card-title">
-              商城数据库已连接
-            </div>
-
-            <p>
-              从现在开始，后台新增的分类和商品会永久保存在数据库。
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <!-- 分类 -->
-        <section id="categories" class="hidden">
-
-          <div class="page-title">
-            分类管理
-          </div>
-
-          <div class="card">
-
-            <div class="card-title">
-              新增分类
-            </div>
-
-            <div class="form-grid">
-
-              <div class="form-group">
-                <label>分类图标</label>
-                <input
-                  id="categoryIcon"
-                  placeholder="例如 🍪"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>排序</label>
-                <input
-                  id="categorySort"
-                  type="number"
-                  value="0"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>中文名称</label>
-                <input id="categoryZh">
-              </div>
-
-              <div class="form-group">
-                <label>英文名称</label>
-                <input id="categoryEn">
-              </div>
-
-              <div class="form-group">
-                <label>缅文名称</label>
-                <input id="categoryMy">
-              </div>
-
-              <div class="form-group">
-                <label>泰文名称</label>
-                <input id="categoryTh">
-              </div>
-
-            </div>
-
-            <div class="actions">
-
-              <button
-                class="btn btn-primary"
-                onclick="saveCategory()"
-              >
-                保存分类
-              </button>
-
-            </div>
-
-          </div>
-
-
-          <div class="card">
-
-            <div class="card-title">
-              分类列表
+            <div class="stat-label">
+              订单总数
             </div>
 
             <div
-              id="categoryList"
-              class="list"
-            ></div>
-
-          </div>
-
-        </section>
-
-
-        <!-- 商品 -->
-        <section id="products" class="hidden">
-
-          <div class="page-title">
-            商品管理
-          </div>
-
-          <div class="card">
-
-            <div class="card-title">
-              新增商品
-            </div>
-
-            <div class="form-grid">
-
-              <div class="form-group">
-                <label>中文商品名</label>
-                <input id="productZh">
-              </div>
-
-              <div class="form-group">
-                <label>英文商品名</label>
-                <input id="productEn">
-              </div>
-
-              <div class="form-group">
-                <label>缅文商品名</label>
-                <input id="productMy">
-              </div>
-
-              <div class="form-group">
-                <label>泰文商品名</label>
-                <input id="productTh">
-              </div>
-
-              <div class="form-group">
-                <label>商品分类</label>
-
-                <select id="productCategory">
-                  <option value="">
-                    请选择分类
-                  </option>
-                </select>
-
-              </div>
-
-              <div class="form-group">
-                <label>售价</label>
-                <input
-                  id="productPrice"
-                  type="number"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>原价</label>
-                <input
-                  id="productOldPrice"
-                  type="number"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>库存</label>
-                <input
-                  id="productStock"
-                  type="number"
-                  value="0"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>生产日期</label>
-                <input
-                  id="productionDate"
-                  type="date"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>到期日期</label>
-                <input
-                  id="expiryDate"
-                  type="date"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>中文折扣标签</label>
-                <input
-                  id="discountZh"
-                  placeholder="例如：8折"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>英文折扣标签</label>
-                <input
-                  id="discountEn"
-                  placeholder="例如：20% OFF"
-                >
-              </div>
-
-              <div class="form-group">
-                <label>缅文折扣标签</label>
-                <input id="discountMy">
-              </div>
-
-              <div class="form-group">
-                <label>泰文折扣标签</label>
-                <input id="discountTh">
-              </div>
-
-              <div class="form-group">
-                <label>商品状态</label>
-
-                <select id="productStatus">
-                  <option value="active">
-                    上架
-                  </option>
-                  <option value="inactive">
-                    下架
-                  </option>
-                </select>
-
-              </div>
-
-              <div class="form-group full">
-                <label>商品图片网址</label>
-
-                <input
-                  id="productImage"
-                  placeholder="下一步会升级成直接上传图片"
-                >
-
-              </div>
-
-              <div class="form-group full">
-                <label>中文商品介绍</label>
-                <textarea id="descriptionZh"></textarea>
-              </div>
-
-              <div class="form-group full">
-                <label>英文商品介绍</label>
-                <textarea id="descriptionEn"></textarea>
-              </div>
-
-              <div class="form-group full">
-                <label>缅文商品介绍</label>
-                <textarea id="descriptionMy"></textarea>
-              </div>
-
-              <div class="form-group full">
-                <label>泰文商品介绍</label>
-                <textarea id="descriptionTh"></textarea>
-              </div>
-
-            </div>
-
-            <div class="actions">
-
-              <button
-                class="btn btn-primary"
-                onclick="saveProduct()"
-              >
-                保存商品
-              </button>
-
+              id="statOrders"
+              class="stat-value"
+            >
+              —
             </div>
 
           </div>
 
 
-          <div class="card">
+          <div class="stat-card">
 
-            <div class="card-title">
-              商品列表
+            <div class="stat-label">
+              待确认订单
             </div>
 
             <div
-              id="productList"
-              class="list"
-            ></div>
+              id="statPendingOrders"
+              class="stat-value"
+            >
+              —
+            </div>
 
           </div>
 
-        </section>
 
+          <div class="stat-card">
 
-        <section id="orders" class="hidden">
+            <div class="stat-label">
+              待审核付款
+            </div>
 
-          <div class="page-title">
-            订单管理
+            <div
+              id="statPendingPayments"
+              class="stat-value"
+            >
+              —
+            </div>
+
           </div>
 
-          <div class="card">
-            下一阶段建立真实订单系统。
+
+          <div class="stat-card">
+
+            <div class="stat-label">
+              待审批操作
+            </div>
+
+            <div
+              id="statPendingApprovals"
+              class="stat-value"
+            >
+              —
+            </div>
+
           </div>
 
-        </section>
+        </div>
 
 
-        <section id="messages" class="hidden">
+        <div class="panel">
 
-          <div class="page-title">
-            消息管理
+          <div class="panel-title">
+            最近订单
           </div>
 
-          <div class="card">
-            后面建立客户和商家的实时聊天。
+          <div id="recentOrders"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 订单 -->
+
+      <section
+        id="orders"
+        class="section"
+      >
+
+        <div class="page-title">
+          订单
+        </div>
+
+        <div class="page-subtitle">
+          查看和处理所有地区订单
+        </div>
+
+        <div class="panel">
+
+          <div id="ordersTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 库存 -->
+
+      <section
+        id="inventory"
+        class="section"
+      >
+
+        <div class="page-title">
+          库存
+        </div>
+
+        <div class="page-subtitle">
+          地区库存、预留库存与可售库存
+        </div>
+
+        <div class="panel">
+
+          <div id="inventoryTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 付款退款 -->
+
+      <section
+        id="payments"
+        class="section"
+      >
+
+        <div class="page-title">
+          付款退款
+        </div>
+
+        <div class="page-subtitle">
+          付款审核和退款记录
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-title">
+            付款记录
           </div>
 
-        </section>
+          <div id="paymentsTable"></div>
 
-      </main>
+        </div>
 
-    </div>
+
+        <div class="panel">
+
+          <div class="panel-title">
+            退款记录
+          </div>
+
+          <div id="refundsTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 配送 -->
+
+      <section
+        id="delivery"
+        class="section"
+      >
+
+        <div class="page-title">
+          配送
+        </div>
+
+        <div class="page-subtitle">
+          配送员和配送任务
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-title">
+            配送员
+          </div>
+
+          <div id="deliveryProfilesTable"></div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-title">
+            配送任务
+          </div>
+
+          <div id="deliveryTasksTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 员工 -->
+
+      <section
+        id="staff"
+        class="section"
+      >
+
+        <div class="page-title">
+          员工
+        </div>
+
+        <div class="page-subtitle">
+          员工账号和状态
+        </div>
+
+        <div class="panel">
+
+          <div id="staffTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 审批 -->
+
+      <section
+        id="approvals"
+        class="section"
+      >
+
+        <div class="page-title">
+          审批
+        </div>
+
+        <div class="page-subtitle">
+          高风险操作审批中心
+        </div>
+
+        <div class="panel">
+
+          <div id="approvalsTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 审计 -->
+
+      <section
+        id="audit"
+        class="section"
+      >
+
+        <div class="page-title">
+          审计日志
+        </div>
+
+        <div class="page-subtitle">
+          查看关键业务数据的修改历史
+        </div>
+
+        <div class="panel">
+
+          <div id="auditTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 地区 -->
+
+      <section
+        id="regions"
+        class="section"
+      >
+
+        <div class="page-title">
+          地区
+        </div>
+
+        <div class="page-subtitle">
+          平台动态地区体系
+        </div>
+
+        <div class="panel">
+
+          <div id="regionsTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 分类 -->
+
+      <section
+        id="categories"
+        class="section"
+      >
+
+        <div class="page-title">
+          分类
+        </div>
+
+        <div class="page-subtitle">
+          一级与二级商品分类
+        </div>
+
+        <div class="panel">
+
+          <div id="categoriesTable"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 商品 -->
+
+      <section
+        id="products"
+        class="section"
+      >
+
+        <div class="page-title">
+          商品
+        </div>
+
+        <div class="page-subtitle">
+          商品与 SKU 数据
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-title">
+            商品
+          </div>
+
+          <div id="productsTable"></div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <div class="panel-title">
+            SKU
+          </div>
+
+          <div id="variantsTable"></div>
+
+        </div>
+
+      </section>
+
+    </main>
 
   </div>
 
-
-  <script>
-
-    const SUPABASE_URL =
-      "https://aymicuawrlylpqnipwky.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
-
-    const db =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-    const ADMIN_EMAIL =
-      "lhl145600@gmail.com";
-
-    let categoryData = [];
+</div>
 
 
-    async function registerAdmin() {
+<script>
 
-      const password =
-        document
-          .getElementById("loginPassword")
-          .value;
+const SUPABASE_URL =
+  "https://aymicuawrlylpqnipwky.supabase.co";
 
-      if (password.length < 8) {
+const SUPABASE_KEY =
+  "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
 
-        showLoginMessage(
-          "密码至少需要 8 位。",
-          "red"
-        );
+const ADMIN_EMAIL =
+  "lhl145600@gmail.com";
 
-        return;
-      }
 
-      showLoginMessage(
-        "正在注册...",
-        "#555"
-      );
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-      const {
-        data,
-        error
-      } =
-        await db.auth.signUp({
 
-          email: ADMIN_EMAIL,
+let currentSection =
+  "dashboard";
 
-          password: password
+let regionMap = {};
 
-        });
 
-      if (error) {
+/* 工具 */
 
-        showLoginMessage(
-          error.message,
-          "red"
-        );
+function escapeHtml(value){
 
-        return;
-      }
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      function(character){
 
-      if (
-        data.session
-      ) {
+        return {
 
-        showLoginMessage(
-          "注册成功。",
-          "green"
-        );
+          "&":"&amp;",
+          "<":"&lt;",
+          ">":"&gt;",
+          '"':"&quot;",
+          "'":"&#039;"
 
-        await checkSession();
-
-      } else {
-
-        showLoginMessage(
-          "注册成功。请先到邮箱里确认 Supabase 发来的验证邮件，然后回来登录。",
-          "green"
-        );
+        }[character];
 
       }
+    );
 
-    }
+}
 
 
-    async function login() {
+function formatDate(value){
 
-      const password =
-        document
-          .getElementById("loginPassword")
-          .value;
+  if(!value){
+    return "—";
+  }
 
-      if (!password) {
-
-        showLoginMessage(
-          "请输入密码。",
-          "red"
-        );
-
-        return;
+  return new Date(value)
+    .toLocaleString(
+      "zh-CN",
+      {
+        hour12:false
       }
+    );
 
-      showLoginMessage(
-        "正在登录...",
-        "#555"
-      );
+}
 
-      const {
-        data,
-        error
-      } =
-        await db.auth.signInWithPassword({
 
-          email: ADMIN_EMAIL,
+function formatMoney(
+  value,
+  currency = "MMK"
+){
 
-          password: password
+  const number =
+    Number(value || 0);
 
-        });
-
-      if (error) {
-
-        showLoginMessage(
-          "登录失败：" + error.message,
-          "red"
-        );
-
-        return;
+  return (
+    new Intl.NumberFormat(
+      "en-US",
+      {
+        maximumFractionDigits:0
       }
+    ).format(number)
+    +
+    " "
+    +
+    (currency || "MMK")
+  );
 
-      if (
-        data.user.email.toLowerCase()
-        !== ADMIN_EMAIL
-      ) {
-
-        await db.auth.signOut();
-
-        showLoginMessage(
-          "没有管理员权限。",
-          "red"
-        );
-
-        return;
-      }
-
-      await enterAdmin(
-        data.user
-      );
-
-    }
+}
 
 
-    async function logout() {
+function statusBadge(status){
 
-      await db.auth.signOut();
+  const value =
+    String(status ?? "—");
 
-      location.reload();
+  const greenStatuses = [
 
-    }
+    "active",
+    "confirmed",
+    "paid",
+    "completed",
+    "fulfilled",
+    "delivered",
+    "approved",
+    "processed",
+    "packed",
+    "ready_for_delivery"
 
+  ];
 
-    function showLoginMessage(
-      message,
-      color
-    ) {
+  const redStatuses = [
 
-      const box =
-        document
-          .getElementById("loginMessage");
+    "failed",
+    "cancelled",
+    "rejected",
+    "inactive",
+    "deactivated",
+    "suspended"
 
-      box.textContent =
-        message;
+  ];
 
-      box.style.color =
-        color;
+  const amberStatuses = [
 
-    }
+    "pending",
+    "pending_confirmation",
+    "unpaid",
+    "picking",
+    "assigned",
+    "picked_up",
+    "delivering",
+    "partially_refunded",
+    "requested",
+    "processing"
 
+  ];
 
-    async function checkSession() {
+  let className =
+    "badge";
 
-      const {
-        data
-      } =
-        await db.auth.getSession();
+  if(
+    greenStatuses.includes(value)
+  ){
 
-      const session =
-        data.session;
+    className +=
+      " badge-green";
 
-      if (
-        session &&
-        session.user &&
-        session.user.email.toLowerCase()
-        === ADMIN_EMAIL
-      ) {
+  }
+  else if(
+    redStatuses.includes(value)
+  ){
 
-        await enterAdmin(
-          session.user
-        );
+    className +=
+      " badge-red";
 
-      }
+  }
+  else if(
+    amberStatuses.includes(value)
+  ){
 
-    }
+    className +=
+      " badge-amber";
 
+  }
 
-    async function enterAdmin(user) {
+  return (
+    '<span class="' +
+    className +
+    '">' +
+    escapeHtml(value) +
+    '</span>'
+  );
 
-      document
-        .getElementById("loginPage")
-        .classList
-        .add("hidden");
-
-      document
-        .getElementById("adminApp")
-        .classList
-        .remove("hidden");
-
-      document
-        .getElementById("adminEmail")
-        .textContent =
-        user.email;
-
-      await loadCategories();
-      await loadProducts();
-
-    }
-
-
-    function showSection(
-      id,
-      menu
-    ) {
-
-      document
-        .querySelectorAll("main section")
-        .forEach(section => {
-
-          section.classList.add(
-            "hidden"
-          );
-
-        });
-
-      document
-        .getElementById(id)
-        .classList
-        .remove("hidden");
-
-      document
-        .querySelectorAll(".menu-item")
-        .forEach(item => {
-
-          item.classList.remove(
-            "active"
-          );
-
-        });
-
-      menu.classList.add(
-        "active"
-      );
-
-    }
+}
 
 
-    async function loadCategories() {
+function makeTable(
+  headers,
+  rows
+){
 
-      const {
-        data,
-        error
-      } =
-        await db
-          .from("categories")
-          .select("*")
-          .order(
-            "sort_order",
-            {
-              ascending: true
+  if(
+    rows.length === 0
+  ){
+
+    return (
+      '<div class="empty">' +
+      '目前没有数据' +
+      '</div>'
+    );
+
+  }
+
+  return `
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            ${
+              headers
+                .map(
+                  header =>
+                    `<th>${header}</th>`
+                )
+                .join("")
             }
-          );
 
-      if (error) {
+          </tr>
 
-        alert(
-          "读取分类失败：" +
-          error.message
-        );
+        </thead>
 
-        return;
+        <tbody>
 
-      }
+          ${rows.join("")}
 
-      categoryData =
-        data || [];
+        </tbody>
 
-      renderCategories();
+      </table>
 
-      renderCategoryOptions();
+    </div>
 
-    }
+  `;
 
+}
 
-    function renderCategories() {
 
-      const list =
-        document
-          .getElementById("categoryList");
+function showError(
+  message
+){
 
-      list.innerHTML = "";
+  return `
 
-      if (
-        categoryData.length === 0
-      ) {
+    <div
+      class="empty"
+      style="color:#B42318"
+    >
 
-        list.innerHTML =
-          "<div class='small'>暂时没有分类</div>";
+      ${escapeHtml(message)}
 
-        return;
+    </div>
 
-      }
+  `;
 
-      categoryData.forEach(
-        category => {
+}
 
-          const item =
-            document.createElement("div");
 
-          item.className =
-            "list-item";
+/* 登录 */
 
-          item.innerHTML = `
-            <div class="item-left">
+async function registerAdmin(){
 
-              <div class="item-icon">
-                ${category.icon || "📦"}
-              </div>
+  const password =
+    document
+      .getElementById(
+        "loginPassword"
+      )
+      .value;
 
-              <div>
+  if(
+    password.length < 8
+  ){
 
-                <strong>
-                  ${escapeHtml(category.name_zh)}
-                </strong>
+    showLoginMessage(
+      "密码至少需要 8 位。",
+      "#B42318"
+    );
 
-                <div class="small">
-                  ${escapeHtml(category.name_en || "-")}
-                  ·
-                  ${escapeHtml(category.name_my || "-")}
-                  ·
-                  ${escapeHtml(category.name_th || "-")}
-                </div>
+    return;
 
-                <span class="badge">
-                  ${category.is_active ? "启用" : "停用"}
-                </span>
+  }
 
-              </div>
+  showLoginMessage(
+    "正在注册...",
+    "#667085"
+  );
 
-            </div>
 
-            <button
-              class="btn btn-danger"
-              onclick="deleteCategory('${category.id}')"
-            >
-              删除
-            </button>
-          `;
+  const {
+    data,
+    error
+  } =
+    await db.auth.signUp({
 
-          list.appendChild(
-            item
-          );
+      email:
+        ADMIN_EMAIL,
 
-        }
-      );
+      password:
+        password
 
-    }
+    });
 
 
-    function renderCategoryOptions() {
+  if(error){
 
-      const select =
-        document
-          .getElementById("productCategory");
+    showLoginMessage(
+      error.message,
+      "#B42318"
+    );
 
-      select.innerHTML =
-        '<option value="">请选择分类</option>';
+    return;
 
-      categoryData.forEach(
-        category => {
+  }
 
-          const option =
-            document.createElement("option");
 
-          option.value =
-            category.id;
+  if(
+    data.session
+  ){
 
-          option.textContent =
-            category.name_zh;
+    showLoginMessage(
+      "注册成功。",
+      "#2F6A42"
+    );
 
-          select.appendChild(
-            option
-          );
+    await checkSession();
 
-        }
-      );
+  }
+  else{
 
-    }
+    showLoginMessage(
+      "注册成功，请先到邮箱确认验证邮件，然后回来登录。",
+      "#2F6A42"
+    );
 
+  }
 
-    async function saveCategory() {
+}
 
-      const nameZh =
-        value("categoryZh");
 
-      if (!nameZh) {
+async function login(){
 
-        alert(
-          "请填写中文分类名称"
-        );
+  const password =
+    document
+      .getElementById(
+        "loginPassword"
+      )
+      .value;
 
-        return;
 
-      }
+  if(!password){
 
-      const {
-        error
-      } =
-        await db
-          .from("categories")
-          .insert({
+    showLoginMessage(
+      "请输入密码。",
+      "#B42318"
+    );
 
-            icon:
-              value("categoryIcon")
-              || "📦",
+    return;
 
-            name_zh:
-              nameZh,
+  }
 
-            name_en:
-              value("categoryEn"),
 
-            name_my:
-              value("categoryMy"),
+  showLoginMessage(
+    "正在登录...",
+    "#667085"
+  );
 
-            name_th:
-              value("categoryTh"),
 
-            sort_order:
-              Number(
-                value("categorySort")
-                || 0
-              ),
+  const {
+    data,
+    error
+  } =
+    await db.auth
+      .signInWithPassword({
 
-            is_active:
-              true
+        email:
+          ADMIN_EMAIL,
 
-          });
-
-      if (error) {
-
-        alert(
-          "保存失败：" +
-          error.message
-        );
-
-        return;
-
-      }
-
-      clearInputs([
-        "categoryIcon",
-        "categoryZh",
-        "categoryEn",
-        "categoryMy",
-        "categoryTh"
-      ]);
-
-      document
-        .getElementById("categorySort")
-        .value =
-        "0";
-
-      await loadCategories();
-
-      alert(
-        "分类保存成功"
-      );
-
-    }
-
-
-    async function deleteCategory(
-      id
-    ) {
-
-      const ok =
-        confirm(
-          "确定删除这个分类吗？"
-        );
-
-      if (!ok) return;
-
-      const {
-        error
-      } =
-        await db
-          .from("categories")
-          .delete()
-          .eq(
-            "id",
-            id
-          );
-
-      if (error) {
-
-        alert(
-          "删除失败：" +
-          error.message
-        );
-
-        return;
-
-      }
-
-      await loadCategories();
-      await loadProducts();
-
-    }
-
-
-    async function loadProducts() {
-
-      const {
-        data,
-        error
-      } =
-        await db
-          .from("products")
-          .select(`
-            *,
-            categories (
-              name_zh
-            )
-          `)
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
-
-      if (error) {
-
-        alert(
-          "读取商品失败：" +
-          error.message
-        );
-
-        return;
-
-      }
-
-      const list =
-        document
-          .getElementById("productList");
-
-      list.innerHTML = "";
-
-      if (
-        !data ||
-        data.length === 0
-      ) {
-
-        list.innerHTML =
-          "<div class='small'>暂时没有商品</div>";
-
-        return;
-
-      }
-
-      data.forEach(
-        product => {
-
-          const item =
-            document.createElement("div");
-
-          item.className =
-            "list-item";
-
-          item.innerHTML = `
-            <div>
-
-              <strong>
-                ${escapeHtml(product.name_zh)}
-              </strong>
-
-              <div class="small">
-                分类：
-                ${
-                  product.categories
-                  ? escapeHtml(product.categories.name_zh)
-                  : "-"
-                }
-                ·
-                价格：K ${money(product.price)}
-                ·
-                库存：${product.stock}
-              </div>
-
-              <span class="badge">
-                ${
-                  product.status === "active"
-                  ? "已上架"
-                  : "已下架"
-                }
-              </span>
-
-            </div>
-
-            <button
-              class="btn btn-danger"
-              onclick="deleteProduct('${product.id}')"
-            >
-              删除
-            </button>
-          `;
-
-          list.appendChild(
-            item
-          );
-
-        }
-      );
-
-    }
-
-
-    async function saveProduct() {
-
-      const nameZh =
-        value("productZh");
-
-      const categoryId =
-        value("productCategory");
-
-      const price =
-        value("productPrice");
-
-      if (!nameZh) {
-
-        alert(
-          "请填写中文商品名称"
-        );
-
-        return;
-
-      }
-
-      if (!categoryId) {
-
-        alert(
-          "请选择商品分类"
-        );
-
-        return;
-
-      }
-
-      if (!price) {
-
-        alert(
-          "请填写售价"
-        );
-
-        return;
-
-      }
-
-      const oldPrice =
-        value("productOldPrice");
-
-      const productionDate =
-        value("productionDate");
-
-      const expiryDate =
-        value("expiryDate");
-
-      const {
-        error
-      } =
-        await db
-          .from("products")
-          .insert({
-
-            category_id:
-              categoryId,
-
-            name_zh:
-              nameZh,
-
-            name_en:
-              value("productEn"),
-
-            name_my:
-              value("productMy"),
-
-            name_th:
-              value("productTh"),
-
-            description_zh:
-              value("descriptionZh"),
-
-            description_en:
-              value("descriptionEn"),
-
-            description_my:
-              value("descriptionMy"),
-
-            description_th:
-              value("descriptionTh"),
-
-            image_url:
-              value("productImage"),
-
-            price:
-              Number(price),
-
-            old_price:
-              oldPrice
-              ? Number(oldPrice)
-              : null,
-
-            stock:
-              Number(
-                value("productStock")
-                || 0
-              ),
-
-            production_date:
-              productionDate
-              || null,
-
-            expiry_date:
-              expiryDate
-              || null,
-
-            discount_label_zh:
-              value("discountZh"),
-
-            discount_label_en:
-              value("discountEn"),
-
-            discount_label_my:
-              value("discountMy"),
-
-            discount_label_th:
-              value("discountTh"),
-
-            status:
-              value("productStatus")
-
-          });
-
-      if (error) {
-
-        alert(
-          "保存商品失败：" +
-          error.message
-        );
-
-        return;
-
-      }
-
-      clearInputs([
-        "productZh",
-        "productEn",
-        "productMy",
-        "productTh",
-        "productPrice",
-        "productOldPrice",
-        "productImage",
-        "discountZh",
-        "discountEn",
-        "discountMy",
-        "discountTh",
-        "descriptionZh",
-        "descriptionEn",
-        "descriptionMy",
-        "descriptionTh",
-        "productionDate",
-        "expiryDate"
-      ]);
-
-      document
-        .getElementById("productStock")
-        .value =
-        "0";
-
-      await loadProducts();
-
-      alert(
-        "商品保存成功"
-      );
-
-    }
-
-
-    async function deleteProduct(
-      id
-    ) {
-
-      const ok =
-        confirm(
-          "确定删除这个商品吗？"
-        );
-
-      if (!ok) return;
-
-      const {
-        error
-      } =
-        await db
-          .from("products")
-          .delete()
-          .eq(
-            "id",
-            id
-          );
-
-      if (error) {
-
-        alert(
-          "删除失败：" +
-          error.message
-        );
-
-        return;
-
-      }
-
-      await loadProducts();
-
-    }
-
-
-    function value(id) {
-
-      return document
-        .getElementById(id)
-        .value
-        .trim();
-
-    }
-
-
-    function clearInputs(ids) {
-
-      ids.forEach(id => {
-
-        document
-          .getElementById(id)
-          .value =
-          "";
+        password:
+          password
 
       });
 
-    }
+
+  if(error){
+
+    showLoginMessage(
+      "登录失败：" +
+      error.message,
+      "#B42318"
+    );
+
+    return;
+
+  }
 
 
-    function money(number) {
+  if(
+    (
+      data.user.email || ""
+    ).toLowerCase()
+    !==
+    ADMIN_EMAIL
+  ){
 
-      return Number(number)
-        .toLocaleString();
+    await db.auth.signOut();
 
-    }
+    showLoginMessage(
+      "没有 Super Admin 权限。",
+      "#B42318"
+    );
 
+    return;
 
-    function escapeHtml(text) {
-
-      const div =
-        document.createElement("div");
-
-      div.textContent =
-        text || "";
-
-      return div.innerHTML;
-
-    }
+  }
 
 
-    db.auth.onAuthStateChange(
-      function(event) {
+  await enterAdmin(
+    data.user
+  );
 
-        if (
-          event === "SIGNED_OUT"
-        ) {
+}
 
-          document
-            .getElementById("adminApp")
-            .classList
-            .add("hidden");
 
-          document
-            .getElementById("loginPage")
-            .classList
-            .remove("hidden");
+async function logout(){
 
-        }
+  await db.auth.signOut();
+
+  location.reload();
+
+}
+
+
+function showLoginMessage(
+  text,
+  color
+){
+
+  const element =
+    document.getElementById(
+      "loginMessage"
+    );
+
+  element.textContent =
+    text;
+
+  element.style.color =
+    color;
+
+}
+
+
+async function checkSession(){
+
+  const {
+    data
+  } =
+    await db.auth.getSession();
+
+
+  const user =
+    data.session?.user;
+
+
+  if(
+    user &&
+    (
+      user.email || ""
+    ).toLowerCase()
+    ===
+    ADMIN_EMAIL
+  ){
+
+    await enterAdmin(
+      user
+    );
+
+  }
+
+}
+
+
+async function enterAdmin(
+  user
+){
+
+  document
+    .getElementById(
+      "loginPage"
+    )
+    .classList
+    .add(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "adminApp"
+    )
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  document
+    .getElementById(
+      "adminEmail"
+    )
+    .textContent =
+    user.email;
+
+
+  await loadRegionMap();
+
+  await loadDashboard();
+
+}
+
+
+/* 页面 */
+
+function showSection(
+  sectionName,
+  menuElement
+){
+
+  currentSection =
+    sectionName;
+
+
+  document
+    .querySelectorAll(
+      ".section"
+    )
+    .forEach(
+      section => {
+
+        section.classList
+          .remove(
+            "active"
+          );
 
       }
     );
 
 
-    checkSession();
+  document
+    .getElementById(
+      sectionName
+    )
+    .classList
+    .add(
+      "active"
+    );
 
-  </script>
+
+  document
+    .querySelectorAll(
+      ".menu-item"
+    )
+    .forEach(
+      item => {
+
+        item.classList
+          .remove(
+            "active"
+          );
+
+      }
+    );
+
+
+  menuElement
+    .classList
+    .add(
+      "active"
+    );
+
+
+  refreshCurrentSection();
+
+}
+
+
+async function refreshCurrentSection(){
+
+  const loaders = {
+
+    dashboard:
+      loadDashboard,
+
+    orders:
+      loadOrders,
+
+    inventory:
+      loadInventory,
+
+    payments:
+      loadPayments,
+
+    delivery:
+      loadDelivery,
+
+    staff:
+      loadStaff,
+
+    approvals:
+      loadApprovals,
+
+    audit:
+      loadAudit,
+
+    regions:
+      loadRegions,
+
+    categories:
+      loadCategories,
+
+    products:
+      loadProducts
+
+  };
+
+
+  if(
+    loaders[currentSection]
+  ){
+
+    await loaders[
+      currentSection
+    ]();
+
+  }
+
+}
+
+
+/* 地区缓存 */
+
+async function loadRegionMap(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "regions"
+      )
+      .select(
+        "id,code,name_zh,name_en"
+      );
+
+
+  if(error){
+    return;
+  }
+
+
+  regionMap = {};
+
+
+  (
+    data || []
+  ).forEach(
+    region => {
+
+      regionMap[
+        region.id
+      ] =
+        region.name_zh
+        ||
+        region.name_en
+        ||
+        region.code;
+
+    }
+  );
+
+}
+
+
+/* 统计 */
+
+async function getCount(
+  tableName,
+  filterFunction
+){
+
+  let query =
+    db
+      .from(
+        tableName
+      )
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      );
+
+
+  if(
+    filterFunction
+  ){
+
+    query =
+      filterFunction(
+        query
+      );
+
+  }
+
+
+  const {
+    count,
+    error
+  } =
+    await query;
+
+
+  if(error){
+
+    return "—";
+
+  }
+
+
+  return count ?? 0;
+
+}
+
+
+/* 仪表盘 */
+
+async function loadDashboard(){
+
+  const results =
+    await Promise.all([
+
+      getCount(
+        "orders"
+      ),
+
+      getCount(
+        "orders",
+        query =>
+          query.eq(
+            "order_status",
+            "pending_confirmation"
+          )
+      ),
+
+      getCount(
+        "payment_transactions",
+        query =>
+          query.eq(
+            "status",
+            "pending"
+          )
+      ),
+
+      getCount(
+        "approval_requests",
+        query =>
+          query.eq(
+            "status",
+            "pending"
+          )
+      )
+
+    ]);
+
+
+  document
+    .getElementById(
+      "statOrders"
+    )
+    .textContent =
+    results[0];
+
+
+  document
+    .getElementById(
+      "statPendingOrders"
+    )
+    .textContent =
+    results[1];
+
+
+  document
+    .getElementById(
+      "statPendingPayments"
+    )
+    .textContent =
+    results[2];
+
+
+  document
+    .getElementById(
+      "statPendingApprovals"
+    )
+    .textContent =
+    results[3];
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "orders"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        8
+      );
+
+
+  const container =
+    document.getElementById(
+      "recentOrders"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      order => `
+
+        <tr>
+
+          <td class="mono">
+            ${
+              escapeHtml(
+                order.order_number
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                regionMap[
+                  order.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                order.order_status
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                order.payment_status
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatMoney(
+                order.total_amount,
+                order.currency_code
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatDate(
+                order.created_at
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "订单号",
+        "地区",
+        "订单状态",
+        "付款状态",
+        "金额",
+        "时间"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 订单 */
+
+async function loadOrders(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "orders"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const container =
+    document.getElementById(
+      "ordersTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      order => `
+
+        <tr>
+
+          <td>
+
+            <div class="mono">
+
+              ${
+                escapeHtml(
+                  order.order_number
+                )
+              }
+
+            </div>
+
+          </td>
+
+          <td>
+
+            ${
+              escapeHtml(
+                regionMap[
+                  order.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              escapeHtml(
+                order.recipient_name
+                ||
+                "—"
+              )
+            }
+
+            <br>
+
+            ${
+              escapeHtml(
+                order.recipient_phone
+                ||
+                ""
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              statusBadge(
+                order.order_status
+              )
+            }
+
+            <br>
+
+            ${
+              statusBadge(
+                order.fulfillment_status
+              )
+            }
+
+            <br>
+
+            ${
+              statusBadge(
+                order.delivery_status
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              statusBadge(
+                order.payment_status
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              formatMoney(
+                order.total_amount,
+                order.currency_code
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              formatDate(
+                order.created_at
+              )
+            }
+
+          </td>
+
+          <td>
+
+            <div class="operation-buttons">
+
+              ${
+                order.order_status
+                ===
+                "pending_confirmation"
+
+                ?
+
+                `
+
+                <button
+                  class="btn btn-green btn-small"
+                  onclick="confirmOrder('${order.id}')"
+                >
+                  确认
+                </button>
+
+                `
+
+                :
+
+                ""
+              }
+
+
+              ${
+                order.order_status
+                ===
+                "confirmed"
+                &&
+                order.fulfillment_status
+                ===
+                "unfulfilled"
+
+                ?
+
+                `
+
+                <button
+                  class="btn btn-light btn-small"
+                  onclick="startPicking('${order.id}')"
+                >
+                  开始拣货
+                </button>
+
+                `
+
+                :
+
+                ""
+              }
+
+
+              ${
+                order.fulfillment_status
+                ===
+                "picking"
+
+                ?
+
+                `
+
+                <button
+                  class="btn btn-green btn-small"
+                  onclick="markPacked('${order.id}')"
+                >
+                  已打包
+                </button>
+
+                `
+
+                :
+
+                ""
+              }
+
+
+              ${
+                order.fulfillment_status
+                ===
+                "packed"
+
+                ?
+
+                `
+
+                <button
+                  class="btn btn-primary btn-small"
+                  onclick="finalizeOrder('${order.id}')"
+                >
+                  正式出库
+                </button>
+
+                `
+
+                :
+
+                ""
+              }
+
+
+              ${
+                ![
+                  "cancelled",
+                  "completed"
+                ].includes(
+                  order.order_status
+                )
+
+                ?
+
+                `
+
+                <button
+                  class="btn btn-red btn-small"
+                  onclick="cancelOrder('${order.id}')"
+                >
+                  取消
+                </button>
+
+                `
+
+                :
+
+                ""
+              }
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "订单",
+        "地区",
+        "客户",
+        "状态",
+        "付款",
+        "金额",
+        "时间",
+        "操作"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 订单 RPC */
+
+async function callRpc(
+  functionName,
+  parameters,
+  successMessage
+){
+
+  const {
+    error
+  } =
+    await db.rpc(
+      functionName,
+      parameters
+    );
+
+
+  if(error){
+
+    alert(
+      "操作失败：\n"
+      +
+      error.message
+    );
+
+    return false;
+
+  }
+
+
+  alert(
+    successMessage
+    ||
+    "操作成功"
+  );
+
+
+  await refreshCurrentSection();
+
+  return true;
+
+}
+
+
+async function confirmOrder(
+  orderId
+){
+
+  if(
+    !confirm(
+      "确认这张订单？"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "confirm_order",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Super Admin 后台确认"
+    },
+
+    "订单已确认"
+
+  );
+
+}
+
+
+async function startPicking(
+  orderId
+){
+
+  if(
+    !confirm(
+      "确认开始拣货？"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "start_order_picking",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Super Admin 开始拣货"
+    },
+
+    "订单已进入拣货中"
+
+  );
+
+}
+
+
+async function markPacked(
+  orderId
+){
+
+  if(
+    !confirm(
+      "确认已经完成打包？"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "mark_order_packed",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Super Admin 标记已打包"
+    },
+
+    "订单已打包"
+
+  );
+
+}
+
+
+async function finalizeOrder(
+  orderId
+){
+
+  if(
+    !confirm(
+      "正式出库会扣除库存和预留库存，确认继续？"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "finalize_order_fulfillment",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Super Admin 正式出库"
+    },
+
+    "订单已经正式出库"
+
+  );
+
+}
+
+
+async function cancelOrder(
+  orderId
+){
+
+  const reason =
+    prompt(
+      "请输入取消订单的原因："
+    );
+
+
+  if(!reason){
+    return;
+  }
+
+
+  await callRpc(
+
+    "cancel_order",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_reason:
+        reason
+    },
+
+    "订单已经取消"
+
+  );
+
+}
+
+
+/* 库存 */
+
+async function loadInventory(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "region_inventory"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "updated_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        300
+      );
+
+
+  const container =
+    document.getElementById(
+      "inventoryTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      item => `
+
+        <tr>
+
+          <td>
+
+            ${
+              escapeHtml(
+                regionMap[
+                  item.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+
+          </td>
+
+          <td class="mono">
+
+            ${
+              escapeHtml(
+                item.variant_id
+              )
+            }
+
+          </td>
+
+          <td>
+            ${item.stock_on_hand}
+          </td>
+
+          <td>
+            ${item.reserved_quantity}
+          </td>
+
+          <td>
+
+            ${
+              Math.max(
+                0,
+                Number(
+                  item.stock_on_hand
+                  ||
+                  0
+                )
+                -
+                Number(
+                  item.reserved_quantity
+                  ||
+                  0
+                )
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              item.low_stock_threshold
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              statusBadge(
+                item.is_available
+                ?
+                "active"
+                :
+                "inactive"
+              )
+            }
+
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "地区",
+        "SKU ID",
+        "现货",
+        "预留",
+        "可售",
+        "低库存线",
+        "状态"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 付款退款 */
+
+async function loadPayments(){
+
+  const paymentResult =
+    await db
+      .from(
+        "payment_transactions"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const paymentContainer =
+    document.getElementById(
+      "paymentsTable"
+    );
+
+
+  if(
+    paymentResult.error
+  ){
+
+    paymentContainer.innerHTML =
+      showError(
+        paymentResult.error.message
+      );
+
+  }
+  else{
+
+    const rows =
+      (
+        paymentResult.data
+        ||
+        []
+      ).map(
+        payment => `
+
+          <tr>
+
+            <td class="mono">
+
+              ${
+                escapeHtml(
+                  payment.order_id
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    payment.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                formatMoney(
+                  payment.amount,
+                  payment.currency_code
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  payment.payment_method
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  payment.status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                formatDate(
+                  payment.created_at
+                )
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+    paymentContainer.innerHTML =
+      makeTable(
+
+        [
+          "订单 ID",
+          "地区",
+          "金额",
+          "付款方式",
+          "状态",
+          "时间"
+        ],
+
+        rows
+
+      );
+
+  }
+
+
+  const refundResult =
+    await db
+      .from(
+        "refund_transactions"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const refundContainer =
+    document.getElementById(
+      "refundsTable"
+    );
+
+
+  if(
+    refundResult.error
+  ){
+
+    refundContainer.innerHTML =
+      showError(
+        refundResult.error.message
+      );
+
+    return;
+
+  }
+
+
+  const refundRows =
+    (
+      refundResult.data
+      ||
+      []
+    ).map(
+      refund => `
+
+        <tr>
+
+          <td class="mono">
+
+            ${
+              escapeHtml(
+                refund.order_id
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              escapeHtml(
+                regionMap[
+                  refund.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              formatMoney(
+                refund.amount,
+                refund.currency_code
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              statusBadge(
+                refund.status
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              escapeHtml(
+                refund.reason
+                ||
+                "—"
+              )
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              formatDate(
+                refund.created_at
+              )
+            }
+
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  refundContainer.innerHTML =
+    makeTable(
+
+      [
+        "订单 ID",
+        "地区",
+        "退款金额",
+        "状态",
+        "原因",
+        "时间"
+      ],
+
+      refundRows
+
+    );
+
+}
+
+
+/* 配送 */
+
+async function loadDelivery(){
+
+  const profileResult =
+    await db
+      .from(
+        "delivery_profiles"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const profileContainer =
+    document.getElementById(
+      "deliveryProfilesTable"
+    );
+
+
+  if(
+    profileResult.error
+  ){
+
+    profileContainer.innerHTML =
+      showError(
+        profileResult.error.message
+      );
+
+  }
+  else{
+
+    const rows =
+      (
+        profileResult.data
+        ||
+        []
+      ).map(
+        driver => `
+
+          <tr>
+
+            <td>
+              ${
+                escapeHtml(
+                  driver.delivery_code
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  driver.display_name
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  driver.phone
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  driver.vehicle_type
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  driver.license_plate
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                statusBadge(
+                  driver.status
+                )
+              }
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+    profileContainer.innerHTML =
+      makeTable(
+
+        [
+          "编号",
+          "姓名",
+          "电话",
+          "车辆",
+          "车牌",
+          "状态"
+        ],
+
+        rows
+
+      );
+
+  }
+
+
+  const taskResult =
+    await db
+      .from(
+        "delivery_tasks"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const taskContainer =
+    document.getElementById(
+      "deliveryTasksTable"
+    );
+
+
+  if(
+    taskResult.error
+  ){
+
+    taskContainer.innerHTML =
+      showError(
+        taskResult.error.message
+      );
+
+    return;
+
+  }
+
+
+  const taskRows =
+    (
+      taskResult.data
+      ||
+      []
+    ).map(
+      task => `
+
+        <tr>
+
+          <td class="mono">
+            ${
+              escapeHtml(
+                task.order_id
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                regionMap[
+                  task.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td class="mono">
+            ${
+              escapeHtml(
+                task.delivery_id
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                task.status
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                task.failure_reason
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatDate(
+                task.created_at
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  taskContainer.innerHTML =
+    makeTable(
+
+      [
+        "订单 ID",
+        "地区",
+        "配送员 ID",
+        "状态",
+        "失败原因",
+        "时间"
+      ],
+
+      taskRows
+
+    );
+
+}
+
+
+/* 员工 */
+
+async function loadStaff(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "staff_profiles"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const container =
+    document.getElementById(
+      "staffTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      staff => `
+
+        <tr>
+
+          <td>
+            ${
+              escapeHtml(
+                staff.staff_code
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                staff.display_name
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                staff.phone
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                staff.status
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                staff.preferred_language
+                ||
+                "zh"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatDate(
+                staff.created_at
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "员工编号",
+        "姓名",
+        "电话",
+        "状态",
+        "语言",
+        "创建时间"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 审批 */
+
+async function loadApprovals(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "approval_requests"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        300
+      );
+
+
+  const container =
+    document.getElementById(
+      "approvalsTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      approval => `
+
+        <tr>
+
+          <td>
+            ${
+              escapeHtml(
+                approval.action_type
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                regionMap[
+                  approval.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                approval.target_type
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                approval.status
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                approval.reason
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatDate(
+                approval.created_at
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "操作类型",
+        "地区",
+        "对象",
+        "状态",
+        "原因",
+        "申请时间"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 审计 */
+
+async function loadAudit(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "audit_logs"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        300
+      );
+
+
+  const container =
+    document.getElementById(
+      "auditTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      log => `
+
+        <tr>
+
+          <td>
+            ${
+              formatDate(
+                log.created_at
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                log.actor_type
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                log.action
+                ||
+                log.operation
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                log.entity_type
+                ||
+                log.table_name
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                regionMap[
+                  log.region_id
+                ]
+                ||
+                "—"
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "时间",
+        "操作者",
+        "动作",
+        "对象",
+        "地区"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 地区 */
+
+async function loadRegions(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "regions"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "sort_order"
+      );
+
+
+  const container =
+    document.getElementById(
+      "regionsTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      region => `
+
+        <tr>
+
+          <td>
+            ${
+              escapeHtml(
+                region.code
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                region.name_zh
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                region.name_en
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                region.name_my
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                region.name_th
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                region.is_active
+                ?
+                "active"
+                :
+                "inactive"
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "代码",
+        "中文",
+        "English",
+        "မြန်မာ",
+        "ไทย",
+        "状态"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 分类 */
+
+async function loadCategories(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "categories"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "level"
+      )
+      .order(
+        "sort_order"
+      )
+      .limit(
+        300
+      );
+
+
+  const container =
+    document.getElementById(
+      "categoriesTable"
+    );
+
+
+  if(error){
+
+    container.innerHTML =
+      showError(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (
+      data || []
+    ).map(
+      category => `
+
+        <tr>
+
+          <td>
+            ${
+              escapeHtml(
+                category.code
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                category.level
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                category.name_zh
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                category.name_en
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                category.is_active
+                ?
+                "active"
+                :
+                "inactive"
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  container.innerHTML =
+    makeTable(
+
+      [
+        "代码",
+        "级别",
+        "中文",
+        "English",
+        "状态"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* 商品 */
+
+async function loadProducts(){
+
+  const productResult =
+    await db
+      .from(
+        "products"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        200
+      );
+
+
+  const productContainer =
+    document.getElementById(
+      "productsTable"
+    );
+
+
+  if(
+    productResult.error
+  ){
+
+    productContainer.innerHTML =
+      showError(
+        productResult.error.message
+      );
+
+  }
+  else{
+
+    const rows =
+      (
+        productResult.data
+        ||
+        []
+      ).map(
+        product => `
+
+          <tr>
+
+            <td>
+              ${
+                escapeHtml(
+                  product.product_code
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  product.name_zh
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                escapeHtml(
+                  product.brand
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${
+                statusBadge(
+                  product.is_active
+                  ===
+                  false
+
+                  ?
+
+                  "inactive"
+
+                  :
+
+                  "active"
+                )
+              }
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+    productContainer.innerHTML =
+      makeTable(
+
+        [
+          "商品代码",
+          "名称",
+          "品牌",
+          "状态"
+        ],
+
+        rows
+
+      );
+
+  }
+
+
+  const variantResult =
+    await db
+      .from(
+        "product_variants"
+      )
+      .select(
+        "*"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(
+        300
+      );
+
+
+  const variantContainer =
+    document.getElementById(
+      "variantsTable"
+    );
+
+
+  if(
+    variantResult.error
+  ){
+
+    variantContainer.innerHTML =
+      showError(
+        variantResult.error.message
+      );
+
+    return;
+
+  }
+
+
+  const variantRows =
+    (
+      variantResult.data
+      ||
+      []
+    ).map(
+      variant => `
+
+        <tr>
+
+          <td>
+            ${
+              escapeHtml(
+                variant.sku_code
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                variant.name_zh
+                ||
+                variant.spec_zh
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              formatMoney(
+                variant.retail_price
+              )
+            }
+          </td>
+
+          <td>
+
+            ${
+              variant.wholesale_price
+              ===
+              null
+
+              ?
+
+              "—"
+
+              :
+
+              formatMoney(
+                variant.wholesale_price
+              )
+            }
+
+          </td>
+
+          <td>
+            ${
+              escapeHtml(
+                variant.wholesale_min_qty
+                ||
+                "—"
+              )
+            }
+          </td>
+
+          <td>
+            ${
+              statusBadge(
+                variant.is_active
+                ?
+                "active"
+                :
+                "inactive"
+              )
+            }
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  variantContainer.innerHTML =
+    makeTable(
+
+      [
+        "SKU",
+        "规格",
+        "零售价",
+        "批发价",
+        "批发起订量",
+        "状态"
+      ],
+
+      variantRows
+
+    );
+
+}
+
+
+/* Auth 状态 */
+
+db.auth.onAuthStateChange(
+  (
+    event
+  ) => {
+
+    if(
+      event
+      ===
+      "SIGNED_OUT"
+    ){
+
+      location.reload();
+
+    }
+
+  }
+);
+
+
+checkSession();
+
+</script>
 
 </body>
 </html>
