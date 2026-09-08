@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>零食平台 Super Admin</title>
+<title>零食平台 · Super Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -13,11 +13,18 @@
   --card:#FFFFFF;
   --soft:#FFF3E4;
   --orange:#F47B35;
+  --orange-dark:#D96525;
   --text:#35251D;
   --muted:#8B776C;
   --line:#EEDFD2;
   --green:#4F8A62;
+  --green-soft:#EAF4ED;
   --red:#B42318;
+  --red-soft:#FEECE8;
+  --amber:#9A6700;
+  --amber-soft:#FFF5DF;
+  --gray:#667085;
+  --gray-soft:#F2F4F7;
 }
 
 *{
@@ -26,53 +33,30 @@
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,
-  "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
   background:var(--bg);
   color:var(--text);
 }
 
-.hidden{
-  display:none !important;
-}
-
 button,
 input,
-select{
+select,
+textarea{
   font:inherit;
 }
 
-.btn{
-  border:0;
-  border-radius:12px;
-  padding:11px 15px;
-  font-weight:800;
+button{
   cursor:pointer;
 }
 
-.btn-primary{
-  background:var(--orange);
-  color:white;
-}
-
-.btn-light{
-  background:#F5EEE8;
-  color:var(--text);
-}
-
-.btn-green{
-  background:#EAF4ED;
-  color:#2F6A42;
-}
-
-.btn-red{
-  background:#FEECE8;
-  color:#B42318;
-}
-
-.btn-small{
-  padding:8px 10px;
-  font-size:12px;
+.hidden{
+  display:none!important;
 }
 
 /* 登录 */
@@ -83,84 +67,193 @@ select{
   align-items:center;
   justify-content:center;
   padding:20px;
+  background:
+    linear-gradient(
+      180deg,
+      #FFF9F1 0%,
+      #FFF3E4 100%
+    );
 }
 
 .login-card{
   width:100%;
-  max-width:420px;
-  background:white;
+  max-width:430px;
+  background:#fff;
   border:1px solid var(--line);
-  border-radius:22px;
-  padding:26px;
-  box-shadow:0 10px 30px rgba(53,37,29,.08);
+  border-radius:24px;
+  padding:28px;
+  box-shadow:
+    0 14px 40px
+    rgba(53,37,29,.09);
 }
 
 .brand{
   font-size:12px;
   font-weight:900;
   color:var(--orange);
-  margin-bottom:7px;
+  letter-spacing:.06em;
+  margin-bottom:8px;
 }
 
 .login-card h1{
   margin:0 0 8px;
-  font-size:27px;
+  font-size:28px;
 }
 
-.subtitle{
-  color:var(--muted);
+.login-note{
   font-size:13px;
-  line-height:1.6;
+  color:var(--muted);
+  line-height:1.65;
+  margin-bottom:20px;
 }
+
+/* 表单 */
 
 .form-group{
-  margin-top:15px;
+  margin-bottom:14px;
 }
 
 .form-group label{
   display:block;
   font-size:13px;
-  font-weight:700;
+  font-weight:800;
   margin-bottom:7px;
 }
 
-.form-group input{
+input,
+select,
+textarea{
   width:100%;
-  padding:12px;
   border:1px solid var(--line);
   border-radius:12px;
+  background:white;
+  color:var(--text);
+  padding:11px 12px;
   outline:none;
 }
 
-.form-group input:focus{
+textarea{
+  min-height:88px;
+  resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
   border-color:var(--orange);
+  box-shadow:
+    0 0 0 3px
+    rgba(244,123,53,.12);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.form-grid-3{
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+.checkbox-list{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.check-card{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  padding:8px 10px;
+  border-radius:10px;
+  font-size:12px;
+  background:#fff;
+}
+
+.check-card input{
+  width:auto;
+}
+
+/* 按钮 */
+
+.btn{
+  border:none;
+  border-radius:11px;
+  padding:10px 14px;
+  font-weight:800;
+}
+
+.btn-small{
+  padding:7px 9px;
+  font-size:11px;
+}
+
+.btn-primary{
+  background:var(--orange);
+  color:#fff;
+}
+
+.btn-primary:hover{
+  background:var(--orange-dark);
+}
+
+.btn-light{
+  background:#F5EEE8;
+  color:var(--text);
+}
+
+.btn-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.btn-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.btn-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
 }
 
 .login-actions{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:9px;
-  margin-top:17px;
+  margin-top:16px;
 }
 
 .message{
-  margin-top:13px;
   font-size:13px;
-  line-height:1.5;
+  margin-top:13px;
+  line-height:1.55;
 }
 
 /* 顶部 */
 
 .topbar{
+  min-height:64px;
   position:sticky;
   top:0;
-  z-index:20;
-  min-height:62px;
-  background:white;
+  z-index:30;
+  background:#fff;
   border-bottom:1px solid var(--line);
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:10px;
   padding:10px 17px;
 }
 
@@ -177,36 +270,37 @@ select{
   display:flex;
   align-items:center;
   gap:8px;
-  font-size:12px;
   color:var(--muted);
+  font-size:12px;
 }
 
-/* 页面 */
+/* 主布局 */
 
 .layout{
   display:flex;
-  min-height:calc(100vh - 62px);
+  min-height:
+    calc(100vh - 64px);
 }
 
 .sidebar{
-  width:230px;
+  width:235px;
   flex:none;
-  background:white;
+  background:#fff;
   border-right:1px solid var(--line);
-  padding:13px 10px;
+  padding:13px 10px 30px;
 }
 
 .menu-title{
-  padding:12px 12px 5px;
+  font-size:10px;
   color:#AA9386;
-  font-size:11px;
-  font-weight:800;
+  font-weight:900;
+  padding:14px 12px 6px;
 }
 
 .menu-item{
-  padding:11px 12px;
-  margin:3px 0;
+  padding:11px 13px;
   border-radius:11px;
+  margin:3px 0;
   font-size:14px;
   font-weight:700;
   cursor:pointer;
@@ -220,8 +314,8 @@ select{
 .content{
   flex:1;
   min-width:0;
+  max-width:1450px;
   padding:21px;
-  max-width:1400px;
 }
 
 .section{
@@ -241,20 +335,21 @@ select{
 .page-subtitle{
   color:var(--muted);
   font-size:13px;
-  margin-bottom:17px;
+  margin-bottom:18px;
 }
 
 /* 卡片 */
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
   gap:12px;
   margin-bottom:17px;
 }
 
 .stat-card{
-  background:white;
+  background:#fff;
   border:1px solid var(--line);
   border-radius:17px;
   padding:17px;
@@ -266,23 +361,86 @@ select{
 }
 
 .stat-value{
-  margin-top:7px;
   font-size:27px;
   font-weight:900;
+  margin-top:7px;
+}
+
+.stat-note{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
 }
 
 .panel{
-  background:white;
+  background:#fff;
   border:1px solid var(--line);
   border-radius:17px;
   padding:16px;
   margin-bottom:17px;
 }
 
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:13px;
+}
+
 .panel-title{
   font-size:17px;
   font-weight:900;
-  margin-bottom:13px;
+}
+
+.panel-note{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.safe-note{
+  border:1px solid #F6D999;
+  background:var(--amber-soft);
+  color:#72510B;
+  border-radius:13px;
+  padding:12px 13px;
+  font-size:12px;
+  line-height:1.65;
+  margin-bottom:14px;
+}
+
+/* 状态 */
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  background:var(--gray-soft);
+  color:var(--gray);
+  margin:1px;
+}
+
+.badge-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.badge-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.badge-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.badge-orange{
+  background:#FFF0E7;
+  color:#C85816;
 }
 
 /* 表格 */
@@ -296,52 +454,41 @@ select{
 
 table{
   width:100%;
-  min-width:760px;
   border-collapse:collapse;
+  min-width:780px;
 }
 
 th,
 td{
-  text-align:left;
   padding:11px 12px;
+  text-align:left;
+  vertical-align:top;
   border-bottom:1px solid #F1E7DF;
   font-size:12px;
-  vertical-align:top;
 }
 
 th{
   background:#FFF8F2;
   color:#735F54;
-  font-size:11px;
+  font-size:10px;
 }
 
 tr:last-child td{
   border-bottom:none;
 }
 
-.badge{
-  display:inline-block;
-  padding:4px 7px;
-  border-radius:999px;
-  background:#F2F4F7;
-  font-size:11px;
-  font-weight:800;
-  margin:1px;
+.mono{
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
 }
 
-.badge-green{
-  background:#EAF4ED;
-  color:#2F6A42;
-}
-
-.badge-red{
-  background:#FEECE8;
-  color:#B42318;
-}
-
-.badge-amber{
-  background:#FFF5DF;
-  color:#9A6700;
+.small{
+  font-size:10px;
+  color:var(--muted);
+  margin-top:3px;
 }
 
 .empty{
@@ -357,21 +504,69 @@ tr:last-child td{
   flex-wrap:wrap;
 }
 
-.mono{
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+/* 搜索栏 */
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:13px;
+}
+
+.toolbar input,
+.toolbar select{
+  width:auto;
+  min-width:160px;
+}
+
+/* Tab */
+
+.tabs{
+  display:flex;
+  gap:7px;
+  overflow:auto;
+  margin-bottom:14px;
+}
+
+.tab{
+  white-space:nowrap;
+  border:1px solid var(--line);
+  padding:8px 11px;
+  border-radius:999px;
+  background:#fff;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.tab.active{
+  border-color:var(--orange);
+  color:var(--orange);
+  background:#FFF5EE;
 }
 
 /* 手机 */
 
-@media(max-width:900px){
+@media(max-width:980px){
 
   .stats{
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .form-grid-3{
+    grid-template-columns:
+      1fr 1fr;
   }
 
 }
 
 @media(max-width:760px){
+
+  .topbar{
+    min-height:60px;
+    padding:9px 12px;
+  }
 
   .topbar-right span{
     display:none;
@@ -383,13 +578,13 @@ tr:last-child td{
 
   .sidebar{
     position:sticky;
-    top:62px;
-    z-index:10;
+    top:60px;
+    z-index:20;
     width:100%;
     display:flex;
     overflow-x:auto;
     padding:8px;
-    border-right:0;
+    border-right:none;
     border-bottom:1px solid var(--line);
   }
 
@@ -406,16 +601,27 @@ tr:last-child td{
     padding:13px;
   }
 
-  .page-title{
-    font-size:22px;
+  .stats{
+    gap:9px;
   }
 
   .stat-card{
-    padding:14px;
+    padding:13px;
   }
 
   .stat-value{
     font-size:23px;
+  }
+
+  .form-grid,
+  .form-grid-3{
+    grid-template-columns:1fr;
+  }
+
+  .toolbar input,
+  .toolbar select{
+    width:100%;
+    min-width:0;
   }
 
 }
@@ -426,7 +632,10 @@ tr:last-child td{
 
 <!-- 登录 -->
 
-<div id="loginPage" class="login-page">
+<div
+  id="loginPage"
+  class="login-page"
+>
 
   <div class="login-card">
 
@@ -438,8 +647,8 @@ tr:last-child td{
       Super Admin 后台
     </h1>
 
-    <div class="subtitle">
-      平台最高管理后台，仅平台所有者账号可以进入。
+    <div class="login-note">
+      平台最高管理后台。只有平台所有者账号可以进入。
     </div>
 
     <div class="form-group">
@@ -450,7 +659,6 @@ tr:last-child td{
 
       <input
         id="loginEmail"
-        type="email"
         value="lhl145600@gmail.com"
         readonly
       >
@@ -506,542 +714,2056 @@ tr:last-child td{
   class="hidden"
 >
 
-  <header class="topbar">
+<header class="topbar">
 
-    <div class="topbar-title">
+  <div class="topbar-title">
 
-      <span>
-        零食平台
-      </span>
+    <span>
+      零食平台
+    </span>
 
-      · Super Admin
-
-    </div>
-
-    <div class="topbar-right">
-
-      <span id="adminEmail"></span>
-
-      <button
-        class="btn btn-light btn-small"
-        onclick="refreshCurrentSection()"
-      >
-        刷新
-      </button>
-
-      <button
-        class="btn btn-light btn-small"
-        onclick="logout()"
-      >
-        退出
-      </button>
-
-    </div>
-
-  </header>
-
-
-  <div class="layout">
-
-    <!-- 菜单 -->
-
-    <aside class="sidebar">
-
-      <div class="menu-title">
-        总览
-      </div>
-
-      <div
-        class="menu-item active"
-        onclick="showSection('dashboard',this)"
-      >
-        仪表盘
-      </div>
-
-
-      <div class="menu-title">
-        业务
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('orders',this)"
-      >
-        订单
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('inventory',this)"
-      >
-        库存
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('payments',this)"
-      >
-        付款退款
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('delivery',this)"
-      >
-        配送
-      </div>
-
-
-      <div class="menu-title">
-        人员与安全
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('staff',this)"
-      >
-        员工
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('approvals',this)"
-      >
-        审批
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('audit',this)"
-      >
-        审计日志
-      </div>
-
-
-      <div class="menu-title">
-        基础资料
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('regions',this)"
-      >
-        地区
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('categories',this)"
-      >
-        分类
-      </div>
-
-      <div
-        class="menu-item"
-        onclick="showSection('products',this)"
-      >
-        商品
-      </div>
-
-    </aside>
-
-
-    <!-- 内容 -->
-
-    <main class="content">
-
-      <!-- 仪表盘 -->
-
-      <section
-        id="dashboard"
-        class="section active"
-      >
-
-        <div class="page-title">
-          仪表盘
-        </div>
-
-        <div class="page-subtitle">
-          平台实时业务总览
-        </div>
-
-
-        <div class="stats">
-
-          <div class="stat-card">
-
-            <div class="stat-label">
-              订单总数
-            </div>
-
-            <div
-              id="statOrders"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="stat-label">
-              待确认订单
-            </div>
-
-            <div
-              id="statPendingOrders"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="stat-label">
-              待审核付款
-            </div>
-
-            <div
-              id="statPendingPayments"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat-card">
-
-            <div class="stat-label">
-              待审批操作
-            </div>
-
-            <div
-              id="statPendingApprovals"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            最近订单
-          </div>
-
-          <div id="recentOrders"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 订单 -->
-
-      <section
-        id="orders"
-        class="section"
-      >
-
-        <div class="page-title">
-          订单
-        </div>
-
-        <div class="page-subtitle">
-          查看和处理所有地区订单
-        </div>
-
-        <div class="panel">
-
-          <div id="ordersTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 库存 -->
-
-      <section
-        id="inventory"
-        class="section"
-      >
-
-        <div class="page-title">
-          库存
-        </div>
-
-        <div class="page-subtitle">
-          地区库存、预留库存与可售库存
-        </div>
-
-        <div class="panel">
-
-          <div id="inventoryTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 付款退款 -->
-
-      <section
-        id="payments"
-        class="section"
-      >
-
-        <div class="page-title">
-          付款退款
-        </div>
-
-        <div class="page-subtitle">
-          付款审核和退款记录
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            付款记录
-          </div>
-
-          <div id="paymentsTable"></div>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            退款记录
-          </div>
-
-          <div id="refundsTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 配送 -->
-
-      <section
-        id="delivery"
-        class="section"
-      >
-
-        <div class="page-title">
-          配送
-        </div>
-
-        <div class="page-subtitle">
-          配送员和配送任务
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            配送员
-          </div>
-
-          <div id="deliveryProfilesTable"></div>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            配送任务
-          </div>
-
-          <div id="deliveryTasksTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 员工 -->
-
-      <section
-        id="staff"
-        class="section"
-      >
-
-        <div class="page-title">
-          员工
-        </div>
-
-        <div class="page-subtitle">
-          员工账号和状态
-        </div>
-
-        <div class="panel">
-
-          <div id="staffTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 审批 -->
-
-      <section
-        id="approvals"
-        class="section"
-      >
-
-        <div class="page-title">
-          审批
-        </div>
-
-        <div class="page-subtitle">
-          高风险操作审批中心
-        </div>
-
-        <div class="panel">
-
-          <div id="approvalsTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 审计 -->
-
-      <section
-        id="audit"
-        class="section"
-      >
-
-        <div class="page-title">
-          审计日志
-        </div>
-
-        <div class="page-subtitle">
-          查看关键业务数据的修改历史
-        </div>
-
-        <div class="panel">
-
-          <div id="auditTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 地区 -->
-
-      <section
-        id="regions"
-        class="section"
-      >
-
-        <div class="page-title">
-          地区
-        </div>
-
-        <div class="page-subtitle">
-          平台动态地区体系
-        </div>
-
-        <div class="panel">
-
-          <div id="regionsTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 分类 -->
-
-      <section
-        id="categories"
-        class="section"
-      >
-
-        <div class="page-title">
-          分类
-        </div>
-
-        <div class="page-subtitle">
-          一级与二级商品分类
-        </div>
-
-        <div class="panel">
-
-          <div id="categoriesTable"></div>
-
-        </div>
-
-      </section>
-
-
-      <!-- 商品 -->
-
-      <section
-        id="products"
-        class="section"
-      >
-
-        <div class="page-title">
-          商品
-        </div>
-
-        <div class="page-subtitle">
-          商品与 SKU 数据
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            商品
-          </div>
-
-          <div id="productsTable"></div>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-title">
-            SKU
-          </div>
-
-          <div id="variantsTable"></div>
-
-        </div>
-
-      </section>
-
-    </main>
+    · Super Admin
 
   </div>
+
+  <div class="topbar-right">
+
+    <span id="adminEmail"></span>
+
+    <button
+      class="btn btn-light btn-small"
+      onclick="refreshCurrentSection()"
+    >
+      刷新
+    </button>
+
+    <button
+      class="btn btn-light btn-small"
+      onclick="logout()"
+    >
+      退出
+    </button>
+
+  </div>
+
+</header>
+
+
+<div class="layout">
+
+<!-- 菜单 -->
+
+<aside class="sidebar">
+
+  <div class="menu-title">
+    总览
+  </div>
+
+  <div
+    class="menu-item active"
+    onclick="showSection('dashboard',this)"
+  >
+    仪表盘
+  </div>
+
+
+  <div class="menu-title">
+    业务
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('orders',this)"
+  >
+    订单
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('inventory',this)"
+  >
+    库存
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('payments',this)"
+  >
+    付款退款
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('delivery',this)"
+  >
+    配送
+  </div>
+
+
+  <div class="menu-title">
+    人员与安全
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('staff',this)"
+  >
+    员工
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('approvals',this)"
+  >
+    审批
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('audit',this)"
+  >
+    审计日志
+  </div>
+
+
+  <div class="menu-title">
+    基础资料
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('regions',this)"
+  >
+    地区
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('categories',this)"
+  >
+    分类
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('products',this)"
+  >
+    商品
+  </div>
+
+</aside>
+
+
+<!-- 内容 -->
+
+<main class="content">
+
+<!-- 仪表盘 -->
+
+<section
+  id="dashboard"
+  class="section active"
+>
+
+  <div class="page-title">
+    仪表盘
+  </div>
+
+  <div class="page-subtitle">
+    平台实时业务总览
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        订单总数
+      </div>
+
+      <div
+        id="statOrders"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        所有地区
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        待确认订单
+      </div>
+
+      <div
+        id="statPendingOrders"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        需要处理
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        待审核付款
+      </div>
+
+      <div
+        id="statPendingPayments"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        submitted
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        待审批操作
+      </div>
+
+      <div
+        id="statPendingApprovals"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        高风险操作
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        活跃地区
+      </div>
+
+      <div
+        id="statRegions"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        活跃员工
+      </div>
+
+      <div
+        id="statStaff"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        活跃配送员
+      </div>
+
+      <div
+        id="statDelivery"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        活跃 SKU
+      </div>
+
+      <div
+        id="statSku"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      最近订单
+    </div>
+
+    <div id="dashboardOrders"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 订单 -->
+
+<section
+  id="orders"
+  class="section"
+>
+
+  <div class="page-title">
+    订单管理
+  </div>
+
+  <div class="page-subtitle">
+    确认、取消、拣货、打包、出库、配送
+  </div>
+
+
+  <div class="toolbar">
+
+    <select
+      id="orderStatusFilter"
+      onchange="loadOrders()"
+    >
+
+      <option value="">
+        全部订单状态
+      </option>
+
+      <option value="pending_confirmation">
+        待确认
+      </option>
+
+      <option value="confirmed">
+        已确认
+      </option>
+
+      <option value="cancelled">
+        已取消
+      </option>
+
+      <option value="completed">
+        已完成
+      </option>
+
+      <option value="after_sales">
+        售后
+      </option>
+
+    </select>
+
+
+    <select
+      id="orderRegionFilter"
+      onchange="loadOrders()"
+    >
+
+      <option value="">
+        全部地区
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div id="ordersTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 库存 -->
+
+<section
+  id="inventory"
+  class="section"
+>
+
+  <div class="page-title">
+    库存管理
+  </div>
+
+  <div class="page-subtitle">
+    地区库存、批次、入库、手工调整
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      商品入库
+    </div>
+
+
+    <div class="form-grid-3">
+
+      <div class="form-group">
+
+        <label>
+          地区
+        </label>
+
+        <select id="receiveRegion"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          SKU
+        </label>
+
+        <select id="receiveVariant"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          入库数量
+        </label>
+
+        <input
+          id="receiveQuantity"
+          type="number"
+          min="1"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批次编号
+        </label>
+
+        <input
+          id="receiveBatchCode"
+          placeholder="例如 BATCH-001"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          收货日期
+        </label>
+
+        <input
+          id="receiveDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          生产日期
+        </label>
+
+        <input
+          id="receiveProductionDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          到期日期
+        </label>
+
+        <input
+          id="receiveExpiryDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          单位成本
+        </label>
+
+        <input
+          id="receiveUnitCost"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          备注
+        </label>
+
+        <input
+          id="receiveNotes"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="receiveInventory()"
+    >
+      确认入库
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      手工库存调整
+    </div>
+
+    <div class="safe-note">
+      正数代表增加库存，例如 10；负数代表减少库存，例如 -3。Super Admin 可以直接执行，但必须填写原因。
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          地区
+        </label>
+
+        <select id="adjustRegion"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          SKU
+        </label>
+
+        <select id="adjustVariant"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          调整数量
+        </label>
+
+        <input
+          id="adjustDelta"
+          type="number"
+          placeholder="例如 5 或 -2"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批次 ID（有批次库存时必须）
+        </label>
+
+        <input
+          id="adjustBatchId"
+          placeholder="没有批次可留空"
+        >
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label>
+          调整原因
+        </label>
+
+        <input
+          id="adjustReason"
+          placeholder="必须填写"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-amber"
+      onclick="adjustInventory()"
+    >
+      执行库存调整
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      地区库存
+    </div>
+
+    <div id="inventoryTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      库存批次
+    </div>
+
+    <div id="batchTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 付款 -->
+
+<section
+  id="payments"
+  class="section"
+>
+
+  <div class="page-title">
+    付款退款
+  </div>
+
+  <div class="page-subtitle">
+    付款审核与退款处理
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      付款记录
+    </div>
+
+    <div id="paymentsTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      退款记录
+    </div>
+
+    <div id="refundsTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 配送 -->
+
+<section
+  id="delivery"
+  class="section"
+>
+
+  <div class="page-title">
+    配送管理
+  </div>
+
+  <div class="page-subtitle">
+    配送员资料、负责地区、配送任务
+  </div>
+
+
+  <div class="safe-note">
+    配送员的 Auth 登录账号需要先在 Supabase Authentication 创建。这里填写那个账号对应的 User UUID，不需要也绝对不要填写 service_role 密钥。
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增配送员资料
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          Auth User UUID
+        </label>
+
+        <input
+          id="deliveryUserId"
+          placeholder="从 Supabase Authentication 复制"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          配送员编号
+        </label>
+
+        <input
+          id="deliveryCode"
+          placeholder="例如 D001"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          姓名
+        </label>
+
+        <input id="deliveryName">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          电话
+        </label>
+
+        <input id="deliveryPhone">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          车辆类型
+        </label>
+
+        <input
+          id="deliveryVehicleType"
+          placeholder="摩托车 / 汽车"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          车牌
+        </label>
+
+        <input id="deliveryVehiclePlate">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          语言
+        </label>
+
+        <select id="deliveryLanguage">
+
+          <option value="zh">
+            中文
+          </option>
+
+          <option value="en">
+            English
+          </option>
+
+          <option value="my">
+            မြန်မာ
+          </option>
+
+          <option value="th">
+            ไทย
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          状态
+        </label>
+
+        <select id="deliveryStatus">
+
+          <option value="active">
+            active
+          </option>
+
+          <option value="inactive">
+            inactive
+          </option>
+
+          <option value="suspended">
+            suspended
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label>
+          负责地区
+        </label>
+
+        <div
+          id="deliveryRegionChecks"
+          class="checkbox-list"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createDeliveryProfile()"
+    >
+      保存配送员
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      配送员列表
+    </div>
+
+    <div id="deliveryProfilesTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      配送任务
+    </div>
+
+    <div id="deliveryTasksTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 员工 -->
+
+<section
+  id="staff"
+  class="section"
+>
+
+  <div class="page-title">
+    员工管理
+  </div>
+
+  <div class="page-subtitle">
+    员工资料、角色、地区权限
+  </div>
+
+
+  <div class="safe-note">
+    员工 Auth 登录账号必须先在 Supabase Authentication 创建。这里填写真实 User UUID。网页里不会保存 service_role 密钥。
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增员工资料
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          Auth User UUID
+        </label>
+
+        <input
+          id="staffUserId"
+          placeholder="从 Supabase Authentication 复制"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          员工编号
+        </label>
+
+        <input
+          id="staffCode"
+          placeholder="例如 S001"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          姓名
+        </label>
+
+        <input id="staffName">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          电话
+        </label>
+
+        <input id="staffPhone">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          角色
+        </label>
+
+        <select id="staffRole"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          界面语言
+        </label>
+
+        <select id="staffLanguage">
+
+          <option value="zh">
+            中文
+          </option>
+
+          <option value="en">
+            English
+          </option>
+
+          <option value="my">
+            မြန်မာ
+          </option>
+
+          <option value="th">
+            ไทย
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label>
+          负责地区
+        </label>
+
+        <div
+          id="staffRegionChecks"
+          class="checkbox-list"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createStaffProfile()"
+    >
+      保存员工
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      员工列表
+    </div>
+
+    <div id="staffTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      角色权限
+    </div>
+
+    <div id="rolesTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 审批 -->
+
+<section
+  id="approvals"
+  class="section"
+>
+
+  <div class="page-title">
+    危险操作审批
+  </div>
+
+  <div class="page-subtitle">
+    取消订单、库存调整、退款、改价
+  </div>
+
+
+  <div class="panel">
+
+    <div id="approvalsTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 审计 -->
+
+<section
+  id="audit"
+  class="section"
+>
+
+  <div class="page-title">
+    审计日志
+  </div>
+
+  <div class="page-subtitle">
+    谁在什么时间修改了什么数据
+  </div>
+
+
+  <div class="panel">
+
+    <div id="auditTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 地区 -->
+
+<section
+  id="regions"
+  class="section"
+>
+
+  <div class="page-title">
+    地区管理
+  </div>
+
+  <div class="page-subtitle">
+    地区动态增加、启用和停用
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增地区
+    </div>
+
+
+    <div class="form-grid-3">
+
+      <div class="form-group">
+
+        <label>
+          地区代码
+        </label>
+
+        <input
+          id="regionCode"
+          placeholder="例如 bago"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文名称
+        </label>
+
+        <input id="regionZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          English
+        </label>
+
+        <input id="regionEn">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          မြန်မာ
+        </label>
+
+        <input id="regionMy">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          ไทย
+        </label>
+
+        <input id="regionTh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          排序
+        </label>
+
+        <input
+          id="regionSort"
+          type="number"
+          value="100"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createRegion()"
+    >
+      保存地区
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      地区列表
+    </div>
+
+    <div id="regionsTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 分类 -->
+
+<section
+  id="categories"
+  class="section"
+>
+
+  <div class="page-title">
+    分类与筛选属性
+  </div>
+
+  <div class="page-subtitle">
+    两级分类 + 动态商品筛选
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增分类
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          分类代码
+        </label>
+
+        <input
+          id="categoryCode"
+          placeholder="例如 chips_new"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          级别
+        </label>
+
+        <select
+          id="categoryLevel"
+          onchange="updateCategoryParentState()"
+        >
+
+          <option value="1">
+            一级分类
+          </option>
+
+          <option value="2">
+            二级分类
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          上级分类
+        </label>
+
+        <select
+          id="categoryParent"
+          disabled
+        >
+
+          <option value="">
+            一级分类不需要
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          图标
+        </label>
+
+        <input
+          id="categoryIcon"
+          placeholder="例如 🍪"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文
+        </label>
+
+        <input id="categoryZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          English
+        </label>
+
+        <input id="categoryEn">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          မြန်မာ
+        </label>
+
+        <input id="categoryMy">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          ไทย
+        </label>
+
+        <input id="categoryTh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          排序
+        </label>
+
+        <input
+          id="categorySort"
+          type="number"
+          value="100"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          图片网址
+        </label>
+
+        <input id="categoryImage">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createCategory()"
+    >
+      保存分类
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增筛选属性
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          分类
+        </label>
+
+        <select id="attributeCategory"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          属性代码
+        </label>
+
+        <input
+          id="attributeCode"
+          placeholder="例如 flavor"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文名称
+        </label>
+
+        <input id="attributeZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          English
+        </label>
+
+        <input id="attributeEn">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          输入类型
+        </label>
+
+        <select id="attributeType">
+
+          <option value="select">
+            select
+          </option>
+
+          <option value="multi_select">
+            multi_select
+          </option>
+
+          <option value="boolean">
+            boolean
+          </option>
+
+          <option value="number">
+            number
+          </option>
+
+          <option value="text">
+            text
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          排序
+        </label>
+
+        <input
+          id="attributeSort"
+          type="number"
+          value="100"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createAttribute()"
+    >
+      保存属性
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增属性选项
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          属性
+        </label>
+
+        <select id="optionAttribute"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          value_key
+        </label>
+
+        <input
+          id="optionKey"
+          placeholder="例如 spicy"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文
+        </label>
+
+        <input id="optionZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          English
+        </label>
+
+        <input id="optionEn">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          မြန်မာ
+        </label>
+
+        <input id="optionMy">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          ไทย
+        </label>
+
+        <input id="optionTh">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createAttributeOption()"
+    >
+      保存选项
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      分类列表
+    </div>
+
+    <div id="categoriesTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      筛选属性
+    </div>
+
+    <div id="attributesTable"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 商品 -->
+
+<section
+  id="products"
+  class="section"
+>
+
+  <div class="page-title">
+    商品与 SKU
+  </div>
+
+  <div class="page-subtitle">
+    商品基础资料、零售价、批发价和规格
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增商品
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          商品代码
+        </label>
+
+        <input
+          id="productCode"
+          placeholder="例如 P0001"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          分类
+        </label>
+
+        <select id="productCategory"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文名称
+        </label>
+
+        <input id="productZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          English
+        </label>
+
+        <input id="productEn">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          မြန်မာ
+        </label>
+
+        <input id="productMy">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          ไทย
+        </label>
+
+        <input id="productTh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          品牌
+        </label>
+
+        <input id="productBrand">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          原产国
+        </label>
+
+        <input id="productOrigin">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          保质期天数
+        </label>
+
+        <input
+          id="productShelfLife"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          主图片 URL
+        </label>
+
+        <input id="productImage">
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label>
+          中文介绍
+        </label>
+
+        <textarea id="productDescriptionZh"></textarea>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createProduct()"
+    >
+      保存商品
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      新增 SKU / 规格
+    </div>
+
+
+    <div class="form-grid-3">
+
+      <div class="form-group">
+
+        <label>
+          商品
+        </label>
+
+        <select id="variantProduct"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          SKU Code
+        </label>
+
+        <input id="variantCode">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          条码
+        </label>
+
+        <input id="variantBarcode">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文规格名
+        </label>
+
+        <input
+          id="variantZh"
+          placeholder="例如 香辣味 60g"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文口味
+        </label>
+
+        <input id="variantFlavorZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          中文规格
+        </label>
+
+        <input id="variantSpecificationZh">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          零售价
+        </label>
+
+        <input
+          id="variantRetailPrice"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批发价
+        </label>
+
+        <input
+          id="variantWholesalePrice"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批发起订量
+        </label>
+
+        <input
+          id="variantWholesaleMin"
+          type="number"
+          min="1"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          每箱数量
+        </label>
+
+        <input
+          id="variantUnitsCase"
+          type="number"
+          min="1"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          成本价
+        </label>
+
+        <input
+          id="variantCostPrice"
+          type="number"
+          min="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          销售单位
+        </label>
+
+        <input
+          id="variantSalesUnitZh"
+          placeholder="包 / 瓶 / 盒"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="createVariant()"
+    >
+      保存 SKU
+    </button>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      商品列表
+    </div>
+
+    <div id="productsTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      SKU 列表
+    </div>
+
+    <div id="variantsTable"></div>
+
+  </div>
+
+</section>
+
+</main>
+
+</div>
 
 </div>
 
 
 <script>
+
+/* =========================
+   Supabase
+========================= */
 
 const SUPABASE_URL =
   "https://aymicuawrlylpqnipwky.supabase.co";
@@ -1051,7 +2773,6 @@ const SUPABASE_KEY =
 
 const ADMIN_EMAIL =
   "lhl145600@gmail.com";
-
 
 const db =
   window.supabase.createClient(
@@ -1063,27 +2784,45 @@ const db =
 let currentSection =
   "dashboard";
 
+let regionData = [];
+let categoryData = [];
+let productData = [];
+let variantData = [];
+let roleData = [];
+let attributeData = [];
+let deliveryData = [];
+
 let regionMap = {};
+let productMap = {};
+let variantMap = {};
 
 
-/* 工具 */
+/* =========================
+   基础工具
+========================= */
+
+function el(id){
+
+  return document
+    .getElementById(id);
+
+}
+
 
 function escapeHtml(value){
 
   return String(value ?? "")
     .replace(
       /[&<>"']/g,
-      function(character){
+      function(char){
 
         return {
-
           "&":"&amp;",
           "<":"&lt;",
           ">":"&gt;",
           '"':"&quot;",
           "'":"&#039;"
-
-        }[character];
+        }[char];
 
       }
     );
@@ -1108,13 +2847,10 @@ function formatDate(value){
 }
 
 
-function formatMoney(
+function money(
   value,
   currency = "MMK"
 ){
-
-  const number =
-    Number(value || 0);
 
   return (
     new Intl.NumberFormat(
@@ -1122,7 +2858,10 @@ function formatMoney(
       {
         maximumFractionDigits:0
       }
-    ).format(number)
+    )
+    .format(
+      Number(value || 0)
+    )
     +
     " "
     +
@@ -1132,13 +2871,29 @@ function formatMoney(
 }
 
 
+function nullableNumber(value){
+
+  if(
+    value === ""
+    ||
+    value === null
+    ||
+    value === undefined
+  ){
+    return null;
+  }
+
+  return Number(value);
+
+}
+
+
 function statusBadge(status){
 
   const value =
     String(status ?? "—");
 
-  const greenStatuses = [
-
+  const green = [
     "active",
     "confirmed",
     "paid",
@@ -1149,22 +2904,20 @@ function statusBadge(status){
     "processed",
     "packed",
     "ready_for_delivery"
-
   ];
 
-  const redStatuses = [
-
+  const red = [
     "failed",
     "cancelled",
     "rejected",
     "inactive",
     "deactivated",
-    "suspended"
-
+    "suspended",
+    "expired"
   ];
 
-  const amberStatuses = [
-
+  const amber = [
+    "submitted",
     "pending",
     "pending_confirmation",
     "unpaid",
@@ -1172,46 +2925,43 @@ function statusBadge(status){
     "assigned",
     "picked_up",
     "delivering",
-    "partially_refunded",
     "requested",
-    "processing"
-
+    "processing",
+    "partially_refunded"
   ];
 
-  let className =
+  let cls =
     "badge";
 
   if(
-    greenStatuses.includes(value)
+    green.includes(value)
   ){
 
-    className +=
+    cls +=
       " badge-green";
 
   }
   else if(
-    redStatuses.includes(value)
+    red.includes(value)
   ){
 
-    className +=
+    cls +=
       " badge-red";
 
   }
   else if(
-    amberStatuses.includes(value)
+    amber.includes(value)
   ){
 
-    className +=
+    cls +=
       " badge-amber";
 
   }
 
   return (
-    '<span class="' +
-    className +
-    '">' +
+    `<span class="${cls}">` +
     escapeHtml(value) +
-    '</span>'
+    `</span>`
   );
 
 }
@@ -1223,13 +2973,14 @@ function makeTable(
 ){
 
   if(
+    !rows ||
     rows.length === 0
   ){
 
     return (
-      '<div class="empty">' +
-      '目前没有数据' +
-      '</div>'
+      `<div class="empty">` +
+      `目前没有数据` +
+      `</div>`
     );
 
   }
@@ -1272,9 +3023,7 @@ function makeTable(
 }
 
 
-function showError(
-  message
-){
+function errorBox(message){
 
   return `
 
@@ -1292,16 +3041,31 @@ function showError(
 }
 
 
-/* 登录 */
+function selectedRegionIds(
+  containerId
+){
+
+  return Array
+    .from(
+      document.querySelectorAll(
+        `#${containerId} input[type=checkbox]:checked`
+      )
+    )
+    .map(
+      box => box.value
+    );
+
+}
+
+
+/* =========================
+   登录
+========================= */
 
 async function registerAdmin(){
 
   const password =
-    document
-      .getElementById(
-        "loginPassword"
-      )
-      .value;
+    el("loginPassword").value;
 
   if(
     password.length < 8
@@ -1315,11 +3079,6 @@ async function registerAdmin(){
     return;
 
   }
-
-  showLoginMessage(
-    "正在注册...",
-    "#667085"
-  );
 
 
   const {
@@ -1353,18 +3112,13 @@ async function registerAdmin(){
     data.session
   ){
 
-    showLoginMessage(
-      "注册成功。",
-      "#2F6A42"
-    );
-
     await checkSession();
 
   }
   else{
 
     showLoginMessage(
-      "注册成功，请先到邮箱确认验证邮件，然后回来登录。",
+      "请先到邮箱完成验证，然后回来登录。",
       "#2F6A42"
     );
 
@@ -1376,11 +3130,7 @@ async function registerAdmin(){
 async function login(){
 
   const password =
-    document
-      .getElementById(
-        "loginPassword"
-      )
-      .value;
+    el("loginPassword").value;
 
 
   if(!password){
@@ -1467,19 +3217,16 @@ async function logout(){
 
 
 function showLoginMessage(
-  text,
+  message,
   color
 ){
 
-  const element =
-    document.getElementById(
-      "loginMessage"
-    );
+  el("loginMessage")
+    .textContent =
+    message;
 
-  element.textContent =
-    text;
-
-  element.style.color =
+  el("loginMessage")
+    .style.color =
     color;
 
 }
@@ -1515,54 +3262,39 @@ async function checkSession(){
 }
 
 
-async function enterAdmin(
-  user
-){
+async function enterAdmin(user){
 
-  document
-    .getElementById(
-      "loginPage"
-    )
+  el("loginPage")
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
-
-  document
-    .getElementById(
-      "adminApp"
-    )
+  el("adminApp")
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
-
-  document
-    .getElementById(
-      "adminEmail"
-    )
+  el("adminEmail")
     .textContent =
     user.email;
 
 
-  await loadRegionMap();
+  await loadBaseData();
 
   await loadDashboard();
 
 }
 
 
-/* 页面 */
+/* =========================
+   页面切换
+========================= */
 
 function showSection(
-  sectionName,
-  menuElement
+  section,
+  menu
 ){
 
   currentSection =
-    sectionName;
+    section;
 
 
   document
@@ -1570,25 +3302,15 @@ function showSection(
       ".section"
     )
     .forEach(
-      section => {
-
-        section.classList
-          .remove(
-            "active"
-          );
-
-      }
+      item =>
+        item.classList
+          .remove("active")
     );
 
 
-  document
-    .getElementById(
-      sectionName
-    )
+  el(section)
     .classList
-    .add(
-      "active"
-    );
+    .add("active");
 
 
   document
@@ -1596,22 +3318,14 @@ function showSection(
       ".menu-item"
     )
     .forEach(
-      item => {
-
+      item =>
         item.classList
-          .remove(
-            "active"
-          );
-
-      }
+          .remove("active")
     );
 
 
-  menuElement
-    .classList
-    .add(
-      "active"
-    );
+  menu.classList
+    .add("active");
 
 
   refreshCurrentSection();
@@ -1672,21 +3386,40 @@ async function refreshCurrentSection(){
 }
 
 
-/* 地区缓存 */
+/* =========================
+   基础数据
+========================= */
 
-async function loadRegionMap(){
+async function loadBaseData(){
+
+  await Promise.all([
+
+    loadRegionsBase(),
+    loadCategoriesBase(),
+    loadProductsBase(),
+    loadVariantsBase(),
+    loadRolesBase(),
+    loadAttributesBase(),
+    loadDeliveryBase()
+
+  ]);
+
+
+  renderBaseSelects();
+
+}
+
+
+async function loadRegionsBase(){
 
   const {
     data,
     error
   } =
     await db
-      .from(
-        "regions"
-      )
-      .select(
-        "id,code,name_zh,name_en"
-      );
+      .from("regions")
+      .select("*")
+      .order("sort_order");
 
 
   if(error){
@@ -1694,12 +3427,14 @@ async function loadRegionMap(){
   }
 
 
+  regionData =
+    data || [];
+
+
   regionMap = {};
 
 
-  (
-    data || []
-  ).forEach(
+  regionData.forEach(
     region => {
 
       regionMap[
@@ -1717,18 +3452,507 @@ async function loadRegionMap(){
 }
 
 
-/* 统计 */
+async function loadCategoriesBase(){
 
-async function getCount(
-  tableName,
-  filterFunction
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("categories")
+      .select("*")
+      .order("level")
+      .order("sort_order");
+
+
+  if(error){
+    return;
+  }
+
+
+  categoryData =
+    data || [];
+
+}
+
+
+async function loadProductsBase(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("products")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+    return;
+  }
+
+
+  productData =
+    data || [];
+
+
+  productMap = {};
+
+
+  productData.forEach(
+    product => {
+
+      productMap[
+        product.id
+      ] =
+        product.name_zh
+        ||
+        product.name_en
+        ||
+        product.product_code;
+
+    }
+  );
+
+}
+
+
+async function loadVariantsBase(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("product_variants")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+    return;
+  }
+
+
+  variantData =
+    data || [];
+
+
+  variantMap = {};
+
+
+  variantData.forEach(
+    variant => {
+
+      variantMap[
+        variant.id
+      ] =
+        (
+          variant.sku_code
+          ||
+          variant.id
+        )
+        +
+        " · "
+        +
+        (
+          variant.name_zh
+          ||
+          variant.specification_zh
+          ||
+          ""
+        );
+
+    }
+  );
+
+}
+
+
+async function loadRolesBase(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("staff_roles")
+      .select("*")
+      .eq(
+        "is_active",
+        true
+      )
+      .order("sort_order");
+
+
+  if(error){
+    return;
+  }
+
+
+  roleData =
+    data || [];
+
+}
+
+
+async function loadAttributesBase(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("category_attributes")
+      .select("*")
+      .order("sort_order");
+
+
+  if(error){
+    return;
+  }
+
+
+  attributeData =
+    data || [];
+
+}
+
+
+async function loadDeliveryBase(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("delivery_profiles")
+      .select("*")
+      .eq(
+        "status",
+        "active"
+      )
+      .order("display_name");
+
+
+  if(error){
+    return;
+  }
+
+
+  deliveryData =
+    data || [];
+
+}
+
+
+function renderBaseSelects(){
+
+  const regionOptions =
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+
+          <option
+            value="${region.id}"
+          >
+            ${escapeHtml(region.name_zh)}
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  [
+    "receiveRegion",
+    "adjustRegion"
+  ].forEach(
+    id => {
+
+      if(el(id)){
+        el(id).innerHTML =
+          regionOptions;
+      }
+
+    }
+  );
+
+
+  el("orderRegionFilter")
+    .innerHTML =
+    `<option value="">全部地区</option>`
+    +
+    regionOptions;
+
+
+  const variantOptions =
+    variantData
+      .filter(
+        variant =>
+          variant.is_active
+      )
+      .map(
+        variant => `
+
+          <option value="${variant.id}">
+
+            ${
+              escapeHtml(
+                variantMap[
+                  variant.id
+                ]
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  [
+    "receiveVariant",
+    "adjustVariant"
+  ].forEach(
+    id => {
+
+      if(el(id)){
+        el(id).innerHTML =
+          variantOptions;
+      }
+
+    }
+  );
+
+
+  el("staffRole")
+    .innerHTML =
+    roleData
+      .map(
+        role => `
+
+          <option value="${role.id}">
+
+            ${
+              escapeHtml(
+                role.name_zh
+                ||
+                role.code
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  const regionChecks =
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+
+          <label class="check-card">
+
+            <input
+              type="checkbox"
+              value="${region.id}"
+            >
+
+            ${
+              escapeHtml(
+                region.name_zh
+              )
+            }
+
+          </label>
+
+        `
+      )
+      .join("");
+
+
+  el("staffRegionChecks")
+    .innerHTML =
+    regionChecks;
+
+  el("deliveryRegionChecks")
+    .innerHTML =
+    regionChecks;
+
+
+  const levelOne =
+    categoryData
+      .filter(
+        category =>
+          category.level === 1
+          &&
+          category.is_active
+      );
+
+
+  el("categoryParent")
+    .innerHTML =
+    `<option value="">请选择一级分类</option>`
+    +
+    levelOne
+      .map(
+        category => `
+
+          <option value="${category.id}">
+
+            ${
+              escapeHtml(
+                category.name_zh
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  const categoryOptions =
+    categoryData
+      .filter(
+        category =>
+          category.is_active
+      )
+      .map(
+        category => `
+
+          <option value="${category.id}">
+
+            ${
+              category.level === 1
+              ?
+              "一级 · "
+              :
+              "二级 · "
+            }
+
+            ${
+              escapeHtml(
+                category.name_zh
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  el("attributeCategory")
+    .innerHTML =
+    categoryOptions;
+
+  el("productCategory")
+    .innerHTML =
+    categoryOptions;
+
+
+  el("optionAttribute")
+    .innerHTML =
+    attributeData
+      .filter(
+        attribute =>
+          attribute.is_active
+      )
+      .map(
+        attribute => `
+
+          <option value="${attribute.id}">
+
+            ${
+              escapeHtml(
+                attribute.name_zh
+                ||
+                attribute.code
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  el("variantProduct")
+    .innerHTML =
+    productData
+      .filter(
+        product =>
+          product.status === "active"
+      )
+      .map(
+        product => `
+
+          <option value="${product.id}">
+
+            ${
+              escapeHtml(
+                product.name_zh
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  if(!el("receiveDate").value){
+
+    el("receiveDate").value =
+      new Date()
+        .toISOString()
+        .slice(0,10);
+
+  }
+
+}
+
+
+/* =========================
+   统计
+========================= */
+
+async function countRows(
+  table,
+  modifier
 ){
 
   let query =
     db
-      .from(
-        tableName
-      )
+      .from(table)
       .select(
         "*",
         {
@@ -1738,14 +3962,10 @@ async function getCount(
       );
 
 
-  if(
-    filterFunction
-  ){
+  if(modifier){
 
     query =
-      filterFunction(
-        query
-      );
+      modifier(query);
 
   }
 
@@ -1758,9 +3978,7 @@ async function getCount(
 
 
   if(error){
-
     return "—";
-
   }
 
 
@@ -1769,18 +3987,20 @@ async function getCount(
 }
 
 
-/* 仪表盘 */
+/* =========================
+   仪表盘
+========================= */
 
 async function loadDashboard(){
 
-  const results =
+  const values =
     await Promise.all([
 
-      getCount(
+      countRows(
         "orders"
       ),
 
-      getCount(
+      countRows(
         "orders",
         query =>
           query.eq(
@@ -1789,8 +4009,17 @@ async function loadDashboard(){
           )
       ),
 
-      getCount(
+      countRows(
         "payment_transactions",
+        query =>
+          query.eq(
+            "status",
+            "submitted"
+          )
+      ),
+
+      countRows(
+        "approval_requests",
         query =>
           query.eq(
             "status",
@@ -1798,48 +4027,68 @@ async function loadDashboard(){
           )
       ),
 
-      getCount(
-        "approval_requests",
+      countRows(
+        "regions",
+        query =>
+          query.eq(
+            "is_active",
+            true
+          )
+      ),
+
+      countRows(
+        "staff_profiles",
         query =>
           query.eq(
             "status",
-            "pending"
+            "active"
+          )
+      ),
+
+      countRows(
+        "delivery_profiles",
+        query =>
+          query.eq(
+            "status",
+            "active"
+          )
+      ),
+
+      countRows(
+        "product_variants",
+        query =>
+          query.eq(
+            "is_active",
+            true
           )
       )
 
     ]);
 
 
-  document
-    .getElementById(
-      "statOrders"
-    )
-    .textContent =
-    results[0];
+  el("statOrders").textContent =
+    values[0];
 
+  el("statPendingOrders").textContent =
+    values[1];
 
-  document
-    .getElementById(
-      "statPendingOrders"
-    )
-    .textContent =
-    results[1];
+  el("statPendingPayments").textContent =
+    values[2];
 
+  el("statPendingApprovals").textContent =
+    values[3];
 
-  document
-    .getElementById(
-      "statPendingPayments"
-    )
-    .textContent =
-    results[2];
+  el("statRegions").textContent =
+    values[4];
 
+  el("statStaff").textContent =
+    values[5];
 
-  document
-    .getElementById(
-      "statPendingApprovals"
-    )
-    .textContent =
-    results[3];
+  el("statDelivery").textContent =
+    values[6];
+
+  el("statSku").textContent =
+    values[7];
 
 
   const {
@@ -1847,33 +4096,22 @@ async function loadDashboard(){
     error
   } =
     await db
-      .from(
-        "orders"
-      )
-      .select(
-        "*"
-      )
+      .from("orders")
+      .select("*")
       .order(
         "created_at",
         {
           ascending:false
         }
       )
-      .limit(
-        8
-      );
-
-
-  const container =
-    document.getElementById(
-      "recentOrders"
-    );
+      .limit(10);
 
 
   if(error){
 
-    container.innerHTML =
-      showError(
+    el("dashboardOrders")
+      .innerHTML =
+      errorBox(
         error.message
       );
 
@@ -1883,80 +4121,92 @@ async function loadDashboard(){
 
 
   const rows =
-    (
-      data || []
-    ).map(
-      order => `
+    (data || [])
+      .map(
+        order => `
 
-        <tr>
+          <tr>
 
-          <td class="mono">
-            ${
-              escapeHtml(
-                order.order_number
-              )
-            }
-          </td>
+            <td class="mono">
 
-          <td>
-            ${
-              escapeHtml(
-                regionMap[
-                  order.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-          </td>
+              ${
+                escapeHtml(
+                  order.order_number
+                )
+              }
 
-          <td>
-            ${
-              statusBadge(
-                order.order_status
-              )
-            }
-          </td>
+            </td>
 
-          <td>
-            ${
-              statusBadge(
-                order.payment_status
-              )
-            }
-          </td>
+            <td>
 
-          <td>
-            ${
-              formatMoney(
-                order.total_amount,
-                order.currency_code
-              )
-            }
-          </td>
+              ${
+                escapeHtml(
+                  regionMap[
+                    order.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
 
-          <td>
-            ${
-              formatDate(
-                order.created_at
-              )
-            }
-          </td>
+            </td>
 
-        </tr>
+            <td>
 
-      `
-    );
+              ${
+                statusBadge(
+                  order.order_status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  order.payment_status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                money(
+                  order.total_amount,
+                  order.currency_code
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                formatDate(
+                  order.created_at
+                )
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      );
 
 
-  container.innerHTML =
+  el("dashboardOrders")
+    .innerHTML =
     makeTable(
 
       [
         "订单号",
         "地区",
         "订单状态",
-        "付款状态",
+        "付款",
         "金额",
         "时间"
       ],
@@ -1968,340 +4218,23 @@ async function loadDashboard(){
 }
 
 
-/* 订单 */
+/* =========================
+   RPC
+========================= */
 
-async function loadOrders(){
+async function rpc(
+  name,
+  params,
+  success
+){
 
   const {
     data,
     error
   } =
-    await db
-      .from(
-        "orders"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(
-        200
-      );
-
-
-  const container =
-    document.getElementById(
-      "ordersTable"
-    );
-
-
-  if(error){
-
-    container.innerHTML =
-      showError(
-        error.message
-      );
-
-    return;
-
-  }
-
-
-  const rows =
-    (
-      data || []
-    ).map(
-      order => `
-
-        <tr>
-
-          <td>
-
-            <div class="mono">
-
-              ${
-                escapeHtml(
-                  order.order_number
-                )
-              }
-
-            </div>
-
-          </td>
-
-          <td>
-
-            ${
-              escapeHtml(
-                regionMap[
-                  order.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              escapeHtml(
-                order.recipient_name
-                ||
-                "—"
-              )
-            }
-
-            <br>
-
-            ${
-              escapeHtml(
-                order.recipient_phone
-                ||
-                ""
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              statusBadge(
-                order.order_status
-              )
-            }
-
-            <br>
-
-            ${
-              statusBadge(
-                order.fulfillment_status
-              )
-            }
-
-            <br>
-
-            ${
-              statusBadge(
-                order.delivery_status
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              statusBadge(
-                order.payment_status
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              formatMoney(
-                order.total_amount,
-                order.currency_code
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              formatDate(
-                order.created_at
-              )
-            }
-
-          </td>
-
-          <td>
-
-            <div class="operation-buttons">
-
-              ${
-                order.order_status
-                ===
-                "pending_confirmation"
-
-                ?
-
-                `
-
-                <button
-                  class="btn btn-green btn-small"
-                  onclick="confirmOrder('${order.id}')"
-                >
-                  确认
-                </button>
-
-                `
-
-                :
-
-                ""
-              }
-
-
-              ${
-                order.order_status
-                ===
-                "confirmed"
-                &&
-                order.fulfillment_status
-                ===
-                "unfulfilled"
-
-                ?
-
-                `
-
-                <button
-                  class="btn btn-light btn-small"
-                  onclick="startPicking('${order.id}')"
-                >
-                  开始拣货
-                </button>
-
-                `
-
-                :
-
-                ""
-              }
-
-
-              ${
-                order.fulfillment_status
-                ===
-                "picking"
-
-                ?
-
-                `
-
-                <button
-                  class="btn btn-green btn-small"
-                  onclick="markPacked('${order.id}')"
-                >
-                  已打包
-                </button>
-
-                `
-
-                :
-
-                ""
-              }
-
-
-              ${
-                order.fulfillment_status
-                ===
-                "packed"
-
-                ?
-
-                `
-
-                <button
-                  class="btn btn-primary btn-small"
-                  onclick="finalizeOrder('${order.id}')"
-                >
-                  正式出库
-                </button>
-
-                `
-
-                :
-
-                ""
-              }
-
-
-              ${
-                ![
-                  "cancelled",
-                  "completed"
-                ].includes(
-                  order.order_status
-                )
-
-                ?
-
-                `
-
-                <button
-                  class="btn btn-red btn-small"
-                  onclick="cancelOrder('${order.id}')"
-                >
-                  取消
-                </button>
-
-                `
-
-                :
-
-                ""
-              }
-
-            </div>
-
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  container.innerHTML =
-    makeTable(
-
-      [
-        "订单",
-        "地区",
-        "客户",
-        "状态",
-        "付款",
-        "金额",
-        "时间",
-        "操作"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-/* 订单 RPC */
-
-async function callRpc(
-  functionName,
-  parameters,
-  successMessage
-){
-
-  const {
-    error
-  } =
     await db.rpc(
-      functionName,
-      parameters
+      name,
+      params
     );
 
 
@@ -2313,21 +4246,427 @@ async function callRpc(
       error.message
     );
 
-    return false;
+    return null;
 
   }
 
 
-  alert(
-    successMessage
-    ||
-    "操作成功"
-  );
+  if(success){
 
+    alert(success);
+
+  }
+
+
+  await loadBaseData();
 
   await refreshCurrentSection();
 
-  return true;
+  return data;
+
+}
+
+
+/* =========================
+   订单
+========================= */
+
+async function loadOrders(){
+
+  let query =
+    db
+      .from("orders")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(300);
+
+
+  const status =
+    el("orderStatusFilter").value;
+
+  const region =
+    el("orderRegionFilter").value;
+
+
+  if(status){
+
+    query =
+      query.eq(
+        "order_status",
+        status
+      );
+
+  }
+
+
+  if(region){
+
+    query =
+      query.eq(
+        "region_id",
+        region
+      );
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await query;
+
+
+  if(error){
+
+    el("ordersTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        order => {
+
+          let buttons = "";
+
+
+          if(
+            order.order_status
+            ===
+            "pending_confirmation"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="confirmOrder('${order.id}')"
+              >
+                确认
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.order_status
+            ===
+            "confirmed"
+            &&
+            order.fulfillment_status
+            ===
+            "unfulfilled"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-light btn-small"
+                onclick="startPicking('${order.id}')"
+              >
+                开始拣货
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "picking"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="markPacked('${order.id}')"
+              >
+                已打包
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "packed"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-primary btn-small"
+                onclick="finalizeFulfillment('${order.id}')"
+              >
+                正式出库
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "fulfilled"
+            &&
+            order.delivery_status
+            ===
+            "not_assigned"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-amber btn-small"
+                onclick="assignDelivery('${order.id}','${order.region_id}')"
+              >
+                指派配送
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            [
+              "paid",
+              "partially_refunded"
+            ].includes(
+              order.payment_status
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-light btn-small"
+                onclick="refundOrder('${order.id}')"
+              >
+                退款
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            ![
+              "cancelled",
+              "completed"
+            ].includes(
+              order.order_status
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="cancelOrder('${order.id}')"
+              >
+                取消
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <div class="mono">
+
+                  ${
+                    escapeHtml(
+                      order.order_number
+                    )
+                  }
+
+                </div>
+
+                <div class="small">
+
+                  ${
+                    escapeHtml(
+                      order.id
+                    )
+                  }
+
+                </div>
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      order.region_id
+                    ]
+                    ||
+                    order.region_name_zh_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    order.recipient_name_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+                <div class="small">
+
+                  ${
+                    escapeHtml(
+                      order.recipient_phone_snapshot
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    order.full_address_snapshot
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    order.order_status
+                  )
+                }
+
+                ${
+                  statusBadge(
+                    order.fulfillment_status
+                  )
+                }
+
+                ${
+                  statusBadge(
+                    order.delivery_status
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    order.payment_status
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  money(
+                    order.total_amount,
+                    order.currency_code
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  formatDate(
+                    order.created_at
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("ordersTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "订单",
+        "地区",
+        "客户",
+        "地址",
+        "业务状态",
+        "付款",
+        "金额",
+        "时间",
+        "操作"
+      ],
+
+      rows
+
+    );
 
 }
 
@@ -2345,7 +4684,7 @@ async function confirmOrder(
   }
 
 
-  await callRpc(
+  await rpc(
 
     "confirm_order",
 
@@ -2370,14 +4709,14 @@ async function startPicking(
 
   if(
     !confirm(
-      "确认开始拣货？"
+      "开始拣货？"
     )
   ){
     return;
   }
 
 
-  await callRpc(
+  await rpc(
 
     "start_order_picking",
 
@@ -2389,7 +4728,7 @@ async function startPicking(
         "Super Admin 开始拣货"
     },
 
-    "订单已进入拣货中"
+    "已进入拣货状态"
 
   );
 
@@ -2409,7 +4748,7 @@ async function markPacked(
   }
 
 
-  await callRpc(
+  await rpc(
 
     "mark_order_packed",
 
@@ -2418,30 +4757,30 @@ async function markPacked(
         orderId,
 
       p_note:
-        "Super Admin 标记已打包"
+        "Super Admin 标记打包完成"
     },
 
-    "订单已打包"
+    "已打包"
 
   );
 
 }
 
 
-async function finalizeOrder(
+async function finalizeFulfillment(
   orderId
 ){
 
   if(
     !confirm(
-      "正式出库会扣除库存和预留库存，确认继续？"
+      "正式出库会扣除实际库存和预留库存，确认继续？"
     )
   ){
     return;
   }
 
 
-  await callRpc(
+  await rpc(
 
     "finalize_order_fulfillment",
 
@@ -2453,7 +4792,7 @@ async function finalizeOrder(
         "Super Admin 正式出库"
     },
 
-    "订单已经正式出库"
+    "出库完成"
 
   );
 
@@ -2466,7 +4805,7 @@ async function cancelOrder(
 
   const reason =
     prompt(
-      "请输入取消订单的原因："
+      "请输入取消原因："
     );
 
 
@@ -2475,7 +4814,7 @@ async function cancelOrder(
   }
 
 
-  await callRpc(
+  await rpc(
 
     "cancel_order",
 
@@ -2487,16 +4826,229 @@ async function cancelOrder(
         reason
     },
 
-    "订单已经取消"
+    "订单已取消"
 
   );
 
 }
 
 
-/* 库存 */
+async function assignDelivery(
+  orderId,
+  regionId
+){
+
+  const assignmentResult =
+    await db
+      .from(
+        "delivery_region_assignments"
+      )
+      .select(
+        "delivery_id"
+      )
+      .eq(
+        "region_id",
+        regionId
+      )
+      .eq(
+        "is_active",
+        true
+      );
+
+
+  if(
+    assignmentResult.error
+  ){
+
+    alert(
+      assignmentResult.error.message
+    );
+
+    return;
+
+  }
+
+
+  const allowedIds =
+    (
+      assignmentResult.data
+      ||
+      []
+    )
+    .map(
+      item =>
+        item.delivery_id
+    );
+
+
+  const drivers =
+    deliveryData
+      .filter(
+        driver =>
+          allowedIds.includes(
+            driver.id
+          )
+      );
+
+
+  if(
+    drivers.length === 0
+  ){
+
+    alert(
+      "这个地区目前没有可用配送员。"
+    );
+
+    return;
+
+  }
+
+
+  const list =
+    drivers
+      .map(
+        (
+          driver,
+          index
+        ) =>
+
+          `${index + 1}. ${driver.display_name} (${driver.delivery_code})`
+
+      )
+      .join("\n");
+
+
+  const selected =
+    prompt(
+      "请输入配送员前面的数字：\n\n"
+      +
+      list
+    );
+
+
+  if(!selected){
+    return;
+  }
+
+
+  const driver =
+    drivers[
+      Number(selected) - 1
+    ];
+
+
+  if(!driver){
+
+    alert(
+      "选择无效。"
+    );
+
+    return;
+
+  }
+
+
+  await rpc(
+
+    "assign_delivery_task",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_delivery_id:
+        driver.id,
+
+      p_note:
+        "Super Admin 指派配送"
+    },
+
+    "配送员已经指派"
+
+  );
+
+}
+
+
+async function refundOrder(
+  orderId
+){
+
+  const amount =
+    Number(
+      prompt(
+        "请输入退款金额："
+      )
+    );
+
+
+  if(
+    !amount
+    ||
+    amount <= 0
+  ){
+
+    return;
+
+  }
+
+
+  const reason =
+    prompt(
+      "请输入退款原因："
+    );
+
+
+  if(!reason){
+    return;
+  }
+
+
+  await rpc(
+
+    "process_refund",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_amount:
+        amount,
+
+      p_reason:
+        reason,
+
+      p_payment_id:
+        null,
+
+      p_note:
+        "Super Admin 后台退款"
+    },
+
+    "退款记录已处理"
+
+  );
+
+}
+
+
+/* =========================
+   库存
+========================= */
 
 async function loadInventory(){
+
+  await Promise.all([
+
+    loadInventoryList(),
+    loadInventoryBatches()
+
+  ]);
+
+}
+
+
+async function loadInventoryList(){
 
   const {
     data,
@@ -2506,30 +5058,20 @@ async function loadInventory(){
       .from(
         "region_inventory"
       )
-      .select(
-        "*"
-      )
+      .select("*")
       .order(
         "updated_at",
         {
           ascending:false
         }
-      )
-      .limit(
-        300
       );
-
-
-  const container =
-    document.getElementById(
-      "inventoryTable"
-    );
 
 
   if(error){
 
-    container.innerHTML =
-      showError(
+    el("inventoryTable")
+      .innerHTML =
+      errorBox(
         error.message
       );
 
@@ -2539,181 +5081,18 @@ async function loadInventory(){
 
 
   const rows =
-    (
-      data || []
-    ).map(
-      item => `
-
-        <tr>
-
-          <td>
-
-            ${
-              escapeHtml(
-                regionMap[
-                  item.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-
-          </td>
-
-          <td class="mono">
-
-            ${
-              escapeHtml(
-                item.variant_id
-              )
-            }
-
-          </td>
-
-          <td>
-            ${item.stock_on_hand}
-          </td>
-
-          <td>
-            ${item.reserved_quantity}
-          </td>
-
-          <td>
-
-            ${
-              Math.max(
-                0,
-                Number(
-                  item.stock_on_hand
-                  ||
-                  0
-                )
-                -
-                Number(
-                  item.reserved_quantity
-                  ||
-                  0
-                )
-              )
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              item.low_stock_threshold
-            }
-
-          </td>
-
-          <td>
-
-            ${
-              statusBadge(
-                item.is_available
-                ?
-                "active"
-                :
-                "inactive"
-              )
-            }
-
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  container.innerHTML =
-    makeTable(
-
-      [
-        "地区",
-        "SKU ID",
-        "现货",
-        "预留",
-        "可售",
-        "低库存线",
-        "状态"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-/* 付款退款 */
-
-async function loadPayments(){
-
-  const paymentResult =
-    await db
-      .from(
-        "payment_transactions"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(
-        200
-      );
-
-
-  const paymentContainer =
-    document.getElementById(
-      "paymentsTable"
-    );
-
-
-  if(
-    paymentResult.error
-  ){
-
-    paymentContainer.innerHTML =
-      showError(
-        paymentResult.error.message
-      );
-
-  }
-  else{
-
-    const rows =
-      (
-        paymentResult.data
-        ||
-        []
-      ).map(
-        payment => `
+    (data || [])
+      .map(
+        inventory => `
 
           <tr>
-
-            <td class="mono">
-
-              ${
-                escapeHtml(
-                  payment.order_id
-                )
-              }
-
-            </td>
 
             <td>
 
               ${
                 escapeHtml(
                   regionMap[
-                    payment.region_id
+                    inventory.region_id
                   ]
                   ||
                   "—"
@@ -2725,31 +5104,59 @@ async function loadPayments(){
             <td>
 
               ${
-                formatMoney(
-                  payment.amount,
-                  payment.currency_code
+                escapeHtml(
+                  variantMap[
+                    inventory.variant_id
+                  ]
+                  ||
+                  inventory.variant_id
                 )
               }
 
             </td>
 
             <td>
+              ${inventory.stock_on_hand}
+            </td>
+
+            <td>
+              ${inventory.reserved_quantity}
+            </td>
+
+            <td>
 
               ${
-                escapeHtml(
-                  payment.payment_method
-                  ||
-                  "—"
+                Math.max(
+                  0,
+                  Number(
+                    inventory.stock_on_hand
+                    ||
+                    0
+                  )
+                  -
+                  Number(
+                    inventory.reserved_quantity
+                    ||
+                    0
+                  )
                 )
               }
 
+            </td>
+
+            <td>
+              ${inventory.low_stock_threshold}
             </td>
 
             <td>
 
               ${
                 statusBadge(
-                  payment.status
+                  inventory.is_available
+                  ?
+                  "active"
+                  :
+                  "inactive"
                 )
               }
 
@@ -2759,7 +5166,7 @@ async function loadPayments(){
 
               ${
                 formatDate(
-                  payment.created_at
+                  inventory.updated_at
                 )
               }
 
@@ -2771,32 +5178,46 @@ async function loadPayments(){
       );
 
 
-    paymentContainer.innerHTML =
-      makeTable(
+  el("inventoryTable")
+    .innerHTML =
+    makeTable(
 
-        [
-          "订单 ID",
-          "地区",
-          "金额",
-          "付款方式",
-          "状态",
-          "时间"
-        ],
+      [
+        "地区",
+        "SKU",
+        "现货",
+        "预留",
+        "可售",
+        "低库存线",
+        "状态",
+        "更新时间"
+      ],
 
-        rows
+      rows
 
-      );
+    );
 
-  }
+}
 
 
-  const refundResult =
+async function loadInventoryBatches(){
+
+  const {
+    data,
+    error
+  } =
     await db
       .from(
-        "refund_transactions"
+        "inventory_batches"
       )
       .select(
-        "*"
+        `
+          *,
+          region_inventory(
+            region_id,
+            variant_id
+          )
+        `
       )
       .order(
         "created_at",
@@ -2804,24 +5225,15 @@ async function loadPayments(){
           ascending:false
         }
       )
-      .limit(
-        200
-      );
+      .limit(300);
 
 
-  const refundContainer =
-    document.getElementById(
-      "refundsTable"
-    );
+  if(error){
 
-
-  if(
-    refundResult.error
-  ){
-
-    refundContainer.innerHTML =
-      showError(
-        refundResult.error.message
+    el("batchTable")
+      .innerHTML =
+      errorBox(
+        error.message
       );
 
     return;
@@ -2829,109 +5241,866 @@ async function loadPayments(){
   }
 
 
-  const refundRows =
-    (
-      refundResult.data
-      ||
-      []
-    ).map(
-      refund => `
+  const rows =
+    (data || [])
+      .map(
+        batch => {
 
-        <tr>
+          const inv =
+            batch.region_inventory
+            ||
+            {};
 
-          <td class="mono">
+          return `
 
-            ${
-              escapeHtml(
-                refund.order_id
-              )
-            }
+            <tr>
 
-          </td>
+              <td>
 
-          <td>
+                ${
+                  escapeHtml(
+                    regionMap[
+                      inv.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
 
-            ${
-              escapeHtml(
-                regionMap[
-                  refund.region_id
-                ]
-                ||
-                "—"
-              )
-            }
+              </td>
 
-          </td>
+              <td>
 
-          <td>
+                ${
+                  escapeHtml(
+                    variantMap[
+                      inv.variant_id
+                    ]
+                    ||
+                    inv.variant_id
+                    ||
+                    "—"
+                  )
+                }
 
-            ${
-              formatMoney(
-                refund.amount,
-                refund.currency_code
-              )
-            }
+              </td>
 
-          </td>
+              <td>
 
-          <td>
+                ${
+                  escapeHtml(
+                    batch.batch_code
+                    ||
+                    "—"
+                  )
+                }
 
-            ${
-              statusBadge(
-                refund.status
-              )
-            }
+              </td>
 
-          </td>
+              <td>
+                ${batch.quantity_received}
+              </td>
 
-          <td>
+              <td>
+                ${batch.quantity_remaining}
+              </td>
 
-            ${
-              escapeHtml(
-                refund.reason
-                ||
-                "—"
-              )
-            }
+              <td>
 
-          </td>
+                ${
+                  batch.production_date
+                  ||
+                  "—"
+                }
 
-          <td>
+              </td>
 
-            ${
-              formatDate(
-                refund.created_at
-              )
-            }
+              <td>
 
-          </td>
+                ${
+                  batch.expiry_date
+                  ||
+                  "—"
+                }
 
-        </tr>
+              </td>
 
-      `
-    );
+              <td>
+
+                ${
+                  statusBadge(
+                    batch.status
+                  )
+                }
+
+              </td>
+
+              <td class="small">
+
+                ${
+                  escapeHtml(
+                    batch.id
+                  )
+                }
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
 
 
-  refundContainer.innerHTML =
+  el("batchTable")
+    .innerHTML =
     makeTable(
 
       [
-        "订单 ID",
         "地区",
-        "退款金额",
+        "SKU",
+        "批次",
+        "入库",
+        "剩余",
+        "生产日期",
+        "到期日期",
         "状态",
-        "原因",
-        "时间"
+        "批次 ID"
       ],
 
-      refundRows
+      rows
 
     );
 
 }
 
 
-/* 配送 */
+async function receiveInventory(){
+
+  const region =
+    el("receiveRegion").value;
+
+  const variant =
+    el("receiveVariant").value;
+
+  const quantity =
+    Number(
+      el("receiveQuantity").value
+    );
+
+
+  if(
+    !region
+    ||
+    !variant
+    ||
+    !quantity
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "请选择地区、SKU，并输入正确数量。"
+    );
+
+    return;
+
+  }
+
+
+  await rpc(
+
+    "receive_inventory_batch",
+
+    {
+      p_region_id:
+        region,
+
+      p_variant_id:
+        variant,
+
+      p_quantity:
+        quantity,
+
+      p_batch_code:
+        el("receiveBatchCode").value
+        ||
+        null,
+
+      p_received_date:
+        el("receiveDate").value
+        ||
+        null,
+
+      p_production_date:
+        el("receiveProductionDate").value
+        ||
+        null,
+
+      p_expiry_date:
+        el("receiveExpiryDate").value
+        ||
+        null,
+
+      p_unit_cost:
+        nullableNumber(
+          el("receiveUnitCost").value
+        ),
+
+      p_notes:
+        el("receiveNotes").value
+        ||
+        null
+    },
+
+    "商品入库成功"
+
+  );
+
+}
+
+
+async function adjustInventory(){
+
+  const delta =
+    Number(
+      el("adjustDelta").value
+    );
+
+  const reason =
+    el("adjustReason").value
+      .trim();
+
+
+  if(
+    !delta
+    ||
+    !reason
+  ){
+
+    alert(
+      "必须填写调整数量和原因。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !confirm(
+      "这是库存手工调整，确定执行？"
+    )
+  ){
+    return;
+  }
+
+
+  await rpc(
+
+    "adjust_inventory_stock",
+
+    {
+      p_region_id:
+        el("adjustRegion").value,
+
+      p_variant_id:
+        el("adjustVariant").value,
+
+      p_delta:
+        delta,
+
+      p_reason:
+        reason,
+
+      p_batch_id:
+        el("adjustBatchId").value
+        ||
+        null
+    },
+
+    "库存调整完成"
+
+  );
+
+}
+
+
+/* =========================
+   付款
+========================= */
+
+async function loadPayments(){
+
+  await Promise.all([
+
+    loadPaymentTransactions(),
+    loadRefundTransactions()
+
+  ]);
+
+}
+
+
+async function loadPaymentTransactions(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "payment_transactions"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(300);
+
+
+  if(error){
+
+    el("paymentsTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        payment => {
+
+          let buttons = "";
+
+
+          if(
+            payment.status
+            ===
+            "submitted"
+          ){
+
+            buttons = `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="reviewPayment('${payment.id}',true)"
+              >
+                通过
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="reviewPayment('${payment.id}',false)"
+              >
+                拒绝
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+
+                ${
+                  escapeHtml(
+                    payment.order_id
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      payment.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  money(
+                    payment.amount,
+                    payment.currency_code
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    payment.payment_method
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    payment.status
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    payment.external_reference
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  payment.proof_url
+                  ?
+                  `<a href="${escapeHtml(payment.proof_url)}" target="_blank">查看凭证</a>`
+                  :
+                  "—"
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  formatDate(
+                    payment.created_at
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("paymentsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "订单 ID",
+        "地区",
+        "金额",
+        "方式",
+        "状态",
+        "参考号",
+        "凭证",
+        "时间",
+        "操作"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function reviewPayment(
+  paymentId,
+  approve
+){
+
+  let note =
+    prompt(
+      approve
+      ?
+      "审核备注，可留空："
+      :
+      "请输入拒绝原因："
+    )
+    ||
+    "";
+
+
+  if(
+    !approve
+    &&
+    !note
+  ){
+    return;
+  }
+
+
+  await rpc(
+
+    "review_payment",
+
+    {
+      p_payment_id:
+        paymentId,
+
+      p_approve:
+        approve,
+
+      p_note:
+        note
+    },
+
+    approve
+    ?
+    "付款已确认"
+    :
+    "付款已拒绝"
+
+  );
+
+}
+
+
+async function loadRefundTransactions(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "refund_transactions"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(300);
+
+
+  if(error){
+
+    el("refundsTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        refund => `
+
+          <tr>
+
+            <td class="mono">
+
+              ${
+                escapeHtml(
+                  refund.order_id
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    refund.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                money(
+                  refund.amount,
+                  refund.currency_code
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  refund.status
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  refund.reason
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                formatDate(
+                  refund.created_at
+                )
+              }
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("refundsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "订单 ID",
+        "地区",
+        "金额",
+        "状态",
+        "原因",
+        "时间"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+/* =========================
+   配送
+========================= */
+
+async function createDeliveryProfile(){
+
+  const userId =
+    el("deliveryUserId")
+      .value
+      .trim();
+
+  const code =
+    el("deliveryCode")
+      .value
+      .trim();
+
+  const name =
+    el("deliveryName")
+      .value
+      .trim();
+
+  const regions =
+    selectedRegionIds(
+      "deliveryRegionChecks"
+    );
+
+
+  if(
+    !userId
+    ||
+    !code
+    ||
+    !name
+  ){
+
+    alert(
+      "必须填写 Auth User UUID、编号和姓名。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "delivery_profiles"
+      )
+      .insert({
+
+        id:
+          userId,
+
+        delivery_code:
+          code,
+
+        display_name:
+          name,
+
+        phone:
+          el("deliveryPhone").value
+          ||
+          null,
+
+        vehicle_type:
+          el("deliveryVehicleType").value
+          ||
+          null,
+
+        vehicle_plate:
+          el("deliveryVehiclePlate").value
+          ||
+          null,
+
+        preferred_language:
+          el("deliveryLanguage").value,
+
+        status:
+          el("deliveryStatus").value
+
+      });
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    regions.length > 0
+  ){
+
+    const {
+      data:
+      sessionData
+    } =
+      await db.auth.getSession();
+
+
+    const adminId =
+      sessionData.session
+        ?.user
+        ?.id
+      ||
+      null;
+
+
+    const rows =
+      regions.map(
+        regionId => ({
+
+          delivery_id:
+            userId,
+
+          region_id:
+            regionId,
+
+          assigned_by:
+            adminId,
+
+          is_active:
+            true
+
+        })
+      );
+
+
+    const {
+      error:
+      regionError
+    } =
+      await db
+        .from(
+          "delivery_region_assignments"
+        )
+        .insert(rows);
+
+
+    if(regionError){
+
+      alert(
+        "配送员资料已建立，但地区分配失败：\n"
+        +
+        regionError.message
+      );
+
+    }
+
+  }
+
+
+  alert(
+    "配送员资料保存成功。"
+  );
+
+
+  await loadBaseData();
+
+  await loadDelivery();
+
+}
+
 
 async function loadDelivery(){
 
@@ -2940,113 +6109,174 @@ async function loadDelivery(){
       .from(
         "delivery_profiles"
       )
-      .select(
-        "*"
-      )
+      .select("*")
       .order(
         "created_at",
         {
           ascending:false
         }
-      )
-      .limit(
-        200
       );
-
-
-  const profileContainer =
-    document.getElementById(
-      "deliveryProfilesTable"
-    );
 
 
   if(
     profileResult.error
   ){
 
-    profileContainer.innerHTML =
-      showError(
+    el("deliveryProfilesTable")
+      .innerHTML =
+      errorBox(
         profileResult.error.message
       );
 
   }
   else{
 
+    const assignmentResult =
+      await db
+        .from(
+          "delivery_region_assignments"
+        )
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        );
+
+
+    const assignments =
+      assignmentResult.data
+      ||
+      [];
+
+
     const rows =
       (
         profileResult.data
         ||
         []
-      ).map(
-        driver => `
+      )
+      .map(
+        driver => {
 
-          <tr>
-
-            <td>
-              ${
-                escapeHtml(
-                  driver.delivery_code
+          const regions =
+            assignments
+              .filter(
+                item =>
+                  item.delivery_id
+                  ===
+                  driver.id
+              )
+              .map(
+                item =>
+                  regionMap[
+                    item.region_id
+                  ]
                   ||
-                  "—"
-                )
-              }
-            </td>
+                  "?"
+              )
+              .join("、")
+            ||
+            "—";
 
-            <td>
-              ${
-                escapeHtml(
-                  driver.display_name
-                  ||
-                  "—"
-                )
-              }
-            </td>
 
-            <td>
-              ${
-                escapeHtml(
-                  driver.phone
-                  ||
-                  "—"
-                )
-              }
-            </td>
+          return `
 
-            <td>
-              ${
-                escapeHtml(
-                  driver.vehicle_type
-                  ||
-                  "—"
-                )
-              }
-            </td>
+            <tr>
 
-            <td>
-              ${
-                escapeHtml(
-                  driver.license_plate
-                  ||
-                  "—"
-                )
-              }
-            </td>
+              <td>
+                ${escapeHtml(driver.delivery_code)}
+              </td>
 
-            <td>
-              ${
-                statusBadge(
-                  driver.status
-                )
-              }
-            </td>
+              <td>
+                ${escapeHtml(driver.display_name)}
+              </td>
 
-          </tr>
+              <td>
+                ${escapeHtml(driver.phone || "—")}
+              </td>
 
-        `
+              <td>
+
+                ${
+                  escapeHtml(
+                    driver.vehicle_type
+                    ||
+                    "—"
+                  )
+                }
+
+                <div class="small">
+
+                  ${
+                    escapeHtml(
+                      driver.vehicle_plate
+                      ||
+                      ""
+                    )
+                  }
+
+                </div>
+
+              </td>
+
+              <td>
+                ${escapeHtml(regions)}
+              </td>
+
+              <td>
+                ${statusBadge(driver.status)}
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${
+                    driver.status
+                    ===
+                    "active"
+
+                    ?
+
+                    `
+
+                    <button
+                      class="btn btn-red btn-small"
+                      onclick="setDeliveryStatus('${driver.id}','suspended')"
+                    >
+                      暂停
+                    </button>
+
+                    `
+
+                    :
+
+                    `
+
+                    <button
+                      class="btn btn-green btn-small"
+                      onclick="setDeliveryStatus('${driver.id}','active')"
+                    >
+                      启用
+                    </button>
+
+                    `
+                  }
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
       );
 
 
-    profileContainer.innerHTML =
+    el("deliveryProfilesTable")
+      .innerHTML =
       makeTable(
 
         [
@@ -3054,8 +6284,9 @@ async function loadDelivery(){
           "姓名",
           "电话",
           "车辆",
-          "车牌",
-          "状态"
+          "负责地区",
+          "状态",
+          "操作"
         ],
 
         rows
@@ -3070,166 +6301,24 @@ async function loadDelivery(){
       .from(
         "delivery_tasks"
       )
-      .select(
-        "*"
-      )
+      .select("*")
       .order(
         "created_at",
         {
           ascending:false
         }
       )
-      .limit(
-        200
-      );
-
-
-  const taskContainer =
-    document.getElementById(
-      "deliveryTasksTable"
-    );
+      .limit(300);
 
 
   if(
     taskResult.error
   ){
 
-    taskContainer.innerHTML =
-      showError(
+    el("deliveryTasksTable")
+      .innerHTML =
+      errorBox(
         taskResult.error.message
-      );
-
-    return;
-
-  }
-
-
-  const taskRows =
-    (
-      taskResult.data
-      ||
-      []
-    ).map(
-      task => `
-
-        <tr>
-
-          <td class="mono">
-            ${
-              escapeHtml(
-                task.order_id
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                regionMap[
-                  task.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td class="mono">
-            ${
-              escapeHtml(
-                task.delivery_id
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              statusBadge(
-                task.status
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                task.failure_reason
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              formatDate(
-                task.created_at
-              )
-            }
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  taskContainer.innerHTML =
-    makeTable(
-
-      [
-        "订单 ID",
-        "地区",
-        "配送员 ID",
-        "状态",
-        "失败原因",
-        "时间"
-      ],
-
-      taskRows
-
-    );
-
-}
-
-
-/* 员工 */
-
-async function loadStaff(){
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        "staff_profiles"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(
-        200
-      );
-
-
-  const container =
-    document.getElementById(
-      "staffTable"
-    );
-
-
-  if(error){
-
-    container.innerHTML =
-      showError(
-        error.message
       );
 
     return;
@@ -3239,80 +6328,93 @@ async function loadStaff(){
 
   const rows =
     (
-      data || []
-    ).map(
-      staff => `
+      taskResult.data
+      ||
+      []
+    )
+    .map(
+      task => {
 
-        <tr>
+        const driver =
+          (
+            profileResult.data
+            ||
+            []
+          )
+          .find(
+            item =>
+              item.id
+              ===
+              task.delivery_id
+          );
 
-          <td>
-            ${
-              escapeHtml(
-                staff.staff_code
-              )
-            }
-          </td>
 
-          <td>
-            ${
-              escapeHtml(
-                staff.display_name
-              )
-            }
-          </td>
+        return `
 
-          <td>
-            ${
-              escapeHtml(
-                staff.phone
-                ||
-                "—"
-              )
-            }
-          </td>
+          <tr>
 
-          <td>
-            ${
-              statusBadge(
-                staff.status
-              )
-            }
-          </td>
+            <td class="mono">
+              ${escapeHtml(task.order_id)}
+            </td>
 
-          <td>
-            ${
-              escapeHtml(
-                staff.preferred_language
-                ||
-                "zh"
-              )
-            }
-          </td>
+            <td>
 
-          <td>
-            ${
-              formatDate(
-                staff.created_at
-              )
-            }
-          </td>
+              ${
+                escapeHtml(
+                  regionMap[
+                    task.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
 
-        </tr>
+            </td>
 
-      `
+            <td>
+
+              ${
+                escapeHtml(
+                  driver
+                  ?.display_name
+                  ||
+                  task.delivery_id
+                )
+              }
+
+            </td>
+
+            <td>
+              ${statusBadge(task.status)}
+            </td>
+
+            <td>
+              ${escapeHtml(task.failure_reason || "—")}
+            </td>
+
+            <td>
+              ${formatDate(task.assigned_at)}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
     );
 
 
-  container.innerHTML =
+  el("deliveryTasksTable")
+    .innerHTML =
     makeTable(
 
       [
-        "员工编号",
-        "姓名",
-        "电话",
+        "订单",
+        "地区",
+        "配送员",
         "状态",
-        "语言",
-        "创建时间"
+        "失败原因",
+        "指派时间"
       ],
 
       rows
@@ -3322,7 +6424,660 @@ async function loadStaff(){
 }
 
 
-/* 审批 */
+async function setDeliveryStatus(
+  id,
+  status
+){
+
+  if(
+    !confirm(
+      `确定将配送员状态改为 ${status}？`
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "delivery_profiles"
+      )
+      .update({
+
+        status:
+          status,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadDelivery();
+
+}
+
+
+/* =========================
+   员工
+========================= */
+
+async function createStaffProfile(){
+
+  const userId =
+    el("staffUserId")
+      .value
+      .trim();
+
+  const staffCode =
+    el("staffCode")
+      .value
+      .trim();
+
+  const name =
+    el("staffName")
+      .value
+      .trim();
+
+  const roleId =
+    el("staffRole").value;
+
+  const regions =
+    selectedRegionIds(
+      "staffRegionChecks"
+    );
+
+
+  if(
+    !userId
+    ||
+    !staffCode
+    ||
+    !name
+    ||
+    !roleId
+  ){
+
+    alert(
+      "必须填写 Auth User UUID、员工编号、姓名和角色。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error:
+    profileError
+  } =
+    await db
+      .from(
+        "staff_profiles"
+      )
+      .insert({
+
+        id:
+          userId,
+
+        staff_code:
+          staffCode,
+
+        display_name:
+          name,
+
+        phone:
+          el("staffPhone").value
+          ||
+          null,
+
+        status:
+          "active",
+
+        preferred_language:
+          el("staffLanguage").value
+
+      });
+
+
+  if(profileError){
+
+    alert(
+      "员工资料保存失败：\n"
+      +
+      profileError.message
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:
+    sessionData
+  } =
+    await db.auth.getSession();
+
+
+  const adminId =
+    sessionData.session
+      ?.user
+      ?.id
+    ||
+    null;
+
+
+  const {
+    error:
+    roleError
+  } =
+    await db
+      .from(
+        "staff_role_assignments"
+      )
+      .insert({
+
+        staff_id:
+          userId,
+
+        role_id:
+          roleId,
+
+        assigned_by:
+          adminId,
+
+        is_active:
+          true
+
+      });
+
+
+  if(roleError){
+
+    alert(
+      "员工资料建立成功，但角色分配失败：\n"
+      +
+      roleError.message
+    );
+
+  }
+
+
+  if(
+    regions.length > 0
+  ){
+
+    const regionRows =
+      regions.map(
+        regionId => ({
+
+          staff_id:
+            userId,
+
+          region_id:
+            regionId,
+
+          assigned_by:
+            adminId,
+
+          is_active:
+            true
+
+        })
+      );
+
+
+    const {
+      error:
+      regionError
+    } =
+      await db
+        .from(
+          "staff_region_assignments"
+        )
+        .insert(
+          regionRows
+        );
+
+
+    if(regionError){
+
+      alert(
+        "员工资料建立成功，但地区分配失败：\n"
+        +
+        regionError.message
+      );
+
+    }
+
+  }
+
+
+  alert(
+    "员工资料保存完成。"
+  );
+
+
+  await loadBaseData();
+
+  await loadStaff();
+
+}
+
+
+async function loadStaff(){
+
+  const [
+    profileResult,
+    roleAssignmentResult,
+    regionAssignmentResult,
+    permissionResult,
+    rolePermissionResult
+  ] =
+    await Promise.all([
+
+      db
+        .from("staff_profiles")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        ),
+
+      db
+        .from("staff_role_assignments")
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from("staff_region_assignments")
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        ),
+
+      db
+        .from("permission_definitions")
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        )
+        .order("sort_order"),
+
+      db
+        .from("role_permissions")
+        .select("*")
+
+    ]);
+
+
+  if(
+    profileResult.error
+  ){
+
+    el("staffTable")
+      .innerHTML =
+      errorBox(
+        profileResult.error.message
+      );
+
+    return;
+
+  }
+
+
+  const roleAssignments =
+    roleAssignmentResult.data
+    ||
+    [];
+
+  const regionAssignments =
+    regionAssignmentResult.data
+    ||
+    [];
+
+
+  const rows =
+    (
+      profileResult.data
+      ||
+      []
+    )
+    .map(
+      staff => {
+
+        const roleIds =
+          roleAssignments
+            .filter(
+              item =>
+                item.staff_id
+                ===
+                staff.id
+            )
+            .map(
+              item =>
+                item.role_id
+            );
+
+
+        const roles =
+          roleData
+            .filter(
+              role =>
+                roleIds.includes(
+                  role.id
+                )
+            )
+            .map(
+              role =>
+                role.name_zh
+            )
+            .join("、")
+          ||
+          "—";
+
+
+        const regions =
+          regionAssignments
+            .filter(
+              item =>
+                item.staff_id
+                ===
+                staff.id
+            )
+            .map(
+              item =>
+                regionMap[
+                  item.region_id
+                ]
+                ||
+                "?"
+            )
+            .join("、")
+          ||
+          "—";
+
+
+        return `
+
+          <tr>
+
+            <td>
+
+              ${escapeHtml(staff.staff_code)}
+
+              <div class="small">
+                ${escapeHtml(staff.id)}
+              </div>
+
+            </td>
+
+            <td>
+              ${escapeHtml(staff.display_name)}
+            </td>
+
+            <td>
+              ${escapeHtml(staff.phone || "—")}
+            </td>
+
+            <td>
+              ${escapeHtml(roles)}
+            </td>
+
+            <td>
+              ${escapeHtml(regions)}
+            </td>
+
+            <td>
+              ${statusBadge(staff.status)}
+            </td>
+
+            <td>
+
+              <div class="operation-buttons">
+
+                ${
+                  staff.status
+                  ===
+                  "active"
+
+                  ?
+
+                  `
+
+                  <button
+                    class="btn btn-red btn-small"
+                    onclick="setStaffStatus('${staff.id}','suspended')"
+                  >
+                    暂停
+                  </button>
+
+                  `
+
+                  :
+
+                  `
+
+                  <button
+                    class="btn btn-green btn-small"
+                    onclick="setStaffStatus('${staff.id}','active')"
+                  >
+                    启用
+                  </button>
+
+                  `
+                }
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+  el("staffTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "员工",
+        "姓名",
+        "电话",
+        "角色",
+        "地区",
+        "状态",
+        "操作"
+      ],
+
+      rows
+
+    );
+
+
+  if(
+    permissionResult.error
+    ||
+    rolePermissionResult.error
+  ){
+
+    return;
+
+  }
+
+
+  const permissions =
+    permissionResult.data
+    ||
+    [];
+
+  const rolePermissions =
+    rolePermissionResult.data
+    ||
+    [];
+
+
+  const roleRows =
+    roleData.map(
+      role => {
+
+        const permissionIds =
+          rolePermissions
+            .filter(
+              item =>
+                item.role_id
+                ===
+                role.id
+            )
+            .map(
+              item =>
+                item.permission_id
+            );
+
+
+        const names =
+          permissions
+            .filter(
+              permission =>
+                permissionIds.includes(
+                  permission.id
+                )
+            )
+            .map(
+              permission =>
+                permission.name_zh
+                ||
+                permission.code
+            )
+            .join("、");
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${escapeHtml(role.name_zh)}
+            </td>
+
+            <td class="mono">
+              ${escapeHtml(role.code)}
+            </td>
+
+            <td>
+              ${escapeHtml(names || "—")}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+  el("rolesTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "角色",
+        "代码",
+        "权限"
+      ],
+
+      roleRows
+
+    );
+
+}
+
+
+async function setStaffStatus(
+  id,
+  status
+){
+
+  if(
+    !confirm(
+      `确定将员工状态改为 ${status}？`
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "staff_profiles"
+      )
+      .update({
+
+        status:
+          status,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadStaff();
+
+}
+
+
+/* =========================
+   审批
+========================= */
 
 async function loadApprovals(){
 
@@ -3334,30 +7089,21 @@ async function loadApprovals(){
       .from(
         "approval_requests"
       )
-      .select(
-        "*"
-      )
+      .select("*")
       .order(
         "created_at",
         {
           ascending:false
         }
       )
-      .limit(
-        300
-      );
-
-
-  const container =
-    document.getElementById(
-      "approvalsTable"
-    );
+      .limit(400);
 
 
   if(error){
 
-    container.innerHTML =
-      showError(
+    el("approvalsTable")
+      .innerHTML =
+      errorBox(
         error.message
       );
 
@@ -3367,85 +7113,125 @@ async function loadApprovals(){
 
 
   const rows =
-    (
-      data || []
-    ).map(
-      approval => `
+    (data || [])
+      .map(
+        request => {
 
-        <tr>
-
-          <td>
-            ${
-              escapeHtml(
-                approval.action_type
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                regionMap[
-                  approval.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                approval.target_type
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              statusBadge(
-                approval.status
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                approval.reason
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              formatDate(
-                approval.created_at
-              )
-            }
-          </td>
-
-        </tr>
-
-      `
-    );
+          let buttons = "";
 
 
-  container.innerHTML =
+          if(
+            request.status
+            ===
+            "pending"
+          ){
+
+            buttons = `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="reviewApproval('${request.id}',true)"
+              >
+                批准
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="reviewApproval('${request.id}',false)"
+              >
+                拒绝
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+
+                ${
+                  escapeHtml(
+                    request.request_number
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${escapeHtml(request.action_type)}
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    regionMap[
+                      request.region_id
+                    ]
+                    ||
+                    "全局"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    request.target_type
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${statusBadge(request.status)}
+              </td>
+
+              <td>
+                ${escapeHtml(request.reason)}
+              </td>
+
+              <td>
+                ${formatDate(request.created_at)}
+              </td>
+
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("approvalsTable")
+    .innerHTML =
     makeTable(
 
       [
-        "操作类型",
+        "申请号",
+        "操作",
         "地区",
         "对象",
         "状态",
         "原因",
-        "申请时间"
+        "申请时间",
+        "审批"
       ],
 
       rows
@@ -3455,7 +7241,61 @@ async function loadApprovals(){
 }
 
 
-/* 审计 */
+async function reviewApproval(
+  requestId,
+  approve
+){
+
+  const note =
+    prompt(
+      approve
+      ?
+      "审批备注，可留空："
+      :
+      "请输入拒绝原因："
+    )
+    ||
+    "";
+
+
+  if(
+    !approve
+    &&
+    !note
+  ){
+    return;
+  }
+
+
+  await rpc(
+
+    "review_approval_request",
+
+    {
+      p_request_id:
+        requestId,
+
+      p_approve:
+        approve,
+
+      p_note:
+        note
+    },
+
+    approve
+    ?
+    "审批已通过"
+    :
+    "审批已拒绝"
+
+  );
+
+}
+
+
+/* =========================
+   审计日志
+========================= */
 
 async function loadAudit(){
 
@@ -3467,30 +7307,21 @@ async function loadAudit(){
       .from(
         "audit_logs"
       )
-      .select(
-        "*"
-      )
+      .select("*")
       .order(
         "created_at",
         {
           ascending:false
         }
       )
-      .limit(
-        300
-      );
-
-
-  const container =
-    document.getElementById(
-      "auditTable"
-    );
+      .limit(500);
 
 
   if(error){
 
-    container.innerHTML =
-      showError(
+    el("auditTable")
+      .innerHTML =
+      errorBox(
         error.message
       );
 
@@ -3500,439 +7331,86 @@ async function loadAudit(){
 
 
   const rows =
-    (
-      data || []
-    ).map(
-      log => `
-
-        <tr>
-
-          <td>
-            ${
-              formatDate(
-                log.created_at
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                log.actor_type
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                log.action
-                ||
-                log.operation
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                log.entity_type
-                ||
-                log.table_name
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                regionMap[
-                  log.region_id
-                ]
-                ||
-                "—"
-              )
-            }
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  container.innerHTML =
-    makeTable(
-
-      [
-        "时间",
-        "操作者",
-        "动作",
-        "对象",
-        "地区"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-/* 地区 */
-
-async function loadRegions(){
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        "regions"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "sort_order"
-      );
-
-
-  const container =
-    document.getElementById(
-      "regionsTable"
-    );
-
-
-  if(error){
-
-    container.innerHTML =
-      showError(
-        error.message
-      );
-
-    return;
-
-  }
-
-
-  const rows =
-    (
-      data || []
-    ).map(
-      region => `
-
-        <tr>
-
-          <td>
-            ${
-              escapeHtml(
-                region.code
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                region.name_zh
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                region.name_en
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                region.name_my
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                region.name_th
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              statusBadge(
-                region.is_active
-                ?
-                "active"
-                :
-                "inactive"
-              )
-            }
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  container.innerHTML =
-    makeTable(
-
-      [
-        "代码",
-        "中文",
-        "English",
-        "မြန်မာ",
-        "ไทย",
-        "状态"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-/* 分类 */
-
-async function loadCategories(){
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        "categories"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "level"
-      )
-      .order(
-        "sort_order"
-      )
-      .limit(
-        300
-      );
-
-
-  const container =
-    document.getElementById(
-      "categoriesTable"
-    );
-
-
-  if(error){
-
-    container.innerHTML =
-      showError(
-        error.message
-      );
-
-    return;
-
-  }
-
-
-  const rows =
-    (
-      data || []
-    ).map(
-      category => `
-
-        <tr>
-
-          <td>
-            ${
-              escapeHtml(
-                category.code
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                category.level
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                category.name_zh
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              escapeHtml(
-                category.name_en
-                ||
-                "—"
-              )
-            }
-          </td>
-
-          <td>
-            ${
-              statusBadge(
-                category.is_active
-                ?
-                "active"
-                :
-                "inactive"
-              )
-            }
-          </td>
-
-        </tr>
-
-      `
-    );
-
-
-  container.innerHTML =
-    makeTable(
-
-      [
-        "代码",
-        "级别",
-        "中文",
-        "English",
-        "状态"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-/* 商品 */
-
-async function loadProducts(){
-
-  const productResult =
-    await db
-      .from(
-        "products"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(
-        200
-      );
-
-
-  const productContainer =
-    document.getElementById(
-      "productsTable"
-    );
-
-
-  if(
-    productResult.error
-  ){
-
-    productContainer.innerHTML =
-      showError(
-        productResult.error.message
-      );
-
-  }
-  else{
-
-    const rows =
-      (
-        productResult.data
-        ||
-        []
-      ).map(
-        product => `
+    (data || [])
+      .map(
+        log => `
 
           <tr>
 
             <td>
+              ${formatDate(log.created_at)}
+            </td>
+
+            <td>
+
               ${
                 escapeHtml(
-                  product.product_code
+                  log.actor_type
                   ||
                   "—"
                 )
               }
+
+              <div class="small">
+
+                ${
+                  escapeHtml(
+                    log.actor_id
+                    ||
+                    ""
+                  )
+                }
+
+              </div>
+
             </td>
 
             <td>
+              ${escapeHtml(log.action)}
+            </td>
+
+            <td>
+
+              ${escapeHtml(log.entity_type)}
+
+              <div class="small">
+
+                ${
+                  escapeHtml(
+                    log.entity_id
+                    ||
+                    ""
+                  )
+                }
+
+              </div>
+
+            </td>
+
+            <td>
+
               ${
                 escapeHtml(
-                  product.name_zh
+                  regionMap[
+                    log.region_id
+                  ]
                   ||
                   "—"
                 )
               }
+
             </td>
 
             <td>
+
               ${
                 escapeHtml(
-                  product.brand
+                  log.reason
                   ||
                   "—"
                 )
               }
-            </td>
 
-            <td>
-              ${
-                statusBadge(
-                  product.is_active
-                  ===
-                  false
-
-                  ?
-
-                  "inactive"
-
-                  :
-
-                  "active"
-                )
-              }
             </td>
 
           </tr>
@@ -3941,160 +7419,1408 @@ async function loadProducts(){
       );
 
 
-    productContainer.innerHTML =
-      makeTable(
+  el("auditTable")
+    .innerHTML =
+    makeTable(
 
-        [
-          "商品代码",
-          "名称",
-          "品牌",
-          "状态"
-        ],
+      [
+        "时间",
+        "操作者",
+        "动作",
+        "对象",
+        "地区",
+        "原因"
+      ],
 
-        rows
+      rows
 
-      );
-
-  }
-
-
-  const variantResult =
-    await db
-      .from(
-        "product_variants"
-      )
-      .select(
-        "*"
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(
-        300
-      );
-
-
-  const variantContainer =
-    document.getElementById(
-      "variantsTable"
     );
+
+}
+
+
+/* =========================
+   地区
+========================= */
+
+async function createRegion(){
+
+  const code =
+    el("regionCode")
+      .value
+      .trim();
+
+  const zh =
+    el("regionZh")
+      .value
+      .trim();
+
+  const en =
+    el("regionEn")
+      .value
+      .trim();
 
 
   if(
-    variantResult.error
+    !code
+    ||
+    !zh
+    ||
+    !en
   ){
 
-    variantContainer.innerHTML =
-      showError(
-        variantResult.error.message
-      );
+    alert(
+      "地区代码、中文和 English 必须填写。"
+    );
 
     return;
 
   }
 
 
-  const variantRows =
-    (
-      variantResult.data
-      ||
-      []
-    ).map(
-      variant => `
+  const {
+    error
+  } =
+    await db
+      .from(
+        "regions"
+      )
+      .insert({
 
-        <tr>
+        code:
+          code,
 
-          <td>
-            ${
-              escapeHtml(
-                variant.sku_code
-                ||
-                "—"
-              )
-            }
-          </td>
+        name_zh:
+          zh,
 
-          <td>
-            ${
-              escapeHtml(
-                variant.name_zh
-                ||
-                variant.spec_zh
-                ||
-                "—"
-              )
-            }
-          </td>
+        name_en:
+          en,
 
-          <td>
-            ${
-              formatMoney(
-                variant.retail_price
-              )
-            }
-          </td>
+        name_my:
+          el("regionMy").value
+          ||
+          null,
 
-          <td>
+        name_th:
+          el("regionTh").value
+          ||
+          null,
 
-            ${
-              variant.wholesale_price
-              ===
-              null
+        sort_order:
+          Number(
+            el("regionSort").value
+            ||
+            100
+          ),
 
-              ?
+        is_active:
+          true
 
-              "—"
+      });
 
-              :
 
-              formatMoney(
-                variant.wholesale_price
-              )
-            }
+  if(error){
 
-          </td>
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
 
-          <td>
-            ${
-              escapeHtml(
-                variant.wholesale_min_qty
-                ||
-                "—"
-              )
-            }
-          </td>
+    return;
 
-          <td>
-            ${
-              statusBadge(
-                variant.is_active
-                ?
-                "active"
-                :
-                "inactive"
-              )
-            }
-          </td>
+  }
 
-        </tr>
 
-      `
+  alert(
+    "地区保存成功。"
+  );
+
+
+  await loadBaseData();
+
+  await loadRegions();
+
+}
+
+
+async function loadRegions(){
+
+  await loadRegionsBase();
+
+  renderBaseSelects();
+
+
+  const rows =
+    regionData
+      .map(
+        region => `
+
+          <tr>
+
+            <td class="mono">
+              ${escapeHtml(region.code)}
+            </td>
+
+            <td>
+              ${escapeHtml(region.name_zh)}
+            </td>
+
+            <td>
+              ${escapeHtml(region.name_en)}
+            </td>
+
+            <td>
+              ${escapeHtml(region.name_my || "—")}
+            </td>
+
+            <td>
+              ${escapeHtml(region.name_th || "—")}
+            </td>
+
+            <td>
+              ${region.sort_order}
+            </td>
+
+            <td>
+              ${
+                statusBadge(
+                  region.is_active
+                  ?
+                  "active"
+                  :
+                  "inactive"
+                )
+              }
+            </td>
+
+            <td>
+
+              <button
+                class="btn ${
+                  region.is_active
+                  ?
+                  "btn-red"
+                  :
+                  "btn-green"
+                } btn-small"
+                onclick="toggleRegion('${region.id}',${!region.is_active})"
+              >
+
+                ${
+                  region.is_active
+                  ?
+                  "停用"
+                  :
+                  "启用"
+                }
+
+              </button>
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("regionsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "代码",
+        "中文",
+        "English",
+        "မြန်မာ",
+        "ไทย",
+        "排序",
+        "状态",
+        "操作"
+      ],
+
+      rows
+
+    );
+
+}
+
+
+async function toggleRegion(
+  id,
+  active
+){
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "regions"
+      )
+      .update({
+
+        is_active:
+          active,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadRegions();
+
+}
+
+
+/* =========================
+   分类 / 属性
+========================= */
+
+function updateCategoryParentState(){
+
+  const level =
+    Number(
+      el("categoryLevel").value
     );
 
 
-  variantContainer.innerHTML =
+  el("categoryParent")
+    .disabled =
+    level === 1;
+
+}
+
+
+async function createCategory(){
+
+  const code =
+    el("categoryCode")
+      .value
+      .trim();
+
+  const zh =
+    el("categoryZh")
+      .value
+      .trim();
+
+  const level =
+    Number(
+      el("categoryLevel").value
+    );
+
+
+  if(
+    !code
+    ||
+    !zh
+  ){
+
+    alert(
+      "分类代码和中文名称必须填写。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    level === 2
+    &&
+    !el("categoryParent").value
+  ){
+
+    alert(
+      "二级分类必须选择上级分类。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "categories"
+      )
+      .insert({
+
+        code:
+          code,
+
+        level:
+          level,
+
+        parent_id:
+          level === 2
+          ?
+          el("categoryParent").value
+          :
+          null,
+
+        icon:
+          el("categoryIcon").value
+          ||
+          null,
+
+        name_zh:
+          zh,
+
+        name_en:
+          el("categoryEn").value
+          ||
+          null,
+
+        name_my:
+          el("categoryMy").value
+          ||
+          null,
+
+        name_th:
+          el("categoryTh").value
+          ||
+          null,
+
+        image_url:
+          el("categoryImage").value
+          ||
+          null,
+
+        sort_order:
+          Number(
+            el("categorySort").value
+            ||
+            100
+          ),
+
+        is_active:
+          true
+
+      });
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "分类保存成功。"
+  );
+
+
+  await loadBaseData();
+
+  await loadCategories();
+
+}
+
+
+async function createAttribute(){
+
+  const categoryId =
+    el("attributeCategory").value;
+
+  const code =
+    el("attributeCode")
+      .value
+      .trim();
+
+  const zh =
+    el("attributeZh")
+      .value
+      .trim();
+
+
+  if(
+    !categoryId
+    ||
+    !code
+    ||
+    !zh
+  ){
+
+    alert(
+      "分类、属性代码、中文名称必须填写。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "category_attributes"
+      )
+      .insert({
+
+        category_id:
+          categoryId,
+
+        code:
+          code,
+
+        name_zh:
+          zh,
+
+        name_en:
+          el("attributeEn").value
+          ||
+          null,
+
+        input_type:
+          el("attributeType").value,
+
+        is_filterable:
+          true,
+
+        is_required:
+          false,
+
+        sort_order:
+          Number(
+            el("attributeSort").value
+            ||
+            100
+          ),
+
+        is_active:
+          true
+
+      });
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "筛选属性保存成功。"
+  );
+
+
+  await loadBaseData();
+
+  await loadCategories();
+
+}
+
+
+async function createAttributeOption(){
+
+  const attributeId =
+    el("optionAttribute").value;
+
+  const key =
+    el("optionKey")
+      .value
+      .trim();
+
+  const zh =
+    el("optionZh")
+      .value
+      .trim();
+
+
+  if(
+    !attributeId
+    ||
+    !key
+    ||
+    !zh
+  ){
+
+    alert(
+      "属性、value_key、中文必须填写。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "category_attribute_options"
+      )
+      .insert({
+
+        attribute_id:
+          attributeId,
+
+        value_key:
+          key,
+
+        label_zh:
+          zh,
+
+        label_en:
+          el("optionEn").value
+          ||
+          null,
+
+        label_my:
+          el("optionMy").value
+          ||
+          null,
+
+        label_th:
+          el("optionTh").value
+          ||
+          null,
+
+        sort_order:
+          100,
+
+        is_active:
+          true
+
+      });
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "属性选项保存成功。"
+  );
+
+}
+
+
+async function loadCategories(){
+
+  await Promise.all([
+
+    loadCategoriesBase(),
+    loadAttributesBase()
+
+  ]);
+
+
+  renderBaseSelects();
+
+
+  const categoryRows =
+    categoryData
+      .map(
+        category => {
+
+          const parent =
+            categoryData
+              .find(
+                item =>
+                  item.id
+                  ===
+                  category.parent_id
+              );
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+                ${escapeHtml(category.code)}
+              </td>
+
+              <td>
+                ${category.level}
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    category.name_zh
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                ${
+                  escapeHtml(
+                    parent
+                    ?.name_zh
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${category.sort_order}
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    category.is_active
+                    ?
+                    "active"
+                    :
+                    "inactive"
+                  )
+                }
+
+              </td>
+
+              <td>
+
+                <button
+                  class="btn ${
+                    category.is_active
+                    ?
+                    "btn-red"
+                    :
+                    "btn-green"
+                  } btn-small"
+                  onclick="toggleCategory('${category.id}',${!category.is_active})"
+                >
+
+                  ${
+                    category.is_active
+                    ?
+                    "停用"
+                    :
+                    "启用"
+                  }
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("categoriesTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "代码",
+        "级别",
+        "名称",
+        "上级",
+        "排序",
+        "状态",
+        "操作"
+      ],
+
+      categoryRows
+
+    );
+
+
+  const attributeRows =
+    attributeData
+      .map(
+        attribute => {
+
+          const category =
+            categoryData.find(
+              item =>
+                item.id
+                ===
+                attribute.category_id
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(category?.name_zh || "—")}
+              </td>
+
+              <td class="mono">
+                ${escapeHtml(attribute.code)}
+              </td>
+
+              <td>
+                ${escapeHtml(attribute.name_zh)}
+              </td>
+
+              <td>
+                ${escapeHtml(attribute.input_type)}
+              </td>
+
+              <td>
+
+                ${
+                  statusBadge(
+                    attribute.is_active
+                    ?
+                    "active"
+                    :
+                    "inactive"
+                  )
+                }
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("attributesTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "分类",
+        "代码",
+        "名称",
+        "类型",
+        "状态"
+      ],
+
+      attributeRows
+
+    );
+
+}
+
+
+async function toggleCategory(
+  id,
+  active
+){
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "categories"
+      )
+      .update({
+
+        is_active:
+          active,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadCategories();
+
+}
+
+
+/* =========================
+   商品
+========================= */
+
+async function createProduct(){
+
+  const zh =
+    el("productZh")
+      .value
+      .trim();
+
+  const categoryId =
+    el("productCategory").value;
+
+
+  if(
+    !zh
+    ||
+    !categoryId
+  ){
+
+    alert(
+      "中文商品名和分类必须填写。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "products"
+      )
+      .insert({
+
+        category_id:
+          categoryId,
+
+        product_code:
+          el("productCode").value
+          ||
+          null,
+
+        name_zh:
+          zh,
+
+        name_en:
+          el("productEn").value
+          ||
+          null,
+
+        name_my:
+          el("productMy").value
+          ||
+          null,
+
+        name_th:
+          el("productTh").value
+          ||
+          null,
+
+        brand:
+          el("productBrand").value
+          ||
+          null,
+
+        origin_country:
+          el("productOrigin").value
+          ||
+          null,
+
+        shelf_life_days:
+          nullableNumber(
+            el("productShelfLife").value
+          ),
+
+        image_url:
+          el("productImage").value
+          ||
+          null,
+
+        description_zh:
+          el("productDescriptionZh").value
+          ||
+          null,
+
+        price:
+          0,
+
+        stock:
+          0,
+
+        status:
+          "active",
+
+        is_featured:
+          false,
+
+        sort_order:
+          100
+
+      });
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "商品保存成功，请继续建立 SKU。"
+  );
+
+
+  await loadBaseData();
+
+  await loadProducts();
+
+}
+
+
+async function createVariant(){
+
+  const productId =
+    el("variantProduct").value;
+
+  const skuCode =
+    el("variantCode")
+      .value
+      .trim();
+
+  const retailPrice =
+    Number(
+      el("variantRetailPrice").value
+    );
+
+
+  if(
+    !productId
+    ||
+    !skuCode
+    ||
+    Number.isNaN(
+      retailPrice
+    )
+  ){
+
+    alert(
+      "商品、SKU Code、零售价必须填写。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "product_variants"
+      )
+      .insert({
+
+        product_id:
+          productId,
+
+        sku_code:
+          skuCode,
+
+        barcode:
+          el("variantBarcode").value
+          ||
+          null,
+
+        name_zh:
+          el("variantZh").value
+          ||
+          null,
+
+        flavor_zh:
+          el("variantFlavorZh").value
+          ||
+          null,
+
+        specification_zh:
+          el("variantSpecificationZh").value
+          ||
+          null,
+
+        sales_unit_code:
+          "piece",
+
+        sales_unit_zh:
+          el("variantSalesUnitZh").value
+          ||
+          "件",
+
+        units_per_case:
+          nullableNumber(
+            el("variantUnitsCase").value
+          ),
+
+        retail_price:
+          retailPrice,
+
+        wholesale_price:
+          nullableNumber(
+            el("variantWholesalePrice").value
+          ),
+
+        wholesale_min_qty:
+          nullableNumber(
+            el("variantWholesaleMin").value
+          ),
+
+        cost_price:
+          nullableNumber(
+            el("variantCostPrice").value
+          ),
+
+        is_active:
+          true,
+
+        sort_order:
+          100
+
+      });
+
+
+  if(error){
+
+    alert(
+      "SKU 保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "SKU 保存成功。"
+  );
+
+
+  await loadBaseData();
+
+  await loadProducts();
+
+}
+
+
+async function loadProducts(){
+
+  await Promise.all([
+
+    loadProductsBase(),
+    loadVariantsBase()
+
+  ]);
+
+
+  renderBaseSelects();
+
+
+  const productRows =
+    productData
+      .map(
+        product => {
+
+          const category =
+            categoryData
+              .find(
+                item =>
+                  item.id
+                  ===
+                  product.category_id
+              );
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+
+                ${
+                  escapeHtml(
+                    product.product_code
+                    ||
+                    "—"
+                  )
+                }
+
+              </td>
+
+              <td>
+                ${escapeHtml(product.name_zh)}
+              </td>
+
+              <td>
+                ${escapeHtml(category?.name_zh || "—")}
+              </td>
+
+              <td>
+                ${escapeHtml(product.brand || "—")}
+              </td>
+
+              <td>
+                ${escapeHtml(product.origin_country || "—")}
+              </td>
+
+              <td>
+                ${statusBadge(product.status)}
+              </td>
+
+              <td>
+
+                <button
+                  class="btn ${
+                    product.status
+                    ===
+                    "active"
+                    ?
+                    "btn-red"
+                    :
+                    "btn-green"
+                  } btn-small"
+                  onclick="toggleProduct('${product.id}','${product.status === "active" ? "inactive" : "active"}')"
+                >
+
+                  ${
+                    product.status
+                    ===
+                    "active"
+                    ?
+                    "下架"
+                    :
+                    "上架"
+                  }
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("productsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "商品代码",
+        "商品",
+        "分类",
+        "品牌",
+        "原产国",
+        "状态",
+        "操作"
+      ],
+
+      productRows
+
+    );
+
+
+  const variantRows =
+    variantData
+      .map(
+        variant => `
+
+          <tr>
+
+            <td class="mono">
+
+              ${
+                escapeHtml(
+                  variant.sku_code
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  productMap[
+                    variant.product_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                escapeHtml(
+                  variant.name_zh
+                  ||
+                  variant.specification_zh
+                  ||
+                  "—"
+                )
+              }
+
+            </td>
+
+            <td>
+              ${money(variant.retail_price)}
+            </td>
+
+            <td>
+
+              ${
+                variant.wholesale_price
+                ===
+                null
+
+                ?
+
+                "—"
+
+                :
+
+                money(
+                  variant.wholesale_price
+                )
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                variant.wholesale_min_qty
+                ||
+                "—"
+              }
+
+            </td>
+
+            <td>
+
+              ${
+                statusBadge(
+                  variant.is_active
+                  ?
+                  "active"
+                  :
+                  "inactive"
+                )
+              }
+
+            </td>
+
+            <td>
+
+              <button
+                class="btn ${
+                  variant.is_active
+                  ?
+                  "btn-red"
+                  :
+                  "btn-green"
+                } btn-small"
+                onclick="toggleVariant('${variant.id}',${!variant.is_active})"
+              >
+
+                ${
+                  variant.is_active
+                  ?
+                  "停用"
+                  :
+                  "启用"
+                }
+
+              </button>
+
+            </td>
+
+          </tr>
+
+        `
+      );
+
+
+  el("variantsTable")
+    .innerHTML =
     makeTable(
 
       [
         "SKU",
+        "商品",
         "规格",
         "零售价",
         "批发价",
-        "批发起订量",
-        "状态"
+        "起订量",
+        "状态",
+        "操作"
       ],
 
       variantRows
@@ -4104,7 +8830,97 @@ async function loadProducts(){
 }
 
 
-/* Auth 状态 */
+async function toggleProduct(
+  id,
+  status
+){
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "products"
+      )
+      .update({
+
+        status:
+          status,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadProducts();
+
+}
+
+
+async function toggleVariant(
+  id,
+  active
+){
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "product_variants"
+      )
+      .update({
+
+        is_active:
+          active,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadProducts();
+
+}
+
+
+/* =========================
+   Auth
+========================= */
 
 db.auth.onAuthStateChange(
   (
