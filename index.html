@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>商城</title>
+  <title id="pageTitle">商城</title>
 
   <style>
     * {
@@ -19,7 +19,6 @@
       padding-bottom: 80px;
     }
 
-    /* 顶部 */
     .header {
       background: linear-gradient(135deg, #ff5a36, #ff7a35);
       padding: 18px 16px 22px;
@@ -30,19 +29,42 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       margin-bottom: 16px;
     }
 
     .logo {
       font-size: 24px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
-    .header-action {
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .message-btn {
       font-size: 14px;
+      white-space: nowrap;
     }
 
-    /* 搜索 */
+    .language-select {
+      border: 1px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.14);
+      color: white;
+      border-radius: 18px;
+      padding: 7px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .language-select option {
+      color: #222;
+      background: white;
+    }
+
     .search-box {
       background: white;
       border-radius: 24px;
@@ -58,15 +80,14 @@
       width: 100%;
       font-size: 15px;
       margin-left: 8px;
+      background: transparent;
     }
 
-    /* 内容 */
     .container {
       max-width: 800px;
       margin: auto;
     }
 
-    /* 分类 */
     .category-section {
       background: white;
       padding: 20px 10px;
@@ -104,7 +125,6 @@
       font-size: 27px;
     }
 
-    /* 活动 */
     .promotion {
       margin: 10px;
       padding: 20px;
@@ -123,7 +143,6 @@
       opacity: 0.95;
     }
 
-    /* 商品 */
     .products-section {
       padding: 10px;
     }
@@ -190,7 +209,6 @@
       margin-left: 5px;
     }
 
-    /* 底部导航 */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -212,6 +230,7 @@
       align-items: center;
       font-size: 11px;
       color: #777;
+      text-align: center;
     }
 
     .nav-icon {
@@ -229,6 +248,18 @@
         height: 240px;
       }
     }
+
+    @media (max-width: 390px) {
+      .language-select {
+        max-width: 92px;
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+
+      .message-btn {
+        display: none;
+      }
+    }
   </style>
 </head>
 
@@ -238,8 +269,22 @@
 
     <header class="header">
       <div class="header-top">
-        <div class="logo">商城</div>
-        <div class="header-action">消息</div>
+        <div class="logo" data-i18n="mall">商城</div>
+
+        <div class="header-right">
+          <div class="message-btn" data-i18n="messages">消息</div>
+
+          <select
+            id="languageSelect"
+            class="language-select"
+            onchange="changeLanguage(this.value)"
+          >
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+            <option value="my">မြန်မာ</option>
+            <option value="th">ไทย</option>
+          </select>
+        </div>
       </div>
 
       <div class="search-box">
@@ -254,114 +299,154 @@
     </header>
 
     <section class="category-section">
-      <div class="section-title">商品分类</div>
+      <div class="section-title" data-i18n="categories">商品分类</div>
 
       <div class="categories">
+
         <div class="category">
           <div class="category-icon">🍪</div>
-          零食
+          <span data-i18n="snacks">零食</span>
         </div>
 
         <div class="category">
           <div class="category-icon">🥤</div>
-          饮料
+          <span data-i18n="drinks">饮料</span>
         </div>
 
         <div class="category">
           <div class="category-icon">🛋️</div>
-          家具
+          <span data-i18n="furniture">家具</span>
         </div>
 
         <div class="category">
           <div class="category-icon">👕</div>
-          服装
+          <span data-i18n="clothing">服装</span>
         </div>
 
         <div class="category">
           <div class="category-icon">📱</div>
-          数码
+          <span data-i18n="digital">数码</span>
         </div>
 
         <div class="category">
           <div class="category-icon">🧴</div>
-          日用品
+          <span data-i18n="daily">日用品</span>
         </div>
 
         <div class="category">
           <div class="category-icon">💄</div>
-          美妆
+          <span data-i18n="beauty">美妆</span>
         </div>
 
         <div class="category">
           <div class="category-icon">👟</div>
-          鞋包
+          <span data-i18n="shoes">鞋包</span>
         </div>
 
         <div class="category">
           <div class="category-icon">🏠</div>
-          家居
+          <span data-i18n="home">家居</span>
         </div>
 
         <div class="category">
           <div class="category-icon">•••</div>
-          全部
+          <span data-i18n="all">全部</span>
         </div>
+
       </div>
     </section>
 
     <section class="promotion">
-      <h2>限时特惠</h2>
-      <p>精选商品 · 每日优惠</p>
+      <h2 data-i18n="limitedOffer">限时特惠</h2>
+      <p data-i18n="dailyDeals">精选商品 · 每日优惠</p>
     </section>
 
     <section class="products-section">
 
-      <div class="section-title">猜你喜欢</div>
+      <div class="section-title" data-i18n="recommended">猜你喜欢</div>
 
       <div class="products" id="productList">
 
-        <div class="product" data-name="进口巧克力零食">
-          <div class="discount">8折</div>
+        <div
+          class="product"
+          data-search-zh="进口巧克力零食"
+          data-search-en="imported chocolate snack"
+          data-search-my="ချောကလက် အဆာပြေ"
+          data-search-th="ช็อกโกแลต ขนม"
+        >
+          <div class="discount" data-i18n="discount20">8折</div>
           <div class="product-image">🍫</div>
 
           <div class="product-info">
-            <div class="product-name">进口巧克力零食</div>
-            <div class="expiry">保质期至：2027-03-20</div>
+            <div class="product-name" data-i18n="productChocolate">
+              进口巧克力零食
+            </div>
+
+            <div class="expiry">
+              <span data-i18n="expiry">保质期至</span>：2027-03-20
+            </div>
 
             <span class="price">K 8,000</span>
             <span class="old-price">K 10,000</span>
           </div>
         </div>
 
-        <div class="product" data-name="薯片休闲零食">
-          <div class="discount">特价</div>
+        <div
+          class="product"
+          data-search-zh="薯片休闲零食"
+          data-search-en="potato chips snack"
+          data-search-my="အာလူးကြော် အဆာပြေ"
+          data-search-th="มันฝรั่งทอด ขนม"
+        >
+          <div class="discount" data-i18n="specialPrice">特价</div>
           <div class="product-image">🍟</div>
 
           <div class="product-info">
-            <div class="product-name">薯片休闲零食</div>
-            <div class="expiry">保质期至：2027-01-15</div>
+            <div class="product-name" data-i18n="productChips">
+              薯片休闲零食
+            </div>
+
+            <div class="expiry">
+              <span data-i18n="expiry">保质期至</span>：2027-01-15
+            </div>
 
             <span class="price">K 3,500</span>
             <span class="old-price">K 4,500</span>
           </div>
         </div>
 
-        <div class="product" data-name="现代简约沙发家具">
+        <div
+          class="product"
+          data-search-zh="现代简约沙发家具"
+          data-search-en="modern sofa furniture"
+          data-search-my="ခေတ်မီ ဆိုဖာ ပရိဘောဂ"
+          data-search-th="โซฟา เฟอร์นิเจอร์"
+        >
           <div class="product-image">🛋️</div>
 
           <div class="product-info">
-            <div class="product-name">现代简约沙发</div>
+            <div class="product-name" data-i18n="productSofa">
+              现代简约沙发
+            </div>
 
             <span class="price">K 680,000</span>
           </div>
         </div>
 
-        <div class="product" data-name="无线蓝牙耳机数码">
-          <div class="discount">9折</div>
+        <div
+          class="product"
+          data-search-zh="无线蓝牙耳机数码"
+          data-search-en="wireless bluetooth headphones"
+          data-search-my="ကြိုးမဲ့ ဘလူးတုသ် နားကြပ်"
+          data-search-th="หูฟังบลูทูธไร้สาย"
+        >
+          <div class="discount" data-i18n="discount10">9折</div>
           <div class="product-image">🎧</div>
 
           <div class="product-info">
-            <div class="product-name">无线蓝牙耳机</div>
+            <div class="product-name" data-i18n="productHeadphones">
+              无线蓝牙耳机
+            </div>
 
             <span class="price">K 45,000</span>
             <span class="old-price">K 50,000</span>
@@ -375,51 +460,232 @@
   </div>
 
   <nav class="bottom-nav">
+
     <div class="nav-item active">
       <div class="nav-icon">🏠</div>
-      首页
+      <span data-i18n="navHome">首页</span>
     </div>
 
     <div class="nav-item">
       <div class="nav-icon">▦</div>
-      分类
+      <span data-i18n="navCategories">分类</span>
     </div>
 
     <div class="nav-item">
       <div class="nav-icon">🛒</div>
-      购物车
+      <span data-i18n="cart">购物车</span>
     </div>
 
     <div class="nav-item">
       <div class="nav-icon">💬</div>
-      消息
+      <span data-i18n="messages">消息</span>
     </div>
 
     <div class="nav-item">
       <div class="nav-icon">👤</div>
-      我的
+      <span data-i18n="mine">我的</span>
     </div>
+
   </nav>
 
   <script>
+    const translations = {
+      zh: {
+        pageTitle: "商城",
+        mall: "商城",
+        messages: "消息",
+        searchPlaceholder: "搜索商品、零食、家具...",
+        categories: "商品分类",
+        snacks: "零食",
+        drinks: "饮料",
+        furniture: "家具",
+        clothing: "服装",
+        digital: "数码",
+        daily: "日用品",
+        beauty: "美妆",
+        shoes: "鞋包",
+        home: "家居",
+        all: "全部",
+        limitedOffer: "限时特惠",
+        dailyDeals: "精选商品 · 每日优惠",
+        recommended: "猜你喜欢",
+        discount20: "8折",
+        discount10: "9折",
+        specialPrice: "特价",
+        productChocolate: "进口巧克力零食",
+        productChips: "薯片休闲零食",
+        productSofa: "现代简约沙发",
+        productHeadphones: "无线蓝牙耳机",
+        expiry: "保质期至",
+        navHome: "首页",
+        navCategories: "分类",
+        cart: "购物车",
+        mine: "我的"
+      },
+
+      en: {
+        pageTitle: "Shopping Mall",
+        mall: "Mall",
+        messages: "Messages",
+        searchPlaceholder: "Search products, snacks, furniture...",
+        categories: "Categories",
+        snacks: "Snacks",
+        drinks: "Drinks",
+        furniture: "Furniture",
+        clothing: "Clothing",
+        digital: "Electronics",
+        daily: "Daily Goods",
+        beauty: "Beauty",
+        shoes: "Shoes & Bags",
+        home: "Home",
+        all: "All",
+        limitedOffer: "Limited Offer",
+        dailyDeals: "Selected products · Daily deals",
+        recommended: "Recommended",
+        discount20: "20% OFF",
+        discount10: "10% OFF",
+        specialPrice: "Special",
+        productChocolate: "Imported Chocolate Snacks",
+        productChips: "Potato Chips",
+        productSofa: "Modern Minimalist Sofa",
+        productHeadphones: "Wireless Bluetooth Headphones",
+        expiry: "Expiry",
+        navHome: "Home",
+        navCategories: "Categories",
+        cart: "Cart",
+        mine: "Me"
+      },
+
+      my: {
+        pageTitle: "စျေးဝယ်စင်တာ",
+        mall: "စျေးဝယ်စင်တာ",
+        messages: "စာများ",
+        searchPlaceholder: "ပစ္စည်း၊ အဆာပြေ၊ ပရိဘောဂ ရှာရန်...",
+        categories: "ပစ္စည်းအမျိုးအစား",
+        snacks: "အဆာပြေ",
+        drinks: "အဖျော်ယမကာ",
+        furniture: "ပရိဘောဂ",
+        clothing: "အဝတ်အစား",
+        digital: "အီလက်ထရွန်းနစ်",
+        daily: "နေ့စဉ်သုံးပစ္စည်း",
+        beauty: "အလှကုန်",
+        shoes: "ဖိနပ်နှင့်အိတ်",
+        home: "အိမ်သုံး",
+        all: "အားလုံး",
+        limitedOffer: "အချိန်ကန့်သတ် လျှော့ဈေး",
+        dailyDeals: "ရွေးချယ်ထားသော ပစ္စည်းများ · နေ့စဉ်လျှော့ဈေး",
+        recommended: "သင့်အတွက်",
+        discount20: "20% လျှော့",
+        discount10: "10% လျှော့",
+        specialPrice: "အထူးဈေး",
+        productChocolate: "တင်သွင်းချောကလက် အဆာပြေ",
+        productChips: "အာလူးကြော် အဆာပြေ",
+        productSofa: "ခေတ်မီ ရိုးရှင်းသော ဆိုဖာ",
+        productHeadphones: "ကြိုးမဲ့ Bluetooth နားကြပ်",
+        expiry: "သက်တမ်းကုန်ရက်",
+        navHome: "ပင်မ",
+        navCategories: "အမျိုးအစား",
+        cart: "ဈေးခြင်း",
+        mine: "ကျွန်ုပ်"
+      },
+
+      th: {
+        pageTitle: "ศูนย์การค้า",
+        mall: "ศูนย์การค้า",
+        messages: "ข้อความ",
+        searchPlaceholder: "ค้นหาสินค้า ขนม เฟอร์นิเจอร์...",
+        categories: "หมวดหมู่สินค้า",
+        snacks: "ขนม",
+        drinks: "เครื่องดื่ม",
+        furniture: "เฟอร์นิเจอร์",
+        clothing: "เสื้อผ้า",
+        digital: "อิเล็กทรอนิกส์",
+        daily: "ของใช้ประจำวัน",
+        beauty: "ความงาม",
+        shoes: "รองเท้าและกระเป๋า",
+        home: "ของใช้ในบ้าน",
+        all: "ทั้งหมด",
+        limitedOffer: "โปรโมชั่นจำกัดเวลา",
+        dailyDeals: "สินค้าคัดสรร · โปรรายวัน",
+        recommended: "แนะนำสำหรับคุณ",
+        discount20: "ลด 20%",
+        discount10: "ลด 10%",
+        specialPrice: "ราคาพิเศษ",
+        productChocolate: "ช็อกโกแลตนำเข้า",
+        productChips: "มันฝรั่งทอด",
+        productSofa: "โซฟาสไตล์โมเดิร์น",
+        productHeadphones: "หูฟังบลูทูธไร้สาย",
+        expiry: "หมดอายุ",
+        navHome: "หน้าแรก",
+        navCategories: "หมวดหมู่",
+        cart: "รถเข็น",
+        mine: "ของฉัน"
+      }
+    };
+
+    let currentLanguage = "zh";
+
+    function changeLanguage(language) {
+      currentLanguage = language;
+
+      const t = translations[language];
+
+      document.documentElement.lang = language;
+
+      document.querySelectorAll("[data-i18n]").forEach(function(element) {
+        const key = element.getAttribute("data-i18n");
+
+        if (t[key]) {
+          element.textContent = t[key];
+        }
+      });
+
+      document.getElementById("searchInput").placeholder =
+        t.searchPlaceholder;
+
+      document.title = t.pageTitle;
+
+      localStorage.setItem("mallLanguage", language);
+
+      searchProducts();
+    }
+
     function searchProducts() {
       const keyword =
-        document.getElementById("searchInput").value.toLowerCase();
+        document
+          .getElementById("searchInput")
+          .value
+          .trim()
+          .toLowerCase();
 
       const products =
         document.querySelectorAll(".product");
 
       products.forEach(function(product) {
-        const name =
-          product.getAttribute("data-name").toLowerCase();
+        const searchText =
+          (
+            product.getAttribute("data-search-" + currentLanguage) ||
+            product.getAttribute("data-search-zh") ||
+            ""
+          ).toLowerCase();
 
-        if (name.includes(keyword)) {
+        if (searchText.includes(keyword)) {
           product.style.display = "block";
         } else {
           product.style.display = "none";
         }
       });
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const savedLanguage =
+        localStorage.getItem("mallLanguage") || "zh";
+
+      document.getElementById("languageSelect").value =
+        savedLanguage;
+
+      changeLanguage(savedLanguage);
+    });
   </script>
 
 </body>
