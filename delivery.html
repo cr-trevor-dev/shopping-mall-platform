@@ -1,0 +1,3503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>零食平台 · 配送员</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#FFF9F1;
+  --card:#FFFFFF;
+  --soft:#FFF3E4;
+  --orange:#F47B35;
+  --orange-dark:#D96525;
+  --text:#35251D;
+  --muted:#8B776C;
+  --line:#EEDFD2;
+  --green:#4F8A62;
+  --green-soft:#EAF4ED;
+  --red:#B42318;
+  --red-soft:#FEECE8;
+  --amber:#9A6700;
+  --amber-soft:#FFF5DF;
+  --gray:#667085;
+  --gray-soft:#F2F4F7;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* LOGIN */
+
+.login-page{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    linear-gradient(
+      180deg,
+      #FFF9F1 0%,
+      #FFF3E4 100%
+    );
+}
+
+.login-card{
+  width:100%;
+  max-width:430px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:28px;
+  box-shadow:
+    0 14px 40px
+    rgba(53,37,29,.09);
+}
+
+.brand{
+  font-size:12px;
+  font-weight:900;
+  color:var(--orange);
+  letter-spacing:.06em;
+  margin-bottom:8px;
+}
+
+.login-card h1{
+  margin:0 0 8px;
+  font-size:28px;
+}
+
+.login-note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.65;
+  margin-bottom:20px;
+}
+
+.form-group{
+  margin-bottom:14px;
+}
+
+.form-group label{
+  display:block;
+  margin-bottom:7px;
+  font-size:13px;
+  font-weight:800;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;
+  color:var(--text);
+  outline:none;
+}
+
+textarea{
+  min-height:95px;
+  resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--orange);
+  box-shadow:
+    0 0 0 3px
+    rgba(244,123,53,.12);
+}
+
+/* BUTTONS */
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:11px 15px;
+  font-weight:900;
+}
+
+.btn-small{
+  padding:8px 10px;
+  font-size:11px;
+}
+
+.btn-large{
+  width:100%;
+  min-height:48px;
+  font-size:14px;
+}
+
+.btn-primary{
+  color:white;
+  background:var(--orange);
+}
+
+.btn-primary:hover{
+  background:var(--orange-dark);
+}
+
+.btn-green{
+  color:#2F6A42;
+  background:var(--green-soft);
+}
+
+.btn-red{
+  color:var(--red);
+  background:var(--red-soft);
+}
+
+.btn-light{
+  color:var(--text);
+  background:#F5EEE8;
+}
+
+.btn-amber{
+  color:var(--amber);
+  background:var(--amber-soft);
+}
+
+/* TOPBAR */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:62px;
+  background:white;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 13px;
+}
+
+.top-title{
+  font-size:18px;
+  font-weight:900;
+}
+
+.top-title span{
+  color:var(--orange);
+}
+
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.driver-name{
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* APP */
+
+.app{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:
+    15px
+    13px
+    100px;
+}
+
+.page-title{
+  margin-bottom:4px;
+  font-size:24px;
+  font-weight:900;
+}
+
+.page-subtitle{
+  margin-bottom:15px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* SUMMARY */
+
+.summary{
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-bottom:15px;
+}
+
+.summary-card{
+  padding:13px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:15px;
+}
+
+.summary-label{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.summary-number{
+  margin-top:5px;
+  font-size:24px;
+  font-weight:900;
+}
+
+/* TABS */
+
+.tabs{
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  margin-bottom:14px;
+  padding-bottom:2px;
+}
+
+.tab{
+  flex:none;
+  white-space:nowrap;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:white;
+  color:var(--text);
+  font-size:12px;
+  font-weight:800;
+}
+
+.tab.active{
+  color:var(--orange);
+  border-color:var(--orange);
+  background:#FFF5EE;
+}
+
+/* TASK CARD */
+
+.task-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.task-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.task-head{
+  padding:14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid #F3E8DF;
+}
+
+.order-number{
+  font-size:15px;
+  font-weight:900;
+}
+
+.task-time{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.task-body{
+  padding:14px;
+}
+
+.info-block{
+  margin-bottom:14px;
+}
+
+.info-label{
+  margin-bottom:5px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.info-value{
+  font-size:14px;
+  font-weight:800;
+  line-height:1.55;
+}
+
+.info-secondary{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+}
+
+.customer-row{
+  display:grid;
+  grid-template-columns:
+    1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.phone-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:86px;
+  min-height:40px;
+  padding:8px 12px;
+  text-decoration:none;
+  border-radius:11px;
+  background:var(--green-soft);
+  color:#2F6A42;
+  font-size:12px;
+  font-weight:900;
+}
+
+.address-box{
+  padding:12px;
+  border-radius:12px;
+  background:#FFF8F2;
+  line-height:1.65;
+  font-size:13px;
+  font-weight:700;
+}
+
+.status-line{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.task-actions{
+  display:grid;
+  gap:8px;
+  padding-top:4px;
+}
+
+/* BADGE */
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  background:var(--gray-soft);
+  color:var(--gray);
+  font-size:10px;
+  font-weight:900;
+}
+
+.badge-green{
+  background:var(--green-soft);
+  color:#2F6A42;
+}
+
+.badge-red{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.badge-amber{
+  background:var(--amber-soft);
+  color:var(--amber);
+}
+
+.badge-orange{
+  background:#FFF0E7;
+  color:#C85816;
+}
+
+/* EMPTY */
+
+.empty{
+  padding:40px 20px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.empty-icon{
+  margin-bottom:7px;
+  font-size:34px;
+}
+
+/* PROFILE */
+
+.profile-card{
+  padding:16px;
+  margin-bottom:12px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:17px;
+}
+
+.profile-grid{
+  display:grid;
+  grid-template-columns:
+    1fr 1fr;
+  gap:10px;
+}
+
+.profile-item{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:11px;
+}
+
+.profile-label{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.profile-value{
+  margin-top:4px;
+  font-size:13px;
+  font-weight:800;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  z-index:40;
+  width:100%;
+  max-width:760px;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:
+    repeat(4,1fr);
+  padding:
+    7px
+    8px
+    calc(7px + env(safe-area-inset-bottom));
+  background:
+    rgba(255,255,255,.96);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(12px);
+}
+
+.nav-item{
+  padding:7px 4px;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+}
+
+.nav-icon{
+  display:block;
+  margin-bottom:3px;
+  font-size:19px;
+}
+
+.nav-item.active{
+  color:var(--orange);
+}
+
+/* SECTION */
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+/* MODAL */
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:16px;
+  background:rgba(0,0,0,.45);
+}
+
+.modal{
+  width:100%;
+  max-width:600px;
+  padding:18px;
+  background:white;
+  border-radius:20px;
+}
+
+.modal-title{
+  margin-bottom:12px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.modal-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:14px;
+}
+
+.small{
+  color:var(--muted);
+  font-size:10px;
+}
+
+@media(max-width:520px){
+
+  .driver-name{
+    display:none;
+  }
+
+  .summary{
+    gap:7px;
+  }
+
+  .summary-card{
+    padding:11px;
+  }
+
+  .summary-number{
+    font-size:21px;
+  }
+
+  .profile-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div
+  id="loginPage"
+  class="login-page"
+>
+
+  <div class="login-card">
+
+    <div class="brand">
+      SNACK PLATFORM · DELIVERY
+    </div>
+
+    <h1 id="loginTitle">
+      配送员工作台
+    </h1>
+
+    <div
+      id="loginDescription"
+      class="login-note"
+    >
+      请使用公司提供的配送员账号登录。
+    </div>
+
+
+    <div class="form-group">
+
+      <label id="emailLabel">
+        邮箱
+      </label>
+
+      <input
+        id="loginEmail"
+        type="email"
+        autocomplete="email"
+      >
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label id="passwordLabel">
+        密码
+      </label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        autocomplete="current-password"
+      >
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>
+        Language / 语言
+      </label>
+
+      <select
+        id="loginLanguage"
+        onchange="changeLoginLanguage()"
+      >
+
+        <option value="zh">
+          中文
+        </option>
+
+        <option value="en">
+          English
+        </option>
+
+        <option value="my">
+          မြန်မာ
+        </option>
+
+        <option value="th">
+          ไทย
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      id="loginButton"
+      class="btn btn-primary btn-large"
+      onclick="login()"
+    >
+      登录
+    </button>
+
+
+    <div
+      id="loginMessage"
+      class="small"
+      style="margin-top:12px"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<!-- APP -->
+
+<div
+  id="deliveryApp"
+  class="hidden"
+>
+
+<header class="topbar">
+
+  <div class="top-title">
+
+    <span>
+      SnacksHub
+    </span>
+
+    · Delivery
+
+  </div>
+
+
+  <div class="top-right">
+
+    <span
+      id="driverName"
+      class="driver-name"
+    ></span>
+
+
+    <select
+      id="appLanguage"
+      style="width:auto;padding:7px"
+      onchange="changeAppLanguage()"
+    >
+
+      <option value="zh">
+        中文
+      </option>
+
+      <option value="en">
+        EN
+      </option>
+
+      <option value="my">
+        MY
+      </option>
+
+      <option value="th">
+        TH
+      </option>
+
+    </select>
+
+
+    <button
+      class="btn btn-light btn-small"
+      onclick="refreshCurrent()"
+      data-i18n="refresh"
+    >
+      刷新
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="app">
+
+<!-- TODAY -->
+
+<section
+  id="today"
+  class="section active"
+>
+
+  <div
+    class="page-title"
+    data-i18n="todayTasks"
+  >
+    今日任务
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="todayDesc"
+  >
+    只显示指派给你的配送订单。
+  </div>
+
+
+  <div class="summary">
+
+    <div class="summary-card">
+
+      <div
+        class="summary-label"
+        data-i18n="waiting"
+      >
+        待取货
+      </div>
+
+      <div
+        id="countAssigned"
+        class="summary-number"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div
+        class="summary-label"
+        data-i18n="delivering"
+      >
+        配送中
+      </div>
+
+      <div
+        id="countDelivering"
+        class="summary-number"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div
+        class="summary-label"
+        data-i18n="completed"
+      >
+        已完成
+      </div>
+
+      <div
+        id="countCompleted"
+        class="summary-number"
+      >
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="tabs">
+
+    <button
+      id="tabActive"
+      class="tab active"
+      onclick="setTaskFilter('active',this)"
+      data-i18n="activeTasks"
+    >
+      进行中
+    </button>
+
+    <button
+      class="tab"
+      onclick="setTaskFilter('assigned',this)"
+      data-i18n="waiting"
+    >
+      待取货
+    </button>
+
+    <button
+      class="tab"
+      onclick="setTaskFilter('delivering',this)"
+      data-i18n="delivering"
+    >
+      配送中
+    </button>
+
+    <button
+      class="tab"
+      onclick="setTaskFilter('delivered',this)"
+      data-i18n="completed"
+    >
+      已完成
+    </button>
+
+    <button
+      class="tab"
+      onclick="setTaskFilter('failed',this)"
+      data-i18n="failed"
+    >
+      配送失败
+    </button>
+
+  </div>
+
+
+  <div
+    id="taskList"
+    class="task-list"
+  ></div>
+
+</section>
+
+
+<!-- HISTORY -->
+
+<section
+  id="history"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="history"
+  >
+    历史记录
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="historyDesc"
+  >
+    查看已经完成或失败的配送任务。
+  </div>
+
+
+  <div
+    id="historyList"
+    class="task-list"
+  ></div>
+
+</section>
+
+
+<!-- REGIONS -->
+
+<section
+  id="regionsSection"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="myRegions"
+  >
+    我的地区
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="regionDesc"
+  >
+    你只能处理分配给你的地区。
+  </div>
+
+
+  <div id="regionContent"></div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section
+  id="profile"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="profile"
+  >
+    我的账号
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="profileDesc"
+  >
+    配送员资料和车辆信息。
+  </div>
+
+
+  <div
+    id="profileContent"
+  ></div>
+
+
+  <button
+    class="btn btn-red btn-large"
+    onclick="logout()"
+    data-i18n="logout"
+  >
+    退出登录
+  </button>
+
+</section>
+
+</main>
+
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom-nav">
+
+  <button
+    class="nav-item active"
+    data-section="today"
+    onclick="showSection('today',this)"
+  >
+
+    <span class="nav-icon">
+      📦
+    </span>
+
+    <span data-i18n="tasks">
+      任务
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-section="history"
+    onclick="showSection('history',this)"
+  >
+
+    <span class="nav-icon">
+      🕘
+    </span>
+
+    <span data-i18n="history">
+      历史
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-section="regionsSection"
+    onclick="showSection('regionsSection',this)"
+  >
+
+    <span class="nav-icon">
+      📍
+    </span>
+
+    <span data-i18n="myRegions">
+      地区
+    </span>
+
+  </button>
+
+
+  <button
+    class="nav-item"
+    data-section="profile"
+    onclick="showSection('profile',this)"
+  >
+
+    <span class="nav-icon">
+      👤
+    </span>
+
+    <span data-i18n="profile">
+      我的
+    </span>
+
+  </button>
+
+</nav>
+
+</div>
+
+
+<!-- FAILURE MODAL -->
+
+<div
+  id="failureModal"
+  class="modal-backdrop hidden"
+>
+
+  <div class="modal">
+
+    <div
+      class="modal-title"
+      data-i18n="deliveryFailed"
+    >
+      配送失败
+    </div>
+
+
+    <div class="form-group">
+
+      <label data-i18n="failureReason">
+        失败原因
+      </label>
+
+      <textarea
+        id="failureReason"
+        placeholder="例如：客户联系不上 / 地址错误"
+      ></textarea>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label data-i18n="note">
+        备注
+      </label>
+
+      <textarea
+        id="failureNote"
+      ></textarea>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="btn btn-light"
+        onclick="closeFailureModal()"
+        data-i18n="cancel"
+      >
+        取消
+      </button>
+
+
+      <button
+        class="btn btn-red"
+        onclick="confirmFailure()"
+        data-i18n="confirmFailure"
+      >
+        确认失败
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://aymicuawrlylpqnipwky.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
+
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+let currentUser = null;
+let deliveryProfile = null;
+
+let regionAssignments = [];
+let regionData = [];
+let tasks = [];
+let orders = [];
+
+let regionMap = {};
+let orderMap = {};
+
+let currentSection =
+  "today";
+
+let currentTaskFilter =
+  "active";
+
+let failureTaskId =
+  null;
+
+let appLanguage =
+  localStorage.getItem(
+    "deliveryLanguage"
+  )
+  ||
+  "zh";
+
+
+/* =========================
+   I18N
+========================= */
+
+const i18n = {
+
+zh:{
+  loginTitle:"配送员工作台",
+  loginDescription:"请使用公司提供的配送员账号登录。",
+  email:"邮箱",
+  password:"密码",
+  login:"登录",
+  refresh:"刷新",
+  todayTasks:"今日任务",
+  todayDesc:"只显示指派给你的配送订单。",
+  waiting:"待取货",
+  delivering:"配送中",
+  completed:"已完成",
+  activeTasks:"进行中",
+  failed:"配送失败",
+  history:"历史记录",
+  historyDesc:"查看已经完成或失败的配送任务。",
+  myRegions:"我的地区",
+  regionDesc:"你只能处理分配给你的地区。",
+  profile:"我的账号",
+  profileDesc:"配送员资料和车辆信息。",
+  tasks:"任务",
+  customer:"客户",
+  phone:"电话",
+  address:"配送地址",
+  orderAmount:"订单金额",
+  payment:"付款状态",
+  orderStatus:"订单状态",
+  deliveryStatus:"配送状态",
+  assignedAt:"指派时间",
+  pickup:"确认取货",
+  startDelivery:"开始配送",
+  completeDelivery:"配送成功",
+  failDelivery:"配送失败",
+  deliveryFailed:"配送失败",
+  failureReason:"失败原因",
+  note:"备注",
+  cancel:"取消",
+  confirmFailure:"确认失败",
+  logout:"退出登录",
+  noTasks:"目前没有配送任务",
+  noHistory:"目前没有历史记录",
+  deliveryCode:"配送员编号",
+  name:"姓名",
+  vehicle:"车辆",
+  plate:"车牌",
+  language:"语言",
+  status:"状态",
+  regions:"负责地区"
+},
+
+en:{
+  loginTitle:"Delivery Workspace",
+  loginDescription:"Sign in with your company delivery account.",
+  email:"Email",
+  password:"Password",
+  login:"Login",
+  refresh:"Refresh",
+  todayTasks:"Today's Tasks",
+  todayDesc:"Only delivery orders assigned to you are shown.",
+  waiting:"Waiting Pickup",
+  delivering:"Delivering",
+  completed:"Completed",
+  activeTasks:"Active",
+  failed:"Failed",
+  history:"History",
+  historyDesc:"View completed or failed delivery tasks.",
+  myRegions:"My Regions",
+  regionDesc:"You can only handle assigned regions.",
+  profile:"My Account",
+  profileDesc:"Delivery profile and vehicle information.",
+  tasks:"Tasks",
+  customer:"Customer",
+  phone:"Phone",
+  address:"Delivery Address",
+  orderAmount:"Order Amount",
+  payment:"Payment",
+  orderStatus:"Order Status",
+  deliveryStatus:"Delivery Status",
+  assignedAt:"Assigned At",
+  pickup:"Mark Picked Up",
+  startDelivery:"Start Delivery",
+  completeDelivery:"Delivered",
+  failDelivery:"Delivery Failed",
+  deliveryFailed:"Delivery Failed",
+  failureReason:"Failure Reason",
+  note:"Note",
+  cancel:"Cancel",
+  confirmFailure:"Confirm Failure",
+  logout:"Logout",
+  noTasks:"No delivery tasks",
+  noHistory:"No history yet",
+  deliveryCode:"Delivery Code",
+  name:"Name",
+  vehicle:"Vehicle",
+  plate:"Plate",
+  language:"Language",
+  status:"Status",
+  regions:"Regions"
+},
+
+my:{
+  loginTitle:"ပို့ဆောင်ရေးအလုပ်စခန်း",
+  loginDescription:"ကုမ္ပဏီမှပေးထားသော ပို့ဆောင်ရေးအကောင့်ဖြင့် ဝင်ရောက်ပါ။",
+  email:"အီးမေးလ်",
+  password:"စကားဝှက်",
+  login:"ဝင်မည်",
+  refresh:"ပြန်လည်စစ်ဆေး",
+  todayTasks:"ယနေ့တာဝန်များ",
+  todayDesc:"သင့်ထံ တာဝန်ပေးထားသော အော်ဒါများကိုသာ ပြသသည်။",
+  waiting:"ပစ္စည်းယူရန်",
+  delivering:"ပို့ဆောင်နေ",
+  completed:"ပြီးဆုံး",
+  activeTasks:"လုပ်ဆောင်နေ",
+  failed:"ပို့ဆောင်မအောင်မြင်",
+  history:"မှတ်တမ်း",
+  historyDesc:"ပြီးဆုံးပြီး သို့မဟုတ် မအောင်မြင်သော အလုပ်များကိုကြည့်ရန်။",
+  myRegions:"ကျွန်ုပ်၏ဒေသ",
+  regionDesc:"သင့်အား တာဝန်ပေးထားသော ဒေသများကိုသာ ဆောင်ရွက်နိုင်သည်။",
+  profile:"ကျွန်ုပ်အကောင့်",
+  profileDesc:"ပို့ဆောင်သူနှင့် ယာဉ်အချက်အလက်။",
+  tasks:"တာဝန်",
+  customer:"ဖောက်သည်",
+  phone:"ဖုန်း",
+  address:"ပို့ဆောင်ရမည့်လိပ်စာ",
+  orderAmount:"အော်ဒါငွေပမာဏ",
+  payment:"ငွေပေးချေမှု",
+  orderStatus:"အော်ဒါအခြေအနေ",
+  deliveryStatus:"ပို့ဆောင်မှုအခြေအနေ",
+  assignedAt:"တာဝန်ပေးချိန်",
+  pickup:"ပစ္စည်းယူပြီး",
+  startDelivery:"စတင်ပို့ဆောင်",
+  completeDelivery:"ပို့ဆောင်ပြီး",
+  failDelivery:"ပို့ဆောင်မအောင်မြင်",
+  deliveryFailed:"ပို့ဆောင်မအောင်မြင်",
+  failureReason:"မအောင်မြင်ရသည့်အကြောင်း",
+  note:"မှတ်ချက်",
+  cancel:"ပယ်ဖျက်",
+  confirmFailure:"အတည်ပြုမည်",
+  logout:"ထွက်မည်",
+  noTasks:"ပို့ဆောင်ရေးတာဝန်မရှိသေးပါ",
+  noHistory:"မှတ်တမ်းမရှိသေးပါ",
+  deliveryCode:"ပို့ဆောင်သူနံပါတ်",
+  name:"အမည်",
+  vehicle:"ယာဉ်",
+  plate:"ယာဉ်နံပါတ်",
+  language:"ဘာသာစကား",
+  status:"အခြေအနေ",
+  regions:"တာဝန်ယူဒေသ"
+},
+
+th:{
+  loginTitle:"ระบบพนักงานจัดส่ง",
+  loginDescription:"เข้าสู่ระบบด้วยบัญชีพนักงานจัดส่งของบริษัท",
+  email:"อีเมล",
+  password:"รหัสผ่าน",
+  login:"เข้าสู่ระบบ",
+  refresh:"รีเฟรช",
+  todayTasks:"งานวันนี้",
+  todayDesc:"แสดงเฉพาะคำสั่งซื้อที่มอบหมายให้คุณ",
+  waiting:"รอรับสินค้า",
+  delivering:"กำลังจัดส่ง",
+  completed:"เสร็จสิ้น",
+  activeTasks:"กำลังดำเนินการ",
+  failed:"จัดส่งไม่สำเร็จ",
+  history:"ประวัติ",
+  historyDesc:"ดูงานที่เสร็จสิ้นหรือจัดส่งไม่สำเร็จ",
+  myRegions:"พื้นที่ของฉัน",
+  regionDesc:"คุณสามารถจัดส่งได้เฉพาะพื้นที่ที่ได้รับมอบหมาย",
+  profile:"บัญชีของฉัน",
+  profileDesc:"ข้อมูลพนักงานจัดส่งและรถ",
+  tasks:"งาน",
+  customer:"ลูกค้า",
+  phone:"โทรศัพท์",
+  address:"ที่อยู่จัดส่ง",
+  orderAmount:"ยอดคำสั่งซื้อ",
+  payment:"การชำระเงิน",
+  orderStatus:"สถานะคำสั่งซื้อ",
+  deliveryStatus:"สถานะจัดส่ง",
+  assignedAt:"เวลามอบหมาย",
+  pickup:"รับสินค้าแล้ว",
+  startDelivery:"เริ่มจัดส่ง",
+  completeDelivery:"จัดส่งสำเร็จ",
+  failDelivery:"จัดส่งไม่สำเร็จ",
+  deliveryFailed:"จัดส่งไม่สำเร็จ",
+  failureReason:"เหตุผล",
+  note:"หมายเหตุ",
+  cancel:"ยกเลิก",
+  confirmFailure:"ยืนยันไม่สำเร็จ",
+  logout:"ออกจากระบบ",
+  noTasks:"ไม่มีงานจัดส่ง",
+  noHistory:"ยังไม่มีประวัติ",
+  deliveryCode:"รหัสพนักงาน",
+  name:"ชื่อ",
+  vehicle:"รถ",
+  plate:"ทะเบียนรถ",
+  language:"ภาษา",
+  status:"สถานะ",
+  regions:"พื้นที่รับผิดชอบ"
+}
+
+};
+
+
+function t(key){
+
+  return (
+    i18n[
+      appLanguage
+    ]?.[key]
+    ||
+    i18n.zh[key]
+    ||
+    key
+  );
+
+}
+
+
+function applyLanguage(){
+
+  document
+    .documentElement
+    .lang =
+    appLanguage === "zh"
+    ?
+    "zh-CN"
+    :
+    appLanguage;
+
+
+  document
+    .querySelectorAll(
+      "[data-i18n]"
+    )
+    .forEach(
+      node => {
+
+        const key =
+          node.getAttribute(
+            "data-i18n"
+          );
+
+        node.textContent =
+          t(key);
+
+      }
+    );
+
+
+  el("appLanguage").value =
+    appLanguage;
+
+  el("loginLanguage").value =
+    appLanguage;
+
+
+  renderCurrentData();
+
+}
+
+
+function changeLoginLanguage(){
+
+  appLanguage =
+    el("loginLanguage").value;
+
+
+  localStorage.setItem(
+    "deliveryLanguage",
+    appLanguage
+  );
+
+
+  el("loginTitle").textContent =
+    t("loginTitle");
+
+  el("loginDescription").textContent =
+    t("loginDescription");
+
+  el("emailLabel").textContent =
+    t("email");
+
+  el("passwordLabel").textContent =
+    t("password");
+
+  el("loginButton").textContent =
+    t("login");
+
+}
+
+
+function changeAppLanguage(){
+
+  appLanguage =
+    el("appLanguage").value;
+
+
+  localStorage.setItem(
+    "deliveryLanguage",
+    appLanguage
+  );
+
+
+  rebuildMaps();
+
+  applyLanguage();
+
+}
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function el(id){
+
+  return document
+    .getElementById(id);
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      })[char]
+    );
+
+}
+
+
+function safePhone(value){
+
+  return String(value || "")
+    .replace(
+      /[^0-9+]/g,
+      ""
+    );
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "—";
+  }
+
+
+  return new Date(value)
+    .toLocaleString(
+      appLanguage === "zh"
+      ?
+      "zh-CN"
+      :
+      "en-US",
+      {
+        hour12:false
+      }
+    );
+
+}
+
+
+function money(
+  value,
+  currency = "MMK"
+){
+
+  return (
+    new Intl.NumberFormat(
+      "en-US",
+      {
+        maximumFractionDigits:0
+      }
+    )
+    .format(
+      Number(value || 0)
+    )
+    +
+    " "
+    +
+    (
+      currency
+      ||
+      "MMK"
+    )
+  );
+
+}
+
+
+function statusBadge(status){
+
+  const value =
+    String(status || "—");
+
+
+  let cls =
+    "badge";
+
+
+  if(
+    [
+      "delivered",
+      "completed",
+      "paid",
+      "active",
+      "confirmed",
+      "fulfilled"
+    ]
+    .includes(value)
+  ){
+
+    cls +=
+      " badge-green";
+
+  }
+  else if(
+    [
+      "failed",
+      "cancelled",
+      "suspended",
+      "inactive"
+    ]
+    .includes(value)
+  ){
+
+    cls +=
+      " badge-red";
+
+  }
+  else if(
+    [
+      "assigned",
+      "picked_up",
+      "delivering",
+      "pending",
+      "pending_confirmation"
+    ]
+    .includes(value)
+  ){
+
+    cls +=
+      " badge-amber";
+
+  }
+
+
+  return (
+    `<span class="${cls}">`
+    +
+    escapeHtml(value)
+    +
+    `</span>`
+  );
+
+}
+
+
+function emptyState(
+  message,
+  icon = "📦"
+){
+
+  return `
+
+    <div class="empty">
+
+      <div class="empty-icon">
+        ${icon}
+      </div>
+
+      ${escapeHtml(message)}
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   AUTH
+========================= */
+
+async function login(){
+
+  const email =
+    el("loginEmail")
+      .value
+      .trim();
+
+  const password =
+    el("loginPassword")
+      .value;
+
+
+  if(
+    !email
+    ||
+    !password
+  ){
+
+    el("loginMessage")
+      .textContent =
+      "Email / Password required.";
+
+    return;
+
+  }
+
+
+  el("loginMessage")
+    .textContent =
+    "...";
+
+
+  const {
+    data,
+    error
+  } =
+    await db.auth
+      .signInWithPassword({
+
+        email:
+          email,
+
+        password:
+          password
+
+      });
+
+
+  if(error){
+
+    el("loginMessage")
+      .textContent =
+      error.message;
+
+    return;
+
+  }
+
+
+  currentUser =
+    data.user;
+
+
+  await initializeDelivery();
+
+}
+
+
+async function checkSession(){
+
+  const {
+    data
+  } =
+    await db.auth
+      .getSession();
+
+
+  if(
+    data.session
+  ){
+
+    currentUser =
+      data.session.user;
+
+    await initializeDelivery();
+
+  }
+
+}
+
+
+async function initializeDelivery(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "delivery_profiles"
+      )
+      .select("*")
+      .eq(
+        "id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(
+    error
+    ||
+    !data
+  ){
+
+    await db.auth
+      .signOut();
+
+    el("loginMessage")
+      .textContent =
+      "This account is not an authorized delivery account.";
+
+    return;
+
+  }
+
+
+  if(
+    data.status
+    !==
+    "active"
+  ){
+
+    await db.auth
+      .signOut();
+
+    el("loginMessage")
+      .textContent =
+      "Delivery account is not active.";
+
+    return;
+
+  }
+
+
+  deliveryProfile =
+    data;
+
+
+  if(
+    deliveryProfile
+      .preferred_language
+  ){
+
+    appLanguage =
+      deliveryProfile
+        .preferred_language;
+
+  }
+
+
+  localStorage.setItem(
+    "deliveryLanguage",
+    appLanguage
+  );
+
+
+  await Promise.all([
+
+    loadRegions(),
+    loadTasks()
+
+  ]);
+
+
+  el("loginPage")
+    .classList
+    .add("hidden");
+
+  el("deliveryApp")
+    .classList
+    .remove("hidden");
+
+
+  el("driverName")
+    .textContent =
+    deliveryProfile.display_name;
+
+
+  rebuildMaps();
+
+  applyLanguage();
+
+  renderProfile();
+
+  renderRegions();
+
+  renderTasks();
+
+  renderHistory();
+
+}
+
+
+async function logout(){
+
+  await db.auth
+    .signOut();
+
+  location.reload();
+
+}
+
+
+/* =========================
+   DATA
+========================= */
+
+async function loadRegions(){
+
+  const assignmentResult =
+    await db
+      .from(
+        "delivery_region_assignments"
+      )
+      .select("*")
+      .eq(
+        "delivery_id",
+        currentUser.id
+      )
+      .eq(
+        "is_active",
+        true
+      );
+
+
+  regionAssignments =
+    assignmentResult.data
+    ||
+    [];
+
+
+  const ids =
+    regionAssignments
+      .map(
+        item =>
+          item.region_id
+      );
+
+
+  if(
+    ids.length === 0
+  ){
+
+    regionData = [];
+
+    return;
+
+  }
+
+
+  const regionResult =
+    await db
+      .from("regions")
+      .select("*")
+      .in(
+        "id",
+        ids
+      );
+
+
+  regionData =
+    regionResult.data
+    ||
+    [];
+
+}
+
+
+async function loadTasks(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "delivery_tasks"
+      )
+      .select("*")
+      .eq(
+        "delivery_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    tasks = [];
+
+    alert(
+      "Task load error:\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  tasks =
+    data
+    ||
+    [];
+
+
+  const orderIds =
+    [
+      ...new Set(
+        tasks
+          .map(
+            task =>
+              task.order_id
+          )
+          .filter(Boolean)
+      )
+    ];
+
+
+  if(
+    orderIds.length === 0
+  ){
+
+    orders = [];
+
+    rebuildMaps();
+
+    return;
+
+  }
+
+
+  const orderResult =
+    await db
+      .from("orders")
+      .select("*")
+      .in(
+        "id",
+        orderIds
+      );
+
+
+  if(
+    orderResult.error
+  ){
+
+    orders = [];
+
+  }
+  else{
+
+    orders =
+      orderResult.data
+      ||
+      [];
+
+  }
+
+
+  rebuildMaps();
+
+}
+
+
+function rebuildMaps(){
+
+  regionMap = {};
+
+
+  regionData.forEach(
+    region => {
+
+      regionMap[
+        region.id
+      ] =
+        region[
+          `name_${appLanguage}`
+        ]
+        ||
+        region.name_zh
+        ||
+        region.name_en
+        ||
+        region.code;
+
+    }
+  );
+
+
+  orderMap = {};
+
+
+  orders.forEach(
+    order => {
+
+      orderMap[
+        order.id
+      ] =
+        order;
+
+    }
+  );
+
+}
+
+
+/* =========================
+   NAV
+========================= */
+
+function showSection(
+  section,
+  button
+){
+
+  currentSection =
+    section;
+
+
+  document
+    .querySelectorAll(
+      ".section"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  el(section)
+    .classList
+    .add("active");
+
+
+  document
+    .querySelectorAll(
+      ".nav-item"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  button.classList
+    .add("active");
+
+
+  refreshCurrent();
+
+}
+
+
+async function refreshCurrent(){
+
+  if(
+    currentSection
+    ===
+    "today"
+    ||
+    currentSection
+    ===
+    "history"
+  ){
+
+    await loadTasks();
+
+  }
+
+
+  if(
+    currentSection
+    ===
+    "regionsSection"
+  ){
+
+    await loadRegions();
+
+    rebuildMaps();
+
+  }
+
+
+  renderCurrentData();
+
+}
+
+
+function renderCurrentData(){
+
+  if(
+    !deliveryProfile
+  ){
+    return;
+  }
+
+
+  renderTasks();
+
+  renderHistory();
+
+  renderProfile();
+
+  renderRegions();
+
+}
+
+
+/* =========================
+   FILTER
+========================= */
+
+function setTaskFilter(
+  filter,
+  button
+){
+
+  currentTaskFilter =
+    filter;
+
+
+  document
+    .querySelectorAll(
+      ".tab"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  button.classList
+    .add("active");
+
+
+  renderTasks();
+
+}
+
+
+/* =========================
+   TASK RENDER
+========================= */
+
+function activeTask(task){
+
+  return [
+    "assigned",
+    "picked_up",
+    "delivering"
+  ]
+  .includes(
+    task.status
+  );
+
+}
+
+
+function filterTasks(){
+
+  if(
+    currentTaskFilter
+    ===
+    "active"
+  ){
+
+    return tasks
+      .filter(
+        activeTask
+      );
+
+  }
+
+
+  if(
+    currentTaskFilter
+    ===
+    "delivering"
+  ){
+
+    return tasks
+      .filter(
+        task =>
+          [
+            "picked_up",
+            "delivering"
+          ]
+          .includes(
+            task.status
+          )
+      );
+
+  }
+
+
+  return tasks
+    .filter(
+      task =>
+        task.status
+        ===
+        currentTaskFilter
+    );
+
+}
+
+
+function renderTasks(){
+
+  if(
+    !el("taskList")
+  ){
+    return;
+  }
+
+
+  const assignedCount =
+    tasks
+      .filter(
+        task =>
+          task.status
+          ===
+          "assigned"
+      )
+      .length;
+
+
+  const deliveringCount =
+    tasks
+      .filter(
+        task =>
+          [
+            "picked_up",
+            "delivering"
+          ]
+          .includes(
+            task.status
+          )
+      )
+      .length;
+
+
+  const completedCount =
+    tasks
+      .filter(
+        task =>
+          task.status
+          ===
+          "delivered"
+      )
+      .length;
+
+
+  el("countAssigned")
+    .textContent =
+    assignedCount;
+
+  el("countDelivering")
+    .textContent =
+    deliveringCount;
+
+  el("countCompleted")
+    .textContent =
+    completedCount;
+
+
+  const list =
+    filterTasks();
+
+
+  if(
+    list.length === 0
+  ){
+
+    el("taskList")
+      .innerHTML =
+      emptyState(
+        t("noTasks")
+      );
+
+    return;
+
+  }
+
+
+  el("taskList")
+    .innerHTML =
+    list
+      .map(
+        task =>
+          taskCard(task)
+      )
+      .join("");
+
+}
+
+
+function renderHistory(){
+
+  if(
+    !el("historyList")
+  ){
+    return;
+  }
+
+
+  const history =
+    tasks
+      .filter(
+        task =>
+          [
+            "delivered",
+            "failed",
+            "cancelled"
+          ]
+          .includes(
+            task.status
+          )
+      );
+
+
+  if(
+    history.length === 0
+  ){
+
+    el("historyList")
+      .innerHTML =
+      emptyState(
+        t("noHistory"),
+        "🕘"
+      );
+
+    return;
+
+  }
+
+
+  el("historyList")
+    .innerHTML =
+    history
+      .map(
+        task =>
+          taskCard(
+            task,
+            true
+          )
+      )
+      .join("");
+
+}
+
+
+function taskCard(
+  task,
+  historyMode = false
+){
+
+  const order =
+    orderMap[
+      task.order_id
+    ]
+    ||
+    {};
+
+
+  const recipientName =
+    order.recipient_name_snapshot
+    ||
+    "—";
+
+
+  const recipientPhone =
+    order.recipient_phone_snapshot
+    ||
+    "";
+
+
+  const address =
+    order.full_address_snapshot
+    ||
+    order.detailed_address_snapshot
+    ||
+    "—";
+
+
+  const regionName =
+    regionMap[
+      task.region_id
+    ]
+    ||
+    order[
+      `region_name_${appLanguage}_snapshot`
+    ]
+    ||
+    order.region_name_zh_snapshot
+    ||
+    "—";
+
+
+  let actions = "";
+
+
+  if(
+    !historyMode
+  ){
+
+    if(
+      task.status
+      ===
+      "assigned"
+    ){
+
+      actions = `
+
+        <button
+          class="btn btn-primary btn-large"
+          onclick="markPickedUp('${task.id}')"
+        >
+          📦 ${escapeHtml(t("pickup"))}
+        </button>
+
+      `;
+
+    }
+
+
+    if(
+      task.status
+      ===
+      "picked_up"
+    ){
+
+      actions = `
+
+        <button
+          class="btn btn-primary btn-large"
+          onclick="startDelivery('${task.id}')"
+        >
+          🛵 ${escapeHtml(t("startDelivery"))}
+        </button>
+
+      `;
+
+    }
+
+
+    if(
+      task.status
+      ===
+      "delivering"
+    ){
+
+      actions = `
+
+        <button
+          class="btn btn-green btn-large"
+          onclick="completeDelivery('${task.id}')"
+        >
+          ✅ ${escapeHtml(t("completeDelivery"))}
+        </button>
+
+        <button
+          class="btn btn-red btn-large"
+          onclick="openFailureModal('${task.id}')"
+        >
+          ⚠️ ${escapeHtml(t("failDelivery"))}
+        </button>
+
+      `;
+
+    }
+
+  }
+
+
+  return `
+
+    <article class="task-card">
+
+      <div class="task-head">
+
+        <div>
+
+          <div class="order-number">
+
+            ${
+              escapeHtml(
+                order.order_number
+                ||
+                task.order_id
+              )
+            }
+
+          </div>
+
+          <div class="task-time">
+
+            ${
+              escapeHtml(
+                regionName
+              )
+            }
+
+            ·
+
+            ${
+              formatDate(
+                task.assigned_at
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+        <div>
+
+          ${
+            statusBadge(
+              task.status
+            )
+          }
+
+        </div>
+
+      </div>
+
+
+      <div class="task-body">
+
+        <div class="info-block">
+
+          <div class="info-label">
+
+            ${escapeHtml(t("customer"))}
+
+          </div>
+
+
+          <div class="customer-row">
+
+            <div>
+
+              <div class="info-value">
+
+                ${
+                  escapeHtml(
+                    recipientName
+                  )
+                }
+
+              </div>
+
+              <div class="info-secondary">
+
+                ${
+                  escapeHtml(
+                    recipientPhone
+                    ||
+                    "—"
+                  )
+                }
+
+              </div>
+
+            </div>
+
+
+            ${
+              recipientPhone
+              ?
+
+              `
+
+              <a
+                class="phone-button"
+                href="tel:${safePhone(recipientPhone)}"
+              >
+                ☎ ${escapeHtml(t("phone"))}
+              </a>
+
+              `
+
+              :
+
+              ""
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="info-block">
+
+          <div class="info-label">
+
+            ${escapeHtml(t("address"))}
+
+          </div>
+
+          <div class="address-box">
+
+            ${
+              escapeHtml(
+                address
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="info-block">
+
+          <div class="info-label">
+
+            ${escapeHtml(t("orderAmount"))}
+
+          </div>
+
+          <div class="info-value">
+
+            ${
+              money(
+                order.total_amount,
+                order.currency_code
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+        <div class="info-block">
+
+          <div class="info-label">
+
+            Status
+
+          </div>
+
+          <div class="status-line">
+
+            ${
+              statusBadge(
+                order.order_status
+                ||
+                "—"
+              )
+            }
+
+            ${
+              statusBadge(
+                order.payment_status
+                ||
+                "—"
+              )
+            }
+
+            ${
+              statusBadge(
+                task.status
+              )
+            }
+
+          </div>
+
+        </div>
+
+
+        ${
+          task.delivery_note
+          ?
+
+          `
+
+          <div class="info-block">
+
+            <div class="info-label">
+
+              ${escapeHtml(t("note"))}
+
+            </div>
+
+            <div class="info-secondary">
+
+              ${
+                escapeHtml(
+                  task.delivery_note
+                )
+              }
+
+            </div>
+
+          </div>
+
+          `
+
+          :
+
+          ""
+        }
+
+
+        ${
+          task.failure_reason
+          ?
+
+          `
+
+          <div class="info-block">
+
+            <div class="info-label">
+
+              ${escapeHtml(t("failureReason"))}
+
+            </div>
+
+            <div
+              class="address-box"
+              style="
+                background:var(--red-soft);
+                color:var(--red)
+              "
+            >
+
+              ${
+                escapeHtml(
+                  task.failure_reason
+                )
+              }
+
+            </div>
+
+          </div>
+
+          `
+
+          :
+
+          ""
+        }
+
+
+        <div class="task-actions">
+
+          ${actions}
+
+        </div>
+
+      </div>
+
+    </article>
+
+  `;
+
+}
+
+
+/* =========================
+   DELIVERY ACTIONS
+========================= */
+
+async function callDeliveryRpc(
+  name,
+  params,
+  successMessage
+){
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      name,
+      params
+    );
+
+
+  if(error){
+
+    alert(
+      "操作失败：\n"
+      +
+      error.message
+    );
+
+    return null;
+
+  }
+
+
+  if(successMessage){
+
+    alert(
+      successMessage
+    );
+
+  }
+
+
+  await loadTasks();
+
+  renderTasks();
+
+  renderHistory();
+
+  return data;
+
+}
+
+
+async function markPickedUp(
+  taskId
+){
+
+  if(
+    !confirm(
+      t("pickup")
+      +
+      "?"
+    )
+  ){
+    return;
+  }
+
+
+  await callDeliveryRpc(
+
+    "delivery_mark_picked_up",
+
+    {
+      p_task_id:
+        taskId,
+
+      p_note:
+        "Delivery rider picked up order"
+    },
+
+    t("pickup")
+
+  );
+
+}
+
+
+async function startDelivery(
+  taskId
+){
+
+  if(
+    !confirm(
+      t("startDelivery")
+      +
+      "?"
+    )
+  ){
+    return;
+  }
+
+
+  await callDeliveryRpc(
+
+    "delivery_start",
+
+    {
+      p_task_id:
+        taskId,
+
+      p_note:
+        "Delivery rider started delivery"
+    },
+
+    t("startDelivery")
+
+  );
+
+}
+
+
+async function completeDelivery(
+  taskId
+){
+
+  if(
+    !confirm(
+      t("completeDelivery")
+      +
+      "?"
+    )
+  ){
+    return;
+  }
+
+
+  await callDeliveryRpc(
+
+    "delivery_complete",
+
+    {
+      p_task_id:
+        taskId,
+
+      p_note:
+        "Customer received order"
+    },
+
+    t("completeDelivery")
+
+  );
+
+}
+
+
+/* =========================
+   FAILURE
+========================= */
+
+function openFailureModal(
+  taskId
+){
+
+  failureTaskId =
+    taskId;
+
+  el("failureReason")
+    .value =
+    "";
+
+  el("failureNote")
+    .value =
+    "";
+
+  el("failureModal")
+    .classList
+    .remove("hidden");
+
+}
+
+
+function closeFailureModal(){
+
+  failureTaskId =
+    null;
+
+  el("failureModal")
+    .classList
+    .add("hidden");
+
+}
+
+
+async function confirmFailure(){
+
+  const reason =
+    el("failureReason")
+      .value
+      .trim();
+
+  const note =
+    el("failureNote")
+      .value
+      .trim();
+
+
+  if(
+    !failureTaskId
+    ||
+    !reason
+  ){
+
+    alert(
+      t("failureReason")
+      +
+      " required."
+    );
+
+    return;
+
+  }
+
+
+  const taskId =
+    failureTaskId;
+
+
+  closeFailureModal();
+
+
+  await callDeliveryRpc(
+
+    "delivery_fail",
+
+    {
+      p_task_id:
+        taskId,
+
+      p_reason:
+        reason,
+
+      p_note:
+        note
+        ||
+        "Delivery failed"
+    },
+
+    t("failDelivery")
+
+  );
+
+}
+
+
+/* =========================
+   REGIONS
+========================= */
+
+function renderRegions(){
+
+  if(
+    !el("regionContent")
+  ){
+    return;
+  }
+
+
+  if(
+    regionData.length === 0
+  ){
+
+    el("regionContent")
+      .innerHTML =
+      emptyState(
+        t("noTasks"),
+        "📍"
+      );
+
+    return;
+
+  }
+
+
+  el("regionContent")
+    .innerHTML =
+    regionData
+      .map(
+        region => `
+
+          <div class="profile-card">
+
+            <div class="profile-label">
+
+              ${escapeHtml(region.code)}
+
+            </div>
+
+            <div
+              style="
+                margin-top:5px;
+                font-size:18px;
+                font-weight:900
+              "
+            >
+
+              ${
+                escapeHtml(
+                  regionMap[
+                    region.id
+                  ]
+                )
+              }
+
+            </div>
+
+            <div
+              class="small"
+              style="margin-top:6px"
+            >
+
+              ${
+                escapeHtml(
+                  region.name_zh
+                  ||
+                  ""
+                )
+              }
+
+              ·
+
+              ${
+                escapeHtml(
+                  region.name_en
+                  ||
+                  ""
+                )
+              }
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* =========================
+   PROFILE
+========================= */
+
+function renderProfile(){
+
+  if(
+    !deliveryProfile
+    ||
+    !el("profileContent")
+  ){
+    return;
+  }
+
+
+  const regionNames =
+    regionData
+      .map(
+        region =>
+          regionMap[
+            region.id
+          ]
+      )
+      .join("、")
+    ||
+    "—";
+
+
+  el("profileContent")
+    .innerHTML = `
+
+      <div class="profile-card">
+
+        <div class="profile-grid">
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("deliveryCode"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.delivery_code
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("name"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.display_name
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("phone"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.phone
+                  ||
+                  "—"
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("status"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                statusBadge(
+                  deliveryProfile.status
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("vehicle"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.vehicle_type
+                  ||
+                  "—"
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("plate"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.vehicle_plate
+                  ||
+                  "—"
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("language"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  deliveryProfile.preferred_language
+                  ||
+                  "zh"
+                )
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="profile-item">
+
+            <div class="profile-label">
+
+              ${escapeHtml(t("regions"))}
+
+            </div>
+
+            <div class="profile-value">
+
+              ${
+                escapeHtml(
+                  regionNames
+                )
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+}
+
+
+/* =========================
+   AUTH STATE
+========================= */
+
+db.auth.onAuthStateChange(
+  event => {
+
+    if(
+      event
+      ===
+      "SIGNED_OUT"
+    ){
+
+      location.reload();
+
+    }
+
+  }
+);
+
+
+changeLoginLanguage();
+
+checkSession();
+
+</script>
+
+</body>
+</html>
