@@ -3257,7 +3257,32 @@ async function loadOrders(){
 
           }
 
+          if(
+            order.fulfillment_status
+            ===
+            "fulfilled"
+            &&
+            order.delivery_status
+            ===
+            "not_assigned"
+            &&
+            hasPermission(
+              "orders.assign_delivery"
+            )
+          ){
 
+            buttons += `
+
+              <button
+                class="btn btn-amber btn-small"
+                onclick="assignDelivery('${order.id}','${order.region_id}')"
+              >
+                Assign Delivery
+              </button>
+
+            `;
+
+          }
           if(
             hasPermission(
               "orders.cancel"
@@ -3557,7 +3582,150 @@ async function finalizeOrder(
 
 }
 
+async function assignDelivery(
+  orderId,
+  regionId
+){
 
+  const {
+    data:
+      drivers,
+    error
+  } =
+    await db.rpc(
+      "get_assignable_delivery_drivers",
+      {
+        p_region_id:
+          regionId
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "Cannot load delivery drivers:\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !drivers
+    ||
+    drivers.length === 0
+  ){
+
+    alert(
+      "No active delivery driver is assigned to this region."
+    );
+
+    return;
+
+  }
+
+
+  const list =
+    drivers
+      .map(
+        (
+          driver,
+          index
+        ) =>
+          (
+            (index + 1)
+            +
+            ". "
+            +
+            driver.display_name
+            +
+            " ("
+            +
+            driver.delivery_code
+            +
+            ")"
+          )
+      )
+      .join("\n");
+
+
+  const selected =
+    prompt(
+      "Choose delivery driver:\n\n"
+      +
+      list
+    );
+
+
+  if(!selected){
+    return;
+  }
+
+
+  const index =
+    Number(selected)
+    -
+    1;
+
+
+  if(
+    !Number.isInteger(index)
+    ||
+    index < 0
+    ||
+    index >= drivers.length
+  ){
+
+    alert(
+      "Invalid delivery driver selection."
+    );
+
+    return;
+
+  }
+
+
+  const driver =
+    drivers[index];
+
+
+  if(
+    !confirm(
+      "Assign this order to "
+      +
+      driver.display_name
+      +
+      "?"
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "assign_delivery_task",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_delivery_id:
+        driver.id,
+
+      p_note:
+        "Staff assigned delivery"
+    },
+
+    "Delivery assigned."
+
+  );
+
+}
 async function requestOrderCancellation(
   orderId,
   regionId
