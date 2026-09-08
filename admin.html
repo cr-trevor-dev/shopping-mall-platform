@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>商城管理后台</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -18,43 +20,157 @@
       color: #222;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    .login-card h1 {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #d7dce2;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 17px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #ff572f;
+      color: white;
+    }
+
+    .btn-dark {
+      background: #111827;
+      color: white;
+    }
+
+    .btn-light {
+      background: #eceff3;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .login-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .message {
+      font-size: 13px;
+      margin-top: 15px;
+      line-height: 1.5;
+    }
+
     .topbar {
       background: #111827;
       color: white;
-      padding: 16px;
-      font-size: 20px;
-      font-weight: 700;
+      padding: 15px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar-title {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
     }
 
     .layout {
       display: flex;
-      min-height: calc(100vh - 56px);
+      min-height: calc(100vh - 60px);
     }
 
     .sidebar {
       width: 220px;
       background: white;
       border-right: 1px solid #e5e7eb;
-      padding: 16px 10px;
+      padding: 15px 10px;
     }
 
     .menu-item {
       padding: 12px 14px;
+      margin-bottom: 7px;
       border-radius: 10px;
-      margin-bottom: 8px;
       cursor: pointer;
-      color: #444;
     }
 
     .menu-item.active {
-      background: #fff1ec;
+      background: #fff0eb;
       color: #ff572f;
       font-weight: 700;
     }
 
     .content {
       flex: 1;
-      padding: 24px;
+      padding: 22px;
       max-width: 1100px;
     }
 
@@ -66,10 +182,9 @@
 
     .card {
       background: white;
-      border-radius: 14px;
       padding: 20px;
+      border-radius: 15px;
       margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .card-title {
@@ -84,107 +199,62 @@
       gap: 14px;
     }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .form-group.full {
+    .full {
       grid-column: 1 / -1;
     }
 
-    label {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 11px 12px;
-      border: 1px solid #d7dce2;
-      border-radius: 9px;
-      font-size: 14px;
-      outline: none;
-      background: white;
-    }
-
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 9px;
-      padding: 11px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .btn-primary {
-      background: #ff572f;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #eef0f3;
-      color: #333;
-    }
-
     .actions {
+      margin-top: 18px;
       display: flex;
       gap: 10px;
-      margin-top: 18px;
     }
 
-    .category-list,
-    .product-list {
+    .list {
       display: grid;
       gap: 10px;
-      margin-top: 15px;
     }
 
     .list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
       background: #f8f9fb;
-      border-radius: 10px;
-      gap: 10px;
+      padding: 13px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    .item-info {
+    .item-left {
       display: flex;
+      gap: 11px;
       align-items: center;
-      gap: 10px;
     }
 
     .item-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      background: #fff1ec;
+      width: 45px;
+      height: 45px;
+      border-radius: 11px;
+      background: #fff0eb;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
+    }
+
+    .small {
+      color: #777;
+      font-size: 12px;
+      margin-top: 4px;
     }
 
     .badge {
-      font-size: 12px;
-      padding: 4px 7px;
+      display: inline-block;
+      padding: 4px 8px;
       border-radius: 999px;
-      background: #e8f7ed;
-      color: #23864a;
-    }
-
-    .hidden {
-      display: none;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      margin-top: 5px;
     }
 
     @media (max-width: 760px) {
@@ -197,24 +267,31 @@
         display: flex;
         overflow-x: auto;
         border-right: none;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid #ddd;
       }
 
       .menu-item {
         white-space: nowrap;
-        margin-right: 6px;
       }
 
       .content {
-        padding: 16px;
+        padding: 15px;
       }
 
       .form-grid {
         grid-template-columns: 1fr;
       }
 
-      .form-group.full {
+      .full {
         grid-column: auto;
+      }
+
+      .topbar-user span {
+        display: none;
+      }
+
+      .list-item {
+        align-items: flex-start;
       }
     }
   </style>
@@ -222,386 +299,1364 @@
 
 <body>
 
-  <div class="topbar">
-    商城管理后台
+  <!-- 登录 -->
+  <div id="loginPage" class="login-page">
+
+    <div class="login-card">
+
+      <h1>商城管理后台</h1>
+      <p>管理员登录</p>
+
+      <div class="form-group">
+        <label>管理员邮箱</label>
+        <input
+          id="loginEmail"
+          type="email"
+          value="lhl145600@gmail.com"
+          readonly
+        >
+      </div>
+
+      <div class="form-group">
+        <label>密码</label>
+        <input
+          id="loginPassword"
+          type="password"
+          placeholder="请输入管理员密码"
+        >
+      </div>
+
+      <div class="login-actions">
+
+        <button class="btn btn-primary" onclick="login()">
+          登录
+        </button>
+
+        <button class="btn btn-dark" onclick="registerAdmin()">
+          第一次注册
+        </button>
+
+      </div>
+
+      <div id="loginMessage" class="message"></div>
+
+    </div>
+
   </div>
 
-  <div class="layout">
 
-    <aside class="sidebar">
-      <div class="menu-item active" onclick="showSection('dashboard', this)">
-        仪表盘
+  <!-- 后台 -->
+  <div id="adminApp" class="hidden">
+
+    <header class="topbar">
+
+      <div class="topbar-title">
+        商城管理后台
       </div>
 
-      <div class="menu-item" onclick="showSection('categories', this)">
-        分类管理
+      <div class="topbar-user">
+
+        <span id="adminEmail"></span>
+
+        <button
+          class="btn btn-light"
+          onclick="logout()"
+        >
+          退出
+        </button>
+
       </div>
 
-      <div class="menu-item" onclick="showSection('products', this)">
-        商品管理
-      </div>
+    </header>
 
-      <div class="menu-item" onclick="showSection('orders', this)">
-        订单管理
-      </div>
 
-      <div class="menu-item" onclick="showSection('messages', this)">
-        消息管理
-      </div>
-    </aside>
+    <div class="layout">
 
-    <main class="content">
+      <aside class="sidebar">
 
-      <section id="dashboard">
-        <div class="page-title">仪表盘</div>
-
-        <div class="card">
-          <div class="card-title">商城后台已建立</div>
-          <p>接下来我们会把分类、商品、订单和消息逐步连接到真实数据库。</p>
+        <div
+          class="menu-item active"
+          onclick="showSection('dashboard', this)"
+        >
+          仪表盘
         </div>
-      </section>
 
-      <section id="categories" class="hidden">
-        <div class="page-title">分类管理</div>
+        <div
+          class="menu-item"
+          onclick="showSection('categories', this)"
+        >
+          分类管理
+        </div>
 
-        <div class="card">
-          <div class="card-title">新增分类</div>
+        <div
+          class="menu-item"
+          onclick="showSection('products', this)"
+        >
+          商品管理
+        </div>
 
-          <div class="form-grid">
+        <div
+          class="menu-item"
+          onclick="showSection('orders', this)"
+        >
+          订单管理
+        </div>
 
-            <div class="form-group">
-              <label>分类图标</label>
-              <input id="categoryIcon" type="text" placeholder="例如：🍪">
+        <div
+          class="menu-item"
+          onclick="showSection('messages', this)"
+        >
+          消息管理
+        </div>
+
+      </aside>
+
+
+      <main class="content">
+
+        <!-- 仪表盘 -->
+        <section id="dashboard">
+
+          <div class="page-title">
+            仪表盘
+          </div>
+
+          <div class="card">
+
+            <div class="card-title">
+              商城数据库已连接
             </div>
 
-            <div class="form-group">
-              <label>排序</label>
-              <input id="categorySort" type="number" placeholder="例如：1">
+            <p>
+              从现在开始，后台新增的分类和商品会永久保存在数据库。
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- 分类 -->
+        <section id="categories" class="hidden">
+
+          <div class="page-title">
+            分类管理
+          </div>
+
+          <div class="card">
+
+            <div class="card-title">
+              新增分类
             </div>
 
-            <div class="form-group">
-              <label>中文名称</label>
-              <input id="categoryZh" type="text" placeholder="例如：零食">
+            <div class="form-grid">
+
+              <div class="form-group">
+                <label>分类图标</label>
+                <input
+                  id="categoryIcon"
+                  placeholder="例如 🍪"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>排序</label>
+                <input
+                  id="categorySort"
+                  type="number"
+                  value="0"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>中文名称</label>
+                <input id="categoryZh">
+              </div>
+
+              <div class="form-group">
+                <label>英文名称</label>
+                <input id="categoryEn">
+              </div>
+
+              <div class="form-group">
+                <label>缅文名称</label>
+                <input id="categoryMy">
+              </div>
+
+              <div class="form-group">
+                <label>泰文名称</label>
+                <input id="categoryTh">
+              </div>
+
             </div>
 
-            <div class="form-group">
-              <label>英文名称</label>
-              <input id="categoryEn" type="text" placeholder="例如：Snacks">
-            </div>
+            <div class="actions">
 
-            <div class="form-group">
-              <label>缅文名称</label>
-              <input id="categoryMy" type="text" placeholder="မြန်မာ">
-            </div>
+              <button
+                class="btn btn-primary"
+                onclick="saveCategory()"
+              >
+                保存分类
+              </button>
 
-            <div class="form-group">
-              <label>泰文名称</label>
-              <input id="categoryTh" type="text" placeholder="ภาษาไทย">
             </div>
 
           </div>
 
-          <div class="actions">
-            <button class="btn btn-primary" onclick="addCategory()">
-              保存分类
-            </button>
-          </div>
-        </div>
 
-        <div class="card">
-          <div class="card-title">现有分类</div>
+          <div class="card">
 
-          <div id="categoryList" class="category-list"></div>
-        </div>
-      </section>
-
-      <section id="products" class="hidden">
-        <div class="page-title">商品管理</div>
-
-        <div class="card">
-          <div class="card-title">新增商品</div>
-
-          <div class="form-grid">
-
-            <div class="form-group">
-              <label>中文商品名</label>
-              <input id="productZh" type="text">
+            <div class="card-title">
+              分类列表
             </div>
 
-            <div class="form-group">
-              <label>英文商品名</label>
-              <input id="productEn" type="text">
-            </div>
-
-            <div class="form-group">
-              <label>缅文商品名</label>
-              <input id="productMy" type="text">
-            </div>
-
-            <div class="form-group">
-              <label>泰文商品名</label>
-              <input id="productTh" type="text">
-            </div>
-
-            <div class="form-group">
-              <label>商品分类</label>
-              <select id="productCategory">
-                <option value="">请选择分类</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>售价</label>
-              <input id="productPrice" type="number" placeholder="例如：8000">
-            </div>
-
-            <div class="form-group">
-              <label>原价</label>
-              <input id="productOldPrice" type="number">
-            </div>
-
-            <div class="form-group">
-              <label>库存</label>
-              <input id="productStock" type="number" placeholder="例如：100">
-            </div>
-
-            <div class="form-group">
-              <label>生产日期</label>
-              <input id="productProductionDate" type="date">
-            </div>
-
-            <div class="form-group">
-              <label>到期日期</label>
-              <input id="productExpiryDate" type="date">
-            </div>
-
-            <div class="form-group">
-              <label>折扣标签</label>
-              <input id="productDiscount" type="text" placeholder="例如：8折 / 特价">
-            </div>
-
-            <div class="form-group">
-              <label>商品状态</label>
-              <select id="productStatus">
-                <option value="active">上架</option>
-                <option value="inactive">下架</option>
-              </select>
-            </div>
-
-            <div class="form-group full">
-              <label>商品图片网址</label>
-              <input id="productImage" type="text" placeholder="以后这里会改成真正上传图片">
-            </div>
-
-            <div class="form-group full">
-              <label>商品描述</label>
-              <textarea id="productDescription"></textarea>
-            </div>
+            <div
+              id="categoryList"
+              class="list"
+            ></div>
 
           </div>
 
-          <div class="actions">
-            <button class="btn btn-primary" onclick="addProduct()">
-              保存商品
-            </button>
+        </section>
+
+
+        <!-- 商品 -->
+        <section id="products" class="hidden">
+
+          <div class="page-title">
+            商品管理
           </div>
-        </div>
 
-        <div class="card">
-          <div class="card-title">商品列表</div>
-          <div id="productList" class="product-list"></div>
-        </div>
-      </section>
+          <div class="card">
 
-      <section id="orders" class="hidden">
-        <div class="page-title">订单管理</div>
+            <div class="card-title">
+              新增商品
+            </div>
 
-        <div class="card">
-          <div class="card-title">订单功能准备中</div>
-          <p>后面这里会显示客户订单、审核、驳回、付款、发货、完成等状态。</p>
-        </div>
-      </section>
+            <div class="form-grid">
 
-      <section id="messages" class="hidden">
-        <div class="page-title">消息管理</div>
+              <div class="form-group">
+                <label>中文商品名</label>
+                <input id="productZh">
+              </div>
 
-        <div class="card">
-          <div class="card-title">聊天功能准备中</div>
-          <p>后面这里会显示客户与商家的聊天记录。</p>
-        </div>
-      </section>
+              <div class="form-group">
+                <label>英文商品名</label>
+                <input id="productEn">
+              </div>
 
-    </main>
+              <div class="form-group">
+                <label>缅文商品名</label>
+                <input id="productMy">
+              </div>
+
+              <div class="form-group">
+                <label>泰文商品名</label>
+                <input id="productTh">
+              </div>
+
+              <div class="form-group">
+                <label>商品分类</label>
+
+                <select id="productCategory">
+                  <option value="">
+                    请选择分类
+                  </option>
+                </select>
+
+              </div>
+
+              <div class="form-group">
+                <label>售价</label>
+                <input
+                  id="productPrice"
+                  type="number"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>原价</label>
+                <input
+                  id="productOldPrice"
+                  type="number"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>库存</label>
+                <input
+                  id="productStock"
+                  type="number"
+                  value="0"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>生产日期</label>
+                <input
+                  id="productionDate"
+                  type="date"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>到期日期</label>
+                <input
+                  id="expiryDate"
+                  type="date"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>中文折扣标签</label>
+                <input
+                  id="discountZh"
+                  placeholder="例如：8折"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>英文折扣标签</label>
+                <input
+                  id="discountEn"
+                  placeholder="例如：20% OFF"
+                >
+              </div>
+
+              <div class="form-group">
+                <label>缅文折扣标签</label>
+                <input id="discountMy">
+              </div>
+
+              <div class="form-group">
+                <label>泰文折扣标签</label>
+                <input id="discountTh">
+              </div>
+
+              <div class="form-group">
+                <label>商品状态</label>
+
+                <select id="productStatus">
+                  <option value="active">
+                    上架
+                  </option>
+                  <option value="inactive">
+                    下架
+                  </option>
+                </select>
+
+              </div>
+
+              <div class="form-group full">
+                <label>商品图片网址</label>
+
+                <input
+                  id="productImage"
+                  placeholder="下一步会升级成直接上传图片"
+                >
+
+              </div>
+
+              <div class="form-group full">
+                <label>中文商品介绍</label>
+                <textarea id="descriptionZh"></textarea>
+              </div>
+
+              <div class="form-group full">
+                <label>英文商品介绍</label>
+                <textarea id="descriptionEn"></textarea>
+              </div>
+
+              <div class="form-group full">
+                <label>缅文商品介绍</label>
+                <textarea id="descriptionMy"></textarea>
+              </div>
+
+              <div class="form-group full">
+                <label>泰文商品介绍</label>
+                <textarea id="descriptionTh"></textarea>
+              </div>
+
+            </div>
+
+            <div class="actions">
+
+              <button
+                class="btn btn-primary"
+                onclick="saveProduct()"
+              >
+                保存商品
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              商品列表
+            </div>
+
+            <div
+              id="productList"
+              class="list"
+            ></div>
+
+          </div>
+
+        </section>
+
+
+        <section id="orders" class="hidden">
+
+          <div class="page-title">
+            订单管理
+          </div>
+
+          <div class="card">
+            下一阶段建立真实订单系统。
+          </div>
+
+        </section>
+
+
+        <section id="messages" class="hidden">
+
+          <div class="page-title">
+            消息管理
+          </div>
+
+          <div class="card">
+            后面建立客户和商家的实时聊天。
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+
   </div>
+
 
   <script>
-    const categories = [];
-    const products = [];
 
-    function showSection(sectionId, clickedMenu) {
-      document.querySelectorAll("main section").forEach(function(section) {
-        section.classList.add("hidden");
-      });
+    const SUPABASE_URL =
+      "https://aymicuawrlylpqnipwky.supabase.co";
 
-      document.getElementById(sectionId).classList.remove("hidden");
+    const SUPABASE_KEY =
+      "sb_publishable_hQfbOPDDOd5JU1H7VrHzGA__JR95UaR";
 
-      document.querySelectorAll(".menu-item").forEach(function(item) {
-        item.classList.remove("active");
-      });
+    const db =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
-      clickedMenu.classList.add("active");
-    }
+    const ADMIN_EMAIL =
+      "lhl145600@gmail.com";
 
-    function addCategory() {
-      const category = {
-        icon: document.getElementById("categoryIcon").value.trim(),
-        sort: document.getElementById("categorySort").value,
-        zh: document.getElementById("categoryZh").value.trim(),
-        en: document.getElementById("categoryEn").value.trim(),
-        my: document.getElementById("categoryMy").value.trim(),
-        th: document.getElementById("categoryTh").value.trim()
-      };
+    let categoryData = [];
 
-      if (!category.zh) {
-        alert("请填写中文分类名称");
+
+    async function registerAdmin() {
+
+      const password =
+        document
+          .getElementById("loginPassword")
+          .value;
+
+      if (password.length < 8) {
+
+        showLoginMessage(
+          "密码至少需要 8 位。",
+          "red"
+        );
+
         return;
       }
 
-      categories.push(category);
+      showLoginMessage(
+        "正在注册...",
+        "#555"
+      );
+
+      const {
+        data,
+        error
+      } =
+        await db.auth.signUp({
+
+          email: ADMIN_EMAIL,
+
+          password: password
+
+        });
+
+      if (error) {
+
+        showLoginMessage(
+          error.message,
+          "red"
+        );
+
+        return;
+      }
+
+      if (
+        data.session
+      ) {
+
+        showLoginMessage(
+          "注册成功。",
+          "green"
+        );
+
+        await checkSession();
+
+      } else {
+
+        showLoginMessage(
+          "注册成功。请先到邮箱里确认 Supabase 发来的验证邮件，然后回来登录。",
+          "green"
+        );
+
+      }
+
+    }
+
+
+    async function login() {
+
+      const password =
+        document
+          .getElementById("loginPassword")
+          .value;
+
+      if (!password) {
+
+        showLoginMessage(
+          "请输入密码。",
+          "red"
+        );
+
+        return;
+      }
+
+      showLoginMessage(
+        "正在登录...",
+        "#555"
+      );
+
+      const {
+        data,
+        error
+      } =
+        await db.auth.signInWithPassword({
+
+          email: ADMIN_EMAIL,
+
+          password: password
+
+        });
+
+      if (error) {
+
+        showLoginMessage(
+          "登录失败：" + error.message,
+          "red"
+        );
+
+        return;
+      }
+
+      if (
+        data.user.email.toLowerCase()
+        !== ADMIN_EMAIL
+      ) {
+
+        await db.auth.signOut();
+
+        showLoginMessage(
+          "没有管理员权限。",
+          "red"
+        );
+
+        return;
+      }
+
+      await enterAdmin(
+        data.user
+      );
+
+    }
+
+
+    async function logout() {
+
+      await db.auth.signOut();
+
+      location.reload();
+
+    }
+
+
+    function showLoginMessage(
+      message,
+      color
+    ) {
+
+      const box =
+        document
+          .getElementById("loginMessage");
+
+      box.textContent =
+        message;
+
+      box.style.color =
+        color;
+
+    }
+
+
+    async function checkSession() {
+
+      const {
+        data
+      } =
+        await db.auth.getSession();
+
+      const session =
+        data.session;
+
+      if (
+        session &&
+        session.user &&
+        session.user.email.toLowerCase()
+        === ADMIN_EMAIL
+      ) {
+
+        await enterAdmin(
+          session.user
+        );
+
+      }
+
+    }
+
+
+    async function enterAdmin(user) {
+
+      document
+        .getElementById("loginPage")
+        .classList
+        .add("hidden");
+
+      document
+        .getElementById("adminApp")
+        .classList
+        .remove("hidden");
+
+      document
+        .getElementById("adminEmail")
+        .textContent =
+        user.email;
+
+      await loadCategories();
+      await loadProducts();
+
+    }
+
+
+    function showSection(
+      id,
+      menu
+    ) {
+
+      document
+        .querySelectorAll("main section")
+        .forEach(section => {
+
+          section.classList.add(
+            "hidden"
+          );
+
+        });
+
+      document
+        .getElementById(id)
+        .classList
+        .remove("hidden");
+
+      document
+        .querySelectorAll(".menu-item")
+        .forEach(item => {
+
+          item.classList.remove(
+            "active"
+          );
+
+        });
+
+      menu.classList.add(
+        "active"
+      );
+
+    }
+
+
+    async function loadCategories() {
+
+      const {
+        data,
+        error
+      } =
+        await db
+          .from("categories")
+          .select("*")
+          .order(
+            "sort_order",
+            {
+              ascending: true
+            }
+          );
+
+      if (error) {
+
+        alert(
+          "读取分类失败：" +
+          error.message
+        );
+
+        return;
+
+      }
+
+      categoryData =
+        data || [];
 
       renderCategories();
+
       renderCategoryOptions();
 
-      document.getElementById("categoryIcon").value = "";
-      document.getElementById("categorySort").value = "";
-      document.getElementById("categoryZh").value = "";
-      document.getElementById("categoryEn").value = "";
-      document.getElementById("categoryMy").value = "";
-      document.getElementById("categoryTh").value = "";
     }
+
 
     function renderCategories() {
-      const list = document.getElementById("categoryList");
+
+      const list =
+        document
+          .getElementById("categoryList");
+
       list.innerHTML = "";
 
-      categories.forEach(function(category, index) {
-        const item = document.createElement("div");
-        item.className = "list-item";
+      if (
+        categoryData.length === 0
+      ) {
 
-        item.innerHTML = `
-          <div class="item-info">
-            <div class="item-icon">${category.icon || "📦"}</div>
-            <div>
-              <strong>${category.zh}</strong><br>
-              <small>${category.en || "-"} / ${category.my || "-"} / ${category.th || "-"}</small>
+        list.innerHTML =
+          "<div class='small'>暂时没有分类</div>";
+
+        return;
+
+      }
+
+      categoryData.forEach(
+        category => {
+
+          const item =
+            document.createElement("div");
+
+          item.className =
+            "list-item";
+
+          item.innerHTML = `
+            <div class="item-left">
+
+              <div class="item-icon">
+                ${category.icon || "📦"}
+              </div>
+
+              <div>
+
+                <strong>
+                  ${escapeHtml(category.name_zh)}
+                </strong>
+
+                <div class="small">
+                  ${escapeHtml(category.name_en || "-")}
+                  ·
+                  ${escapeHtml(category.name_my || "-")}
+                  ·
+                  ${escapeHtml(category.name_th || "-")}
+                </div>
+
+                <span class="badge">
+                  ${category.is_active ? "启用" : "停用"}
+                </span>
+
+              </div>
+
             </div>
-          </div>
 
-          <button class="btn btn-secondary" onclick="deleteCategory(${index})">
-            删除
-          </button>
-        `;
+            <button
+              class="btn btn-danger"
+              onclick="deleteCategory('${category.id}')"
+            >
+              删除
+            </button>
+          `;
 
-        list.appendChild(item);
-      });
+          list.appendChild(
+            item
+          );
+
+        }
+      );
+
     }
 
-    function deleteCategory(index) {
-      categories.splice(index, 1);
-      renderCategories();
-      renderCategoryOptions();
-    }
 
     function renderCategoryOptions() {
-      const select = document.getElementById("productCategory");
 
-      select.innerHTML = '<option value="">请选择分类</option>';
+      const select =
+        document
+          .getElementById("productCategory");
 
-      categories.forEach(function(category, index) {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = category.zh;
+      select.innerHTML =
+        '<option value="">请选择分类</option>';
 
-        select.appendChild(option);
-      });
+      categoryData.forEach(
+        category => {
+
+          const option =
+            document.createElement("option");
+
+          option.value =
+            category.id;
+
+          option.textContent =
+            category.name_zh;
+
+          select.appendChild(
+            option
+          );
+
+        }
+      );
+
     }
 
-    function addProduct() {
-      const categoryIndex = document.getElementById("productCategory").value;
 
-      const product = {
-        zh: document.getElementById("productZh").value.trim(),
-        en: document.getElementById("productEn").value.trim(),
-        my: document.getElementById("productMy").value.trim(),
-        th: document.getElementById("productTh").value.trim(),
-        categoryIndex: categoryIndex,
-        price: document.getElementById("productPrice").value,
-        oldPrice: document.getElementById("productOldPrice").value,
-        stock: document.getElementById("productStock").value,
-        productionDate: document.getElementById("productProductionDate").value,
-        expiryDate: document.getElementById("productExpiryDate").value,
-        discount: document.getElementById("productDiscount").value.trim(),
-        status: document.getElementById("productStatus").value,
-        image: document.getElementById("productImage").value.trim(),
-        description: document.getElementById("productDescription").value.trim()
-      };
+    async function saveCategory() {
 
-      if (!product.zh) {
-        alert("请填写中文商品名称");
+      const nameZh =
+        value("categoryZh");
+
+      if (!nameZh) {
+
+        alert(
+          "请填写中文分类名称"
+        );
+
         return;
+
       }
 
-      if (categoryIndex === "") {
-        alert("请选择商品分类");
+      const {
+        error
+      } =
+        await db
+          .from("categories")
+          .insert({
+
+            icon:
+              value("categoryIcon")
+              || "📦",
+
+            name_zh:
+              nameZh,
+
+            name_en:
+              value("categoryEn"),
+
+            name_my:
+              value("categoryMy"),
+
+            name_th:
+              value("categoryTh"),
+
+            sort_order:
+              Number(
+                value("categorySort")
+                || 0
+              ),
+
+            is_active:
+              true
+
+          });
+
+      if (error) {
+
+        alert(
+          "保存失败：" +
+          error.message
+        );
+
         return;
+
       }
 
-      if (!product.price) {
-        alert("请填写商品价格");
-        return;
-      }
+      clearInputs([
+        "categoryIcon",
+        "categoryZh",
+        "categoryEn",
+        "categoryMy",
+        "categoryTh"
+      ]);
 
-      products.push(product);
+      document
+        .getElementById("categorySort")
+        .value =
+        "0";
 
-      renderProducts();
+      await loadCategories();
+
+      alert(
+        "分类保存成功"
+      );
+
     }
 
-    function renderProducts() {
-      const list = document.getElementById("productList");
+
+    async function deleteCategory(
+      id
+    ) {
+
+      const ok =
+        confirm(
+          "确定删除这个分类吗？"
+        );
+
+      if (!ok) return;
+
+      const {
+        error
+      } =
+        await db
+          .from("categories")
+          .delete()
+          .eq(
+            "id",
+            id
+          );
+
+      if (error) {
+
+        alert(
+          "删除失败：" +
+          error.message
+        );
+
+        return;
+
+      }
+
+      await loadCategories();
+      await loadProducts();
+
+    }
+
+
+    async function loadProducts() {
+
+      const {
+        data,
+        error
+      } =
+        await db
+          .from("products")
+          .select(`
+            *,
+            categories (
+              name_zh
+            )
+          `)
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+      if (error) {
+
+        alert(
+          "读取商品失败：" +
+          error.message
+        );
+
+        return;
+
+      }
+
+      const list =
+        document
+          .getElementById("productList");
+
       list.innerHTML = "";
 
-      products.forEach(function(product, index) {
-        const category = categories[product.categoryIndex];
+      if (
+        !data ||
+        data.length === 0
+      ) {
 
-        const item = document.createElement("div");
-        item.className = "list-item";
+        list.innerHTML =
+          "<div class='small'>暂时没有商品</div>";
 
-        item.innerHTML = `
-          <div>
-            <strong>${product.zh}</strong><br>
-            <small>
-              分类：${category ? category.zh : "-"} ·
-              价格：K ${product.price} ·
-              库存：${product.stock || 0}
-            </small><br>
-            <span class="badge">
-              ${product.status === "active" ? "已上架" : "已下架"}
-            </span>
-          </div>
+        return;
 
-          <button class="btn btn-secondary" onclick="deleteProduct(${index})">
-            删除
-          </button>
-        `;
+      }
 
-        list.appendChild(item);
+      data.forEach(
+        product => {
+
+          const item =
+            document.createElement("div");
+
+          item.className =
+            "list-item";
+
+          item.innerHTML = `
+            <div>
+
+              <strong>
+                ${escapeHtml(product.name_zh)}
+              </strong>
+
+              <div class="small">
+                分类：
+                ${
+                  product.categories
+                  ? escapeHtml(product.categories.name_zh)
+                  : "-"
+                }
+                ·
+                价格：K ${money(product.price)}
+                ·
+                库存：${product.stock}
+              </div>
+
+              <span class="badge">
+                ${
+                  product.status === "active"
+                  ? "已上架"
+                  : "已下架"
+                }
+              </span>
+
+            </div>
+
+            <button
+              class="btn btn-danger"
+              onclick="deleteProduct('${product.id}')"
+            >
+              删除
+            </button>
+          `;
+
+          list.appendChild(
+            item
+          );
+
+        }
+      );
+
+    }
+
+
+    async function saveProduct() {
+
+      const nameZh =
+        value("productZh");
+
+      const categoryId =
+        value("productCategory");
+
+      const price =
+        value("productPrice");
+
+      if (!nameZh) {
+
+        alert(
+          "请填写中文商品名称"
+        );
+
+        return;
+
+      }
+
+      if (!categoryId) {
+
+        alert(
+          "请选择商品分类"
+        );
+
+        return;
+
+      }
+
+      if (!price) {
+
+        alert(
+          "请填写售价"
+        );
+
+        return;
+
+      }
+
+      const oldPrice =
+        value("productOldPrice");
+
+      const productionDate =
+        value("productionDate");
+
+      const expiryDate =
+        value("expiryDate");
+
+      const {
+        error
+      } =
+        await db
+          .from("products")
+          .insert({
+
+            category_id:
+              categoryId,
+
+            name_zh:
+              nameZh,
+
+            name_en:
+              value("productEn"),
+
+            name_my:
+              value("productMy"),
+
+            name_th:
+              value("productTh"),
+
+            description_zh:
+              value("descriptionZh"),
+
+            description_en:
+              value("descriptionEn"),
+
+            description_my:
+              value("descriptionMy"),
+
+            description_th:
+              value("descriptionTh"),
+
+            image_url:
+              value("productImage"),
+
+            price:
+              Number(price),
+
+            old_price:
+              oldPrice
+              ? Number(oldPrice)
+              : null,
+
+            stock:
+              Number(
+                value("productStock")
+                || 0
+              ),
+
+            production_date:
+              productionDate
+              || null,
+
+            expiry_date:
+              expiryDate
+              || null,
+
+            discount_label_zh:
+              value("discountZh"),
+
+            discount_label_en:
+              value("discountEn"),
+
+            discount_label_my:
+              value("discountMy"),
+
+            discount_label_th:
+              value("discountTh"),
+
+            status:
+              value("productStatus")
+
+          });
+
+      if (error) {
+
+        alert(
+          "保存商品失败：" +
+          error.message
+        );
+
+        return;
+
+      }
+
+      clearInputs([
+        "productZh",
+        "productEn",
+        "productMy",
+        "productTh",
+        "productPrice",
+        "productOldPrice",
+        "productImage",
+        "discountZh",
+        "discountEn",
+        "discountMy",
+        "discountTh",
+        "descriptionZh",
+        "descriptionEn",
+        "descriptionMy",
+        "descriptionTh",
+        "productionDate",
+        "expiryDate"
+      ]);
+
+      document
+        .getElementById("productStock")
+        .value =
+        "0";
+
+      await loadProducts();
+
+      alert(
+        "商品保存成功"
+      );
+
+    }
+
+
+    async function deleteProduct(
+      id
+    ) {
+
+      const ok =
+        confirm(
+          "确定删除这个商品吗？"
+        );
+
+      if (!ok) return;
+
+      const {
+        error
+      } =
+        await db
+          .from("products")
+          .delete()
+          .eq(
+            "id",
+            id
+          );
+
+      if (error) {
+
+        alert(
+          "删除失败：" +
+          error.message
+        );
+
+        return;
+
+      }
+
+      await loadProducts();
+
+    }
+
+
+    function value(id) {
+
+      return document
+        .getElementById(id)
+        .value
+        .trim();
+
+    }
+
+
+    function clearInputs(ids) {
+
+      ids.forEach(id => {
+
+        document
+          .getElementById(id)
+          .value =
+          "";
+
       });
+
     }
 
-    function deleteProduct(index) {
-      products.splice(index, 1);
-      renderProducts();
+
+    function money(number) {
+
+      return Number(number)
+        .toLocaleString();
+
     }
+
+
+    function escapeHtml(text) {
+
+      const div =
+        document.createElement("div");
+
+      div.textContent =
+        text || "";
+
+      return div.innerHTML;
+
+    }
+
+
+    db.auth.onAuthStateChange(
+      function(event) {
+
+        if (
+          event === "SIGNED_OUT"
+        ) {
+
+          document
+            .getElementById("adminApp")
+            .classList
+            .add("hidden");
+
+          document
+            .getElementById("loginPage")
+            .classList
+            .remove("hidden");
+
+        }
+
+      }
+    );
+
+
+    checkSession();
+
   </script>
 
 </body>
