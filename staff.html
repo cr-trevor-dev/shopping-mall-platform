@@ -1177,7 +1177,7 @@ tr:last-child td{
   </div>
 
   <div class="note">
-    经理只需要填写实际数到的库存数量。系统会自动与账面库存比较；如果数量不同，会提交给 Super Admin 审批。
+    选择地区后会显示全部库存商品。只填写你实际盘点过的商品；没有盘点的商品请留空，系统不会把空白当成0。
   </div>
 
 
@@ -1189,7 +1189,10 @@ tr:last-child td{
         地区
       </label>
 
-      <select id="adjustRegion"></select>
+      <select
+        id="adjustRegion"
+        onchange="loadInventoryCountRows()"
+      ></select>
 
     </div>
 
@@ -1197,40 +1200,13 @@ tr:last-child td{
     <div class="form-group">
 
       <label>
-        商品
-      </label>
-
-      <select id="adjustVariant"></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>
-        实际盘点数量
+        搜索商品
       </label>
 
       <input
-        id="adjustActualCount"
-        type="number"
-        min="0"
-        step="1"
-        placeholder="例如：97"
-      >
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>
-        差异原因
-      </label>
-
-      <input
-        id="adjustReason"
-        placeholder="例如：盘点少3件"
+        id="adjustSearch"
+        placeholder="例如：百事、火鸡面"
+        oninput="filterInventoryCountRows()"
       >
 
     </div>
@@ -1238,11 +1214,18 @@ tr:last-child td{
   </div>
 
 
+  <div
+    id="inventoryCountTable"
+    style="margin-top:16px"
+  ></div>
+
+
   <button
     class="btn btn-amber"
-    onclick="requestInventoryAdjustment()"
+    onclick="submitInventoryCount()"
+    style="margin-top:16px"
   >
-    提交盘点
+    提交本次盘点
   </button>
 
 </div>
@@ -5263,7 +5246,8 @@ async function loadInventory(){
   await Promise.all([
 
     loadInventoryList(),
-    loadBatchList()
+loadBatchList(),
+loadInventoryCountRows()
 
   ]);
 
@@ -5663,40 +5647,25 @@ async function receiveStock(){
 }
 
 
-async function requestInventoryAdjustment(){
+async function loadInventoryCountRows(){
 
-  const actualCount =
-    Number(
-      el("adjustActualCount").value
-    );
+  const table =
+    el("inventoryCountTable");
 
-  const reason =
-    el("adjustReason")
-      .value
-      .trim();
+  if(!table){
+    return;
+  }
+
 
   const regionId =
-    el("adjustRegion").value;
-
-  const variantId =
-    el("adjustVariant").value;
+    el("adjustRegion")
+      ?.value;
 
 
-  if(
-    !Number.isInteger(actualCount)
-    ||
-    actualCount < 0
-    ||
-    !reason
-    ||
-    !regionId
-    ||
-    !variantId
-  ){
+  if(!regionId){
 
-    alert(
-      "请选择商品，填写实际盘点数量和原因。"
-    );
+    table.innerHTML =
+      '<div class="note">请先选择地区。</div>';
 
     return;
 
@@ -5704,82 +5673,328 @@ async function requestInventoryAdjustment(){
 
 
   const {
-    data:
-      inventory,
-    error:
-      inventoryError
+    data,
+    error
   } =
     await db
       .from(
         "region_inventory"
       )
       .select(
-        "id,stock_on_hand,reserved_quantity"
+        "id,region_id,variant_id,stock_on_hand,reserved_quantity"
       )
       .eq(
         "region_id",
         regionId
-      )
-      .eq(
-        "variant_id",
-        variantId
-      )
-      .single();
+      );
 
 
-  if(inventoryError){
+  if(error){
 
-    alert(
-      "无法读取当前库存：\n"
-      +
-      inventoryError.message
-    );
+    table.innerHTML =
+      errorBox(
+        error.message
+      );
 
     return;
 
   }
 
 
-  const systemCount =
+  const items =
+    (data || [])
+      .sort(
+        (a,b) =>
+          (
+            variantMap[
+              a.variant_id
+            ]
+            ||
+            ""
+          )
+          .localeCompare(
+            variantMap[
+              b.variant_id
+            ]
+            ||
+            ""
+          )
+      );
+
+
+  if(
+    !items.length
+  ){
+
+    table.innerHTML =
+      '<div class="note">这个地区目前没有库存商品。</div>';
+
+    return;
+
+  }
+
+
+  const rows =
+    items
+      .map(
+        item => {
+
+          const productName =
+            variantMap[
+              item.variant_id
+            ]
+            ||
+            "商品";
+
+          return `
+
+            <tr
+              class="inventory-count-row"
+              data-search="${escapeHtml(
+                productName
+                  .toLowerCase()
+              )}"
+            >
+
+              <td>
+                ${escapeHtml(productName)}
+              </td>
+
+              <td>
+                ${Number(
+                  item.stock_on_hand
+                  ||
+                  0
+                )}
+              </td>
+
+              <td>
+
+                <input
+                  class="inventory-count-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="留空=未盘"
+                  data-inventory-id="${item.id}"
+                  data-variant-id="${item.variant_id}"
+                  data-stock="${Number(
+                    item.stock_on_hand
+                    ||
+                    0
+                  )}"
+                  data-reserved="${Number(
+                    item.reserved_quantity
+                    ||
+                    0
+                  )}"
+                  oninput="updateInventoryCountDiff(this)"
+                  style="width:130px"
+                >
+
+              </td>
+
+              <td
+                class="inventory-count-diff"
+              >
+                —
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  table.innerHTML = `
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              商品
+            </th>
+
+            <th>
+              系统库存
+            </th>
+
+            <th>
+              实际盘点
+            </th>
+
+            <th>
+              差异
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+          ${rows}
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+
+  filterInventoryCountRows();
+
+}
+
+
+function filterInventoryCountRows(){
+
+  const search =
+    (
+      el("adjustSearch")
+        ?.value
+      ||
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  document
+    .querySelectorAll(
+      ".inventory-count-row"
+    )
+    .forEach(
+      row => {
+
+        const text =
+          row.dataset.search
+          ||
+          "";
+
+        row.style.display =
+          (
+            !search
+            ||
+            text.includes(search)
+          )
+          ?
+          ""
+          :
+          "none";
+
+      }
+    );
+
+}
+
+
+function updateInventoryCountDiff(
+  input
+){
+
+  const cell =
+    input
+      .closest("tr")
+      ?.querySelector(
+        ".inventory-count-diff"
+      );
+
+
+  if(!cell){
+    return;
+  }
+
+
+  const raw =
+    input.value
+      .trim();
+
+
+  if(raw === ""){
+
+    cell.textContent =
+      "—";
+
+    return;
+
+  }
+
+
+  const actual =
+    Number(raw);
+
+  const system =
     Number(
-      inventory.stock_on_hand
+      input.dataset.stock
       ||
       0
     );
 
-  const reservedCount =
-    Number(
-      inventory.reserved_quantity
-      ||
-      0
-    );
+
+  if(
+    !Number.isInteger(actual)
+    ||
+    actual < 0
+  ){
+
+    cell.textContent =
+      "数量无效";
+
+    return;
+
+  }
+
 
   const delta =
-    actualCount
+    actual
     -
-    systemCount;
+    system;
 
 
-  if(
-    actualCount
-    <
-    reservedCount
-  ){
+  if(delta === 0){
+
+    cell.textContent =
+      "0";
+
+    return;
+
+  }
+
+
+  cell.textContent =
+    (
+      delta > 0
+      ?
+      "+"
+      :
+      ""
+    )
+    +
+    delta;
+
+}
+
+
+async function submitInventoryCount(){
+
+  const regionId =
+    el("adjustRegion")
+      ?.value;
+
+
+  if(!regionId){
 
     alert(
-      "实际盘点数量不能低于已经被订单预留的数量。\n\n"
-      +
-      "系统库存："
-      +
-      systemCount
-      +
-      "\n已预留："
-      +
-      reservedCount
-      +
-      "\n实际盘点："
-      +
-      actualCount
+      "请先选择地区。"
     );
 
     return;
@@ -5787,62 +6002,329 @@ async function requestInventoryAdjustment(){
   }
 
 
+  const inputs =
+    Array.from(
+      document
+        .querySelectorAll(
+          ".inventory-count-input"
+        )
+    );
+
+
+  const counted =
+    inputs
+      .filter(
+        input =>
+          input.value
+            .trim()
+          !==
+          ""
+      );
+
+
   if(
-    delta === 0
+    !counted.length
   ){
 
     alert(
-      "盘点完成，库存数量一致。\n\n"
-      +
-      "系统库存："
-      +
-      systemCount
-      +
-      "\n实际盘点："
-      +
-      actualCount
+      "你还没有填写任何商品的实际盘点数量。"
     );
 
     return;
 
   }
+
+
+  for(
+    const input
+    of
+    counted
+  ){
+
+    const actual =
+      Number(
+        input.value
+      );
+
+
+    if(
+      !Number.isInteger(actual)
+      ||
+      actual < 0
+    ){
+
+      alert(
+        "盘点数量必须是0或以上的整数。"
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  const {
+    data:
+      latestInventory,
+    error:
+      latestInventoryError
+  } =
+    await db
+      .from(
+        "region_inventory"
+      )
+      .select(
+        "id,variant_id,stock_on_hand,reserved_quantity"
+      )
+      .eq(
+        "region_id",
+        regionId
+      );
+
+
+  if(latestInventoryError){
+
+    alert(
+      "无法读取最新库存：\n"
+      +
+      latestInventoryError.message
+    );
+
+    return;
+
+  }
+
+
+  const latestMap =
+    {};
+
+  (
+    latestInventory
+    ||
+    []
+  )
+  .forEach(
+    item => {
+
+      latestMap[
+        item.id
+      ] =
+        item;
+
+    }
+  );
+
+
+  const changes =
+    [];
+
+
+  for(
+    const input
+    of
+    counted
+  ){
+
+    const inventory =
+      latestMap[
+        input.dataset.inventoryId
+      ];
+
+
+    if(!inventory){
+
+      alert(
+        "有商品的库存资料已经发生变化，请刷新后重新盘点。"
+      );
+
+      return;
+
+    }
+
+
+    const actual =
+      Number(
+        input.value
+      );
+
+    const system =
+      Number(
+        inventory.stock_on_hand
+        ||
+        0
+      );
+
+    const reserved =
+      Number(
+        inventory.reserved_quantity
+        ||
+        0
+      );
+
+
+    if(
+      actual
+      <
+      reserved
+    ){
+
+      alert(
+        (
+          variantMap[
+            inventory.variant_id
+          ]
+          ||
+          "商品"
+        )
+        +
+        "：实际盘点数量不能低于已经被订单预留的数量。\n\n"
+        +
+        "系统库存："
+        +
+        system
+        +
+        "\n已预留："
+        +
+        reserved
+        +
+        "\n实际盘点："
+        +
+        actual
+      );
+
+      return;
+
+    }
+
+
+    const delta =
+      actual
+      -
+      system;
+
+
+    if(
+      delta === 0
+    ){
+      continue;
+    }
+
+
+    changes.push({
+
+      inventoryId:
+        inventory.id,
+
+      variantId:
+        inventory.variant_id,
+
+      productName:
+        variantMap[
+          inventory.variant_id
+        ]
+        ||
+        "商品",
+
+      systemCount:
+        system,
+
+      actualCount:
+        actual,
+
+      delta:
+        delta
+
+    });
+
+  }
+
+
+  if(
+    !changes.length
+  ){
+
+    alert(
+      "盘点完成。\n\n你填写的商品库存全部一致，没有需要提交的差异。"
+    );
+
+    return;
+
+  }
+
+
+  const preview =
+    changes
+      .slice(
+        0,
+        10
+      )
+      .map(
+        item =>
+          item.productName
+          +
+          "："
+          +
+          item.systemCount
+          +
+          " → "
+          +
+          item.actualCount
+          +
+          "（"
+          +
+          (
+            item.delta > 0
+            ?
+            "+"
+            :
+            ""
+          )
+          +
+          item.delta
+          +
+          "）"
+      )
+      .join("\n");
+
+
+  const more =
+    changes.length
+    >
+    10
+    ?
+    "\n……另外还有 "
+    +
+    (
+      changes.length
+      -
+      10
+    )
+    +
+    " 项"
+    :
+    "";
 
 
   if(
     !confirm(
-      "请确认本次库存盘点：\n\n"
+      "本次有 "
       +
-      "系统库存："
+      changes.length
       +
-      systemCount
+      " 个商品存在库存差异：\n\n"
       +
-      "\n实际盘点："
+      preview
       +
-      actualCount
+      more
       +
-      "\n差异："
-      +
-      (
-        delta > 0
-        ?
-        "+"
-        :
-        ""
-      )
-      +
-      delta
-      +
-      "\n\n确认提交审批吗？"
+      "\n\n确认提交吗？"
     )
   ){
 
     return;
 
   }
-
-
-  let batchId =
-  null;
 
 
   const {
@@ -5856,7 +6338,7 @@ async function requestInventoryAdjustment(){
         "approval_requests"
       )
       .select(
-        "id,status,reason,payload,requested_at,reviewed_at"
+        "id,status,reason,target_id,payload,requested_at,reviewed_at"
       )
       .eq(
         "action_type",
@@ -5865,10 +6347,6 @@ async function requestInventoryAdjustment(){
       .eq(
         "region_id",
         regionId
-      )
-      .eq(
-        "target_id",
-        variantId
       )
       .eq(
         "requested_by",
@@ -5887,7 +6365,7 @@ async function requestInventoryAdjustment(){
           ascending:false
         }
       )
-      .limit(20);
+      .limit(500);
 
 
   if(approvalError){
@@ -5903,167 +6381,262 @@ async function requestInventoryAdjustment(){
   }
 
 
-  const approved =
-    (approvalRows || [])
-      .find(
-        item => {
+  let submittedCount =
+    0;
 
-          const approvalBatchId =
-            item.payload
-              ?.batch_id
-            ||
-            null;
+  let waitingCount =
+    0;
+
+  let executedCount =
+    0;
+
+
+  for(
+    const item
+    of
+    changes
+  ){
+
+    const matching =
+      (
+        approvalRows
+        ||
+        []
+      )
+      .filter(
+        approval => {
 
           return (
-            item.status
+            approval.target_id
             ===
-            "approved"
+            item.variantId
             &&
             Number(
-              item.payload?.delta
+              approval.payload
+                ?.delta
             )
             ===
-            delta
+            item.delta
             &&
-            approvalBatchId
+            (
+              approval.payload
+                ?.batch_id
+              ||
+              null
+            )
             ===
-            batchId
+            null
           );
 
         }
       );
 
 
-  if(approved){
+    const approved =
+      matching
+        .find(
+          approval =>
+            approval.status
+            ===
+            "approved"
+        );
 
-    if(
-      !confirm(
-        "这次盘点差异已经得到 Super Admin 批准。\n\n"
-        +
-        "是否现在更新库存？"
-      )
-    ){
-      return;
+
+    if(approved){
+
+      const {
+        error
+      } =
+        await db.rpc(
+
+          "adjust_inventory_stock",
+
+          {
+            p_region_id:
+              regionId,
+
+            p_variant_id:
+              item.variantId,
+
+            p_delta:
+              item.delta,
+
+            p_reason:
+              approved.reason
+              ||
+              (
+                "库存盘点：系统"
+                +
+                item.systemCount
+                +
+                "，实际"
+                +
+                item.actualCount
+              ),
+
+            p_batch_id:
+              null
+          }
+
+        );
+
+
+      if(error){
+
+        alert(
+          item.productName
+          +
+          " 更新库存失败：\n"
+          +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      executedCount +=
+        1;
+
+      continue;
+
     }
 
 
-    await callRpc(
-
-      "adjust_inventory_stock",
-
-      {
-        p_region_id:
-          regionId,
-
-        p_variant_id:
-          variantId,
-
-        p_delta:
-          delta,
-
-        p_reason:
-          approved.reason
-          ||
-          reason,
-
-        p_batch_id:
-          batchId
-      },
-
-      "库存已经按照盘点结果更新。"
-
-    );
-
-    return;
-
-  }
-
-
-  const pending =
-    (approvalRows || [])
-      .find(
-        item => {
-
-          const approvalBatchId =
-            item.payload
-              ?.batch_id
-            ||
-            null;
-
-          return (
-            item.status
+    const pending =
+      matching
+        .find(
+          approval =>
+            approval.status
             ===
             "pending"
-            &&
-            Number(
-              item.payload?.delta
-            )
-            ===
-            delta
-            &&
-            approvalBatchId
-            ===
-            batchId
-          );
+        );
 
+
+    if(pending){
+
+      waitingCount +=
+        1;
+
+      continue;
+
+    }
+
+
+    const reason =
+      "库存盘点：系统"
+      +
+      item.systemCount
+      +
+      "，实际"
+      +
+      item.actualCount
+      +
+      "，差异"
+      +
+      (
+        item.delta > 0
+        ?
+        "+"
+        :
+        ""
+      )
+      +
+      item.delta;
+
+
+    const {
+      error
+    } =
+      await db.rpc(
+
+        "request_dangerous_action",
+
+        {
+          p_action_type:
+            "inventory_adjust",
+
+          p_region_id:
+            regionId,
+
+          p_target_type:
+            "product_variant",
+
+          p_target_id:
+            item.variantId,
+
+          p_payload:{
+            region_id:
+              regionId,
+
+            variant_id:
+              item.variantId,
+
+            system_count:
+              item.systemCount,
+
+            actual_count:
+              item.actualCount,
+
+            delta:
+              item.delta,
+
+            batch_id:
+              null
+          },
+
+          p_reason:
+            reason
         }
+
       );
 
 
-  if(pending){
+    if(error){
 
-    alert(
-      "这次盘点差异已经提交，正在等待 Super Admin 审批。"
-    );
+      alert(
+        item.productName
+        +
+        " 提交盘点失败：\n"
+        +
+        error.message
+      );
 
-    return;
+      return;
+
+    }
+
+
+    submittedCount +=
+      1;
 
   }
 
 
-  await callRpc(
+  await Promise.all([
 
-    "request_dangerous_action",
+    loadInventoryCountRows(),
+    loadInventoryList(),
+    loadBatchList()
 
-    {
-      p_action_type:
-        "inventory_adjust",
+  ]);
 
-      p_region_id:
-        regionId,
 
-      p_target_type:
-        "product_variant",
-
-      p_target_id:
-        variantId,
-
-      p_payload:{
-        region_id:
-          regionId,
-
-        variant_id:
-          variantId,
-
-        system_count:
-          systemCount,
-
-        actual_count:
-          actualCount,
-
-        delta:
-          delta,
-
-        batch_id:
-          batchId
-      },
-
-      p_reason:
-        reason
-    },
-
-    "库存盘点差异已经提交给 Super Admin 审批。"
-
+  alert(
+    "库存盘点处理完成。\n\n"
+    +
+    "新提交审批："
+    +
+    submittedCount
+    +
+    "\n等待审批："
+    +
+    waitingCount
+    +
+    "\n已批准并更新库存："
+    +
+    executedCount
   );
 
 }
