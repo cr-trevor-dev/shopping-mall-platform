@@ -2778,7 +2778,305 @@ th:{
 }
 
 };
+const extraI18n = {
 
+zh:{
+  pageTitle:"SnacksHub · 零食商城",
+  languageLabel:"语言",
+  defaultBadge:"默认",
+  addressLabelPlaceholder:"家 / 公司",
+  loginFieldsRequired:"请输入邮箱和密码。",
+  registerFieldsRequired:"请完整填写所有资料，密码至少需要 8 位。",
+  profileFieldsRequired:"请完整填写姓名、电话和地区。",
+  addressFieldsRequired:"请完整填写收货人、电话、地区和详细地址。",
+  paymentProofRequired:"请填写付款参考号或付款凭证图片 URL。",
+  removeCartItemConfirm:"数量已经低于最低购买数量，是否从购物车移除这个商品？",
+  hot:"热门"
+},
+
+en:{
+  pageTitle:"SnacksHub · Snack Store",
+  languageLabel:"Language",
+  defaultBadge:"Default",
+  addressLabelPlaceholder:"Home / Office",
+  loginFieldsRequired:"Email and password are required.",
+  registerFieldsRequired:"Please complete all fields. Password must be at least 8 characters.",
+  profileFieldsRequired:"Please complete your name, phone and region.",
+  addressFieldsRequired:"Please complete recipient, phone, region and detailed address.",
+  paymentProofRequired:"Payment reference or proof image URL is required.",
+  removeCartItemConfirm:"The quantity is below the minimum. Remove this item from the cart?",
+  hot:"HOT"
+},
+
+my:{
+  pageTitle:"SnacksHub · မုန့်နှင့်စားသောက်ကုန်ဆိုင်",
+  languageLabel:"ဘာသာစကား",
+  defaultBadge:"မူလ",
+  addressLabelPlaceholder:"အိမ် / ရုံး",
+  loginFieldsRequired:"အီးမေးလ်နှင့် စကားဝှက် ဖြည့်ပါ။",
+  registerFieldsRequired:"အချက်အလက်အားလုံး ဖြည့်ပါ။ စကားဝှက် အနည်းဆုံး ၈ လုံး လိုအပ်ပါသည်။",
+  profileFieldsRequired:"အမည်၊ ဖုန်းနှင့် ဒေသကို ပြည့်စုံစွာ ဖြည့်ပါ။",
+  addressFieldsRequired:"လက်ခံသူ၊ ဖုန်း၊ ဒေသနှင့် လိပ်စာအသေးစိတ်ကို ပြည့်စုံစွာ ဖြည့်ပါ။",
+  paymentProofRequired:"ငွေပေးချေမှု Reference သို့မဟုတ် အထောက်အထားပုံ URL ဖြည့်ပါ။",
+  removeCartItemConfirm:"အရေအတွက်သည် အနည်းဆုံးဝယ်ယူရမည့်ပမာဏအောက် ရောက်နေပါသည်။ ခြင်းထဲမှ ဖယ်ရှားမလား?",
+  hot:"လူကြိုက်များ"
+},
+
+th:{
+  pageTitle:"SnacksHub · ร้านขนมและอาหาร",
+  languageLabel:"ภาษา",
+  defaultBadge:"ค่าเริ่มต้น",
+  addressLabelPlaceholder:"บ้าน / ที่ทำงาน",
+  loginFieldsRequired:"กรุณากรอกอีเมลและรหัสผ่าน",
+  registerFieldsRequired:"กรุณากรอกข้อมูลให้ครบ รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+  profileFieldsRequired:"กรุณากรอกชื่อ โทรศัพท์ และพื้นที่ให้ครบ",
+  addressFieldsRequired:"กรุณากรอกผู้รับ โทรศัพท์ พื้นที่ และที่อยู่โดยละเอียด",
+  paymentProofRequired:"กรุณากรอกเลขอ้างอิงหรือ URL รูปหลักฐานการชำระเงิน",
+  removeCartItemConfirm:"จำนวนต่ำกว่าขั้นต่ำ ต้องการนำสินค้านี้ออกจากตะกร้าหรือไม่?",
+  hot:"ยอดนิยม"
+}
+
+};
+
+
+const statusTranslations = {
+
+zh:{
+  active:"正常",
+  inactive:"未启用",
+  restricted:"受限制",
+  deactivated:"已停用",
+
+  pending_confirmation:"待确认",
+  confirmed:"已确认",
+  cancelled:"已取消",
+  completed:"已完成",
+
+  unpaid:"未付款",
+  pending:"待处理",
+  paid:"已付款",
+  failed:"失败",
+  partially_refunded:"部分退款",
+  refunded:"已退款",
+
+  unfulfilled:"未配货",
+  picking:"拣货中",
+  packed:"已打包",
+  fulfilled:"已出库",
+
+  not_assigned:"未指派",
+  assigned:"已指派",
+  picked_up:"已取货",
+  delivering:"配送中",
+  delivered:"已送达",
+  ready_for_delivery:"待配送",
+
+  submitted:"已提交",
+  rejected:"已拒绝",
+  approved:"已批准",
+  processed:"已处理",
+  requested:"已申请",
+  processing:"处理中"
+},
+
+en:{
+  active:"Active",
+  inactive:"Inactive",
+  restricted:"Restricted",
+  deactivated:"Deactivated",
+
+  pending_confirmation:"Pending Confirmation",
+  confirmed:"Confirmed",
+  cancelled:"Cancelled",
+  completed:"Completed",
+
+  unpaid:"Unpaid",
+  pending:"Pending",
+  paid:"Paid",
+  failed:"Failed",
+  partially_refunded:"Partially Refunded",
+  refunded:"Refunded",
+
+  unfulfilled:"Unfulfilled",
+  picking:"Picking",
+  packed:"Packed",
+  fulfilled:"Fulfilled",
+
+  not_assigned:"Not Assigned",
+  assigned:"Assigned",
+  picked_up:"Picked Up",
+  delivering:"Delivering",
+  delivered:"Delivered",
+  ready_for_delivery:"Ready for Delivery",
+
+  submitted:"Submitted",
+  rejected:"Rejected",
+  approved:"Approved",
+  processed:"Processed",
+  requested:"Requested",
+  processing:"Processing"
+},
+
+my:{
+  active:"အသုံးပြုနေ",
+  inactive:"မဖွင့်ထား",
+  restricted:"ကန့်သတ်ထား",
+  deactivated:"ပိတ်ထား",
+
+  pending_confirmation:"အတည်ပြုရန်စောင့်",
+  confirmed:"အတည်ပြုပြီး",
+  cancelled:"ပယ်ဖျက်ပြီး",
+  completed:"ပြီးဆုံး",
+
+  unpaid:"ငွေမချေရသေး",
+  pending:"စောင့်ဆိုင်း",
+  paid:"ငွေချေပြီး",
+  failed:"မအောင်မြင်",
+  partially_refunded:"တစ်စိတ်တစ်ပိုင်းငွေပြန်ပြီး",
+  refunded:"ငွေပြန်ပြီး",
+
+  unfulfilled:"ပစ္စည်းမပြင်ရသေး",
+  picking:"ပစ္စည်းရွေးနေ",
+  packed:"ထုပ်ပိုးပြီး",
+  fulfilled:"ကုန်ထုတ်ပြီး",
+
+  not_assigned:"မသတ်မှတ်ရသေး",
+  assigned:"တာဝန်ပေးပြီး",
+  picked_up:"ပစ္စည်းယူပြီး",
+  delivering:"ပို့ဆောင်နေ",
+  delivered:"ပို့ပြီး",
+  ready_for_delivery:"ပို့ဆောင်ရန်အသင့်",
+
+  submitted:"တင်ပြပြီး",
+  rejected:"ငြင်းပယ်ပြီး",
+  approved:"ခွင့်ပြုပြီး",
+  processed:"ဆောင်ရွက်ပြီး",
+  requested:"တောင်းဆိုပြီး",
+  processing:"ဆောင်ရွက်နေ"
+},
+
+th:{
+  active:"ใช้งาน",
+  inactive:"ไม่ใช้งาน",
+  restricted:"ถูกจำกัด",
+  deactivated:"ปิดใช้งาน",
+
+  pending_confirmation:"รอยืนยัน",
+  confirmed:"ยืนยันแล้ว",
+  cancelled:"ยกเลิกแล้ว",
+  completed:"เสร็จสมบูรณ์",
+
+  unpaid:"ยังไม่ชำระ",
+  pending:"รอดำเนินการ",
+  paid:"ชำระแล้ว",
+  failed:"ล้มเหลว",
+  partially_refunded:"คืนเงินบางส่วน",
+  refunded:"คืนเงินแล้ว",
+
+  unfulfilled:"ยังไม่จัดสินค้า",
+  picking:"กำลังจัดสินค้า",
+  packed:"แพ็กแล้ว",
+  fulfilled:"ตัดสต็อกแล้ว",
+
+  not_assigned:"ยังไม่มอบหมาย",
+  assigned:"มอบหมายแล้ว",
+  picked_up:"รับสินค้าแล้ว",
+  delivering:"กำลังจัดส่ง",
+  delivered:"จัดส่งแล้ว",
+  ready_for_delivery:"พร้อมจัดส่ง",
+
+  submitted:"ส่งแล้ว",
+  rejected:"ปฏิเสธแล้ว",
+  approved:"อนุมัติแล้ว",
+  processed:"ดำเนินการแล้ว",
+  requested:"ส่งคำขอแล้ว",
+  processing:"กำลังดำเนินการ"
+}
+
+};
+
+
+const statusGroupTranslations = {
+
+zh:{
+  order:"订单",
+  payment:"付款",
+  fulfillment:"配货",
+  delivery:"配送"
+},
+
+en:{
+  order:"Order",
+  payment:"Payment",
+  fulfillment:"Fulfillment",
+  delivery:"Delivery"
+},
+
+my:{
+  order:"အော်ဒါ",
+  payment:"ငွေပေးချေမှု",
+  fulfillment:"ပစ္စည်းပြင်ဆင်မှု",
+  delivery:"ပို့ဆောင်မှု"
+},
+
+th:{
+  order:"คำสั่งซื้อ",
+  payment:"การชำระเงิน",
+  fulfillment:"การจัดสินค้า",
+  delivery:"การจัดส่ง"
+}
+
+};
+
+
+function statusText(status){
+
+  const value =
+    String(
+      status
+      ??
+      "—"
+    );
+
+
+  return (
+    statusTranslations[
+      appLanguage
+    ]?.[value]
+    ||
+    statusTranslations.en[
+      value
+    ]
+    ||
+    value
+  );
+
+}
+
+
+function statusGroupText(group){
+
+  const value =
+    String(
+      group
+      ??
+      "—"
+    );
+
+
+  return (
+    statusGroupTranslations[
+      appLanguage
+    ]?.[value]
+    ||
+    statusGroupTranslations.en[
+      value
+    ]
+    ||
+    value
+  );
+
+}
 
 function t(key){
 
@@ -2787,7 +3085,13 @@ function t(key){
       appLanguage
     ]?.[key]
     ||
+    extraI18n[
+      appLanguage
+    ]?.[key]
+    ||
     i18n.zh[key]
+    ||
+    extraI18n.zh[key]
     ||
     key
   );
@@ -2822,6 +3126,10 @@ function applyLanguage(){
     "zh-CN"
     :
     appLanguage;
+
+
+  document.title =
+    t("pageTitle");
 
 
   document
@@ -2931,12 +3239,21 @@ function formatDate(value){
     return "—";
   }
 
+
+  const localeMap = {
+    zh:"zh-CN",
+    en:"en-US",
+    my:"my-MM",
+    th:"th-TH"
+  };
+
+
   return new Date(value)
     .toLocaleString(
-      appLanguage === "zh"
-      ?
-      "zh-CN"
-      :
+      localeMap[
+        appLanguage
+      ]
+      ||
       "en-US",
       {
         hour12:false
@@ -2969,7 +3286,8 @@ function statusBadge(status){
     "cancelled",
     "rejected",
     "inactive",
-    "deactivated"
+    "deactivated",
+    "restricted"
   ];
 
 
@@ -2978,9 +3296,11 @@ function statusBadge(status){
     "pending_confirmation",
     "unpaid",
     "submitted",
+    "unfulfilled",
     "picking",
     "packed",
     "ready_for_delivery",
+    "not_assigned",
     "assigned",
     "picked_up",
     "delivering",
@@ -2994,21 +3314,40 @@ function statusBadge(status){
     "badge";
 
 
-  if(green.includes(value)){
-    cls += " badge-green";
+  if(
+    green.includes(value)
+  ){
+
+    cls +=
+      " badge-green";
+
   }
-  else if(red.includes(value)){
-    cls += " badge-red";
+  else if(
+    red.includes(value)
+  ){
+
+    cls +=
+      " badge-red";
+
   }
-  else if(amber.includes(value)){
-    cls += " badge-amber";
+  else if(
+    amber.includes(value)
+  ){
+
+    cls +=
+      " badge-amber";
+
   }
 
 
   return (
     `<span class="${cls}">`
     +
-    escapeHtml(value)
+    escapeHtml(
+      statusText(
+        value
+      )
+    )
     +
     `</span>`
   );
@@ -3977,6 +4316,35 @@ function applyProductFilters(){
 
           if(search){
 
+                        const variantSearchText =
+              variants
+                .filter(
+                  variant =>
+                    variant.product_id
+                    ===
+                    product.id
+                )
+                .flatMap(
+                  variant => [
+                    variant.name_zh,
+                    variant.name_en,
+                    variant.name_my,
+                    variant.name_th,
+                    variant.flavor_zh,
+                    variant.flavor_en,
+                    variant.flavor_my,
+                    variant.flavor_th,
+                    variant.specification_zh,
+                    variant.specification_en,
+                    variant.specification_my,
+                    variant.specification_th,
+                    variant.sku_code
+                  ]
+                )
+                .filter(Boolean)
+                .join(" ");
+
+
             const text = [
               product.name_zh,
               product.name_en,
@@ -3985,7 +4353,10 @@ function applyProductFilters(){
               product.brand,
               product.product_code,
               product.description_zh,
-              product.description_en
+              product.description_en,
+              product.description_my,
+              product.description_th,
+              variantSearchText
             ]
             .filter(Boolean)
             .join(" ")
@@ -4029,6 +4400,12 @@ function productMinimumPrice(
           item.product_id
           ===
           productId
+        &&
+          availableQty(
+            item.id
+          )
+          >
+          0
       );
 
 
@@ -4067,9 +4444,15 @@ function productWholesalePrice(
           ===
           productId
         &&
-        item.wholesale_price
-        !==
-        null
+          availableQty(
+            item.id
+          )
+          >
+          0
+        &&
+          item.wholesale_price
+          !==
+          null
       );
 
 
@@ -4235,7 +4618,7 @@ function renderProducts(list){
                   `
 
                   <span class="featured-tag">
-                    HOT
+                  ${escapeHtml(t("hot"))}
                   </span>
 
                   `
@@ -4674,7 +5057,13 @@ function renderProductDetail(){
 
                   ${
                     escapeHtml(
+                       variant[
+                        `sales_unit_${appLanguage}`
+                      ]
+                      ||
                       variant.sales_unit_zh
+                      ||
+                      variant.sales_unit_en
                       ||
                       variant.sales_unit_code
                       ||
@@ -5690,9 +6079,9 @@ function changeCartQty(
 
     if(
       confirm(
-        t("cancelOrder")
-        +
-        "?"
+               t(
+          "removeCartItemConfirm"
+        )
       )
     ){
 
@@ -5922,7 +6311,7 @@ async function customerLogin(){
   ){
 
     showAuthMessage(
-      "Email / Password required."
+         t("loginFieldsRequired")
     );
 
     return;
@@ -6012,7 +6401,7 @@ async function customerRegister(){
   ){
 
     showAuthMessage(
-      "Please complete all fields. Password minimum 8 characters."
+       t("registerFieldsRequired")
     );
 
     return;
@@ -6362,7 +6751,7 @@ async function saveInitialProfile(){
   ){
 
     showMessage(
-      "Please complete all fields."
+    t("profileFieldsRequired")
     );
 
     return;
@@ -6438,6 +6827,9 @@ async function logoutCustomer(){
   addresses = [];
   orders = [];
 
+  selectedCheckoutAddressId =
+    null;
+
   renderAccount();
 
   renderOrders();
@@ -6454,6 +6846,9 @@ async function loadAddresses(){
   if(!currentUser){
 
     addresses = [];
+
+    selectedCheckoutAddressId =
+      null;
 
     return;
 
@@ -6506,8 +6901,17 @@ async function loadAddresses(){
     [];
 
 
+  const selectedStillExists =
+    addresses.some(
+      item =>
+        item.id
+        ===
+        selectedCheckoutAddressId
+    );
+
+
   if(
-    !selectedCheckoutAddressId
+    !selectedStillExists
   ){
 
     selectedCheckoutAddressId =
@@ -6567,7 +6971,7 @@ async function saveAddress(){
   ){
 
     showMessage(
-      "Please complete recipient, phone, region and detailed address."
+      t("addressFieldsRequired")
     );
 
     return;
@@ -6576,28 +6980,56 @@ async function saveAddress(){
 
 
   const isDefault =
+    addresses.length === 0
+    ||
     !!el("newAddressDefault")
       ?.checked;
 
 
+  const previousDefaultId =
+    addresses.find(
+      item =>
+        item.is_default
+    )?.id
+    ||
+    null;
+
+
   if(isDefault){
 
-    await db
-      .from(
-        "customer_addresses"
-      )
-      .update({
-        is_default:false
-      })
-      .eq(
-        "customer_id",
-        currentUser.id
+    const {
+      error:
+        defaultError
+    } =
+      await db
+        .from(
+          "customer_addresses"
+        )
+        .update({
+          is_default:false
+        })
+        .eq(
+          "customer_id",
+          currentUser.id
+        );
+
+
+    if(defaultError){
+
+      showMessage(
+        defaultError.message
       );
+
+      return;
+
+    }
 
   }
 
 
   const {
+    data:
+      createdAddress,
     error
   } =
     await db
@@ -6621,12 +7053,14 @@ async function saveAddress(){
         township:
           el("newAddressTownship")
             ?.value
+            .trim()
           ||
           null,
 
         street:
           el("newAddressStreet")
             ?.value
+            .trim()
           ||
           null,
 
@@ -6636,6 +7070,7 @@ async function saveAddress(){
         label:
           el("newAddressLabel")
             ?.value
+            .trim()
           ||
           null,
 
@@ -6645,10 +7080,37 @@ async function saveAddress(){
         is_active:
           true
 
-      });
+      })
+      .select("id")
+      .single();
 
 
   if(error){
+
+    if(
+      isDefault
+      &&
+      previousDefaultId
+    ){
+
+      await db
+        .from(
+          "customer_addresses"
+        )
+        .update({
+          is_default:true
+        })
+        .eq(
+          "id",
+          previousDefaultId
+        )
+        .eq(
+          "customer_id",
+          currentUser.id
+        );
+
+    }
+
 
     showMessage(
       error.message
@@ -6659,7 +7121,14 @@ async function saveAddress(){
   }
 
 
+  selectedCheckoutAddressId =
+    createdAddress?.id
+    ||
+    selectedCheckoutAddressId;
+
+
   await loadAddresses();
+
 
   showMessage(
     t("addressSaved")
@@ -6810,7 +7279,7 @@ function renderAddressCards(){
 
                     <span class="default-badge">
 
-                      DEFAULT
+                     ${escapeHtml(t("defaultBadge"))}
 
                     </span>
 
@@ -7040,7 +7509,7 @@ function renderCheckout(){
 
                 <input
                   id="newAddressLabel"
-                  placeholder="Home / Office"
+                 placeholder="${escapeHtml(t("addressLabelPlaceholder"))}"
                 >
 
               </div>
@@ -8274,9 +8743,11 @@ function renderOrderDetail(
 
                       ·
 
-                      ${
+                        ${
                         escapeHtml(
-                          item.purchase_mode
+                          t(
+                            item.purchase_mode
+                          )
                         )
                       }
 
@@ -8332,7 +8803,7 @@ function renderOrderDetail(
               )
             }:
 
-            ${newestPayment.status}
+             ${escapeHtml(statusText(newestPayment.status))}
 
             ${
               newestPayment.external_reference
@@ -8377,20 +8848,20 @@ function renderOrderDetail(
 
             <select id="proofPaymentMethod">
 
-              <option value="kpay">
-                KPay
+                            <option value="kpay">
+                ${escapeHtml(t("paymentMethodKpay"))}
               </option>
 
               <option value="wavepay">
-                WavePay
+                ${escapeHtml(t("paymentMethodWave"))}
               </option>
 
               <option value="bank_transfer">
-                Bank Transfer
+                ${escapeHtml(t("paymentMethodBank"))}
               </option>
 
               <option value="cash">
-                Cash / Offline
+                ${escapeHtml(t("paymentMethodCash"))}
               </option>
 
             </select>
@@ -8437,7 +8908,7 @@ function renderOrderDetail(
 
           :
 
-          `<div class="notice">${escapeHtml(order.payment_status)}</div>`
+         `<div class="notice">${escapeHtml(statusText(order.payment_status))}</div>`
         }
 
       </div>
@@ -8475,17 +8946,21 @@ function renderOrderDetail(
 
                       <div class="timeline-status">
 
-                        ${
+                         ${
                           escapeHtml(
-                            item.status_group
+                            statusGroupText(
+                              item.status_group
+                            )
                           )
                         }
 
                         ·
 
-                        ${
+                         ${
                           escapeHtml(
-                            item.new_status
+                            statusText(
+                              item.new_status
+                            )
                           )
                         }
 
@@ -8625,7 +9100,7 @@ async function submitPaymentProof(
   ){
 
     showMessage(
-      "Payment reference or proof URL required."
+        t("paymentProofRequired")
     );
 
     return;
@@ -8884,7 +9359,7 @@ function renderAccount(){
           <div class="form-group">
 
             <label>
-              Language
+           ${escapeHtml(t("languageLabel"))}
             </label>
 
             <select id="accountLanguage">
@@ -9086,7 +9561,7 @@ function renderAccountAddresses(){
                 address.is_default
                 ?
 
-                `<span class="default-badge">DEFAULT</span>`
+               `<span class="default-badge">${escapeHtml(t("defaultBadge"))}</span>`
 
                 :
                 ""
@@ -9244,7 +9719,7 @@ function renderAccountAddresses(){
 
           <input
             id="accountAddressLabel"
-            placeholder="Home / Office"
+            placeholder="${escapeHtml(t("addressLabelPlaceholder"))}"
           >
 
         </div>
@@ -9349,7 +9824,7 @@ async function saveAccountAddress(){
   ){
 
     showMessage(
-      "Please complete recipient, phone, region and detailed address."
+      t("addressFieldsRequired")
     );
 
     return;
@@ -9362,6 +9837,15 @@ async function saveAccountAddress(){
     ||
     !!el("accountAddressDefault")
       ?.checked;
+
+
+  const previousDefaultId =
+    addresses.find(
+      item =>
+        item.is_default
+    )?.id
+    ||
+    null;
 
 
   if(isDefault){
@@ -9397,6 +9881,8 @@ async function saveAccountAddress(){
 
 
   const {
+    data:
+      createdAddress,
     error
   } =
     await db
@@ -9447,16 +9933,55 @@ async function saveAccountAddress(){
         is_active:
           true
 
-      });
+      })
+      .select("id")
+      .single();
 
 
   if(error){
+
+    if(
+      isDefault
+      &&
+      previousDefaultId
+    ){
+
+      await db
+        .from(
+          "customer_addresses"
+        )
+        .update({
+          is_default:true
+        })
+        .eq(
+          "id",
+          previousDefaultId
+        )
+        .eq(
+          "customer_id",
+          currentUser.id
+        );
+
+    }
+
 
     showMessage(
       error.message
     );
 
     return;
+
+  }
+
+
+  if(
+    isDefault
+    &&
+    createdAddress?.id
+  ){
+
+    selectedCheckoutAddressId =
+      createdAddress.id;
 
   }
 
@@ -9620,7 +10145,8 @@ db.auth.onAuthStateChange(
       addresses = [];
 
       orders = [];
-
+      selectedCheckoutAddressId =
+        null;
       renderAccount();
 
       renderOrders();
