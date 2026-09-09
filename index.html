@@ -4444,11 +4444,15 @@ function productWholesalePrice(
           ===
           productId
         &&
-          availableQty(
+           availableQty(
             item.id
           )
-          >
-          0
+          >=
+          Number(
+            item.wholesale_min_qty
+            ||
+            1
+          )
         &&
           item.wholesale_price
           !==
@@ -4855,12 +4859,20 @@ function renderProductDetail(){
     0;
 
 
-  const wholesaleAvailable =
+    const wholesaleAvailable =
     variant
     &&
     variant.wholesale_price
     !==
-    null;
+    null
+    &&
+    stock
+    >=
+    Number(
+      variant.wholesale_min_qty
+      ||
+      1
+    );
 
 
   if(
@@ -5464,8 +5476,10 @@ function addVariantToCart(
       );
 
 
-    if(
+        if(
       quantity < min
+      ||
+      stock < min
     ){
 
       showMessage(
