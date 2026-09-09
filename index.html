@@ -6224,17 +6224,82 @@ function removeCartItem(
    AUTH
 ========================================================== */
 
-function openAuthModal(
+async function openAuthModal(
   mode = "login"
 ){
+
+  if(
+    regions.length === 0
+  ){
+
+    const {
+      data,
+      error
+    } =
+      await db
+        .from("regions")
+        .select("*")
+        .eq(
+          "is_active",
+          true
+        )
+        .order(
+          "sort_order"
+        );
+
+
+    if(
+      !error
+      &&
+      data
+        ?.length
+    ){
+
+      regions =
+        data;
+
+
+      if(
+        !selectedRegionId
+        ||
+        !regions.some(
+          region =>
+            region.id
+            ===
+            selectedRegionId
+        )
+      ){
+
+        selectedRegionId =
+          regions[0].id;
+
+        localStorage.setItem(
+          "mallRegionId",
+          selectedRegionId
+        );
+
+      }
+
+
+      rebuildMaps();
+
+    }
+
+  }
+
+
+  renderRegisterRegions();
+
 
   setAuthMode(
     mode
   );
 
+
   el("authOverlay")
     .classList
     .remove("hidden");
+
 
   document.body
     .classList
