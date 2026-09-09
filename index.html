@@ -2270,7 +2270,7 @@ let products = [];
 let variants = [];
 let productImages = [];
 let inventory = [];
-
+let paymentMethods = [];
 let addresses = [];
 let orders = [];
 
@@ -7238,7 +7238,67 @@ async function saveAddress(){
 
 }
 
+async function loadPaymentMethods(){
 
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "payment_methods"
+      )
+      .select("*")
+      .eq(
+        "is_active",
+        true
+      )
+      .order(
+        "sort_order"
+      );
+
+
+  if(error){
+
+    console.error(
+      error
+    );
+
+    paymentMethods = [];
+
+    return;
+
+  }
+
+
+  paymentMethods =
+    data || [];
+
+}
+
+
+function paymentMethodName(
+  method
+){
+
+  if(!method){
+    return "—";
+  }
+
+
+  return (
+    method[
+      `name_${appLanguage}`
+    ]
+    ||
+    method.name_zh
+    ||
+    method.name_en
+    ||
+    method.code
+  );
+
+}
 /* ==========================================================
    CHECKOUT
 ========================================================== */
@@ -7403,7 +7463,12 @@ async function startCheckout(){
   }
 
 
-  await loadAddresses();
+    await Promise.all([
+
+    loadAddresses(),
+    loadPaymentMethods()
+
+  ]);
 
   renderCheckout();
 
@@ -7843,23 +7908,31 @@ function renderCheckout(){
               ${escapeHtml(t("paymentMethod"))}
             </label>
 
-            <select id="checkoutPaymentMethod">
+                        <select id="checkoutPaymentMethod">
 
-              <option value="cash">
-                ${escapeHtml(t("paymentMethodCash"))}
-              </option>
+              ${
+                paymentMethods
+                  .map(
+                    method => `
 
-              <option value="kpay">
-                ${escapeHtml(t("paymentMethodKpay"))}
-              </option>
+                      <option
+                        value="${escapeHtml(method.code)}"
+                      >
 
-              <option value="wavepay">
-                ${escapeHtml(t("paymentMethodWave"))}
-              </option>
+                        ${
+                          escapeHtml(
+                            paymentMethodName(
+                              method
+                            )
+                          )
+                        }
 
-              <option value="bank_transfer">
-                ${escapeHtml(t("paymentMethodBank"))}
-              </option>
+                      </option>
+
+                    `
+                  )
+                  .join("")
+              }
 
             </select>
 
@@ -8124,7 +8197,21 @@ async function placeOrder(){
 
   }
 
+  const checkoutPaymentMethod =
+    el("checkoutPaymentMethod")
+      .value;
 
+
+  const checkoutPaymentInfo =
+    paymentMethods
+      .find(
+        method =>
+          method.code
+          ===
+          checkoutPaymentMethod
+      )
+    ||
+    null;
   const button =
     el("checkoutSubmitButton");
 
@@ -8161,8 +8248,7 @@ async function placeOrder(){
             address.id,
 
           p_payment_method:
-            el("checkoutPaymentMethod")
-              .value,
+           checkoutPaymentMethod,
 
           p_customer_note:
             el("checkoutNote")
@@ -8276,7 +8362,20 @@ async function placeOrder(){
 
           <div style="margin-top:7px">
 
-            ${escapeHtml(t("paymentPending"))}
+           ${
+  escapeHtml(
+    checkoutPaymentInfo
+      ?.method_type
+    ===
+    "prepaid"
+    ?
+    t("paymentPending")
+    :
+    paymentMethodName(
+      checkoutPaymentInfo
+    )
+  )
+}
 
           </div>
 
@@ -8597,7 +8696,7 @@ async function openOrder(
       "⏳"
     );
 
-
+  await loadPaymentMethods();
   const results =
     await Promise.all([
 
@@ -8781,7 +8880,35 @@ function renderOrderDetail(
 
   const newestPayment =
     payments[0];
+  const selectedPaymentMethod =
+    paymentMethods
+      .find(
+        method =>
+          method.code
+          ===
+          order.payment_method
+      )
+    ||
+    null;
 
+
+  const isPrepaidPayment =
+    selectedPaymentMethod
+      ?.method_type
+    ===
+    "prepaid";
+
+
+  const canSubmitPayment =
+    isPrepaidPayment
+    &&
+    [
+      "unpaid",
+      "failed"
+    ]
+    .includes(
+      order.payment_status
+    );
 
   el("orderDetailContent")
     .innerHTML = `
@@ -8985,11 +9112,74 @@ function renderOrderDetail(
       </div>
 
 
-      <div class="form-card">
+            <div class="form-card">
 
         <div class="form-title">
 
-          ${escapeHtml(t("submitPayment"))}
+          ${escapeHtml(t("paymentMethod"))}
+
+        </div>
+
+
+        <div class="notice">
+
+          <strong>
+
+            ${
+              escapeHtml(
+                paymentMethodName(
+                  selectedPaymentMethod
+                )
+                ||
+                order.payment_method
+                ||
+                "—"
+              )
+            }
+
+          </strong>
+
+
+          ${
+            isPrepaidPayment
+            &&
+            selectedPaymentMethod
+              ?.bank_name
+            ?
+            `<br>🏦 ${escapeHtml(
+              selectedPaymentMethod.bank_name
+            )}`
+            :
+            ""
+          }
+
+
+          ${
+            isPrepaidPayment
+            &&
+            selectedPaymentMethod
+              ?.account_name
+            ?
+            `<br>👤 ${escapeHtml(
+              selectedPaymentMethod.account_name
+            )}`
+            :
+            ""
+          }
+
+
+          ${
+            isPrepaidPayment
+            &&
+            selectedPaymentMethod
+              ?.account_number
+            ?
+            `<br>💳 ${escapeHtml(
+              selectedPaymentMethod.account_number
+            )}`
+            :
+            ""
+          }
 
         </div>
 
@@ -8997,7 +9187,6 @@ function renderOrderDetail(
         ${
           newestPayment
           ?
-
           `
 
           <div class="notice">
@@ -9008,7 +9197,13 @@ function renderOrderDetail(
               )
             }:
 
-             ${escapeHtml(statusText(newestPayment.status))}
+            ${
+              escapeHtml(
+                statusText(
+                  newestPayment.status
+                )
+              )
+            }
 
             ${
               newestPayment.external_reference
@@ -9025,54 +9220,15 @@ function renderOrderDetail(
           </div>
 
           `
-
           :
           ""
         }
 
 
         ${
-          [
-            "unpaid",
-            
-            "failed"
-          ]
-          .includes(
-            order.payment_status
-          )
-
+          canSubmitPayment
           ?
-
           `
-
-          <div class="form-group">
-
-            <label>
-              ${escapeHtml(t("paymentMethod"))}
-            </label>
-
-            <select id="proofPaymentMethod">
-
-                            <option value="kpay">
-                ${escapeHtml(t("paymentMethodKpay"))}
-              </option>
-
-              <option value="wavepay">
-                ${escapeHtml(t("paymentMethodWave"))}
-              </option>
-
-              <option value="bank_transfer">
-                ${escapeHtml(t("paymentMethodBank"))}
-              </option>
-
-              <option value="cash">
-                ${escapeHtml(t("paymentMethodCash"))}
-              </option>
-
-            </select>
-
-          </div>
-
 
           <div class="form-group">
 
@@ -9080,7 +9236,10 @@ function renderOrderDetail(
               ${escapeHtml(t("paymentReference"))}
             </label>
 
-            <input id="paymentReference">
+            <input
+              id="paymentReference"
+              placeholder="可留空"
+            >
 
           </div>
 
@@ -9088,21 +9247,25 @@ function renderOrderDetail(
           <div class="form-group">
 
             <label>
-              ${escapeHtml(t("proofUrl"))}
+              ${escapeHtml(t("submitPayment"))}
             </label>
 
             <input
-              id="paymentProofUrl"
-              type="url"
-              placeholder="https://..."
+              id="paymentProofFile"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
             >
 
           </div>
 
 
           <button
+            id="paymentProofSubmitButton"
             class="btn btn-primary"
-            onclick="submitPaymentProof('${order.id}')"
+            onclick="submitPaymentProof(
+              '${order.id}',
+              '${order.payment_method || ""}'
+            )"
           >
 
             ${escapeHtml(t("submit"))}
@@ -9110,10 +9273,22 @@ function renderOrderDetail(
           </button>
 
           `
-
           :
-
-         `<div class="notice">${escapeHtml(statusText(order.payment_status))}</div>`
+          (
+            isPrepaidPayment
+            &&
+            !newestPayment
+            ?
+            `<div class="notice">${
+              escapeHtml(
+                statusText(
+                  order.payment_status
+                )
+              )
+            }</div>`
+            :
+            ""
+          )
         }
 
       </div>
@@ -9279,71 +9454,109 @@ async function cancelCustomerOrder(
 }
 
 
-async function submitPaymentProof(
+async function uploadPaymentProof(
+  file,
   orderId
 ){
 
-  const method =
-    el("proofPaymentMethod")
-      .value;
+  if(!file){
 
-  const reference =
-    el("paymentReference")
-      .value
-      .trim();
-
-  const proofUrl =
-    el("paymentProofUrl")
-      .value
-      .trim();
-
-
-  if(
-    !reference
-    &&
-    !proofUrl
-  ){
-
-    showMessage(
-        t("paymentProofRequired")
+    throw new Error(
+      t("paymentProofRequired")
     );
 
-    return;
-
   }
+
+
+  const extension =
+    (
+      file.name
+        .split(".")
+        .pop()
+      ||
+      "jpg"
+    )
+    .toLowerCase()
+    .replace(
+      /[^a-z0-9]/g,
+      ""
+    )
+    ||
+    "jpg";
+
+
+  const filePath =
+    currentUser.id
+    +
+    "/"
+    +
+    orderId
+    +
+    "/"
+    +
+    Date.now()
+    +
+    "-"
+    +
+    crypto.randomUUID()
+    +
+    "."
+    +
+    extension;
 
 
   const {
     error
   } =
-    await db.rpc(
-      "submit_payment_proof",
-      {
+    await db.storage
+      .from(
+        "payment-proofs"
+      )
+      .upload(
+        filePath,
+        file,
+        {
+          cacheControl:
+            "3600",
 
-        p_order_id:
-          orderId,
-
-        p_payment_method:
-          method,
-
-        p_external_reference:
-          reference
-          ||
-          null,
-
-        p_proof_url:
-          proofUrl
-          ||
-          null
-
-      }
-    );
+          upsert:
+            false
+        }
+      );
 
 
   if(error){
+    throw error;
+  }
+
+
+  return filePath;
+
+}
+
+
+async function submitPaymentProof(
+  orderId,
+  method
+){
+
+  const reference =
+    el("paymentReference")
+      ?.value
+      .trim()
+    ||
+    "";
+
+
+  const file =
+    el("paymentProofFile")
+      ?.files?.[0];
+
+
+  if(!file){
 
     showMessage(
-      error.message
+      t("paymentProofRequired")
     );
 
     return;
@@ -9351,16 +9564,81 @@ async function submitPaymentProof(
   }
 
 
-  showMessage(
-    t("paymentSubmitted")
-  );
+  const button =
+    el(
+      "paymentProofSubmitButton"
+    );
 
 
-  await loadOrders();
+  if(button){
 
-  await openOrder(
-    orderId
-  );
+    button.disabled =
+      true;
+
+    button.textContent =
+      t("loading");
+
+  }
+
+
+  try{
+
+    const proofPath =
+      await uploadPaymentProof(
+        file,
+        orderId
+      );
+
+
+    const {
+      error
+    } =
+      await db.rpc(
+        "submit_payment_proof",
+        {
+
+          p_order_id:
+            orderId,
+
+          p_payment_method:
+            method,
+
+          p_external_reference:
+            reference
+            ||
+            null,
+
+          p_proof_url:
+            proofPath
+
+        }
+      );
+
+
+    if(error){
+      throw error;
+    }
+
+
+    showMessage(
+      t("paymentSubmitted")
+    );
+
+
+    await loadOrders();
+
+    await openOrder(
+      orderId
+    );
+
+  }
+  catch(error){
+
+    showMessage(
+      error.message
+    );
+
+  }
 
 }
 
