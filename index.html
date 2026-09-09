@@ -8880,7 +8880,7 @@ function renderOrderDetail(
 
   const newestPayment =
     payments[0];
-  const selectedPaymentMethod =
+    const selectedPaymentMethod =
     paymentMethods
       .find(
         method =>
@@ -8889,7 +8889,67 @@ function renderOrderDetail(
           order.payment_method
       )
     ||
-    null;
+    (
+      order.payment_method
+      ?
+      {
+        code:
+          order.payment_method,
+
+        method_type:
+          order.payment_method
+          ===
+          "cash"
+          ?
+          "cod"
+          :
+          "prepaid",
+
+        name_zh:
+          (
+            {
+              cash:
+                "货到付款",
+
+              kpay:
+                "KPay",
+
+              wavepay:
+                "WavePay",
+
+              bank_transfer:
+                "银行转账"
+            }
+          )[
+            order.payment_method
+          ]
+          ||
+          order.payment_method,
+
+        name_en:
+          (
+            {
+              cash:
+                "Cash on Delivery",
+
+              kpay:
+                "KPay",
+
+              wavepay:
+                "WavePay",
+
+              bank_transfer:
+                "Bank Transfer"
+            }
+          )[
+            order.payment_method
+          ]
+          ||
+          order.payment_method
+      }
+      :
+      null
+    );
 
 
   const isPrepaidPayment =
