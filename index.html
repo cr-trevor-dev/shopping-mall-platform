@@ -6074,10 +6074,30 @@ function changeCartQty(
     ];
 
 
+  if(!variant){
+
+    return;
+
+  }
+
+
   const stock =
     availableQty(
       variantId
     );
+
+
+  if(
+    stock <= 0
+  ){
+
+    showMessage(
+      t("soldOut")
+    );
+
+    return;
+
+  }
 
 
   let min =
@@ -6092,16 +6112,35 @@ function changeCartQty(
 
     min =
       Number(
-        variant?.wholesale_min_qty
+        variant.wholesale_min_qty
         ||
         1
       );
+
+
+    if(
+      stock < min
+      ||
+      variant.wholesale_price
+      ===
+      null
+    ){
+
+      showMessage(
+        t("wholesaleMinimum")
+      );
+
+      return;
+
+    }
 
   }
 
 
   const next =
-    item.quantity
+    Number(
+      item.quantity
+    )
     +
     delta;
 
@@ -6112,7 +6151,7 @@ function changeCartQty(
 
     if(
       confirm(
-               t(
+        t(
           "removeCartItemConfirm"
         )
       )
@@ -6531,9 +6570,14 @@ async function customerRegister(){
   }
   else{
 
-    localStorage.setItem(
+        localStorage.setItem(
       "pendingCustomerProfile",
       JSON.stringify({
+
+        user_id:
+          data.user?.id
+          ||
+          null,
 
         full_name:
           name,
@@ -6619,7 +6663,7 @@ async function initializeCustomer(){
   }
 
 
-  if(!data){
+    if(!data){
 
     const pending =
       localStorage.getItem(
@@ -6637,46 +6681,54 @@ async function initializeCustomer(){
           );
 
 
-        const {
-          error:
-          insertError
-        } =
-          await db
-            .from(
-              "customer_profiles"
-            )
-            .insert({
+        if(
+          profile.user_id
+          ===
+          currentUser.id
+        ){
 
-              id:
-                currentUser.id,
+          const {
+            error:
+            insertError
+          } =
+            await db
+              .from(
+                "customer_profiles"
+              )
+              .insert({
 
-              full_name:
-                profile.full_name,
+                id:
+                  currentUser.id,
 
-              phone:
-                profile.phone,
+                full_name:
+                  profile.full_name,
 
-              default_region_id:
-                profile.default_region_id,
+                phone:
+                  profile.phone,
 
-              preferred_language:
-                profile.preferred_language
-                ||
-                appLanguage,
+                default_region_id:
+                  profile.default_region_id,
 
-              status:
-                "active"
+                preferred_language:
+                  profile.preferred_language
+                  ||
+                  appLanguage,
 
-            });
+                status:
+                  "active"
+
+              });
 
 
-        if(!insertError){
+          if(!insertError){
 
-          localStorage.removeItem(
-            "pendingCustomerProfile"
-          );
+            localStorage.removeItem(
+              "pendingCustomerProfile"
+            );
 
-          return await initializeCustomer();
+            return await initializeCustomer();
+
+          }
 
         }
 
@@ -7193,12 +7245,132 @@ async function saveAddress(){
 
 async function startCheckout(){
 
+  const list =
+    currentRegionCart();
+
+
   if(
-    currentRegionCart()
-      .length
+    list.length
     ===
     0
   ){
+
+    return;
+
+  }
+
+
+  const stockInvalidItem =
+    list.find(
+      item => {
+
+        const variant =
+          variantMap[
+            item.variant_id
+          ];
+
+        if(!variant){
+          return true;
+        }
+
+
+        const stock =
+          availableQty(
+            item.variant_id
+          );
+
+        const quantity =
+          Number(
+            item.quantity
+            ||
+            0
+          );
+
+
+        return (
+          stock <= 0
+          ||
+          quantity <= 0
+          ||
+          quantity > stock
+        );
+
+      }
+    );
+
+
+  if(stockInvalidItem){
+
+    showMessage(
+      t("stockInsufficient")
+    );
+
+    renderCart();
+
+    return;
+
+  }
+
+
+  const invalidWholesaleItem =
+    list.find(
+      item => {
+
+        if(
+          item.purchase_mode
+          !==
+          "wholesale"
+        ){
+
+          return false;
+
+        }
+
+
+        const variant =
+          variantMap[
+            item.variant_id
+          ];
+
+        if(!variant){
+          return true;
+        }
+
+
+        const min =
+          Number(
+            variant.wholesale_min_qty
+            ||
+            1
+          );
+
+        const stock =
+          availableQty(
+            item.variant_id
+          );
+
+
+        return (
+          variant.wholesale_price
+          ===
+          null
+          ||
+          item.quantity < min
+          ||
+          stock < min
+        );
+
+      }
+    );
+
+
+  if(invalidWholesaleItem){
+
+    showMessage(
+      t("wholesaleMinimum")
+    );
+
+    renderCart();
 
     return;
 
@@ -10187,7 +10359,7 @@ db.auth.onAuthStateChange(
     }
 
 
-    if(
+        if(
       event
       ===
       "SIGNED_IN"
@@ -10197,6 +10369,16 @@ db.auth.onAuthStateChange(
 
       currentUser =
         session.user;
+
+
+      setTimeout(
+        () => {
+
+          initializeCustomer();
+
+        },
+        0
+      );
 
     }
 
