@@ -3177,7 +3177,161 @@ function errorBox(message){
 
 }
 
+function permissionName(code){
 
+  const names = {
+
+    "orders.view":{
+      zh:"查看订单",
+      en:"View Orders",
+      my:"အော်ဒါများကြည့်ရန်",
+      th:"ดูคำสั่งซื้อ"
+    },
+
+    "orders.confirm":{
+      zh:"确认订单",
+      en:"Confirm Orders",
+      my:"အော်ဒါအတည်ပြုရန်",
+      th:"ยืนยันคำสั่งซื้อ"
+    },
+
+    "orders.cancel":{
+      zh:"取消订单",
+      en:"Cancel Orders",
+      my:"အော်ဒါပယ်ဖျက်ရန်",
+      th:"ยกเลิกคำสั่งซื้อ"
+    },
+
+    "orders.pack":{
+      zh:"拣货与配货",
+      en:"Pick & Pack Orders",
+      my:"ပစ္စည်းရွေးချယ်နှင့်ထုပ်ပိုးရန်",
+      th:"หยิบและแพ็กสินค้า"
+    },
+
+    "orders.assign_delivery":{
+      zh:"指派配送",
+      en:"Assign Delivery",
+      my:"ပို့ဆောင်သူသတ်မှတ်ရန်",
+      th:"มอบหมายการจัดส่ง"
+    },
+
+    "inventory.view":{
+      zh:"查看库存",
+      en:"View Inventory",
+      my:"လက်ကျန်ကြည့်ရန်",
+      th:"ดูสต็อก"
+    },
+
+    "inventory.receive":{
+      zh:"商品入库",
+      en:"Receive Inventory",
+      my:"ကုန်ပစ္စည်းလက်ခံရန်",
+      th:"รับสินค้าเข้าสต็อก"
+    },
+
+    "inventory.adjust":{
+      zh:"调整库存",
+      en:"Adjust Inventory",
+      my:"လက်ကျန်ပြင်ဆင်ရန်",
+      th:"ปรับสต็อก"
+    },
+
+    "inventory.expiry":{
+      zh:"查看保质期",
+      en:"View Expiry",
+      my:"သက်တမ်းကုန်ရက်ကြည့်ရန်",
+      th:"ดูวันหมดอายุ"
+    },
+
+    "products.view":{
+      zh:"查看商品",
+      en:"View Products",
+      my:"ကုန်ပစ္စည်းကြည့်ရန်",
+      th:"ดูสินค้า"
+    },
+
+    "customers.view":{
+      zh:"查看客户",
+      en:"View Customers",
+      my:"ဖောက်သည်ကြည့်ရန်",
+      th:"ดูลูกค้า"
+    },
+
+    "staff.view":{
+      zh:"查看员工",
+      en:"View Staff",
+      my:"ဝန်ထမ်းကြည့်ရန်",
+      th:"ดูพนักงาน"
+    },
+
+    "staff.manage_local":{
+      zh:"管理地区员工",
+      en:"Manage Regional Staff",
+      my:"ဒေသဝန်ထမ်းစီမံရန်",
+      th:"จัดการพนักงานในพื้นที่"
+    },
+
+    "reports.region":{
+      zh:"查看地区报表",
+      en:"View Regional Reports",
+      my:"ဒေသအစီရင်ခံစာကြည့်ရန်",
+      th:"ดูรายงานพื้นที่"
+    },
+
+    "payments.view":{
+      zh:"查看付款",
+      en:"View Payments",
+      my:"ငွေပေးချေမှုကြည့်ရန်",
+      th:"ดูการชำระเงิน"
+    },
+
+    "payments.confirm":{
+      zh:"确认付款",
+      en:"Confirm Payments",
+      my:"ငွေပေးချေမှုအတည်ပြုရန်",
+      th:"ยืนยันการชำระเงิน"
+    },
+
+    "payments.refund":{
+      zh:"处理退款",
+      en:"Process Refunds",
+      my:"ငွေပြန်အမ်းရန်",
+      th:"ดำเนินการคืนเงิน"
+    },
+
+    "audit.view":{
+      zh:"查看审计记录",
+      en:"View Audit Logs",
+      my:"စစ်ဆေးမှတ်တမ်းကြည့်ရန်",
+      th:"ดูบันทึกการตรวจสอบ"
+    },
+
+    "approvals.view":{
+      zh:"查看审批",
+      en:"View Approvals",
+      my:"အတည်ပြုချက်ကြည့်ရန်",
+      th:"ดูการอนุมัติ"
+    },
+
+    "approvals.request":{
+      zh:"提交审批",
+      en:"Request Approval",
+      my:"အတည်ပြုချက်တောင်းရန်",
+      th:"ส่งคำขออนุมัติ"
+    }
+
+  };
+
+  return (
+    names[code]?.[appLanguage]
+    ||
+    names[code]?.zh
+    ||
+    code
+  );
+
+}
 function hasPermission(code){
 
   return myPermissionCodes
@@ -6508,7 +6662,7 @@ async function loadProfile(){
 
           <span class="badge">
 
-            ${escapeHtml(code)}
+           ${escapeHtml(permissionName(code))}
 
           </span>
 
