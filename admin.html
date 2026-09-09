@@ -2448,16 +2448,21 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group full">
+           <div class="form-group full">
 
         <label>
-          商品图片网址
+          商品图片
         </label>
 
         <input
-          id="quickProductImage"
-          placeholder="可以暂时不填"
+          id="quickProductImageFile"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
         >
+
+        <div class="small">
+          从手机相册或电脑选择图片，最大 5MB
+        </div>
 
       </div>
 
@@ -8504,7 +8509,117 @@ function renderQuickProductSelects(){
 
 }
 
+async function uploadProductImage(file){
 
+  if(!file){
+    return null;
+  }
+
+
+  if(
+    ![
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif"
+    ].includes(file.type)
+  ){
+
+    throw new Error(
+      "请选择 JPG、PNG、WebP 或 GIF 图片。"
+    );
+
+  }
+
+
+  if(
+    file.size
+    >
+    5 * 1024 * 1024
+  ){
+
+    throw new Error(
+      "图片不能超过 5MB。"
+    );
+
+  }
+
+
+  const extension =
+    (
+      file.name
+        .split(".")
+        .pop()
+      ||
+      "jpg"
+    )
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]/g,
+        ""
+      )
+    ||
+    "jpg";
+
+
+  const filePath =
+    "products/"
+    +
+    Date.now()
+    +
+    "-"
+    +
+    crypto.randomUUID()
+    +
+    "."
+    +
+    extension;
+
+
+  const {
+    error
+  } =
+    await db.storage
+      .from(
+        "product-images"
+      )
+      .upload(
+        filePath,
+        file,
+        {
+          cacheControl:
+            "3600",
+
+          upsert:
+            false
+        }
+      );
+
+
+  if(error){
+    throw error;
+  }
+
+
+  const {
+    data
+  } =
+    db.storage
+      .from(
+        "product-images"
+      )
+      .getPublicUrl(
+        filePath
+      );
+
+
+  return (
+    data?.publicUrl
+    ||
+    null
+  );
+
+}
 async function quickCreateProduct(){
 
   const name =
@@ -8516,10 +8631,7 @@ async function quickCreateProduct(){
     el("quickProductCategory")
       .value;
 
-  const imageUrl =
-    el("quickProductImage")
-      .value
-      .trim();
+  
 
   const brand =
     el("quickProductBrand")
@@ -8700,7 +8812,54 @@ async function quickCreateProduct(){
 
   button.textContent =
     "正在保存...";
+  let imageUrl =
+    null;
 
+
+  try{
+
+    const imageFile =
+      el("quickProductImageFile")
+        ?.files?.[0];
+
+
+    if(imageFile){
+
+      button.textContent =
+        "正在上传图片...";
+
+      imageUrl =
+        await uploadProductImage(
+          imageFile
+        );
+
+      button.textContent =
+        "正在保存...";
+
+    }
+
+  }
+  catch(uploadError){
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "保存并上架商品";
+
+    alert(
+      "图片上传失败：\n"
+      +
+      (
+        uploadError.message
+        ||
+        "请重新选择图片。"
+      )
+    );
+
+    return;
+
+  }
 
   const {
     error
@@ -8778,7 +8937,7 @@ async function quickCreateProduct(){
   el("quickProductName").value =
     "";
 
-  el("quickProductImage").value =
+    el("quickProductImageFile").value =
     "";
 
   el("quickProductBrand").value =
