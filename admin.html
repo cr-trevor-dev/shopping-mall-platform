@@ -2395,7 +2395,188 @@ tr:last-child td{
     商品基础资料、零售价、批发价和规格
   </div>
 
+  <div class="panel">
 
+    <div class="panel-title">
+      ⚡ 快速上架商品
+    </div>
+
+    <div class="safe-note">
+      平常新增零食只需要填写这里。商品代码、SKU、库存批次由系统自动建立。
+    </div>
+
+
+    <div class="form-grid">
+
+
+      <div class="form-group full">
+
+        <label>
+          商品名称 *
+        </label>
+
+        <input
+          id="quickProductName"
+          placeholder="例如：乐事原味薯片 60g"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          分类 *
+        </label>
+
+        <select id="productCategory"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          品牌
+        </label>
+
+        <input
+          id="quickProductBrand"
+          placeholder="例如：乐事"
+        >
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label>
+          商品图片网址
+        </label>
+
+        <input
+          id="quickProductImage"
+          placeholder="可以暂时不填"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          零售价 *
+        </label>
+
+        <input
+          id="quickRetailPrice"
+          type="number"
+          min="0"
+          placeholder="例如 1000"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批发价
+        </label>
+
+        <input
+          id="quickWholesalePrice"
+          type="number"
+          min="0"
+          placeholder="不做批发可留空"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          批发起订量
+        </label>
+
+        <input
+          id="quickWholesaleMin"
+          type="number"
+          min="1"
+          placeholder="例如 10"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          销售地区 *
+        </label>
+
+        <select id="quickRegion"></select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          入库数量 *
+        </label>
+
+        <input
+          id="quickQuantity"
+          type="number"
+          min="1"
+          placeholder="例如 100"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          生产日期
+        </label>
+
+        <input
+          id="quickProductionDate"
+          type="date"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          过期日期
+        </label>
+
+        <input
+          id="quickExpiryDate"
+          type="date"
+        >
+
+      </div>
+
+
+    </div>
+
+
+    <button
+      id="quickSaveButton"
+      class="btn btn-primary"
+      onclick="quickCreateProduct()"
+    >
+      保存并上架商品
+    </button>
+
+  </div>
   <div class="panel">
 
     <div class="panel-title">
@@ -8232,7 +8413,344 @@ async function toggleCategory(
 /* =========================
    商品
 ========================= */
+function renderQuickProductSelects(){
 
+  const regionSelect =
+    el("quickRegion");
+
+
+  if(!regionSelect){
+    return;
+  }
+
+
+  regionSelect.innerHTML =
+    regionData
+      .filter(
+        region =>
+          region.is_active
+          !==
+          false
+      )
+      .map(
+        region => `
+
+          <option value="${region.id}">
+            ${
+              escapeHtml(
+                region.name_zh
+                ||
+                region.name_en
+                ||
+                region.code
+              )
+            }
+          </option>
+
+        `
+      )
+      .join("");
+
+}
+
+
+async function quickCreateProduct(){
+
+  const name =
+    el("quickProductName")
+      .value
+      .trim();
+
+  const categoryId =
+    el("productCategory")
+      .value;
+
+  const imageUrl =
+    el("quickProductImage")
+      .value
+      .trim();
+
+  const brand =
+    el("quickProductBrand")
+      .value
+      .trim();
+
+  const retailPrice =
+    Number(
+      el("quickRetailPrice")
+        .value
+    );
+
+  const wholesaleRaw =
+    el("quickWholesalePrice")
+      .value
+      .trim();
+
+  const wholesalePrice =
+    wholesaleRaw
+    ?
+    Number(wholesaleRaw)
+    :
+    null;
+
+  const wholesaleMinRaw =
+    el("quickWholesaleMin")
+      .value
+      .trim();
+
+  const wholesaleMin =
+    wholesaleMinRaw
+    ?
+    Number(wholesaleMinRaw)
+    :
+    null;
+
+  const regionId =
+    el("quickRegion")
+      .value;
+
+  const quantity =
+    Number(
+      el("quickQuantity")
+        .value
+    );
+
+  const productionDate =
+    el("quickProductionDate")
+      .value
+      ||
+      null;
+
+  const expiryDate =
+    el("quickExpiryDate")
+      .value
+      ||
+      null;
+
+
+  if(
+    !name
+    ||
+    !categoryId
+    ||
+    !regionId
+  ){
+
+    alert(
+      "请填写商品名称、分类和销售地区。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !Number.isFinite(retailPrice)
+    ||
+    retailPrice < 0
+  ){
+
+    alert(
+      "请填写正确的零售价。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !Number.isInteger(quantity)
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "库存数量必须大于 0。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    wholesalePrice !== null
+    &&
+    (
+      !Number.isFinite(
+        wholesalePrice
+      )
+      ||
+      wholesalePrice < 0
+    )
+  ){
+
+    alert(
+      "批发价填写不正确。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    wholesalePrice !== null
+    &&
+    (
+      !Number.isInteger(
+        wholesaleMin
+      )
+      ||
+      wholesaleMin < 1
+    )
+  ){
+
+    alert(
+      "填写批发价后，也需要填写批发起订量。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    productionDate
+    &&
+    expiryDate
+    &&
+    expiryDate < productionDate
+  ){
+
+    alert(
+      "过期日期不能早于生产日期。"
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    el("quickSaveButton");
+
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "正在保存...";
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_quick_create_product",
+      {
+
+        p_name:
+          name,
+
+        p_category_id:
+          categoryId,
+
+        p_image_url:
+          imageUrl
+          ||
+          null,
+
+        p_brand:
+          brand
+          ||
+          null,
+
+        p_retail_price:
+          retailPrice,
+
+        p_wholesale_price:
+          wholesalePrice,
+
+        p_wholesale_min_qty:
+          wholesaleMin,
+
+        p_region_id:
+          regionId,
+
+        p_quantity:
+          quantity,
+
+        p_production_date:
+          productionDate,
+
+        p_expiry_date:
+          expiryDate
+
+      }
+    );
+
+
+  button.disabled =
+    false;
+
+  button.textContent =
+    "保存并上架商品";
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "商品已经成功上架。"
+  );
+
+
+  el("quickProductName").value =
+    "";
+
+  el("quickProductImage").value =
+    "";
+
+  el("quickProductBrand").value =
+    "";
+
+  el("quickRetailPrice").value =
+    "";
+
+  el("quickWholesalePrice").value =
+    "";
+
+  el("quickWholesaleMin").value =
+    "";
+
+  el("quickQuantity").value =
+    "";
+
+  el("quickProductionDate").value =
+    "";
+
+  el("quickExpiryDate").value =
+    "";
+
+
+  await loadBaseData();
+
+  await loadProducts();
+
+}
 async function createProduct(){
 
   const zh =
@@ -8507,7 +9025,9 @@ async function loadProducts(){
   ]);
 
 
-  renderBaseSelects();
+    renderBaseSelects();
+
+  renderQuickProductSelects();
 
 
   const productRows =
