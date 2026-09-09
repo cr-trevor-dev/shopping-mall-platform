@@ -1394,7 +1394,130 @@ tr:last-child td{
     付款审核与退款处理
   </div>
 
+  <div class="panel">
 
+    <div class="panel-title">
+      收款方式
+    </div>
+
+    <div class="safe-note">
+      客户结账时只会看到这里启用的付款方式。货到付款不需要填写收款账号。
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          付款方式
+        </label>
+
+        <select
+          id="payMethodCode"
+          onchange="fillPaymentMethodForm()"
+        >
+
+          <option value="cash">
+            货到付款
+          </option>
+
+          <option value="kpay">
+            KPay
+          </option>
+
+          <option value="wavepay">
+            WavePay
+          </option>
+
+          <option value="bank_transfer">
+            银行转账
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          收款人姓名
+        </label>
+
+        <input
+          id="payMethodAccountName"
+          placeholder="例如：Myo"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          收款账号 / 电话号码
+        </label>
+
+        <input
+          id="payMethodAccountNumber"
+          placeholder="例如：09xxxxxxxxx"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          银行名称
+        </label>
+
+        <input
+          id="payMethodBankName"
+          placeholder="KPay / WavePay 可留空"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          状态
+        </label>
+
+        <select id="payMethodActive">
+
+          <option value="true">
+            启用
+          </option>
+
+          <option value="false">
+            停用
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      onclick="savePaymentMethod()"
+    >
+      保存收款方式
+    </button>
+
+
+    <div
+      id="paymentMethodsTable"
+      style="margin-top:18px"
+    ></div>
+
+  </div>
   <div class="panel">
 
     <div class="panel-title">
@@ -5654,14 +5777,391 @@ async function adjustInventory(){
    付款
 ========================= */
 
+let paymentMethodData = [];
+
+
+function paymentMethodPreset(
+  code
+){
+
+  const presets = {
+
+    cash:{
+      method_type:"cod",
+      name_zh:"货到付款",
+      name_en:"Cash on Delivery",
+      sort_order:10
+    },
+
+    kpay:{
+      method_type:"prepaid",
+      name_zh:"KPay",
+      name_en:"KPay",
+      sort_order:20
+    },
+
+    wavepay:{
+      method_type:"prepaid",
+      name_zh:"WavePay",
+      name_en:"WavePay",
+      sort_order:30
+    },
+
+    bank_transfer:{
+      method_type:"prepaid",
+      name_zh:"银行转账",
+      name_en:"Bank Transfer",
+      sort_order:40
+    }
+
+  };
+
+
+  return (
+    presets[code]
+    ||
+    presets.cash
+  );
+
+}
+
+
 async function loadPayments(){
 
   await Promise.all([
 
+    loadPaymentMethodsAdmin(),
     loadPaymentTransactions(),
     loadRefundTransactions()
 
   ]);
+
+}
+
+
+async function loadPaymentMethodsAdmin(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "payment_methods"
+      )
+      .select("*")
+      .order(
+        "sort_order"
+      );
+
+
+  if(error){
+
+    el("paymentMethodsTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  paymentMethodData =
+    data || [];
+
+
+  const rows =
+    paymentMethodData
+      .map(
+        method => {
+
+          const account =
+            [
+              method.bank_name,
+              method.account_name,
+              method.account_number
+            ]
+            .filter(Boolean)
+            .join(" · ")
+            ||
+            "—";
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(method.name_zh)}
+              </td>
+
+              <td>
+                ${
+                  method.method_type
+                  ===
+                  "cod"
+                  ?
+                  "货到付款"
+                  :
+                  "线上预付"
+                }
+              </td>
+
+              <td>
+                ${escapeHtml(account)}
+              </td>
+
+              <td>
+                ${
+                  statusBadge(
+                    method.is_active
+                    ?
+                    "active"
+                    :
+                    "inactive"
+                  )
+                }
+              </td>
+
+              <td>
+
+                <button
+                  class="btn btn-light btn-small"
+                  onclick="editPaymentMethod('${method.code}')"
+                >
+                  编辑
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("paymentMethodsTable")
+    .innerHTML =
+    makeTable(
+
+      [
+        "方式",
+        "类型",
+        "收款资料",
+        "状态",
+        "操作"
+      ],
+
+      rows
+
+    );
+
+
+  fillPaymentMethodForm();
+
+}
+
+
+function editPaymentMethod(
+  code
+){
+
+  el("payMethodCode")
+    .value =
+    code;
+
+  fillPaymentMethodForm();
+
+}
+
+
+function fillPaymentMethodForm(){
+
+  const code =
+    el("payMethodCode")
+      .value;
+
+
+  const method =
+    paymentMethodData
+      .find(
+        item =>
+          item.code
+          ===
+          code
+      );
+
+
+  el("payMethodAccountName")
+    .value =
+    method
+      ?.account_name
+    ||
+    "";
+
+
+  el("payMethodAccountNumber")
+    .value =
+    method
+      ?.account_number
+    ||
+    "";
+
+
+  el("payMethodBankName")
+    .value =
+    method
+      ?.bank_name
+    ||
+    "";
+
+
+  el("payMethodActive")
+    .value =
+    method
+      ?.is_active
+    ?
+    "true"
+    :
+    "false";
+
+}
+
+
+async function savePaymentMethod(){
+
+  const code =
+    el("payMethodCode")
+      .value;
+
+  const preset =
+    paymentMethodPreset(
+      code
+    );
+
+  const accountName =
+    el("payMethodAccountName")
+      .value
+      .trim();
+
+  const accountNumber =
+    el("payMethodAccountNumber")
+      .value
+      .trim();
+
+  const bankName =
+    el("payMethodBankName")
+      .value
+      .trim();
+
+  const active =
+    el("payMethodActive")
+      .value
+    ===
+    "true";
+
+
+  if(
+    active
+    &&
+    preset.method_type
+    ===
+    "prepaid"
+    &&
+    (
+      !accountName
+      ||
+      !accountNumber
+    )
+  ){
+
+    alert(
+      "启用线上付款前，请填写收款人和收款账号/电话号码。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from(
+        "payment_methods"
+      )
+      .upsert(
+        {
+
+          code:
+            code,
+
+          method_type:
+            preset.method_type,
+
+          name_zh:
+            preset.name_zh,
+
+          name_en:
+            preset.name_en,
+
+          account_name:
+            accountName
+            ||
+            null,
+
+          account_number:
+            accountNumber
+            ||
+            null,
+
+          bank_name:
+            bankName
+            ||
+            null,
+
+          is_active:
+            active,
+
+          sort_order:
+            preset.sort_order,
+
+          updated_at:
+            new Date()
+              .toISOString()
+
+        },
+        {
+          onConflict:
+            "code"
+        }
+      );
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "收款方式已保存。"
+  );
+
+
+  await loadPaymentMethodsAdmin();
 
 }
 
@@ -5698,7 +6198,71 @@ async function loadPaymentTransactions(){
 
   }
 
+  const proofLinks = {};
 
+
+  await Promise.all(
+    (data || [])
+      .map(
+        async payment => {
+
+          if(
+            !payment.proof_url
+          ){
+            return;
+          }
+
+
+          if(
+            /^https?:\/\//i
+              .test(
+                payment.proof_url
+              )
+          ){
+
+            proofLinks[
+              payment.id
+            ] =
+              payment.proof_url;
+
+            return;
+
+          }
+
+
+          const {
+            data:
+            signedData,
+            error:
+            signedError
+          } =
+            await db.storage
+              .from(
+                "payment-proofs"
+              )
+              .createSignedUrl(
+                payment.proof_url,
+                3600
+              );
+
+
+          if(
+            !signedError
+            &&
+            signedData
+              ?.signedUrl
+          ){
+
+            proofLinks[
+              payment.id
+            ] =
+              signedData.signedUrl;
+
+          }
+
+        }
+      )
+  );
   const rows =
     (data || [])
       .map(
@@ -5807,10 +6371,16 @@ async function loadPaymentTransactions(){
 
               <td>
 
-                ${
-                  payment.proof_url
+               ${
+                  proofLinks[
+                    payment.id
+                  ]
                   ?
-                  `<a href="${escapeHtml(payment.proof_url)}" target="_blank">查看凭证</a>`
+                  `<a href="${escapeHtml(
+                    proofLinks[
+                      payment.id
+                    ]
+                  )}" target="_blank">查看凭证</a>`
                   :
                   "—"
                 }
