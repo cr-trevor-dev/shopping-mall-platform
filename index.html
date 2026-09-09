@@ -2253,7 +2253,13 @@ const SUPABASE_KEY =
 const db =
   window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_KEY
+    SUPABASE_KEY,
+    {
+      auth:{
+        storageKey:
+          "snackshub-customer-auth"
+      }
+    }
   );
 
 
