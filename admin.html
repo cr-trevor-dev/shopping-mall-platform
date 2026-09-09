@@ -1559,7 +1559,7 @@ tr:last-child td{
 
 
   <div class="safe-note">
-    配送员的 Auth 登录账号需要先在 Supabase Authentication 创建。这里填写那个账号对应的 User UUID，不需要也绝对不要填写 service_role 密钥。
+   直接在这里创建配送员登录账号。配送员以后使用这里设置的邮箱和密码登录配送员端。
   </div>
 
 
@@ -1574,16 +1574,32 @@ tr:last-child td{
 
       <div class="form-group">
 
-        <label>
-          Auth User UUID
-        </label>
+  <label>
+    登录邮箱
+  </label>
 
-        <input
-          id="deliveryUserId"
-          placeholder="从 Supabase Authentication 复制"
-        >
+  <input
+    id="deliveryEmail"
+    type="email"
+    placeholder="例如 delivery001@example.com"
+  >
 
-      </div>
+</div>
+
+
+<div class="form-group">
+
+  <label>
+    登录密码
+  </label>
+
+  <input
+    id="deliveryPassword"
+    type="password"
+    placeholder="至少 6 位"
+  >
+
+</div>
 
 
       <div class="form-group">
@@ -1768,7 +1784,7 @@ tr:last-child td{
 
 
   <div class="safe-note">
-    员工 Auth 登录账号必须先在 Supabase Authentication 创建。这里填写真实 User UUID。网页里不会保存 service_role 密钥。
+    直接在这里创建员工登录账号。员工以后使用这里设置的邮箱和密码登录员工端。
   </div>
 
 
@@ -1783,16 +1799,32 @@ tr:last-child td{
 
       <div class="form-group">
 
-        <label>
-          Auth User UUID
-        </label>
+  <label>
+    登录邮箱
+  </label>
 
-        <input
-          id="staffUserId"
-          placeholder="从 Supabase Authentication 复制"
-        >
+  <input
+    id="staffEmail"
+    type="email"
+    placeholder="例如 staff001@example.com"
+  >
 
-      </div>
+</div>
+
+
+<div class="form-group">
+
+  <label>
+    登录密码
+  </label>
+
+  <input
+    id="staffPassword"
+    type="password"
+    placeholder="至少 6 位"
+  >
+
+</div>
 
 
       <div class="form-group">
@@ -6633,10 +6665,14 @@ async function loadRefundTransactions(){
 
 async function createDeliveryProfile(){
 
-  const userId =
-    el("deliveryUserId")
+  const email =
+    el("deliveryEmail")
       .value
       .trim();
+
+  const password =
+    el("deliveryPassword")
+      .value;
 
   const code =
     el("deliveryCode")
@@ -6655,15 +6691,19 @@ async function createDeliveryProfile(){
 
 
   if(
-    !userId
+    !email
+    ||
+    password.length < 6
     ||
     !code
     ||
     !name
+    ||
+    regions.length === 0
   ){
 
     alert(
-      "必须填写 Auth User UUID、编号和姓名。"
+      "请填写邮箱、密码（至少6位）、配送员编号、姓名，并选择负责地区。"
     );
 
     return;
@@ -6672,53 +6712,74 @@ async function createDeliveryProfile(){
 
 
   const {
+    data,
     error
   } =
-    await db
-      .from(
-        "delivery_profiles"
-      )
-      .insert({
+    await db.functions.invoke(
+      "admin-create-workforce-user",
+      {
+        body:{
+          kind:
+            "delivery",
 
-        id:
-          userId,
+          email:
+            email,
 
-        delivery_code:
-          code,
+          password:
+            password,
 
-        display_name:
-          name,
+          code:
+            code,
 
-        phone:
-          el("deliveryPhone").value
-          ||
-          null,
+          display_name:
+            name,
 
-        vehicle_type:
-          el("deliveryVehicleType").value
-          ||
-          null,
+          phone:
+            el("deliveryPhone").value
+            ||
+            null,
 
-        vehicle_plate:
-          el("deliveryVehiclePlate").value
-          ||
-          null,
+          vehicle_type:
+            el("deliveryVehicleType").value
+            ||
+            null,
 
-        preferred_language:
-          el("deliveryLanguage").value,
+          vehicle_plate:
+            el("deliveryVehiclePlate").value
+            ||
+            null,
 
-        status:
-          el("deliveryStatus").value
+          preferred_language:
+            el("deliveryLanguage").value,
 
-      });
+          status:
+            el("deliveryStatus").value,
+
+          region_ids:
+            regions
+        }
+      }
+    );
 
 
-  if(error){
+  if(
+    error
+    ||
+    !data?.ok
+  ){
 
     alert(
-      "保存失败：\n"
+      "创建配送员失败：\n"
       +
-      error.message
+      (
+        data?.message
+        ||
+        data?.error
+        ||
+        error?.message
+        ||
+        "未知错误"
+      )
     );
 
     return;
@@ -6726,72 +6787,17 @@ async function createDeliveryProfile(){
   }
 
 
-  if(
-    regions.length > 0
-  ){
-
-    const {
-      data:
-      sessionData
-    } =
-      await db.auth.getSession();
-
-
-    const adminId =
-      sessionData.session
-        ?.user
-        ?.id
-      ||
-      null;
-
-
-    const rows =
-      regions.map(
-        regionId => ({
-
-          delivery_id:
-            userId,
-
-          region_id:
-            regionId,
-
-          assigned_by:
-            adminId,
-
-          is_active:
-            true
-
-        })
-      );
-
-
-    const {
-      error:
-      regionError
-    } =
-      await db
-        .from(
-          "delivery_region_assignments"
-        )
-        .insert(rows);
-
-
-    if(regionError){
-
-      alert(
-        "配送员资料已建立，但地区分配失败：\n"
-        +
-        regionError.message
-      );
-
-    }
-
-  }
-
-
   alert(
-    "配送员资料保存成功。"
+    "配送员登录账号和资料已经创建成功。"
   );
+
+
+  el("deliveryEmail").value = "";
+  el("deliveryPassword").value = "";
+  el("deliveryCode").value = "";
+  el("deliveryName").value = "";
+  el("deliveryPhone").value = "";
+  el("deliveryVehiclePlate").value = "";
 
 
   await loadBaseData();
@@ -7182,10 +7188,14 @@ async function setDeliveryStatus(
 
 async function createStaffProfile(){
 
-  const userId =
-    el("staffUserId")
+  const email =
+    el("staffEmail")
       .value
       .trim();
+
+  const password =
+    el("staffPassword")
+      .value;
 
   const staffCode =
     el("staffCode")
@@ -7207,17 +7217,21 @@ async function createStaffProfile(){
 
 
   if(
-    !userId
+    !email
+    ||
+    password.length < 6
     ||
     !staffCode
     ||
     !name
     ||
     !roleId
+    ||
+    regions.length === 0
   ){
 
     alert(
-      "必须填写 Auth User UUID、员工编号、姓名和角色。"
+      "请填写邮箱、密码（至少6位）、员工编号、姓名、角色，并选择负责地区。"
     );
 
     return;
@@ -7226,155 +7240,84 @@ async function createStaffProfile(){
 
 
   const {
-    error:
-    profileError
+    data,
+    error
   } =
-    await db
-      .from(
-        "staff_profiles"
-      )
-      .insert({
+    await db.functions.invoke(
+      "admin-create-workforce-user",
+      {
+        body:{
+          kind:
+            "staff",
 
-        id:
-          userId,
+          email:
+            email,
 
-        staff_code:
-          staffCode,
+          password:
+            password,
 
-        display_name:
-          name,
+          code:
+            staffCode,
 
-        phone:
-          el("staffPhone").value
-          ||
-          null,
+          display_name:
+            name,
 
-        status:
-          "active",
+          phone:
+            el("staffPhone").value
+            ||
+            null,
 
-        preferred_language:
-          el("staffLanguage").value
+          preferred_language:
+            el("staffLanguage").value,
 
-      });
+          status:
+            "active",
 
+          role_id:
+            roleId,
 
-  if(profileError){
-
-    alert(
-      "员工资料保存失败：\n"
-      +
-      profileError.message
+          region_ids:
+            regions
+        }
+      }
     );
-
-    return;
-
-  }
-
-
-  const {
-    data:
-    sessionData
-  } =
-    await db.auth.getSession();
-
-
-  const adminId =
-    sessionData.session
-      ?.user
-      ?.id
-    ||
-    null;
-
-
-  const {
-    error:
-    roleError
-  } =
-    await db
-      .from(
-        "staff_role_assignments"
-      )
-      .insert({
-
-        staff_id:
-          userId,
-
-        role_id:
-          roleId,
-
-        assigned_by:
-          adminId,
-
-        is_active:
-          true
-
-      });
-
-
-  if(roleError){
-
-    alert(
-      "员工资料建立成功，但角色分配失败：\n"
-      +
-      roleError.message
-    );
-
-  }
 
 
   if(
-    regions.length > 0
+    error
+    ||
+    !data?.ok
   ){
 
-    const regionRows =
-      regions.map(
-        regionId => ({
+    alert(
+      "创建员工失败：\n"
+      +
+      (
+        data?.message
+        ||
+        data?.error
+        ||
+        error?.message
+        ||
+        "未知错误"
+      )
+    );
 
-          staff_id:
-            userId,
-
-          region_id:
-            regionId,
-
-          assigned_by:
-            adminId,
-
-          is_active:
-            true
-
-        })
-      );
-
-
-    const {
-      error:
-      regionError
-    } =
-      await db
-        .from(
-          "staff_region_assignments"
-        )
-        .insert(
-          regionRows
-        );
-
-
-    if(regionError){
-
-      alert(
-        "员工资料建立成功，但地区分配失败：\n"
-        +
-        regionError.message
-      );
-
-    }
+    return;
 
   }
 
 
   alert(
-    "员工资料保存完成。"
+    "员工登录账号和资料已经创建成功。"
   );
+
+
+  el("staffEmail").value = "";
+  el("staffPassword").value = "";
+  el("staffCode").value = "";
+  el("staffName").value = "";
+  el("staffPhone").value = "";
 
 
   await loadBaseData();
