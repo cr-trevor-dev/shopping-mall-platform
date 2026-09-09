@@ -8960,15 +8960,22 @@ function renderOrderDetail(
 
 
   const canSubmitPayment =
-    isPrepaidPayment
-    &&
-    [
-      "unpaid",
-      "failed"
-    ]
-    .includes(
-      order.payment_status
-    );
+  isPrepaidPayment
+  &&
+  paymentMethods.some(
+    method =>
+      method.code
+      ===
+      order.payment_method
+  )
+  &&
+  [
+    "unpaid",
+    "failed"
+  ]
+  .includes(
+    order.payment_status
+  );
 
   el("orderDetailContent")
     .innerHTML = `
