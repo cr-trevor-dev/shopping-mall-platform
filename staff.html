@@ -5970,7 +5970,74 @@ async function loadPayments(){
 
   }
 
+const proofLinks = {};
 
+
+await Promise.all(
+
+  (data || [])
+    .map(
+      async payment => {
+
+        if(
+          !payment.proof_url
+        ){
+          return;
+        }
+
+
+        const externalUrl =
+          safeExternalUrl(
+            payment.proof_url
+          );
+
+
+        if(externalUrl){
+
+          proofLinks[
+            payment.id
+          ] =
+            externalUrl;
+
+          return;
+
+        }
+
+
+        const {
+          data:
+            signedData,
+          error:
+            signedError
+        } =
+          await db.storage
+            .from(
+              "payment-proofs"
+            )
+            .createSignedUrl(
+              payment.proof_url,
+              3600
+            );
+
+
+        if(
+          !signedError
+          &&
+          signedData
+            ?.signedUrl
+        ){
+
+          proofLinks[
+            payment.id
+          ] =
+            signedData.signedUrl;
+
+        }
+
+      }
+    )
+
+);
   const rows =
     (data || [])
       .map(
@@ -6063,33 +6130,33 @@ async function loadPayments(){
                 ${statusBadge(payment.status)}
               </td>
 
-              <td>
+             <td>
 
-                                ${
-                  safeExternalUrl(
-                    payment.proof_url
-                  )
-                  ?
-                  `
-                    <a
-                      href="${
-                        escapeHtml(
-                          safeExternalUrl(
-                            payment.proof_url
-                          )
-                        )
-                      }"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Proof
-                    </a>
-                  `
-                  :
-                  "—"
-                }
+  ${
+    proofLinks[
+      payment.id
+    ]
+    ?
+    `
+      <a
+        href="${
+          escapeHtml(
+            proofLinks[
+              payment.id
+            ]
+          )
+        }"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Proof
+      </a>
+    `
+    :
+    "—"
+  }
 
-              </td>
+</td>
 
               <td>
 
