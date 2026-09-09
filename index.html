@@ -5282,13 +5282,32 @@ function setPurchaseMode(mode){
     mode
     ===
     "wholesale"
-    &&
-    variant.wholesale_price
-    ===
-    null
   ){
 
-    return;
+    const stock =
+      availableQty(
+        variant.id
+      );
+
+    const min =
+      Number(
+        variant.wholesale_min_qty
+        ||
+        1
+      );
+
+
+    if(
+      variant.wholesale_price
+      ===
+      null
+      ||
+      stock < min
+    ){
+
+      return;
+
+    }
 
   }
 
