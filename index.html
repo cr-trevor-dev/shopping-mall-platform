@@ -9034,7 +9034,7 @@ function renderOrderDetail(
         ${
           [
             "unpaid",
-            "pending",
+            
             "failed"
           ]
           .includes(
@@ -10231,6 +10231,10 @@ async function updateProfile(){
     !regionId
   ){
 
+        showMessage(
+      t("profileFieldsRequired")
+    );
+
     return;
 
   }
@@ -10359,7 +10363,7 @@ db.auth.onAuthStateChange(
     }
 
 
-        if(
+            if(
       event
       ===
       "SIGNED_IN"
@@ -10369,16 +10373,6 @@ db.auth.onAuthStateChange(
 
       currentUser =
         session.user;
-
-
-      setTimeout(
-        () => {
-
-          initializeCustomer();
-
-        },
-        0
-      );
 
     }
 
