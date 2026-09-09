@@ -8422,8 +8422,15 @@ function renderQuickProductSelects(){
   const regionSelect =
     el("quickRegion");
 
+  const categorySelect =
+    el("quickProductCategory");
 
-  if(!regionSelect){
+
+  if(
+    !regionSelect
+    ||
+    !categorySelect
+  ){
     return;
   }
 
@@ -8455,6 +8462,46 @@ function renderQuickProductSelects(){
       )
       .join("");
 
+
+  categorySelect.innerHTML =
+    `<option value="">请选择分类</option>`
+    +
+    categoryData
+      .filter(
+        category =>
+          category.is_active
+          !==
+          false
+      )
+      .map(
+        category => `
+
+          <option value="${category.id}">
+
+            ${
+              category.level === 1
+              ?
+              "一级 · "
+              :
+              "二级 · "
+            }
+
+            ${
+              escapeHtml(
+                category.name_zh
+                ||
+                category.name_en
+                ||
+                category.code
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
+
 }
 
 
@@ -8465,8 +8512,8 @@ async function quickCreateProduct(){
       .value
       .trim();
 
-  const categoryId =
-    el("productCategory")
+   const categoryId =
+    el("quickProductCategory")
       .value;
 
   const imageUrl =
@@ -8479,11 +8526,17 @@ async function quickCreateProduct(){
       .value
       .trim();
 
+    const retailRaw =
+    el("quickRetailPrice")
+      .value
+      .trim();
+
   const retailPrice =
-    Number(
-      el("quickRetailPrice")
-        .value
-    );
+    retailRaw === ""
+    ?
+    NaN
+    :
+    Number(retailRaw);
 
   const wholesaleRaw =
     el("quickWholesalePrice")
