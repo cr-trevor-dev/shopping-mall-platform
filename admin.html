@@ -9074,17 +9074,19 @@ async function createVariant(){
 
 async function loadProducts(){
 
-  await Promise.all([
+    await Promise.all([
 
+    loadRegionsBase(),
+    loadCategoriesBase(),
     loadProductsBase(),
     loadVariantsBase()
 
   ]);
 
 
-    renderBaseSelects();
-
   renderQuickProductSelects();
+
+  renderBaseSelects();
 
 
   const productRows =
