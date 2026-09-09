@@ -1066,8 +1066,8 @@ tr:last-child td{
       <div class="form-group">
 
         <label>
-          SKU
-        </label>
+  商品
+</label>
 
         <select id="receiveVariant"></select>
 
@@ -1089,7 +1089,7 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group">
+      <div class="form-group hidden">
 
         <label data-i18n="batchCode">
           批次编号
@@ -1128,7 +1128,7 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group">
+      <div class="form-group hidden">
 
         <label data-i18n="unitCost">
           单位成本
@@ -1202,9 +1202,9 @@ tr:last-child td{
 
       <div class="form-group">
 
-        <label>
-          SKU
-        </label>
+  <label>
+  商品
+</label>
 
         <select id="adjustVariant"></select>
 
@@ -3909,35 +3909,25 @@ async function loadVariants(){
     variant => {
 
       variantMap[
-        variant.id
-      ] =
-        (
-          variant.sku_code
-          ||
-          ""
-        )
-        +
-        " · "
-        +
-        (
-          variant[
-            `name_${appLanguage}`
-          ]
-          ||
-          variant.name_zh
-          ||
-          variant[
-            `specification_${appLanguage}`
-          ]
-          ||
-          variant.specification_zh
-          ||
-          productMap[
-            variant.product_id
-          ]
-          ||
-          ""
-        );
+  variant.id
+] =
+  productMap[
+    variant.product_id
+  ]
+  ||
+  variant[
+    `name_${appLanguage}`
+  ]
+  ||
+  variant.name_zh
+  ||
+  variant[
+    `specification_${appLanguage}`
+  ]
+  ||
+  variant.specification_zh
+  ||
+  "商品";
 
     }
   );
