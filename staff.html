@@ -1117,7 +1117,7 @@ tr:last-child td{
       <div class="form-group">
 
         <label data-i18n="expiryDate">
-          到期日期
+         过期日期
         </label>
 
         <input
@@ -1267,7 +1267,7 @@ tr:last-child td{
       class="panel-title"
       data-i18n="inventoryBatches"
     >
-      库存批次
+      保质期 / 临期商品
     </div>
 
     <div id="batchTable"></div>
@@ -1485,7 +1485,7 @@ zh:{
   quantity:"数量",
   batchCode:"批次编号",
   productionDate:"生产日期",
-  expiryDate:"到期日期",
+  expiryDate:"过期日期",
   unitCost:"单位成本",
   note:"备注",
   confirmReceive:"确认入库",
@@ -5392,14 +5392,14 @@ async function loadInventoryList(){
     makeTable(
 
       [
-        "Region",
-        "SKU",
-        "On Hand",
-        "Reserved",
-        "Available",
-        "Low Stock",
-        "Status"
-      ],
+  "地区",
+  "商品",
+  "实际库存",
+  "已预留",
+  "可用库存",
+  "低库存线",
+  "状态"
+],
 
       rows
 
@@ -5450,96 +5450,135 @@ async function loadBatchList(){
 
 
   const rows =
-    (data || [])
-      .map(
-        batch => {
+  (data || [])
+    .map(
+      batch => {
 
-          const inventory =
-            batch.region_inventory
-            ||
-            {};
+        const inventory =
+          batch.region_inventory
+          ||
+          {};
 
+        let expiryStatus =
+          "未填写";
 
-          return `
+        if(batch.expiry_date){
 
-            <tr>
+          const today =
+            new Date();
 
-              <td>
+          today.setHours(
+            0,
+            0,
+            0,
+            0
+          );
 
-                ${
-                  escapeHtml(
-                    regionMap[
-                      inventory.region_id
-                    ]
-                    ||
-                    "—"
-                  )
-                }
+          const expiry =
+            new Date(
+              batch.expiry_date
+              +
+              "T00:00:00"
+            );
 
-              </td>
+          const daysLeft =
+            Math.ceil(
+              (
+                expiry
+                -
+                today
+              )
+              /
+              86400000
+            );
 
-              <td>
+          if(daysLeft < 0){
 
-                ${
-                  escapeHtml(
-                    variantMap[
-                      inventory.variant_id
-                    ]
-                    ||
-                    "—"
-                  )
-                }
+            expiryStatus =
+              "已过期";
 
-              </td>
+          }else if(daysLeft <= 30){
 
-              <td>
+            expiryStatus =
+              "临期 · "
+              +
+              daysLeft
+              +
+              "天";
 
-                ${
-                  escapeHtml(
-                    batch.batch_code
-                    ||
-                    "—"
-                  )
-                }
+          }else{
 
-              </td>
+            expiryStatus =
+              "正常";
 
-              <td>
-                ${batch.quantity_remaining}
-              </td>
-
-              <td>
-                ${batch.expiry_date || "—"}
-              </td>
-
-              <td>
-                ${statusBadge(batch.status)}
-              </td>
-
-            </tr>
-
-          `;
+          }
 
         }
-      );
 
 
-  el("batchTable")
-    .innerHTML =
-    makeTable(
+        return `
 
-      [
-        "Region",
-        "SKU",
-        "Batch",
-        "Remaining",
-        "Expiry",
-        "Status"
-      ],
+          <tr>
 
-      rows
+            <td>
+              ${
+                escapeHtml(
+                  regionMap[
+                    inventory.region_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+            </td>
 
+            <td>
+              ${
+                escapeHtml(
+                  variantMap[
+                    inventory.variant_id
+                  ]
+                  ||
+                  "—"
+                )
+              }
+            </td>
+
+            <td>
+              ${batch.quantity_remaining}
+            </td>
+
+            <td>
+              ${batch.expiry_date || "—"}
+            </td>
+
+            <td>
+              ${escapeHtml(expiryStatus)}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
     );
+
+
+el("batchTable")
+  .innerHTML =
+  makeTable(
+
+    [
+      "地区",
+      "商品",
+      "剩余数量",
+      "过期日期",
+      "保质期状态"
+    ],
+
+    rows
+
+  );
 
 }
 
