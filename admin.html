@@ -1407,11 +1407,11 @@ tr:last-child td{
   </div>
 
   <div class="page-subtitle">
-    地区库存、批次、入库、手工调整
+        查看各地区真实库存和商品保质期
   </div>
 
 
-  <div class="panel">
+   <div class="panel hidden">
 
     <div class="panel-title">
       商品入库
@@ -1553,7 +1553,7 @@ tr:last-child td{
   </div>
 
 
-  <div class="panel">
+    <div class="panel hidden">
 
     <div class="panel-title">
       手工库存调整
@@ -2831,26 +2831,25 @@ tr:last-child td{
 >
 
   <div class="page-title">
-    商品与 SKU
+        商品管理
   </div>
 
   <div class="page-subtitle">
-    商品基础资料、零售价、批发价和规格
+        建立全平台商品资料，库存由总部发货和地区收货产生
   </div>
 
-  <div class="panel">
+    <div class="panel">
 
     <div class="panel-title">
-      ⚡ 快速上架商品
+      新增商品
     </div>
 
     <div class="safe-note">
-      平常新增零食只需要填写这里。商品代码、SKU、库存批次由系统自动建立。
+      这里只建立全平台商品资料，不会自动入库或上架。保存后请到“总部发货”选择地区和发货数量。
     </div>
 
 
     <div class="form-grid">
-
 
       <div class="form-group full">
 
@@ -2891,7 +2890,7 @@ tr:last-child td{
       </div>
 
 
-           <div class="form-group full">
+      <div class="form-group full">
 
         <label>
           商品图片
@@ -2957,62 +2956,6 @@ tr:last-child td{
 
       </div>
 
-
-      <div class="form-group">
-
-        <label>
-          销售地区 *
-        </label>
-
-        <select id="quickRegion"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          入库数量 *
-        </label>
-
-        <input
-          id="quickQuantity"
-          type="number"
-          min="1"
-          placeholder="例如 100"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          生产日期
-        </label>
-
-        <input
-          id="quickProductionDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          过期日期
-        </label>
-
-        <input
-          id="quickExpiryDate"
-          type="date"
-        >
-
-      </div>
-
-
     </div>
 
 
@@ -3021,7 +2964,7 @@ tr:last-child td{
       class="btn btn-primary"
       onclick="quickCreateProduct()"
     >
-      保存并上架商品
+      保存商品
     </button>
 
   </div>
@@ -10598,48 +10541,13 @@ async function toggleCategory(
 ========================= */
 function renderQuickProductSelects(){
 
-  const regionSelect =
-    el("quickRegion");
-
   const categorySelect =
     el("quickProductCategory");
 
 
-  if(
-    !regionSelect
-    ||
-    !categorySelect
-  ){
+  if(!categorySelect){
     return;
   }
-
-
-  regionSelect.innerHTML =
-    regionData
-      .filter(
-        region =>
-          region.is_active
-          !==
-          false
-      )
-      .map(
-        region => `
-
-          <option value="${region.id}">
-            ${
-              escapeHtml(
-                region.name_zh
-                ||
-                region.name_en
-                ||
-                region.code
-              )
-            }
-          </option>
-
-        `
-      )
-      .join("");
 
 
   categorySelect.innerHTML =
@@ -10801,18 +10709,16 @@ async function quickCreateProduct(){
       .value
       .trim();
 
-   const categoryId =
+  const categoryId =
     el("quickProductCategory")
       .value;
-
-  
 
   const brand =
     el("quickProductBrand")
       .value
       .trim();
 
-    const retailRaw =
+  const retailRaw =
     el("quickRetailPrice")
       .value
       .trim();
@@ -10848,39 +10754,15 @@ async function quickCreateProduct(){
     :
     null;
 
-  const regionId =
-    el("quickRegion")
-      .value;
-
-  const quantity =
-    Number(
-      el("quickQuantity")
-        .value
-    );
-
-  const productionDate =
-    el("quickProductionDate")
-      .value
-      ||
-      null;
-
-  const expiryDate =
-    el("quickExpiryDate")
-      .value
-      ||
-      null;
-
 
   if(
     !name
     ||
     !categoryId
-    ||
-    !regionId
   ){
 
     alert(
-      "请填写商品名称、分类和销售地区。"
+      "请填写商品名称和分类。"
     );
 
     return;
@@ -10904,27 +10786,10 @@ async function quickCreateProduct(){
 
 
   if(
-    !Number.isInteger(quantity)
-    ||
-    quantity <= 0
-  ){
-
-    alert(
-      "库存数量必须大于 0。"
-    );
-
-    return;
-
-  }
-
-
-  if(
     wholesalePrice !== null
     &&
     (
-      !Number.isFinite(
-        wholesalePrice
-      )
+      !Number.isFinite(wholesalePrice)
       ||
       wholesalePrice < 0
     )
@@ -10943,9 +10808,7 @@ async function quickCreateProduct(){
     wholesalePrice !== null
     &&
     (
-      !Number.isInteger(
-        wholesaleMin
-      )
+      !Number.isInteger(wholesaleMin)
       ||
       wholesaleMin < 1
     )
@@ -10960,34 +10823,13 @@ async function quickCreateProduct(){
   }
 
 
-  if(
-    productionDate
-    &&
-    expiryDate
-    &&
-    expiryDate < productionDate
-  ){
-
-    alert(
-      "过期日期不能早于生产日期。"
-    );
-
-    return;
-
-  }
-
-
   const button =
     el("quickSaveButton");
 
+  button.disabled = true;
+  button.textContent = "正在保存...";
 
-  button.disabled =
-    true;
-
-  button.textContent =
-    "正在保存...";
-  let imageUrl =
-    null;
+  let imageUrl = null;
 
 
   try{
@@ -10995,7 +10837,6 @@ async function quickCreateProduct(){
     const imageFile =
       el("quickProductImageFile")
         ?.files?.[0];
-
 
     if(imageFile){
 
@@ -11015,11 +10856,8 @@ async function quickCreateProduct(){
   }
   catch(uploadError){
 
-    button.disabled =
-      false;
-
-    button.textContent =
-      "保存并上架商品";
+    button.disabled = false;
+    button.textContent = "保存商品";
 
     alert(
       "图片上传失败：\n"
@@ -11035,11 +10873,12 @@ async function quickCreateProduct(){
 
   }
 
+
   const {
     error
   } =
     await db.rpc(
-      "admin_quick_create_product",
+      "admin_create_product_master",
       {
 
         p_name:
@@ -11049,14 +10888,10 @@ async function quickCreateProduct(){
           categoryId,
 
         p_image_url:
-          imageUrl
-          ||
-          null,
+          imageUrl || null,
 
         p_brand:
-          brand
-          ||
-          null,
+          brand || null,
 
         p_retail_price:
           retailPrice,
@@ -11065,29 +10900,14 @@ async function quickCreateProduct(){
           wholesalePrice,
 
         p_wholesale_min_qty:
-          wholesaleMin,
-
-        p_region_id:
-          regionId,
-
-        p_quantity:
-          quantity,
-
-        p_production_date:
-          productionDate,
-
-        p_expiry_date:
-          expiryDate
+          wholesaleMin
 
       }
     );
 
 
-  button.disabled =
-    false;
-
-  button.textContent =
-    "保存并上架商品";
+  button.disabled = false;
+  button.textContent = "保存商品";
 
 
   if(error){
@@ -11104,40 +10924,19 @@ async function quickCreateProduct(){
 
 
   alert(
-    "商品已经成功上架。"
+    "商品资料已保存。\n下一步请到“总部发货”给地区发货。"
   );
 
 
-  el("quickProductName").value =
-    "";
-
-    el("quickProductImageFile").value =
-    "";
-
-  el("quickProductBrand").value =
-    "";
-
-  el("quickRetailPrice").value =
-    "";
-
-  el("quickWholesalePrice").value =
-    "";
-
-  el("quickWholesaleMin").value =
-    "";
-
-  el("quickQuantity").value =
-    "";
-
-  el("quickProductionDate").value =
-    "";
-
-  el("quickExpiryDate").value =
-    "";
+  el("quickProductName").value = "";
+  el("quickProductImageFile").value = "";
+  el("quickProductBrand").value = "";
+  el("quickRetailPrice").value = "";
+  el("quickWholesalePrice").value = "";
+  el("quickWholesaleMin").value = "";
 
 
   await loadBaseData();
-
   await loadProducts();
 
 }
