@@ -772,12 +772,7 @@ tr:last-child td{
   >
     订单
   </div>
-  <div
-    class="menu-item"
-    onclick="showSection('shipments',this)"
-  >
-    总部发货
-  </div>
+  
   <div
     class="menu-item"
     onclick="showSection('inventory',this)"
@@ -2743,495 +2738,214 @@ tr:last-child td{
   class="section"
 >
 
-  <div class="page-title">
-        商品管理
-  </div>
+  <div id="productListPage">
 
-  <div class="page-subtitle">
-        建立全平台商品资料，库存由总部发货和地区收货产生
-  </div>
+    <div class="page-title">
+      商品管理
+    </div>
+
+    <div class="page-subtitle">
+      每个商品只建立一次。采购、发货、地区库存和历史都从对应商品进入。
+    </div>
+
+
+    <div class="toolbar">
+
+      <input
+        id="productSearchInput"
+        placeholder="搜索商品名称 / 商品代码"
+        oninput="renderSimpleProductList()"
+      >
+
+      <button
+        class="btn btn-primary"
+        onclick="openNewProductPage()"
+      >
+        + 新增商品
+      </button>
+
+    </div>
+
 
     <div class="panel">
 
-    <div class="panel-title">
+      <div id="productsTable"></div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="productCreatePage"
+    class="hidden"
+  >
+
+    <button
+      class="btn btn-light"
+      onclick="showProductListPage()"
+      style="margin-bottom:14px"
+    >
+      ← 返回商品列表
+    </button>
+
+
+    <div class="page-title">
       新增商品
     </div>
 
-    <div class="safe-note">
-      这里只建立全平台商品资料，不会自动入库或上架。保存后请到“总部发货”选择地区和发货数量。
+    <div class="page-subtitle">
+      新商品只建立一次。以后再次采购，请直接使用商品列表里的「增加库存」。
     </div>
 
 
-    <div class="form-grid">
+    <div class="panel">
 
-      <div class="form-group full">
+      <div class="form-grid">
 
-        <label>
-          商品名称 *
-        </label>
+        <div class="form-group full">
 
-        <input
-          id="quickProductName"
-          placeholder="例如：乐事原味薯片 60g"
-        >
+          <label>
+            商品名称 *
+          </label>
 
-      </div>
+          <input
+            id="quickProductName"
+            placeholder="例如：乐事原味薯片 60g"
+          >
 
-
-      <div class="form-group">
-
-        <label>
-          分类 *
-        </label>
-
-        <select id="quickProductCategory"></select>
-
-      </div>
+        </div>
 
 
-      <div class="form-group">
+        <div class="form-group">
 
-        <label>
-          品牌
-        </label>
+          <label>
+            分类 *
+          </label>
 
-        <input
-          id="quickProductBrand"
-          placeholder="例如：乐事"
-        >
+          <select id="quickProductCategory"></select>
 
-      </div>
+        </div>
 
 
-            <div class="form-group full">
+        <div class="form-group">
 
-        <label>
-          商品图片
-        </label>
+          <label>
+            品牌
+          </label>
 
-        <input
-          id="quickProductImageFile"
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          multiple
-        >
+          <input
+            id="quickProductBrand"
+            placeholder="例如：乐事"
+          >
 
-        <div class="small">
-          可以一次选择多张图片，最多 10 张；第一张自动作为商品封面，每张最大 5MB
+        </div>
+
+
+        <div class="form-group full">
+
+          <label>
+            商品图片
+          </label>
+
+          <input
+            id="quickProductImageFile"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+          >
+
+          <div class="small">
+            可以一次选择多张图片，最多 10 张；第一张自动作为封面，每张最大 5MB
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            零售价 *
+          </label>
+
+          <input
+            id="quickRetailPrice"
+            type="number"
+            min="0"
+            placeholder="例如 1000"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            批发价
+          </label>
+
+          <input
+            id="quickWholesalePrice"
+            type="number"
+            min="0"
+            placeholder="不做批发可留空"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            批发起订量
+          </label>
+
+          <input
+            id="quickWholesaleMin"
+            type="number"
+            min="1"
+            placeholder="例如 10"
+          >
+
         </div>
 
       </div>
 
 
-      <div class="form-group">
-
-        <label>
-          零售价 *
-        </label>
-
-        <input
-          id="quickRetailPrice"
-          type="number"
-          min="0"
-          placeholder="例如 1000"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批发价
-        </label>
-
-        <input
-          id="quickWholesalePrice"
-          type="number"
-          min="0"
-          placeholder="不做批发可留空"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批发起订量
-        </label>
-
-        <input
-          id="quickWholesaleMin"
-          type="number"
-          min="1"
-          placeholder="例如 10"
-        >
-
-      </div>
+      <button
+        id="quickSaveButton"
+        class="btn btn-primary"
+        onclick="quickCreateProduct()"
+      >
+        保存商品
+      </button>
 
     </div>
-
-
-    <button
-      id="quickSaveButton"
-      class="btn btn-primary"
-      onclick="quickCreateProduct()"
-    >
-      保存商品
-    </button>
-
-  </div>
-    <details>
-    <summary class="btn btn-light" style="margin-bottom:17px;">
-      更多设置（高级）
-    </summary>
-  <div class="panel">
-
-    <div class="panel-title">
-      新增商品
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          商品代码
-        </label>
-
-        <input
-          id="productCode"
-          placeholder="例如 P0001"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          分类
-        </label>
-
-        <select id="productCategory"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文名称
-        </label>
-
-        <input id="productZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          English
-        </label>
-
-        <input id="productEn">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          မြန်မာ
-        </label>
-
-        <input id="productMy">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          ไทย
-        </label>
-
-        <input id="productTh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          品牌
-        </label>
-
-        <input id="productBrand">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          原产国
-        </label>
-
-        <input id="productOrigin">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          保质期天数
-        </label>
-
-        <input
-          id="productShelfLife"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          主图片 URL
-        </label>
-
-        <input id="productImage">
-
-      </div>
-
-
-      <div class="form-group full">
-
-        <label>
-          中文介绍
-        </label>
-
-        <textarea id="productDescriptionZh"></textarea>
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="createProduct()"
-    >
-      保存商品
-    </button>
 
   </div>
 
 
-  <div class="panel">
-
-    <div class="panel-title">
-      新增 SKU / 规格
-    </div>
-
-
-    <div class="form-grid-3">
-
-      <div class="form-group">
-
-        <label>
-          商品
-        </label>
-
-        <select id="variantProduct"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          SKU Code
-        </label>
-
-        <input id="variantCode">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          条码
-        </label>
-
-        <input id="variantBarcode">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文规格名
-        </label>
-
-        <input
-          id="variantZh"
-          placeholder="例如 香辣味 60g"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文口味
-        </label>
-
-        <input id="variantFlavorZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文规格
-        </label>
-
-        <input id="variantSpecificationZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          零售价
-        </label>
-
-        <input
-          id="variantRetailPrice"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批发价
-        </label>
-
-        <input
-          id="variantWholesalePrice"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批发起订量
-        </label>
-
-        <input
-          id="variantWholesaleMin"
-          type="number"
-          min="1"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          每箱数量
-        </label>
-
-        <input
-          id="variantUnitsCase"
-          type="number"
-          min="1"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          成本价
-        </label>
-
-        <input
-          id="variantCostPrice"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          销售单位
-        </label>
-
-        <input
-          id="variantSalesUnitZh"
-          placeholder="包 / 瓶 / 盒"
-        >
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="createVariant()"
-    >
-      保存 SKU
-    </button>
-
-  </div>
-  </details>
-
-  <div class="panel">
-
-    <div class="panel-title">
-      商品列表
-    </div>
-
-    <div id="productsTable"></div>
+  <div
+    id="productActionPage"
+    class="hidden"
+  >
+
+    <div id="productActionContent"></div>
 
   </div>
 
 
-  <div class="panel">
+  <!--
+    兼容现有后台基础数据加载。
+    SKU 仍然保留在数据库底层，
+    但不再显示给管理员单独管理。
+  -->
 
-    <div class="panel-title">
-      SKU 列表
-    </div>
+  <div class="hidden">
 
-    <div id="variantsTable"></div>
+    <select id="productCategory"></select>
+
+    <select id="variantProduct"></select>
 
   </div>
 
@@ -11538,100 +11252,287 @@ async function createVariant(){
 }
 
 
+let currentProductActionId = null;
+let currentProductActionVariantId = null;
+let currentProductActionTargetStatus = null;
+
+
+function productVariantFor(productId){
+
+  return (
+    variantData.find(
+      item =>
+        item.product_id === productId
+        &&
+        item.is_active
+    )
+    ||
+    variantData.find(
+      item =>
+        item.product_id === productId
+    )
+    ||
+    null
+  );
+
+}
+
+
+function showProductListPage(){
+
+  el("productListPage")
+    ?.classList
+    .remove("hidden");
+
+  el("productCreatePage")
+    ?.classList
+    .add("hidden");
+
+  el("productActionPage")
+    ?.classList
+    .add("hidden");
+
+}
+
+
+function openNewProductPage(){
+
+  el("productListPage")
+    ?.classList
+    .add("hidden");
+
+  el("productActionPage")
+    ?.classList
+    .add("hidden");
+
+  el("productCreatePage")
+    ?.classList
+    .remove("hidden");
+
+}
+
+
 async function loadProducts(){
 
-    await Promise.all([
+  await Promise.all([
 
     loadRegionsBase(),
     loadCategoriesBase(),
     loadProductsBase(),
-    loadVariantsBase()
+    loadVariantsBase(),
+    loadHeadOfficeStockMap()
 
   ]);
 
 
   renderQuickProductSelects();
 
-  renderBaseSelects();
+  renderSimpleProductList();
+
+  showProductListPage();
+
+}
 
 
-  const productRows =
+function renderSimpleProductList(){
+
+  const search =
+    (
+      el("productSearchInput")
+        ?.value
+      ||
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  const filtered =
     productData
+      .filter(
+        product => {
+
+          if(!search){
+            return true;
+          }
+
+
+          const name =
+            String(
+              product.name_zh
+              ||
+              ""
+            )
+            .toLowerCase();
+
+          const code =
+            String(
+              product.product_code
+              ||
+              ""
+            )
+            .toLowerCase();
+
+
+          return (
+            name.includes(search)
+            ||
+            code.includes(search)
+          );
+
+        }
+      );
+
+
+  const rows =
+    filtered
       .map(
         product => {
 
+          const variant =
+            productVariantFor(
+              product.id
+            );
+
+          const stock =
+            variant
+            ?
+            Number(
+              headOfficeStockMap[
+                variant.id
+              ]
+              ||
+              0
+            )
+            :
+            0;
+
           const category =
-            categoryData
-              .find(
-                item =>
-                  item.id
-                  ===
-                  product.category_id
-              );
+            categoryData.find(
+              item =>
+                item.id
+                ===
+                product.category_id
+            );
 
 
           return `
 
             <tr>
 
-              <td class="mono">
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    product.name_zh
+                    ||
+                    "未命名商品"
+                  )}
+                </strong>
 
                 ${
-                  escapeHtml(
-                    product.product_code
-                    ||
-                    "—"
-                  )
+                  product.brand
+                  ?
+                  `
+                    <div class="small">
+                      ${escapeHtml(product.brand)}
+                    </div>
+                  `
+                  :
+                  ""
                 }
+              </td>
 
+              <td class="mono">
+                ${escapeHtml(
+                  product.product_code
+                  ||
+                  "—"
+                )}
               </td>
 
               <td>
-                ${escapeHtml(product.name_zh)}
+                ${escapeHtml(
+                  category?.name_zh
+                  ||
+                  "—"
+                )}
               </td>
 
               <td>
-                ${escapeHtml(category?.name_zh || "—")}
+                <strong>
+                  ${stock}
+                </strong>
               </td>
 
               <td>
-                ${escapeHtml(product.brand || "—")}
-              </td>
-
-              <td>
-                ${escapeHtml(product.origin_country || "—")}
-              </td>
-
-              <td>
-                ${statusBadge(product.status)}
+                ${statusBadge(
+                  product.status
+                )}
               </td>
 
               <td>
 
-                <button
-                  class="btn ${
-                    product.status
-                    ===
-                    "active"
-                    ?
-                    "btn-red"
-                    :
-                    "btn-green"
-                  } btn-small"
-                  onclick="toggleProduct('${product.id}','${product.status === "active" ? "inactive" : "active"}')"
-                >
+                <div class="operation-buttons">
 
-                  ${
-                    product.status
-                    ===
-                    "active"
-                    ?
-                    "下架"
-                    :
-                    "上架"
-                  }
+                  <button
+                    class="btn btn-green btn-small"
+                    onclick="openProductAction('${product.id}','stock')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    增加库存
+                  </button>
 
-                </button>
+                  <button
+                    class="btn btn-primary btn-small"
+                    onclick="openProductAction('${product.id}','ship')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    发货
+                  </button>
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','regions')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    查看地区
+                  </button>
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','history')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    历史
+                  </button>
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','edit')"
+                  >
+                    编辑
+                  </button>
+
+                  <button
+                    class="btn ${
+                      product.status === "active"
+                      ?
+                      "btn-red"
+                      :
+                      "btn-green"
+                    } btn-small"
+                    onclick="openProductAction('${product.id}','status')"
+                  >
+                    ${
+                      product.status === "active"
+                      ?
+                      "下架"
+                      :
+                      "重新上架"
+                    }
+                  </button>
+
+                </div>
 
               </td>
 
@@ -11646,164 +11547,1749 @@ async function loadProducts(){
   el("productsTable")
     .innerHTML =
     makeTable(
-
       [
-        "商品代码",
         "商品",
+        "商品代码",
         "分类",
-        "品牌",
-        "原产国",
+        "总部库存",
         "状态",
         "操作"
       ],
+      rows
+    );
 
-      productRows
+}
 
+
+function productActionShell(
+  product,
+  title,
+  content
+){
+
+  el("productActionContent")
+    .innerHTML = `
+
+      <button
+        class="btn btn-light"
+        onclick="showProductListPage()"
+        style="margin-bottom:14px"
+      >
+        ← 返回商品列表
+      </button>
+
+      <div class="page-title">
+        ${escapeHtml(title)}
+      </div>
+
+      <div class="page-subtitle">
+        ${escapeHtml(
+          product.name_zh
+          ||
+          "商品"
+        )}
+        ·
+        ${escapeHtml(
+          product.product_code
+          ||
+          "—"
+        )}
+      </div>
+
+      ${content}
+
+    `;
+
+}
+
+
+async function openProductAction(
+  productId,
+  action
+){
+
+  const product =
+    productData.find(
+      item =>
+        item.id === productId
+    );
+
+  if(!product){
+    return;
+  }
+
+
+  const variant =
+    productVariantFor(
+      productId
     );
 
 
-  const variantRows =
-    variantData
-      .map(
-        variant => `
+  currentProductActionId =
+    productId;
 
-          <tr>
+  currentProductActionVariantId =
+    variant?.id
+    ||
+    null;
 
-            <td class="mono">
 
-              ${
-                escapeHtml(
-                  variant.sku_code
-                )
-              }
+  el("productListPage")
+    ?.classList
+    .add("hidden");
 
-            </td>
+  el("productCreatePage")
+    ?.classList
+    .add("hidden");
 
-            <td>
+  el("productActionPage")
+    ?.classList
+    .remove("hidden");
 
-              ${
-                escapeHtml(
-                  productMap[
-                    variant.product_id
-                  ]
-                  ||
-                  "—"
-                )
-              }
 
-            </td>
+  if(action === "stock"){
 
-            <td>
+    if(!variant){
+      return;
+    }
 
-              ${
-                escapeHtml(
-                  variant.name_zh
-                  ||
-                  variant.specification_zh
-                  ||
-                  "—"
-                )
-              }
 
-            </td>
-
-            <td>
-              ${money(variant.retail_price)}
-            </td>
-
-            <td>
-
-              ${
-                variant.wholesale_price
-                ===
-                null
-
-                ?
-
-                "—"
-
-                :
-
-                money(
-                  variant.wholesale_price
-                )
-              }
-
-            </td>
-
-            <td>
-
-              ${
-                variant.wholesale_min_qty
-                ||
-                "—"
-              }
-
-            </td>
-
-            <td>
-
-              ${
-                statusBadge(
-                  variant.is_active
-                  ?
-                  "active"
-                  :
-                  "inactive"
-                )
-              }
-
-            </td>
-
-            <td>
-
-              <button
-                class="btn ${
-                  variant.is_active
-                  ?
-                  "btn-red"
-                  :
-                  "btn-green"
-                } btn-small"
-                onclick="toggleVariant('${variant.id}',${!variant.is_active})"
-              >
-
-                ${
-                  variant.is_active
-                  ?
-                  "停用"
-                  :
-                  "启用"
-                }
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        `
+    const stock =
+      Number(
+        headOfficeStockMap[
+          variant.id
+        ]
+        ||
+        0
       );
 
 
-  el("variantsTable")
+    productActionShell(
+      product,
+      "增加库存",
+      `
+
+        <div class="panel">
+
+          <div class="panel-title">
+            当前总部库存
+          </div>
+
+          <div
+            style="
+              font-size:32px;
+              font-weight:900;
+              margin:12px 0 20px;
+            "
+          >
+            ${stock}
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              本次采购数量
+            </label>
+
+            <input
+              id="productStockAddQty"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="例如 100"
+            >
+
+          </div>
+
+          <button
+            class="btn btn-primary"
+            onclick="confirmProductStockAdd()"
+          >
+            确认增加库存
+          </button>
+
+        </div>
+
+      `
+    );
+
+    return;
+
+  }
+
+
+  if(action === "ship"){
+
+    if(!variant){
+      return;
+    }
+
+
+    const stock =
+      Number(
+        headOfficeStockMap[
+          variant.id
+        ]
+        ||
+        0
+      );
+
+
+    const regionOptions =
+      regionData
+        .filter(
+          region =>
+            region.is_active
+        )
+        .map(
+          region => `
+
+            <option value="${region.id}">
+              ${escapeHtml(
+                region.name_zh
+                ||
+                region.name_en
+                ||
+                region.code
+              )}
+            </option>
+
+          `
+        )
+        .join("");
+
+
+    productActionShell(
+      product,
+      "发货",
+      `
+
+        <div class="panel">
+
+          <div class="safe-note">
+            当前总部库存：${stock}。确认发货后，总部库存会立即扣减；地区继续按照现有流程由经理确认收货。
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+
+              <label>
+                发往地区
+              </label>
+
+              <select id="productShipRegion">
+
+                <option value="">
+                  请选择地区
+                </option>
+
+                ${regionOptions}
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                发货数量
+              </label>
+
+              <input
+                id="productShipQty"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="例如 50"
+              >
+
+            </div>
+
+          </div>
+
+          <button
+            class="btn btn-primary"
+            onclick="confirmProductShipment()"
+          >
+            确认发货
+          </button>
+
+        </div>
+
+      `
+    );
+
+    return;
+
+  }
+
+
+  if(action === "regions"){
+
+    if(!variant){
+      return;
+    }
+
+
+    productActionShell(
+      product,
+      "查看地区",
+      `
+
+        <div class="panel">
+
+          <div id="productRegionsResult">
+            <div class="empty">
+              正在读取地区库存...
+            </div>
+          </div>
+
+        </div>
+
+      `
+    );
+
+
+    await loadProductRegionsAction(
+      product,
+      variant
+    );
+
+    return;
+
+  }
+
+
+  if(action === "history"){
+
+    if(!variant){
+      return;
+    }
+
+
+    productActionShell(
+      product,
+      "商品历史",
+      `
+
+        <div class="panel">
+
+          <div id="productHistoryResult">
+            <div class="empty">
+              正在读取完整历史...
+            </div>
+          </div>
+
+        </div>
+
+      `
+    );
+
+
+    await loadProductHistoryAction(
+      product,
+      variant
+    );
+
+    return;
+
+  }
+
+
+  if(action === "edit"){
+
+    if(!variant){
+
+      productActionShell(
+        product,
+        "编辑商品",
+        errorBox(
+          "这个商品没有可用的默认规格，暂时不能编辑价格。"
+        )
+      );
+
+      return;
+
+    }
+
+
+    const categoryOptions =
+      categoryData
+        .filter(
+          category =>
+            category.is_active
+        )
+        .map(
+          category => `
+
+            <option
+              value="${category.id}"
+              ${
+                category.id
+                ===
+                product.category_id
+                ?
+                "selected"
+                :
+                ""
+              }
+            >
+              ${escapeHtml(
+                category.name_zh
+                ||
+                "未命名分类"
+              )}
+            </option>
+
+          `
+        )
+        .join("");
+
+
+    productActionShell(
+      product,
+      "编辑商品",
+      `
+
+        <div class="panel">
+
+          <div class="safe-note">
+            这里只修改商品资料和价格。现有库存、发货记录、地区库存和历史不会被删除。
+          </div>
+
+          <div class="form-grid">
+
+            <div class="form-group full">
+
+              <label>
+                商品名称
+              </label>
+
+              <input
+                id="editProductName"
+                value="${escapeHtml(
+                  product.name_zh
+                  ||
+                  ""
+                )}"
+              >
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                分类
+              </label>
+
+              <select id="editProductCategory">
+                ${categoryOptions}
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                品牌
+              </label>
+
+              <input
+                id="editProductBrand"
+                value="${escapeHtml(
+                  product.brand
+                  ||
+                  ""
+                )}"
+              >
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                零售价
+              </label>
+
+              <input
+                id="editRetailPrice"
+                type="number"
+                min="0"
+                value="${Number(
+                  variant.retail_price
+                  ||
+                  0
+                )}"
+              >
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                批发价
+              </label>
+
+              <input
+                id="editWholesalePrice"
+                type="number"
+                min="0"
+                value="${
+                  variant.wholesale_price
+                  ===
+                  null
+                  ?
+                  ""
+                  :
+                  Number(
+                    variant.wholesale_price
+                  )
+                }"
+                placeholder="没有批发可留空"
+              >
+
+            </div>
+
+            <div class="form-group">
+
+              <label>
+                批发起订量
+              </label>
+
+              <input
+                id="editWholesaleMin"
+                type="number"
+                min="1"
+                value="${
+                  variant.wholesale_min_qty
+                  ||
+                  ""
+                }"
+              >
+
+            </div>
+
+          </div>
+
+          <button
+            class="btn btn-primary"
+            onclick="saveProductEdit()"
+          >
+            保存修改
+          </button>
+
+        </div>
+
+      `
+    );
+
+    return;
+
+  }
+
+
+  if(action === "status"){
+
+    const goingInactive =
+      product.status === "active";
+
+
+    currentProductActionTargetStatus =
+      goingInactive
+      ?
+      "inactive"
+      :
+      "active";
+
+
+    productActionShell(
+      product,
+      goingInactive
+      ?
+      "下架商品"
+      :
+      "重新上架",
+      `
+
+        <div class="panel">
+
+          <div class="safe-note">
+
+            ${
+              goingInactive
+              ?
+              "下架不会删除商品，也不会删除总部库存、地区库存、订单或历史记录。客户将不能继续购买这个商品。"
+              :
+              "重新上架后，商品会恢复为启用状态。地区是否可以购买仍然取决于经理的上架数量和实际库存。"
+            }
+
+          </div>
+
+          <button
+            class="btn ${
+              goingInactive
+              ?
+              "btn-red"
+              :
+              "btn-green"
+            }"
+            onclick="confirmProductStatusChange()"
+          >
+
+            ${
+              goingInactive
+              ?
+              "确认下架"
+              :
+              "确认重新上架"
+            }
+
+          </button>
+
+        </div>
+
+      `
+    );
+
+  }
+
+}
+
+
+async function confirmProductStockAdd(){
+
+  const variantId =
+    currentProductActionVariantId;
+
+  const quantity =
+    Number(
+      el("productStockAddQty")
+        ?.value
+    );
+
+
+  if(
+    !variantId
+    ||
+    !Number.isInteger(quantity)
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "请输入正确的采购数量。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_receive_head_office_stock",
+      {
+        p_variant_id:
+          variantId,
+
+        p_quantity:
+          quantity
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "增加库存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    `总部库存已增加 ${quantity}。`
+  );
+
+
+  await loadProducts();
+
+}
+
+
+async function confirmProductShipment(){
+
+  const variantId =
+    currentProductActionVariantId;
+
+  const regionId =
+    el("productShipRegion")
+      ?.value;
+
+  const quantity =
+    Number(
+      el("productShipQty")
+        ?.value
+    );
+
+  const currentStock =
+    Number(
+      headOfficeStockMap[
+        variantId
+      ]
+      ||
+      0
+    );
+
+
+  if(
+    !variantId
+    ||
+    !regionId
+    ||
+    !Number.isInteger(quantity)
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "请选择地区并填写正确的发货数量。"
+    );
+
+    return;
+
+  }
+
+
+  if(quantity > currentStock){
+
+    alert(
+      `总部库存不足，目前最多可以发 ${currentStock}。`
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_create_region_shipment",
+      {
+
+        p_region_id:
+          regionId,
+
+        p_items:[
+          {
+            variant_id:
+              variantId,
+
+            quantity:
+              quantity
+          }
+        ],
+
+        p_notes:
+          null
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "发货失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "发货成功。经理端已经进入待收货流程。"
+  );
+
+
+  await loadProducts();
+
+}
+
+
+async function loadProductRegionsAction(
+  product,
+  variant
+){
+
+  const [
+    inventoryResult,
+    historyResult
+  ] =
+    await Promise.all([
+
+      db
+        .from("region_inventory")
+        .select(
+          "id,region_id,variant_id,stock_on_hand,reserved_quantity,listed_quantity,is_available"
+        )
+        .eq(
+          "variant_id",
+          variant.id
+        ),
+
+      db.rpc(
+        "admin_simple_inventory_history",
+        {
+          p_region_id:
+            null,
+
+          p_start_at:
+            null,
+
+          p_end_at:
+            null
+        }
+      )
+
+    ]);
+
+
+  if(inventoryResult.error){
+
+    el("productRegionsResult")
+      .innerHTML =
+      errorBox(
+        inventoryResult.error.message
+      );
+
+    return;
+
+  }
+
+
+  const inventories =
+    inventoryResult.data
+    ||
+    [];
+
+
+  const salesByRegion = {};
+
+
+  if(!historyResult.error){
+
+    (
+      historyResult.data
+      ||
+      []
+    )
+    .filter(
+      item =>
+        item.variant_id
+        ===
+        variant.id
+        &&
+        item.event_type
+        ===
+        "订单售出"
+    )
+    .forEach(
+      item => {
+
+        const regionId =
+          item.region_id;
+
+        if(!regionId){
+          return;
+        }
+
+        salesByRegion[
+          regionId
+        ] =
+          (
+            salesByRegion[
+              regionId
+            ]
+            ||
+            0
+          )
+          +
+          Math.abs(
+            Number(
+              item.quantity
+              ||
+              0
+            )
+          );
+
+      }
+    );
+
+  }
+
+
+  const rows =
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => {
+
+          const inventory =
+            inventories.find(
+              item =>
+                item.region_id
+                ===
+                region.id
+            );
+
+          const actual =
+            Number(
+              inventory?.stock_on_hand
+              ||
+              0
+            );
+
+          const listed =
+            Number(
+              inventory?.listed_quantity
+              ||
+              0
+            );
+
+          const reserved =
+            Number(
+              inventory?.reserved_quantity
+              ||
+              0
+            );
+
+          const saleable =
+            Math.max(
+              0,
+              Math.min(
+                actual,
+                listed
+              )
+              -
+              reserved
+            );
+
+          const sold =
+            Number(
+              salesByRegion[
+                region.id
+              ]
+              ||
+              0
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(
+                  region.name_zh
+                  ||
+                  region.name_en
+                  ||
+                  region.code
+                )}
+              </td>
+
+              <td>${actual}</td>
+
+              <td>${listed}</td>
+
+              <td>${reserved}</td>
+
+              <td>
+                <strong>
+                  ${saleable}
+                </strong>
+              </td>
+
+              <td>${sold}</td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("productRegionsResult")
     .innerHTML =
     makeTable(
-
       [
-        "SKU",
-        "商品",
-        "规格",
-        "零售价",
-        "批发价",
-        "起订量",
-        "状态",
-        "操作"
+        "地区",
+        "实际库存",
+        "已上架",
+        "客户订单预留",
+        "客户可购买",
+        "已售数量"
       ],
-
-      variantRows
-
+      rows
     );
+
+}
+
+
+async function loadProductHistoryAction(
+  product,
+  variant
+){
+
+  const {
+    data:baseHistory,
+    error:historyError
+  } =
+    await db.rpc(
+      "admin_simple_inventory_history",
+      {
+
+        p_region_id:
+          null,
+
+        p_start_at:
+          null,
+
+        p_end_at:
+          null
+
+      }
+    );
+
+
+  if(historyError){
+
+    el("productHistoryResult")
+      .innerHTML =
+      errorBox(
+        historyError.message
+      );
+
+    return;
+
+  }
+
+
+  const {
+    data:shipmentItems,
+    error:shipmentItemsError
+  } =
+    await db
+      .from("region_shipment_items")
+      .select(
+        "shipment_id,sent_quantity,received_quantity,discrepancy_quantity,updated_at"
+      )
+      .eq(
+        "variant_id",
+        variant.id
+      );
+
+
+  if(shipmentItemsError){
+
+    el("productHistoryResult")
+      .innerHTML =
+      errorBox(
+        shipmentItemsError.message
+      );
+
+    return;
+
+  }
+
+
+  const shipmentIds =
+    [
+      ...new Set(
+        (
+          shipmentItems
+          ||
+          []
+        )
+        .map(
+          item =>
+            item.shipment_id
+        )
+        .filter(Boolean)
+      )
+    ];
+
+
+  let shipmentMap = {};
+
+
+  if(shipmentIds.length){
+
+    const {
+      data:shipmentRows,
+      error:shipmentError
+    } =
+      await db
+        .from("region_shipments")
+        .select(
+          "id,region_id,status,shipment_number,dispatched_at,received_at"
+        )
+        .in(
+          "id",
+          shipmentIds
+        );
+
+
+    if(shipmentError){
+
+      el("productHistoryResult")
+        .innerHTML =
+        errorBox(
+          shipmentError.message
+        );
+
+      return;
+
+    }
+
+
+    (
+      shipmentRows
+      ||
+      []
+    )
+    .forEach(
+      shipment => {
+
+        shipmentMap[
+          shipment.id
+        ] =
+          shipment;
+
+      }
+    );
+
+  }
+
+
+  const events =
+    (
+      baseHistory
+      ||
+      []
+    )
+    .filter(
+      item =>
+        item.variant_id
+        ===
+        variant.id
+    )
+    .filter(
+      item =>
+        !(
+          item.event_type
+          ===
+          "地区收货"
+          &&
+          String(
+            item.description
+            ||
+            ""
+          )
+          .startsWith(
+            "总部发货收货"
+          )
+        )
+    )
+    .map(
+      item => ({
+
+        event_time:
+          item.event_time,
+
+        event_type:
+          item.event_type,
+
+        region_id:
+          item.region_id,
+
+        quantity:
+          Number(
+            item.quantity
+            ||
+            0
+          ),
+
+        description:
+          item.description
+          ||
+          "—"
+
+      })
+    );
+
+
+  (
+    shipmentItems
+    ||
+    []
+  )
+  .forEach(
+    item => {
+
+      if(
+        item.received_quantity
+        ===
+        null
+      ){
+        return;
+      }
+
+
+      const shipment =
+        shipmentMap[
+          item.shipment_id
+        ];
+
+
+      const sent =
+        Number(
+          item.sent_quantity
+          ||
+          0
+        );
+
+      const received =
+        Number(
+          item.received_quantity
+          ||
+          0
+        );
+
+      const difference =
+        Number(
+          item.discrepancy_quantity
+          ??
+          (
+            received
+            -
+            sent
+          )
+        );
+
+
+      events.push({
+
+        event_time:
+          shipment?.received_at
+          ||
+          item.updated_at,
+
+        event_type:
+          "地区确认收货",
+
+        region_id:
+          shipment?.region_id
+          ||
+          null,
+
+        quantity:
+          received,
+
+        description:
+          `总部发出 ${sent}，实际收到 ${received}，差异 ${difference > 0 ? "+" : ""}${difference}`
+
+      });
+
+    }
+  );
+
+
+  const {
+    data:regionInventories
+  } =
+    await db
+      .from("region_inventory")
+      .select(
+        "id,region_id"
+      )
+      .eq(
+        "variant_id",
+        variant.id
+      );
+
+
+  const inventoryRegionMap = {};
+
+
+  (
+    regionInventories
+    ||
+    []
+  )
+  .forEach(
+    item => {
+
+      inventoryRegionMap[
+        item.id
+      ] =
+        item.region_id;
+
+    }
+  );
+
+
+  const inventoryIds =
+    Object.keys(
+      inventoryRegionMap
+    );
+
+
+  if(inventoryIds.length){
+
+    const {
+      data:movementRows
+    } =
+      await db
+        .from("inventory_movements")
+        .select(
+          "region_inventory_id,movement_type,quantity,reason,created_at"
+        )
+        .in(
+          "region_inventory_id",
+          inventoryIds
+        );
+
+
+    (
+      movementRows
+      ||
+      []
+    )
+    .filter(
+      movement =>
+        ![
+          "receive",
+          "sale",
+          "reserve",
+          "release"
+        ]
+        .includes(
+          movement.movement_type
+        )
+    )
+    .forEach(
+      movement => {
+
+        events.push({
+
+          event_time:
+            movement.created_at,
+
+          event_type:
+            "库存调整",
+
+          region_id:
+            inventoryRegionMap[
+              movement.region_inventory_id
+            ]
+            ||
+            null,
+
+          quantity:
+            Number(
+              movement.quantity
+              ||
+              0
+            ),
+
+          description:
+            movement.reason
+            ||
+            movement.movement_type
+            ||
+            "库存调整"
+
+        });
+
+      }
+    );
+
+  }
+
+
+  events.sort(
+    (
+      a,
+      b
+    ) =>
+      new Date(
+        b.event_time
+        ||
+        0
+      )
+      -
+      new Date(
+        a.event_time
+        ||
+        0
+      )
+  );
+
+
+  const rows =
+    events
+      .map(
+        item => {
+
+          const quantity =
+            Number(
+              item.quantity
+              ||
+              0
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${formatDate(
+                  item.event_time
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.event_type
+                  ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.region_id
+                  ?
+                  (
+                    regionMap[
+                      item.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                  :
+                  "总部"
+                )}
+              </td>
+
+              <td>
+                ${
+                  quantity > 0
+                  ?
+                  "+"
+                  +
+                  quantity
+                  :
+                  quantity
+                }
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.description
+                  ||
+                  "—"
+                )}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("productHistoryResult")
+    .innerHTML =
+    makeTable(
+      [
+        "时间",
+        "类型",
+        "地区",
+        "数量",
+        "说明"
+      ],
+      rows
+    );
+
+}
+
+
+async function saveProductEdit(){
+
+  const product =
+    productData.find(
+      item =>
+        item.id
+        ===
+        currentProductActionId
+    );
+
+  const variant =
+    variantData.find(
+      item =>
+        item.id
+        ===
+        currentProductActionVariantId
+    );
+
+
+  if(
+    !product
+    ||
+    !variant
+  ){
+    return;
+  }
+
+
+  const name =
+    el("editProductName")
+      .value
+      .trim();
+
+  const categoryId =
+    el("editProductCategory")
+      .value;
+
+  const brand =
+    el("editProductBrand")
+      .value
+      .trim();
+
+  const retailPrice =
+    Number(
+      el("editRetailPrice")
+        .value
+    );
+
+  const wholesaleRaw =
+    el("editWholesalePrice")
+      .value
+      .trim();
+
+  const wholesalePrice =
+    wholesaleRaw === ""
+    ?
+    null
+    :
+    Number(
+      wholesaleRaw
+    );
+
+  const wholesaleMinRaw =
+    el("editWholesaleMin")
+      .value
+      .trim();
+
+  const wholesaleMin =
+    wholesaleMinRaw === ""
+    ?
+    null
+    :
+    Number(
+      wholesaleMinRaw
+    );
+
+
+  if(
+    !name
+    ||
+    !categoryId
+    ||
+    !Number.isFinite(retailPrice)
+    ||
+    retailPrice < 0
+  ){
+
+    alert(
+      "请填写正确的商品名称、分类和零售价。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    wholesalePrice !== null
+    &&
+    (
+      !Number.isFinite(
+        wholesalePrice
+      )
+      ||
+      wholesalePrice < 0
+      ||
+      !Number.isInteger(
+        wholesaleMin
+      )
+      ||
+      wholesaleMin < 1
+    )
+  ){
+
+    alert(
+      "批发价和批发起订量填写不正确。"
+    );
+
+    return;
+
+  }
+
+
+  const now =
+    new Date()
+      .toISOString();
+
+
+  const {
+    error:productError
+  } =
+    await db
+      .from("products")
+      .update({
+
+        name_zh:
+          name,
+
+        category_id:
+          categoryId,
+
+        brand:
+          brand
+          ||
+          null,
+
+        price:
+          retailPrice,
+
+        updated_at:
+          now
+
+      })
+      .eq(
+        "id",
+        product.id
+      );
+
+
+  if(productError){
+
+    alert(
+      "商品资料修改失败：\n"
+      +
+      productError.message
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error:variantError
+  } =
+    await db
+      .from("product_variants")
+      .update({
+
+        name_zh:
+          name,
+
+        retail_price:
+          retailPrice,
+
+        wholesale_price:
+          wholesalePrice,
+
+        wholesale_min_qty:
+          wholesalePrice
+          ===
+          null
+          ?
+          null
+          :
+          wholesaleMin,
+
+        updated_at:
+          now
+
+      })
+      .eq(
+        "id",
+        variant.id
+      );
+
+
+  if(variantError){
+
+    alert(
+      "价格资料修改失败：\n"
+      +
+      variantError.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "商品资料已更新。"
+  );
+
+
+  await loadProducts();
+
+}
+
+
+async function confirmProductStatusChange(){
+
+  if(
+    !currentProductActionId
+    ||
+    !currentProductActionTargetStatus
+  ){
+    return;
+  }
+
+
+  await toggleProduct(
+    currentProductActionId,
+    currentProductActionTargetStatus
+  );
 
 }
 
