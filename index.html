@@ -2028,14 +2028,14 @@ textarea:focus{
 
       <div class="form-group">
 
-        <label data-i18n="email">
-          邮箱
+              <label data-i18n="phone">
+          电话
         </label>
 
         <input
-          id="loginEmail"
-          type="email"
-          autocomplete="email"
+          id="loginPhone"
+          type="tel"
+          autocomplete="tel"
         >
 
       </div>
@@ -2097,18 +2097,7 @@ textarea:focus{
       </div>
 
 
-      <div class="form-group">
-
-        <label data-i18n="email">
-          邮箱
-        </label>
-
-        <input
-          id="registerEmail"
-          type="email"
-        >
-
-      </div>
+     
 
 
       <div class="form-group">
@@ -6458,8 +6447,8 @@ function renderRegisterRegions(){
 
 async function customerLogin(){
 
-  const email =
-    el("loginEmail")
+  const phone =
+    el("loginPhone")
       .value
       .trim();
 
@@ -6469,13 +6458,13 @@ async function customerLogin(){
 
 
   if(
-    !email
+    !phone
     ||
     !password
   ){
 
     showAuthMessage(
-         t("loginFieldsRequired")
+      t("loginFieldsRequired")
     );
 
     return;
@@ -6492,22 +6481,60 @@ async function customerLogin(){
     data,
     error
   } =
-    await db.auth
-      .signInWithPassword({
+    await db.functions.invoke(
+      "customer-phone-auth",
+      {
+        body:{
+          action:"login",
+          phone:phone,
+          password:password
+        }
+      }
+    );
 
-        email:
-          email,
 
-        password:
-          password
-
-      });
-
-
-  if(error){
+  if(
+    error
+    ||
+    !data?.ok
+    ||
+    !data?.session
+  ){
 
     showAuthMessage(
-      error.message
+      data?.message
+      ||
+      "手机号或密码不正确。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:sessionResult,
+    error:sessionError
+  } =
+    await db.auth.setSession({
+
+      access_token:
+        data.session.access_token,
+
+      refresh_token:
+        data.session.refresh_token
+
+    });
+
+
+  if(
+    sessionError
+    ||
+    !sessionResult.session
+  ){
+
+    showAuthMessage(
+      "登录失败，请重新登录。"
     );
 
     return;
@@ -6516,7 +6543,7 @@ async function customerLogin(){
 
 
   currentUser =
-    data.user;
+    sessionResult.session.user;
 
 
   closeAuthModal();
@@ -6538,11 +6565,6 @@ async function customerRegister(){
       .value
       .trim();
 
-  const email =
-    el("registerEmail")
-      .value
-      .trim();
-
   const password =
     el("registerPassword")
       .value;
@@ -6557,15 +6579,81 @@ async function customerRegister(){
     ||
     !phone
     ||
-    !email
-    ||
-    password.length < 8
+    password.length < 6
     ||
     !regionId
   ){
 
     showAuthMessage(
-       t("registerFieldsRequired")
+      t("registerFieldsRequired")
+    );
+
+    return;
+
+  }
+
+
+  showAuthMessage(
+    t("loading")
+  );
+
+
+  const {
+    data,
+    error
+  } =
+    await db.functions.invoke(
+      "customer-phone-auth",
+      {
+        body:{
+          action:"register",
+
+          full_name:
+            name,
+
+          phone:
+            phone,
+
+          password:
+            password,
+
+          region_id:
+            regionId,
+
+          preferred_language:
+            appLanguage
+        }
+      }
+    );
+
+
+  if(
+    error
+    ||
+    !data?.ok
+  ){
+
+    showAuthMessage(
+      data?.message
+      ||
+      "注册失败，请稍后再试。"
+    );
+
+    return;
+
+  }
+
+
+  if(!data.session){
+
+    showAuthMessage(
+      data.message
+      ||
+      "注册成功，请登录。"
+    );
+
+    setAuthMode(
+      "login"
     );
 
     return;
@@ -6574,25 +6662,32 @@ async function customerRegister(){
 
 
   const {
-    data,
-    error
+    data:sessionResult,
+    error:sessionError
   } =
-    await db.auth
-      .signUp({
+    await db.auth.setSession({
 
-        email:
-          email,
+      access_token:
+        data.session.access_token,
 
-        password:
-          password
+      refresh_token:
+        data.session.refresh_token
 
-      });
+    });
 
 
-  if(error){
+  if(
+    sessionError
+    ||
+    !sessionResult.session
+  ){
 
     showAuthMessage(
-      error.message
+      "注册成功，请使用手机号登录。"
+    );
+
+    setAuthMode(
+      "login"
     );
 
     return;
@@ -6600,98 +6695,18 @@ async function customerRegister(){
   }
 
 
-  if(
-    data.session
-    &&
-    data.user
-  ){
-
-    currentUser =
-      data.user;
+  currentUser =
+    sessionResult.session.user;
 
 
-    const profileResult =
-      await db
-        .from(
-          "customer_profiles"
-        )
-        .insert({
+  closeAuthModal();
 
-          id:
-            data.user.id,
-
-          full_name:
-            name,
-
-          phone:
-            phone,
-
-          default_region_id:
-            regionId,
-
-          preferred_language:
-            appLanguage,
-
-          status:
-            "active"
-
-        });
+  await initializeCustomer();
 
 
-    if(
-      profileResult.error
-    ){
-
-      showAuthMessage(
-        profileResult.error.message
-      );
-
-      return;
-
-    }
-
-
-    closeAuthModal();
-
-    await initializeCustomer();
-
-    showMessage(
-      t("registerSuccess")
-    );
-
-  }
-  else{
-
-        localStorage.setItem(
-      "pendingCustomerProfile",
-      JSON.stringify({
-
-        user_id:
-          data.user?.id
-          ||
-          null,
-
-        full_name:
-          name,
-
-        phone:
-          phone,
-
-        default_region_id:
-          regionId,
-
-        preferred_language:
-          appLanguage
-
-      })
-    );
-
-
-    showAuthMessage(
-      t("verifyEmail")
-    );
-
-  }
+  showMessage(
+    t("registerSuccess")
+  );
 
 }
 
