@@ -2803,7 +2803,7 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group full">
+            <div class="form-group full">
 
         <label>
           商品图片
@@ -2813,10 +2813,11 @@ tr:last-child td{
           id="quickProductImageFile"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
         >
 
         <div class="small">
-          从手机相册或电脑选择图片，最大 5MB
+          可以一次选择多张图片，最多 10 张；第一张自动作为商品封面，每张最大 5MB
         </div>
 
       </div>
@@ -10991,6 +10992,14 @@ async function quickCreateProduct(){
     :
     null;
 
+  const imageFiles =
+    Array.from(
+      el("quickProductImageFile")
+        ?.files
+      ||
+      []
+    );
+
 
   if(
     !name
@@ -11060,33 +11069,49 @@ async function quickCreateProduct(){
   }
 
 
+  if(
+    imageFiles.length
+    >
+    10
+  ){
+
+    alert(
+      "一个商品最多选择 10 张图片。"
+    );
+
+    return;
+
+  }
+
+
   const button =
     el("quickSaveButton");
 
   button.disabled = true;
   button.textContent = "正在保存...";
 
-  let imageUrl = null;
+  const imageUrls = [];
 
 
   try{
 
-    const imageFile =
-      el("quickProductImageFile")
-        ?.files?.[0];
-
-    if(imageFile){
+    for(
+      let i = 0;
+      i < imageFiles.length;
+      i++
+    ){
 
       button.textContent =
-        "正在上传图片...";
+        `正在上传图片 ${i + 1}/${imageFiles.length}...`;
 
-      imageUrl =
+      const url =
         await uploadProductImage(
-          imageFile
+          imageFiles[i]
         );
 
-      button.textContent =
-        "正在保存...";
+      if(url){
+        imageUrls.push(url);
+      }
 
     }
 
@@ -11111,7 +11136,12 @@ async function quickCreateProduct(){
   }
 
 
+  button.textContent =
+    "正在保存商品...";
+
+
   const {
+    data,
     error
   } =
     await db.rpc(
@@ -11125,10 +11155,14 @@ async function quickCreateProduct(){
           categoryId,
 
         p_image_url:
-          imageUrl || null,
+          imageUrls[0]
+          ||
+          null,
 
         p_brand:
-          brand || null,
+          brand
+          ||
+          null,
 
         p_retail_price:
           retailPrice,
@@ -11143,11 +11177,10 @@ async function quickCreateProduct(){
     );
 
 
-  button.disabled = false;
-  button.textContent = "保存商品";
-
-
   if(error){
+
+    button.disabled = false;
+    button.textContent = "保存商品";
 
     alert(
       "保存失败：\n"
@@ -11160,8 +11193,72 @@ async function quickCreateProduct(){
   }
 
 
+  if(
+    imageUrls.length
+    >
+    0
+    &&
+    data?.product_id
+  ){
+
+    const imageRows =
+      imageUrls.map(
+        (
+          imageUrl,
+          index
+        ) => ({
+
+          product_id:
+            data.product_id,
+
+          image_url:
+            imageUrl,
+
+          sort_order:
+            index,
+
+          is_primary:
+            index === 0,
+
+          is_active:
+            true
+
+        })
+      );
+
+
+    const {
+      error:imageSaveError
+    } =
+      await db
+        .from("product_images")
+        .insert(imageRows);
+
+
+    if(imageSaveError){
+
+      button.disabled = false;
+      button.textContent = "保存商品";
+
+      alert(
+        "商品已经保存，但多图资料保存失败：\n"
+        +
+        imageSaveError.message
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  button.disabled = false;
+  button.textContent = "保存商品";
+
+
   alert(
-    "商品资料已保存。\n下一步请到“总部发货”给地区发货。"
+    "商品资料已保存。\n第一张图片会作为封面图。"
   );
 
 
