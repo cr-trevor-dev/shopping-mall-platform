@@ -775,7 +775,15 @@ tr:last-child td{
     订单
   </div>
 
-
+  <div
+    id="menuShipments"
+    class="menu-item hidden"
+    data-section="shipments"
+    onclick="showSection('shipments',this)"
+    data-i18n="shipments"
+  >
+    待收货
+  </div>
   <div
     id="menuInventory"
     class="menu-item hidden"
@@ -929,7 +937,23 @@ tr:last-child td{
       </div>
 
     </div>
+    <div class="stat">
 
+      <div
+        class="stat-label"
+        data-i18n="shipments"
+      >
+        待收货
+      </div>
+
+      <div
+        id="statShipments"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
   </div>
 
 
@@ -1013,7 +1037,66 @@ tr:last-child td{
   </div>
 
 </section>
+<!-- SHIPMENTS -->
 
+<section
+  id="shipments"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="shipments"
+  >
+    待收货
+  </div>
+
+  <div
+    class="page-subtitle"
+    data-i18n="shipmentsDesc"
+  >
+    总部发出的货到达后，在这里一次性清点并确认。
+  </div>
+
+
+  <div
+    class="note"
+    data-i18n="receiptLocked"
+  >
+    确认后不能再次收货。如第一次确认有误，需要提交库存更正审批。
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="pendingShipments"
+      style="margin-bottom:12px"
+    >
+      待确认收货
+    </div>
+
+    <div id="pendingShipments"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="panel-title"
+      data-i18n="receivedShipments"
+      style="margin-bottom:12px"
+    >
+      最近已收货
+    </div>
+
+    <div id="receivedShipments"></div>
+
+  </div>
+
+</section>
 
 <!-- INVENTORY -->
 
@@ -1450,7 +1533,7 @@ zh:{
   orders:"订单",
   ordersDesc:"只会看到你负责地区内的订单。",
   inventory:"库存",
-  inventoryDesc:"入库、库存查看以及库存调整申请。",
+    inventoryDesc:"商品上架、当前库存、保质期和库存盘点。",
   payments:"付款审核",
   paymentsDesc:"客户提交付款证明后，由有权限的员工审核。",
   customers:"客户",
@@ -1480,7 +1563,19 @@ zh:{
   inventoryList:"当前库存",
   inventoryBatches:"库存批次",
   permissions:"我的权限",
-  noData:"目前没有数据"
+    noData:"目前没有数据",
+  shipments:"待收货",
+  shipmentsDesc:"总部发出的货到达后，在这里一次性清点并确认。",
+  pendingShipments:"待确认收货",
+  receivedShipments:"最近已收货",
+  noPendingShipments:"目前没有待收货的发货单。",
+  sentQuantity:"总部发货",
+  actualReceived:"实际收到",
+  confirmShipment:"确认收货",
+  receiptLocked:"确认后不能再次收货。如第一次确认有误，需要提交库存更正审批。",
+  listedStock:"上架库存",
+  saleableStock:"可售库存",
+  saveListing:"保存上架"
 },
 
 en:{
@@ -1497,7 +1592,7 @@ en:{
   orders:"Orders",
   ordersDesc:"Only orders from your assigned regions are visible.",
   inventory:"Inventory",
-  inventoryDesc:"Receive stock, view inventory and request adjustments.",
+    inventoryDesc:"Manage product listing, current stock, expiry dates and stocktake.",
   payments:"Payment Review",
   paymentsDesc:"Review customer payment submissions.",
   customers:"Customers",
@@ -1527,7 +1622,19 @@ en:{
   inventoryList:"Current Inventory",
   inventoryBatches:"Inventory Batches",
   permissions:"My Permissions",
-  noData:"No data"
+    noData:"No data",
+  shipments:"Pending Receipt",
+  shipmentsDesc:"When goods from headquarters arrive, count and confirm them here once.",
+  pendingShipments:"Pending Receipt",
+  receivedShipments:"Recent Receipts",
+  noPendingShipments:"No shipments are waiting for receipt.",
+  sentQuantity:"HQ Sent",
+  actualReceived:"Actually Received",
+  confirmShipment:"Confirm Receipt",
+  receiptLocked:"A shipment can only be received once. If the first confirmation is wrong, submit an inventory correction for approval.",
+  listedStock:"Listed Stock",
+  saleableStock:"Saleable Stock",
+  saveListing:"Save Listing"
 },
 
 my:{
@@ -1544,7 +1651,7 @@ my:{
   orders:"အော်ဒါ",
   ordersDesc:"သင်တာဝန်ယူထားသော ဒေသ၏အော်ဒါများကိုသာ ကြည့်နိုင်သည်။",
   inventory:"ကုန်ပစ္စည်းစာရင်း",
-  inventoryDesc:"ကုန်သွင်းခြင်း၊ လက်ကျန်ကြည့်ခြင်းနှင့် ပြင်ဆင်ရန်တင်ပြခြင်း။",
+    inventoryDesc:"ကုန်ပစ္စည်းရောင်းရန်တင်ခြင်း၊ လက်ကျန်၊ သက်တမ်းကုန်ရက်နှင့် စာရင်းစစ်ခြင်း။",
   payments:"ငွေပေးချေမှုစစ်ဆေး",
   paymentsDesc:"ဖောက်သည်ပေးပို့သော ငွေပေးချေမှုကို စစ်ဆေးပါ။",
   customers:"ဖောက်သည်များ",
@@ -1574,7 +1681,19 @@ my:{
   inventoryList:"လက်ရှိလက်ကျန်",
   inventoryBatches:"ကုန်ပစ္စည်း Batch",
   permissions:"ကျွန်ုပ်ခွင့်ပြုချက်",
-  noData:"ဒေတာမရှိသေးပါ"
+    noData:"ဒေတာမရှိသေးပါ",
+  shipments:"လက်ခံရန်",
+  shipmentsDesc:"ရုံးချုပ်မှပို့ထားသောပစ္စည်းရောက်လာပါက ဤနေရာတွင် တစ်ကြိမ်တည်းစစ်ဆေးပြီး အတည်ပြုပါ။",
+  pendingShipments:"လက်ခံအတည်ပြုရန်",
+  receivedShipments:"မကြာသေးမီ လက်ခံပြီး",
+  noPendingShipments:"လက်ခံရန်ပစ္စည်းမရှိသေးပါ",
+  sentQuantity:"ရုံးချုပ်ပို့",
+  actualReceived:"အမှန်တကယ်ရရှိ",
+  confirmShipment:"လက်ခံမှုအတည်ပြု",
+  receiptLocked:"အတည်ပြုပြီးနောက် ထပ်မံလက်ခံ၍မရပါ။ ပထမအတည်ပြုမှုမှားပါက လက်ကျန်ပြင်ဆင်မှုအတွက် အတည်ပြုချက်တင်ရမည်။",
+  listedStock:"ရောင်းရန်တင်ထား",
+  saleableStock:"ရောင်းနိုင်",
+  saveListing:"တင်ရောင်းပမာဏသိမ်း"
 },
 
 th:{
@@ -1591,7 +1710,7 @@ th:{
   orders:"คำสั่งซื้อ",
   ordersDesc:"ดูได้เฉพาะคำสั่งซื้อในพื้นที่ที่ได้รับมอบหมาย",
   inventory:"สต็อก",
-  inventoryDesc:"รับสินค้า ดูสต็อก และขอปรับปรุงสต็อก",
+    inventoryDesc:"จัดการการเปิดขาย ดูสต็อก วันหมดอายุ และตรวจนับสต็อก",
   payments:"ตรวจสอบการชำระเงิน",
   paymentsDesc:"ตรวจสอบหลักฐานการชำระเงินของลูกค้า",
   customers:"ลูกค้า",
@@ -1621,7 +1740,19 @@ th:{
   inventoryList:"สต็อกปัจจุบัน",
   inventoryBatches:"ล็อตสินค้า",
   permissions:"สิทธิ์ของฉัน",
-  noData:"ยังไม่มีข้อมูล"
+    noData:"ยังไม่มีข้อมูล",
+  shipments:"รอรับสินค้า",
+  shipmentsDesc:"เมื่อสินค้าจากสำนักงานใหญ่ถึงแล้ว ให้ตรวจนับและยืนยันเพียงครั้งเดียวที่นี่",
+  pendingShipments:"รอยืนยันรับสินค้า",
+  receivedShipments:"รับสินค้าล่าสุด",
+  noPendingShipments:"ตอนนี้ไม่มีสินค้าที่รอรับ",
+  sentQuantity:"สำนักงานใหญ่ส่ง",
+  actualReceived:"รับจริง",
+  confirmShipment:"ยืนยันรับสินค้า",
+  receiptLocked:"หลังยืนยันแล้วจะรับซ้ำไม่ได้ หากยืนยันครั้งแรกผิด ต้องส่งคำขอแก้ไขสต็อกเพื่ออนุมัติ",
+  listedStock:"สต็อกที่เปิดขาย",
+  saleableStock:"สต็อกที่ขายได้",
+  saveListing:"บันทึกการเปิดขาย"
 }
 
 };
@@ -3679,6 +3810,19 @@ function applyMenuPermissions(){
 
   if(
     hasPermission(
+      "inventory.receive"
+    )
+  ){
+
+    el("menuShipments")
+      .classList
+      .remove("hidden");
+
+  }
+
+
+  if(
+    hasPermission(
       "inventory.view"
     )
   ){
@@ -3716,17 +3860,11 @@ function applyMenuPermissions(){
   }
 
 
-  if(
-    hasPermission(
-      "inventory.receive"
-    )
-  ){
-
-    el("receivePanel")
-      .classList
-      .remove("hidden");
-
-  }
+  /*
+    原来的自由“商品入库”功能保留在代码中，
+    但不再作为经理日常入口显示。
+    正常库存增加必须通过总部发货 → 确认收货。
+  */
 
 
   if(
@@ -4059,7 +4197,8 @@ async function refreshCurrent(){
 
     orders:
       loadOrders,
-
+    shipments:
+      loadShipments,
     inventory:
       loadInventory,
 
@@ -4198,7 +4337,8 @@ async function loadDashboard(){
 
   let paymentCount =
     "—";
-
+  let shipmentCount =
+    "—";
 
   if(
     hasPermission(
@@ -4257,7 +4397,23 @@ async function loadDashboard(){
 
   }
 
+  if(
+    hasPermission(
+      "inventory.receive"
+    )
+  ){
 
+    shipmentCount =
+      await countRows(
+        "region_shipments",
+        query =>
+          query.eq(
+            "status",
+            "dispatched"
+          )
+      );
+
+  }
   el("statPending")
     .textContent =
     pending;
@@ -4273,7 +4429,9 @@ async function loadDashboard(){
   el("statRegions")
     .textContent =
     myRegionIds.length;
-
+  el("statShipments")
+    .textContent =
+    shipmentCount;
 
   if(
     !hasPermission(
@@ -5227,7 +5385,762 @@ async function requestOrderCancellation(
 
 }
 
+/* ==========================================
+   HEAD OFFICE SHIPMENTS
+========================================== */
 
+function shipmentProductName(
+  variantId
+){
+
+  return (
+    variantMap[
+      variantId
+    ]
+    ||
+    "商品"
+  );
+
+}
+
+
+function shipmentBadge(status){
+
+  if(
+    status ===
+    "received"
+  ){
+
+    return `
+      <span class="badge badge-green">
+        已收货 🔒
+      </span>
+    `;
+
+  }
+
+
+  if(
+    status ===
+    "cancelled"
+  ){
+
+    return `
+      <span class="badge badge-red">
+        已取消
+      </span>
+    `;
+
+  }
+
+
+  return `
+    <span class="badge badge-amber">
+      ${escapeHtml(t("pendingShipments"))}
+    </span>
+  `;
+
+}
+
+
+async function loadShipments(){
+
+  if(
+    !hasPermission(
+      "inventory.receive"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  const {
+    data:shipments,
+    error
+  } =
+    await db
+      .from(
+        "region_shipments"
+      )
+      .select("*")
+      .order(
+        "dispatched_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(100);
+
+
+  if(error){
+
+    el("pendingShipments")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const shipmentIds =
+    (shipments || [])
+      .map(
+        shipment =>
+          shipment.id
+      );
+
+
+  let shipmentItems = [];
+
+
+  if(
+    shipmentIds.length
+    >
+    0
+  ){
+
+    const {
+      data,
+      error:itemError
+    } =
+      await db
+        .from(
+          "region_shipment_items"
+        )
+        .select("*")
+        .in(
+          "shipment_id",
+          shipmentIds
+        );
+
+
+    if(itemError){
+
+      el("pendingShipments")
+        .innerHTML =
+        errorBox(
+          itemError.message
+        );
+
+      return;
+
+    }
+
+
+    shipmentItems =
+      data || [];
+
+  }
+
+
+  const pending =
+    (shipments || [])
+      .filter(
+        shipment =>
+          shipment.status
+          ===
+          "dispatched"
+      );
+
+
+  if(
+    pending.length === 0
+  ){
+
+    el("pendingShipments")
+      .innerHTML =
+      `
+        <div class="empty">
+          ${escapeHtml(t("noPendingShipments"))}
+        </div>
+      `;
+
+  }
+  else{
+
+    el("pendingShipments")
+      .innerHTML =
+      pending
+        .map(
+          shipment => {
+
+            const items =
+              shipmentItems
+                .filter(
+                  item =>
+                    item.shipment_id
+                    ===
+                    shipment.id
+                );
+
+
+            const itemRows =
+              items
+                .map(
+                  item => `
+
+                    <div
+                      class="receipt-row"
+                      data-item-id="${item.id}"
+                      style="
+                        border-top:1px solid var(--line);
+                        padding:12px 0;
+                      "
+                    >
+
+                      <div
+                        style="
+                          font-weight:900;
+                          margin-bottom:9px;
+                        "
+                      >
+                        ${
+                          escapeHtml(
+                            shipmentProductName(
+                              item.variant_id
+                            )
+                          )
+                        }
+                      </div>
+
+
+                      <div class="form-grid">
+
+                        <div class="form-group">
+
+                          <label>
+                            ${escapeHtml(t("sentQuantity"))}
+                          </label>
+
+                          <input
+                            value="${item.sent_quantity}"
+                            disabled
+                          >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                          <label>
+                            ${escapeHtml(t("actualReceived"))}
+                          </label>
+
+                          <input
+                            class="receipt-quantity"
+                            type="number"
+                            min="0"
+                            step="1"
+                            value="${item.sent_quantity}"
+                          >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                          <label>
+                            ${escapeHtml(t("productionDate"))}
+                          </label>
+
+                          <input
+                            class="receipt-production"
+                            type="date"
+                          >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                          <label>
+                            ${escapeHtml(t("expiryDate"))}
+                          </label>
+
+                          <input
+                            class="receipt-expiry"
+                            type="date"
+                          >
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  `
+                )
+                .join("");
+
+
+            return `
+
+              <div
+                id="shipment-${shipment.id}"
+                class="panel"
+              >
+
+                <div class="panel-head">
+
+                  <div>
+
+                    <div class="panel-title">
+                      ${
+                        escapeHtml(
+                          shipment.shipment_number
+                        )
+                      }
+                    </div>
+
+                    <div class="small">
+                      ${
+                        escapeHtml(
+                          regionMap[
+                            shipment.region_id
+                          ]
+                          ||
+                          "—"
+                        )
+                      }
+                      ·
+                      ${
+                        formatDate(
+                          shipment.dispatched_at
+                        )
+                      }
+                    </div>
+
+                  </div>
+
+                  ${
+                    shipmentBadge(
+                      shipment.status
+                    )
+                  }
+
+                </div>
+
+
+                ${
+                  shipment.notes
+                  ?
+                  `
+                    <div class="small"
+                      style="margin-bottom:8px">
+                      ${
+                        escapeHtml(
+                          shipment.notes
+                        )
+                      }
+                    </div>
+                  `
+                  :
+                  ""
+                }
+
+
+                ${itemRows}
+
+
+                <div
+                  class="note"
+                  style="margin-top:10px"
+                >
+                  ${escapeHtml(t("receiptLocked"))}
+                </div>
+
+
+                <button
+                  class="btn btn-primary"
+                  onclick="confirmShipmentReceipt(
+                    '${shipment.id}'
+                  )"
+                >
+                  ${escapeHtml(t("confirmShipment"))}
+                </button>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join("");
+
+  }
+
+
+  const received =
+    (shipments || [])
+      .filter(
+        shipment =>
+          shipment.status
+          ===
+          "received"
+      )
+      .slice(
+        0,
+        20
+      );
+
+
+  const historyRows =
+    received
+      .map(
+        shipment => {
+
+          const items =
+            shipmentItems
+              .filter(
+                item =>
+                  item.shipment_id
+                  ===
+                  shipment.id
+              );
+
+
+          const detail =
+            items
+              .map(
+                item => {
+
+                  let text =
+                    shipmentProductName(
+                      item.variant_id
+                    )
+                    +
+                    " "
+                    +
+                    item.sent_quantity
+                    +
+                    " → "
+                    +
+                    (
+                      item.received_quantity
+                      ??
+                      0
+                    );
+
+
+                  if(
+                    Number(
+                      item.discrepancy_quantity
+                      ||
+                      0
+                    )
+                    !==
+                    0
+                  ){
+
+                    text +=
+                      "（差异 "
+                      +
+                      item.discrepancy_quantity
+                      +
+                      "）";
+
+                  }
+
+
+                  return `
+                    <div>
+                      ${escapeHtml(text)}
+                    </div>
+                  `;
+
+                }
+              )
+              .join("");
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+                ${
+                  escapeHtml(
+                    shipment.shipment_number
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  escapeHtml(
+                    regionMap[
+                      shipment.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+              </td>
+
+              <td>
+                ${detail}
+              </td>
+
+              <td>
+                ${
+                  shipmentBadge(
+                    shipment.status
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  formatDate(
+                    shipment.received_at
+                  )
+                }
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("receivedShipments")
+    .innerHTML =
+    makeTable(
+      [
+        "发货单",
+        t("region"),
+        "商品",
+        "状态",
+        t("receivedShipments")
+      ],
+      historyRows
+    );
+
+}
+
+
+async function confirmShipmentReceipt(
+  shipmentId
+){
+
+  const container =
+    el(
+      "shipment-"
+      +
+      shipmentId
+    );
+
+
+  if(!container){
+    return;
+  }
+
+
+  const rows =
+    Array.from(
+      container
+        .querySelectorAll(
+          ".receipt-row"
+        )
+    );
+
+
+  const items = [];
+
+
+  for(
+    const row
+    of
+    rows
+  ){
+
+    const quantity =
+      Number(
+        row
+          .querySelector(
+            ".receipt-quantity"
+          )
+          .value
+      );
+
+    const productionDate =
+      row
+        .querySelector(
+          ".receipt-production"
+        )
+        .value;
+
+    const expiryDate =
+      row
+        .querySelector(
+          ".receipt-expiry"
+        )
+        .value;
+
+
+    if(
+      !Number.isInteger(
+        quantity
+      )
+      ||
+      quantity < 0
+    ){
+
+      alert(
+        "实际收到数量必须是0或正整数。"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      quantity > 0
+      &&
+      (
+        !productionDate
+        ||
+        !expiryDate
+      )
+    ){
+
+      alert(
+        "收到数量大于0时，必须填写生产日期和过期日期。"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      quantity > 0
+      &&
+      expiryDate
+      <
+      productionDate
+    ){
+
+      alert(
+        "过期日期不能早于生产日期。"
+      );
+
+      return;
+
+    }
+
+
+    items.push({
+
+      item_id:
+        row.dataset.itemId,
+
+      received_quantity:
+        quantity,
+
+      production_date:
+        quantity > 0
+        ?
+        productionDate
+        :
+        null,
+
+      expiry_date:
+        quantity > 0
+        ?
+        expiryDate
+        :
+        null
+
+    });
+
+  }
+
+
+  if(
+    !confirm(
+      t("receiptLocked")
+      +
+      "\n\n"
+      +
+      t("confirmShipment")
+      +
+      "？"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  const button =
+    container
+      .querySelector(
+        "button.btn-primary"
+      );
+
+
+  if(button){
+    button.disabled = true;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "manager_receive_region_shipment",
+      {
+
+        p_shipment_id:
+          shipmentId,
+
+        p_items:
+          items
+
+      }
+    );
+
+
+  if(error){
+
+    if(button){
+      button.disabled = false;
+    }
+
+
+    alert(
+      "确认收货失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "收货已经确认并锁定，库存已更新。"
+  );
+
+
+  await Promise.all([
+    loadShipments(),
+    loadInventory(),
+    loadDashboard()
+  ]);
+
+}
 /* ==========================================
    INVENTORY
 ========================================== */
@@ -5289,105 +6202,247 @@ async function loadInventoryList(){
   const rows =
     (data || [])
       .map(
-        item => `
+        item => {
 
-          <tr>
+          const stock =
+            Number(
+              item.stock_on_hand
+              ||
+              0
+            );
 
-            <td>
+          const listed =
+            Number(
+              item.listed_quantity
+              ||
+              0
+            );
 
-              ${
-                escapeHtml(
-                  regionMap[
-                    item.region_id
-                  ]
-                  ||
-                  "—"
-                )
-              }
+          const reserved =
+            Number(
+              item.reserved_quantity
+              ||
+              0
+            );
 
-            </td>
+          const saleable =
+            Math.max(
+              Math.min(
+                stock,
+                listed
+              )
+              -
+              reserved,
+              0
+            );
 
-            <td>
 
-              ${
-                escapeHtml(
-                  variantMap[
+          return `
+
+            <tr>
+
+              <td>
+                ${
+                  escapeHtml(
+                    regionMap[
+                      item.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  escapeHtml(
+                    variantMap[
+                      item.variant_id
+                    ]
+                    ||
                     item.variant_id
-                  ]
-                  ||
-                  item.variant_id
-                )
-              }
+                  )
+                }
+              </td>
 
-            </td>
+              <td>
+                <strong>
+                  ${stock}
+                </strong>
+              </td>
 
-            <td>
-              ${item.stock_on_hand}
-            </td>
+              <td>
+                ${listed}
+              </td>
 
-            <td>
-              ${item.reserved_quantity}
-            </td>
+              <td>
+                ${reserved}
+              </td>
 
-            <td>
+              <td>
+                <strong>
+                  ${saleable}
+                </strong>
+              </td>
 
-              ${
-                Number(
-                  item.stock_on_hand
-                  ||
-                  0
-                )
-                -
-                Number(
-                  item.reserved_quantity
-                  ||
-                  0
-                )
-              }
+              <td style="min-width:165px">
 
-            </td>
+                <div class="operation-buttons">
 
-            <td>
-              ${item.low_stock_threshold}
-            </td>
+                  <input
+                    id="listing-${item.id}"
+                    type="number"
+                    min="${reserved}"
+                    max="${stock}"
+                    step="1"
+                    value="${listed}"
+                    style="width:85px;padding:7px"
+                  >
 
-            <td>
+                  <button
+                    class="btn btn-primary btn-small"
+                    onclick="setRegionListing(
+                      '${item.region_id}',
+                      '${item.variant_id}',
+                      '${item.id}',
+                      ${stock},
+                      ${reserved}
+                    )"
+                  >
+                    ${escapeHtml(t("saveListing"))}
+                  </button>
 
-              ${
-                statusBadge(
-                  item.is_available
-                  ?
-                  "active"
-                  :
-                  "inactive"
-                )
-              }
+                </div>
 
-            </td>
+              </td>
 
-          </tr>
+            </tr>
 
-        `
+          `;
+
+        }
       );
 
 
   el("inventoryTable")
     .innerHTML =
     makeTable(
-
       [
-  "地区",
-  "商品",
-  "实际库存",
-  "已预留",
-  "可用库存",
-  "低库存线",
-  "状态"
-],
-
+        t("region"),
+        "商品",
+        "实际库存",
+        t("listedStock"),
+        "已预留",
+        t("saleableStock"),
+        t("saveListing")
+      ],
       rows
-
     );
+
+}
+
+
+async function setRegionListing(
+  regionId,
+  variantId,
+  inventoryId,
+  stock,
+  reserved
+){
+
+  const input =
+    el(
+      "listing-"
+      +
+      inventoryId
+    );
+
+  const quantity =
+    Number(
+      input.value
+    );
+
+
+  if(
+    !Number.isInteger(quantity)
+    ||
+    quantity < 0
+  ){
+
+    alert(
+      "上架数量必须是0或正整数。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    quantity > stock
+  ){
+
+    alert(
+      "上架数量不能超过实际库存。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    quantity < reserved
+  ){
+
+    alert(
+      "已经被客户订单预留的数量不能下架。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "manager_set_region_listing",
+      {
+
+        p_region_id:
+          regionId,
+
+        p_variant_id:
+          variantId,
+
+        p_listed_quantity:
+          quantity
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "上架数量已保存。"
+  );
+
+
+  await loadInventoryList();
 
 }
 
