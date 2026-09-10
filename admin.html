@@ -1145,7 +1145,178 @@ tr:last-child td{
 
 </section>
 
+<!-- 总部发货 -->
 
+<section
+  id="shipments"
+  class="section"
+>
+
+  <div class="page-title">
+    总部发货
+  </div>
+
+  <div class="page-subtitle">
+    总部把商品发往地区。经理实际确认收货前，不会增加地区库存。
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          新建发货单
+        </div>
+
+        <div class="panel-note">
+          选择一个地区，可以一次发送多种商品
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label>
+          发往地区 *
+        </label>
+
+        <select id="shipmentRegion">
+
+          <option value="">
+            请选择地区
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          备注
+        </label>
+
+        <input
+          id="shipmentNotes"
+          placeholder="可留空，例如：9月第一批货"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="panel-note"
+      style="margin-bottom:8px"
+    >
+      发货商品
+    </div>
+
+
+    <div id="shipmentItems"></div>
+
+
+    <div
+      class="operation-buttons"
+      style="margin-top:12px"
+    >
+
+      <button
+        type="button"
+        class="btn btn-light"
+        onclick="addShipmentItem()"
+      >
+        + 添加商品
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="createRegionShipment()"
+      >
+        确认发货
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          发货记录
+        </div>
+
+        <div class="panel-note">
+          待收货、已收货以及收货差异都会保留
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="toolbar">
+
+      <select
+        id="shipmentStatusFilter"
+        onchange="loadShipments()"
+      >
+
+        <option value="">
+          全部状态
+        </option>
+
+        <option value="dispatched">
+          待收货
+        </option>
+
+        <option value="received">
+          已收货
+        </option>
+
+        <option value="cancelled">
+          已取消
+        </option>
+
+      </select>
+
+
+      <select
+        id="shipmentRegionFilter"
+        onchange="loadShipments()"
+      >
+
+        <option value="">
+          全部地区
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div id="shipmentsTable"></div>
+
+  </div>
+
+</section>
 <!-- 订单 -->
 
 <section
@@ -3736,8 +3907,11 @@ async function refreshCurrentSection(){
     dashboard:
       loadDashboard,
 
-    orders:
+        orders:
       loadOrders,
+
+    shipments:
+      loadShipments,
 
     inventory:
       loadInventory,
@@ -5082,7 +5256,901 @@ async function rpc(
 
 }
 
+/* =========================
+   总部发货
+========================= */
 
+function shipmentProductName(variantId){
+
+  const variant =
+    variantData.find(
+      item =>
+        item.id === variantId
+    );
+
+  if(!variant){
+    return "未知商品";
+  }
+
+  const product =
+    productData.find(
+      item =>
+        item.id === variant.product_id
+    );
+
+  return (
+    product?.name_zh
+    ||
+    variant.name_zh
+    ||
+    variant.specification_zh
+    ||
+    "商品"
+  );
+
+}
+
+
+function shipmentVariantOptions(selectedId = ""){
+
+  return variantData
+    .filter(
+      variant =>
+        variant.is_active
+    )
+    .map(
+      variant => {
+
+        const name =
+          shipmentProductName(
+            variant.id
+          );
+
+        const specification =
+          variant.specification_zh
+          ?
+          " · " + variant.specification_zh
+          :
+          "";
+
+        return `
+
+          <option
+            value="${variant.id}"
+            ${
+              variant.id === selectedId
+              ?
+              "selected"
+              :
+              ""
+            }
+          >
+            ${
+              escapeHtml(
+                name + specification
+              )
+            }
+          </option>
+
+        `;
+
+      }
+    )
+    .join("");
+
+}
+
+
+function addShipmentItem(){
+
+  const container =
+    el("shipmentItems");
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    "form-grid shipment-item-row";
+
+  row.style.cssText =
+    "border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:10px;";
+
+  row.innerHTML = `
+
+    <div class="form-group">
+
+      <label>
+        商品
+      </label>
+
+      <select class="shipment-variant">
+        ${shipmentVariantOptions()}
+      </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>
+        发货数量
+      </label>
+
+      <input
+        class="shipment-quantity"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="例如 100"
+      >
+
+    </div>
+
+
+    <div class="full">
+
+      <button
+        type="button"
+        class="btn btn-light btn-small"
+        onclick="removeShipmentItem(this)"
+      >
+        删除这一项
+      </button>
+
+    </div>
+
+  `;
+
+  container.appendChild(
+    row
+  );
+
+}
+
+
+function removeShipmentItem(button){
+
+  const rows =
+    document.querySelectorAll(
+      ".shipment-item-row"
+    );
+
+  if(rows.length <= 1){
+
+    alert(
+      "发货单至少保留一种商品。"
+    );
+
+    return;
+
+  }
+
+  button
+    .closest(
+      ".shipment-item-row"
+    )
+    .remove();
+
+}
+
+
+function resetShipmentForm(){
+
+  el("shipmentNotes").value =
+    "";
+
+  el("shipmentItems")
+    .innerHTML =
+    "";
+
+  addShipmentItem();
+
+}
+
+
+async function createRegionShipment(){
+
+  const regionId =
+    el("shipmentRegion").value;
+
+  if(!regionId){
+
+    alert(
+      "请选择发货地区。"
+    );
+
+    return;
+
+  }
+
+
+  const rows =
+    Array.from(
+      document.querySelectorAll(
+        ".shipment-item-row"
+      )
+    );
+
+
+  if(rows.length === 0){
+
+    alert(
+      "请至少添加一种商品。"
+    );
+
+    return;
+
+  }
+
+
+  const items = [];
+
+  const usedVariants =
+    new Set();
+
+
+  for(const row of rows){
+
+    const variantId =
+      row.querySelector(
+        ".shipment-variant"
+      ).value;
+
+    const quantity =
+      Number(
+        row.querySelector(
+          ".shipment-quantity"
+        ).value
+      );
+
+
+    if(!variantId){
+
+      alert(
+        "请选择商品。"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      !Number.isInteger(quantity)
+      ||
+      quantity <= 0
+    ){
+
+      alert(
+        "发货数量必须是大于 0 的整数。"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      usedVariants.has(
+        variantId
+      )
+    ){
+
+      alert(
+        "同一种商品不要重复添加，请直接填写总数量。"
+      );
+
+      return;
+
+    }
+
+
+    usedVariants.add(
+      variantId
+    );
+
+
+    items.push({
+
+      variant_id:
+        variantId,
+
+      quantity:
+        quantity
+
+    });
+
+  }
+
+
+  const regionName =
+    regionMap[regionId]
+    ||
+    "该地区";
+
+
+  const ok =
+    confirm(
+      `确认向【${regionName}】发出这批货吗？\n\n发货后不会立即增加地区库存，必须等经理实际清点并确认收货。`
+    );
+
+
+  if(!ok){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "admin_create_region_shipment",
+      {
+
+        p_region_id:
+          regionId,
+
+        p_items:
+          items,
+
+        p_notes:
+          el("shipmentNotes")
+            .value
+            .trim()
+          ||
+          null
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "发货失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "总部发货单已创建。\n\n这批货现在是「待收货」，不会提前增加地区库存。"
+  );
+
+
+  resetShipmentForm();
+
+  await loadDashboard();
+
+  await loadShipments();
+
+}
+
+
+async function cancelRegionShipment(
+  shipmentId
+){
+
+  const reason =
+    prompt(
+      "请输入取消这张发货单的原因："
+    );
+
+
+  if(
+    reason === null
+  ){
+    return;
+  }
+
+
+  if(
+    !reason.trim()
+  ){
+
+    alert(
+      "必须填写取消原因。"
+    );
+
+    return;
+
+  }
+
+
+  const ok =
+    confirm(
+      "确定取消这张还未收货的发货单吗？"
+    );
+
+
+  if(!ok){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_cancel_region_shipment",
+      {
+
+        p_shipment_id:
+          shipmentId,
+
+        p_reason:
+          reason.trim()
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "取消失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "发货单已取消。"
+  );
+
+
+  await loadDashboard();
+
+  await loadShipments();
+
+}
+
+
+function shipmentStatusText(status){
+
+  if(
+    status === "dispatched"
+  ){
+    return "待收货";
+  }
+
+  if(
+    status === "received"
+  ){
+    return "已收货 🔒";
+  }
+
+  if(
+    status === "cancelled"
+  ){
+    return "已取消";
+  }
+
+  return status || "—";
+
+}
+
+
+function shipmentStatusBadge(status){
+
+  if(
+    status === "received"
+  ){
+
+    return `
+      <span class="badge badge-green">
+        已收货 🔒
+      </span>
+    `;
+
+  }
+
+
+  if(
+    status === "cancelled"
+  ){
+
+    return `
+      <span class="badge badge-red">
+        已取消
+      </span>
+    `;
+
+  }
+
+
+  return `
+    <span class="badge badge-amber">
+      待收货
+    </span>
+  `;
+
+}
+
+
+async function loadShipments(){
+
+  const regionSelect =
+    el("shipmentRegion");
+
+  if(!regionSelect){
+    return;
+  }
+
+
+  const oldRegion =
+    regionSelect.value;
+
+
+  regionSelect.innerHTML =
+    `
+      <option value="">
+        请选择地区
+      </option>
+    `
+    +
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+
+          <option value="${region.id}">
+            ${
+              escapeHtml(
+                region.name_zh
+                ||
+                region.name_en
+                ||
+                region.code
+              )
+            }
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  if(
+    oldRegion &&
+    regionData.some(
+      region =>
+        region.id === oldRegion
+    )
+  ){
+
+    regionSelect.value =
+      oldRegion;
+
+  }
+
+
+  if(
+    el("shipmentItems")
+    &&
+    !el("shipmentItems")
+      .children.length
+  ){
+
+    addShipmentItem();
+
+  }
+
+
+  let query =
+    db
+      .from(
+        "region_shipments"
+      )
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(200);
+
+
+  const status =
+    el("shipmentStatusFilter")
+      .value;
+
+
+  const regionFilter =
+    el("shipmentRegionFilter")
+      .value;
+
+
+  if(status){
+
+    query =
+      query.eq(
+        "status",
+        status
+      );
+
+  }
+
+
+  if(regionFilter){
+
+    query =
+      query.eq(
+        "region_id",
+        regionFilter
+      );
+
+  }
+
+
+  const {
+    data:shipments,
+    error
+  } =
+    await query;
+
+
+  if(error){
+
+    el("shipmentsTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const shipmentIds =
+    (shipments || [])
+      .map(
+        shipment =>
+          shipment.id
+      );
+
+
+  let shipmentItems = [];
+
+
+  if(
+    shipmentIds.length > 0
+  ){
+
+    const {
+      data,
+      error:itemError
+    } =
+      await db
+        .from(
+          "region_shipment_items"
+        )
+        .select("*")
+        .in(
+          "shipment_id",
+          shipmentIds
+        );
+
+
+    if(itemError){
+
+      el("shipmentsTable")
+        .innerHTML =
+        errorBox(
+          itemError.message
+        );
+
+      return;
+
+    }
+
+
+    shipmentItems =
+      data || [];
+
+  }
+
+
+  const rows =
+    (shipments || [])
+      .map(
+        shipment => {
+
+          const items =
+            shipmentItems
+              .filter(
+                item =>
+                  item.shipment_id
+                  ===
+                  shipment.id
+              );
+
+
+          const products =
+            items
+              .map(
+                item => {
+
+                  const name =
+                    shipmentProductName(
+                      item.variant_id
+                    );
+
+                  let text =
+                    `${name} × ${item.sent_quantity}`;
+
+
+                  if(
+                    shipment.status
+                    ===
+                    "received"
+                  ){
+
+                    text +=
+                      ` / 实收 ${item.received_quantity ?? 0}`;
+
+
+                    if(
+                      Number(
+                        item.discrepancy_quantity
+                        ||
+                        0
+                      )
+                      !==
+                      0
+                    ){
+
+                      text +=
+                        ` / 差异 ${item.discrepancy_quantity}`;
+
+                    }
+
+                  }
+
+
+                  return `
+                    <div style="margin-bottom:5px">
+                      ${escapeHtml(text)}
+                    </div>
+                  `;
+
+                }
+              )
+              .join("");
+
+
+          let action = "—";
+
+
+          if(
+            shipment.status
+            ===
+            "dispatched"
+          ){
+
+            action = `
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="cancelRegionShipment('${shipment.id}')"
+              >
+                取消发货
+              </button>
+
+            `;
+
+          }
+
+
+          return `
+
+            <tr>
+
+              <td class="mono">
+                ${
+                  escapeHtml(
+                    shipment.shipment_number
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  escapeHtml(
+                    regionMap[
+                      shipment.region_id
+                    ]
+                    ||
+                    "—"
+                  )
+                }
+              </td>
+
+              <td>
+                ${products || "—"}
+              </td>
+
+              <td>
+                ${
+                  shipmentStatusBadge(
+                    shipment.status
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  formatDate(
+                    shipment.dispatched_at
+                  )
+                }
+              </td>
+
+              <td>
+                ${
+                  shipment.received_at
+                  ?
+                  formatDate(
+                    shipment.received_at
+                  )
+                  :
+                  "—"
+                }
+              </td>
+
+              <td>
+                ${
+                  escapeHtml(
+                    shipment.notes
+                    ||
+                    "—"
+                  )
+                }
+              </td>
+
+              <td>
+                ${action}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("shipmentsTable")
+    .innerHTML =
+    makeTable(
+      [
+        "发货单号",
+        "地区",
+        "商品 / 数量",
+        "状态",
+        "发货时间",
+        "收货时间",
+        "备注",
+        "操作"
+      ],
+      rows
+    );
+
+}
 /* =========================
    订单
 ========================= */
