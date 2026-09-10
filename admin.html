@@ -1403,30 +1403,42 @@ tr:last-child td{
 >
 
   <div class="page-title">
-    库存管理
+    库存
   </div>
 
   <div class="page-subtitle">
-        查看各地区真实库存和商品保质期
+    总部进货、总部库存、地区库存和历史记录都在这里。
   </div>
 
 
-   <div class="panel hidden">
+  <div class="panel">
 
-    <div class="panel-title">
-      商品入库
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          新增到货
+        </div>
+
+        <div class="panel-note">
+          货到总部后，在这里登记数量，系统会自动增加总部库存。
+        </div>
+
+      </div>
+
     </div>
 
 
-    <div class="form-grid-3">
+    <div class="form-grid">
 
       <div class="form-group">
 
         <label>
-          地区
+          商品
         </label>
 
-        <select id="receiveRegion"></select>
+        <select id="hqReceiveVariant"></select>
 
       </div>
 
@@ -1434,108 +1446,15 @@ tr:last-child td{
       <div class="form-group">
 
         <label>
-          SKU
-        </label>
-
-        <select id="receiveVariant"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          入库数量
+          到货数量
         </label>
 
         <input
-          id="receiveQuantity"
+          id="hqReceiveQuantity"
           type="number"
           min="1"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批次编号
-        </label>
-
-        <input
-          id="receiveBatchCode"
-          placeholder="例如 BATCH-001"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          收货日期
-        </label>
-
-        <input
-          id="receiveDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          生产日期
-        </label>
-
-        <input
-          id="receiveProductionDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          到期日期
-        </label>
-
-        <input
-          id="receiveExpiryDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          单位成本
-        </label>
-
-        <input
-          id="receiveUnitCost"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          备注
-        </label>
-
-        <input
-          id="receiveNotes"
+          step="1"
+          placeholder="例如 100"
         >
 
       </div>
@@ -1545,99 +1464,9 @@ tr:last-child td{
 
     <button
       class="btn btn-primary"
-      onclick="receiveInventory()"
+      onclick="receiveHeadOfficeStock()"
     >
-      确认入库
-    </button>
-
-  </div>
-
-
-    <div class="panel hidden">
-
-    <div class="panel-title">
-      手工库存调整
-    </div>
-
-    <div class="safe-note">
-      正数代表增加库存，例如 10；负数代表减少库存，例如 -3。Super Admin 可以直接执行，但必须填写原因。
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          地区
-        </label>
-
-        <select id="adjustRegion"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          SKU
-        </label>
-
-        <select id="adjustVariant"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          调整数量
-        </label>
-
-        <input
-          id="adjustDelta"
-          type="number"
-          placeholder="例如 5 或 -2"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          批次 ID（有批次库存时必须）
-        </label>
-
-        <input
-          id="adjustBatchId"
-          placeholder="没有批次可留空"
-        >
-
-      </div>
-
-
-      <div class="form-group full">
-
-        <label>
-          调整原因
-        </label>
-
-        <input
-          id="adjustReason"
-          placeholder="必须填写"
-        >
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-amber"
-      onclick="adjustInventory()"
-    >
-      执行库存调整
+      确认进货
     </button>
 
   </div>
@@ -1645,8 +1474,43 @@ tr:last-child td{
 
   <div class="panel">
 
-    <div class="panel-title">
-      地区库存
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          总部库存
+        </div>
+
+        <div class="panel-note">
+          总部目前实际还有多少货。
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="hqInventoryTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          地区库存
+        </div>
+
+        <div class="panel-note">
+          可以直接看到每个地区收到多少、上架多少、还剩多少没有上架，以及客户现在可以买多少。
+        </div>
+
+      </div>
+
     </div>
 
     <div id="inventoryTable"></div>
@@ -1656,11 +1520,60 @@ tr:last-child td{
 
   <div class="panel">
 
-    <div class="panel-title">
-      库存批次
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          历史记录
+        </div>
+
+        <div class="panel-note">
+          总部进货、发货、地区收货和上架变化都会保留。
+        </div>
+
+      </div>
+
     </div>
 
-    <div id="batchTable"></div>
+
+    <div class="toolbar">
+
+      <select
+        id="historyRegionFilter"
+        onchange="loadSimpleInventoryHistory()"
+      >
+        <option value="">
+          全部地区
+        </option>
+      </select>
+
+
+      <input
+        id="historyStart"
+        type="date"
+        onchange="loadSimpleInventoryHistory()"
+      >
+
+
+      <input
+        id="historyEnd"
+        type="date"
+        onchange="loadSimpleInventoryHistory()"
+      >
+
+
+      <button
+        class="btn btn-light"
+        onclick="loadSimpleInventoryHistory()"
+      >
+        查询
+      </button>
+
+    </div>
+
+
+    <div id="historyTable"></div>
 
   </div>
 
@@ -3372,7 +3285,7 @@ let deliveryData = [];
 let regionMap = {};
 let productMap = {};
 let variantMap = {};
-
+let headOfficeStockMap = {};
 
 /* =========================
    基础工具
@@ -5254,12 +5167,24 @@ function shipmentVariantOptions(selectedId = ""){
             variant.id
           );
 
+        const stock =
+          Number(
+            headOfficeStockMap[
+              variant.id
+            ]
+            ||
+            0
+          );
+
         const specification =
           variant.specification_zh
           ?
-          " · " + variant.specification_zh
+          " · "
+          +
+          variant.specification_zh
           :
           "";
+
 
         return `
 
@@ -5272,10 +5197,23 @@ function shipmentVariantOptions(selectedId = ""){
               :
               ""
             }
+            ${
+              stock <= 0
+              ?
+              "disabled"
+              :
+              ""
+            }
           >
             ${
               escapeHtml(
-                name + specification
+                name
+                +
+                specification
+                +
+                " · 总部库存 "
+                +
+                stock
               )
             }
           </option>
@@ -5476,7 +5414,35 @@ async function createRegionShipment(){
       return;
 
     }
+    const available =
+      Number(
+        headOfficeStockMap[
+          variantId
+        ]
+        ||
+        0
+      );
 
+
+    if(
+      quantity > available
+    ){
+
+      alert(
+        shipmentProductName(
+          variantId
+        )
+        +
+        " 总部库存不足。\n目前最多可发 "
+        +
+        available
+        +
+        " 件。"
+      );
+
+      return;
+
+    }
 
     if(
       usedVariants.has(
@@ -5733,7 +5699,26 @@ async function loadShipments(){
   if(!regionSelect){
     return;
   }
+  await loadHeadOfficeStockMap();
 
+
+  document
+    .querySelectorAll(
+      ".shipment-variant"
+    )
+    .forEach(
+      select => {
+
+        const selected =
+          select.value;
+
+        select.innerHTML =
+          shipmentVariantOptions(
+            selected
+          );
+
+      }
+    );
 
   const oldRegion =
     regionSelect.value;
@@ -6920,12 +6905,246 @@ async function refundOrder(
 
 async function loadInventory(){
 
+  await loadHeadOfficeStockMap();
+
+  renderHeadOfficeInventory();
+
   await Promise.all([
-
     loadInventoryList(),
-    loadInventoryBatches()
-
+    loadSimpleInventoryHistory()
   ]);
+
+}
+
+
+async function loadHeadOfficeStockMap(){
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "admin_head_office_inventory"
+    );
+
+  if(error){
+
+    headOfficeStockMap = {};
+
+    return;
+
+  }
+
+  headOfficeStockMap = {};
+
+  (data || []).forEach(
+    item => {
+
+      headOfficeStockMap[
+        item.variant_id
+      ] =
+        Number(
+          item.stock_on_hand
+          ||
+          0
+        );
+
+    }
+  );
+
+}
+
+
+function renderHeadOfficeInventory(){
+
+  const select =
+    el("hqReceiveVariant");
+
+  if(select){
+
+    const oldValue =
+      select.value;
+
+    select.innerHTML =
+      variantData
+        .filter(
+          variant =>
+            variant.is_active
+        )
+        .map(
+          variant => {
+
+            const name =
+              shipmentProductName(
+                variant.id
+              );
+
+            return `
+              <option value="${variant.id}">
+                ${escapeHtml(name)}
+              </option>
+            `;
+
+          }
+        )
+        .join("");
+
+    if(
+      oldValue
+      &&
+      variantData.some(
+        item =>
+          item.id === oldValue
+      )
+    ){
+      select.value =
+        oldValue;
+    }
+
+  }
+
+
+  const rows =
+    variantData
+      .filter(
+        variant =>
+          variant.is_active
+      )
+      .map(
+        variant => {
+
+          const stock =
+            Number(
+              headOfficeStockMap[
+                variant.id
+              ]
+              ||
+              0
+            );
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(
+                  shipmentProductName(
+                    variant.id
+                  )
+                )}
+              </td>
+
+              <td>
+                <strong>
+                  ${stock}
+                </strong>
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("hqInventoryTable")
+    .innerHTML =
+    makeTable(
+      [
+        "商品",
+        "总部库存"
+      ],
+      rows
+    );
+
+}
+
+
+async function receiveHeadOfficeStock(){
+
+  const variantId =
+    el("hqReceiveVariant")
+      .value;
+
+  const quantity =
+    Number(
+      el("hqReceiveQuantity")
+        .value
+    );
+
+
+  if(
+    !variantId
+    ||
+    !Number.isInteger(quantity)
+    ||
+    quantity <= 0
+  ){
+
+    alert(
+      "请选择商品，并填写正确的到货数量。"
+    );
+
+    return;
+
+  }
+
+
+  const name =
+    shipmentProductName(
+      variantId
+    );
+
+
+  if(
+    !confirm(
+      `确认总部收到【${name}】${quantity} 件吗？`
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_receive_head_office_stock",
+      {
+        p_variant_id:
+          variantId,
+
+        p_quantity:
+          quantity
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "进货失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    `${name} 已增加 ${quantity} 件总部库存。`
+  );
+
+
+  el("hqReceiveQuantity")
+    .value =
+    "";
+
+
+  await loadInventory();
 
 }
 
@@ -6965,154 +7184,219 @@ async function loadInventoryList(){
   const rows =
     (data || [])
       .map(
-        inventory => `
+        inventory => {
 
-          <tr>
+          const actual =
+            Number(
+              inventory.stock_on_hand
+              ||
+              0
+            );
 
-            <td>
+          const listed =
+            Number(
+              inventory.listed_quantity
+              ||
+              0
+            );
 
-              ${
-                escapeHtml(
+          const reserved =
+            Number(
+              inventory.reserved_quantity
+              ||
+              0
+            );
+
+          const notListed =
+            Math.max(
+              0,
+              actual - listed
+            );
+
+          const saleable =
+            Math.max(
+              0,
+              Math.min(
+                actual,
+                listed
+              )
+              -
+              reserved
+            );
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(
                   regionMap[
                     inventory.region_id
                   ]
                   ||
                   "—"
-                )
-              }
+                )}
+              </td>
 
-            </td>
-
-            <td>
-
-              ${
-                escapeHtml(
-                  variantMap[
+              <td>
+                ${escapeHtml(
+                  shipmentProductName(
                     inventory.variant_id
-                  ]
-                  ||
-                  inventory.variant_id
-                )
-              }
-
-            </td>
-
-            <td>
-              ${inventory.stock_on_hand}
-            </td>
-
-            <td>
-              ${inventory.reserved_quantity}
-            </td>
-
-            <td>
-
-              ${
-                Math.max(
-                  0,
-                  Number(
-                    inventory.stock_on_hand
-                    ||
-                    0
                   )
-                  -
-                  Number(
-                    inventory.reserved_quantity
-                    ||
-                    0
-                  )
-                )
-              }
+                )}
+              </td>
 
-            </td>
+              <td>
+                ${actual}
+              </td>
 
-            <td>
-              ${inventory.low_stock_threshold}
-            </td>
+              <td>
+                ${listed}
+              </td>
 
-            <td>
+              <td>
+                ${notListed}
+              </td>
 
-              ${
-                statusBadge(
-                  inventory.is_available
-                  ?
-                  "active"
-                  :
-                  "inactive"
-                )
-              }
+              <td>
+                <strong>
+                  ${saleable}
+                </strong>
+              </td>
 
-            </td>
+            </tr>
 
-            <td>
+          `;
 
-              ${
-                formatDate(
-                  inventory.updated_at
-                )
-              }
-
-            </td>
-
-          </tr>
-
-        `
+        }
       );
 
 
   el("inventoryTable")
     .innerHTML =
     makeTable(
-
       [
         "地区",
-        "SKU",
-        "现货",
-        "预留",
-        "可售",
-        "低库存线",
-        "状态",
-        "更新时间"
+        "商品",
+        "实际库存",
+        "已上架",
+        "未上架",
+        "客户可购买"
       ],
-
       rows
-
     );
 
 }
 
 
-async function loadInventoryBatches(){
+async function loadSimpleInventoryHistory(){
+
+  const regionSelect =
+    el("historyRegionFilter");
+
+  const oldRegion =
+    regionSelect.value;
+
+
+  regionSelect.innerHTML =
+    `<option value="">全部地区</option>`
+    +
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+          <option value="${region.id}">
+            ${escapeHtml(
+              region.name_zh
+              ||
+              region.name_en
+              ||
+              region.code
+            )}
+          </option>
+        `
+      )
+      .join("");
+
+
+  if(oldRegion){
+    regionSelect.value =
+      oldRegion;
+  }
+
+
+  let startAt = null;
+  let endAt = null;
+
+  const startValue =
+    el("historyStart")
+      .value;
+
+  const endValue =
+    el("historyEnd")
+      .value;
+
+
+  if(startValue){
+
+    startAt =
+      new Date(
+        startValue
+        +
+        "T00:00:00"
+      )
+      .toISOString();
+
+  }
+
+
+  if(endValue){
+
+    const endDate =
+      new Date(
+        endValue
+        +
+        "T00:00:00"
+      );
+
+    endDate.setDate(
+      endDate.getDate() + 1
+    );
+
+    endAt =
+      endDate.toISOString();
+
+  }
+
 
   const {
     data,
     error
   } =
-    await db
-      .from(
-        "inventory_batches"
-      )
-      .select(
-        `
-          *,
-          region_inventory(
-            region_id,
-            variant_id
-          )
-        `
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(300);
+    await db.rpc(
+      "admin_simple_inventory_history",
+      {
+        p_region_id:
+          regionSelect.value
+          ||
+          null,
+
+        p_start_at:
+          startAt,
+
+        p_end_at:
+          endAt
+      }
+    );
 
 
   if(error){
 
-    el("batchTable")
+    el("historyTable")
       .innerHTML =
       errorBox(
         error.message
@@ -7126,105 +7410,71 @@ async function loadInventoryBatches(){
   const rows =
     (data || [])
       .map(
-        batch => {
+        item => {
 
-          const inv =
-            batch.region_inventory
-            ||
-            {};
+          const quantity =
+            Number(
+              item.quantity
+              ||
+              0
+            );
 
           return `
 
             <tr>
 
               <td>
+                ${formatDate(
+                  item.event_time
+                )}
+              </td>
 
-                ${
-                  escapeHtml(
+              <td>
+                ${escapeHtml(
+                  item.event_type
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.region_id
+                  ?
+                  (
                     regionMap[
-                      inv.region_id
+                      item.region_id
                     ]
                     ||
                     "—"
                   )
-                }
-
+                  :
+                  "总部"
+                )}
               </td>
 
               <td>
-
-                ${
-                  escapeHtml(
-                    variantMap[
-                      inv.variant_id
-                    ]
-                    ||
-                    inv.variant_id
-                    ||
-                    "—"
+                ${escapeHtml(
+                  shipmentProductName(
+                    item.variant_id
                   )
-                }
-
+                )}
               </td>
 
               <td>
-
                 ${
-                  escapeHtml(
-                    batch.batch_code
-                    ||
-                    "—"
-                  )
+                  quantity > 0
+                  ?
+                  "+" + quantity
+                  :
+                  quantity
                 }
-
               </td>
 
               <td>
-                ${batch.quantity_received}
-              </td>
-
-              <td>
-                ${batch.quantity_remaining}
-              </td>
-
-              <td>
-
-                ${
-                  batch.production_date
+                ${escapeHtml(
+                  item.description
                   ||
                   "—"
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  batch.expiry_date
-                  ||
-                  "—"
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    batch.status
-                  )
-                }
-
-              </td>
-
-              <td class="small">
-
-                ${
-                  escapeHtml(
-                    batch.id
-                  )
-                }
-
+                )}
               </td>
 
             </tr>
@@ -7235,24 +7485,18 @@ async function loadInventoryBatches(){
       );
 
 
-  el("batchTable")
+  el("historyTable")
     .innerHTML =
     makeTable(
-
       [
+        "时间",
+        "类型",
         "地区",
-        "SKU",
-        "批次",
-        "入库",
-        "剩余",
-        "生产日期",
-        "到期日期",
-        "状态",
-        "批次 ID"
+        "商品",
+        "数量",
+        "说明"
       ],
-
       rows
-
     );
 
 }
