@@ -1406,65 +1406,7 @@ tr:last-child td{
   </div>
 
 
-  <div class="panel">
-
-    <div class="panel-head">
-
-      <div>
-
-        <div class="panel-title">
-          新增到货
-        </div>
-
-        <div class="panel-note">
-          货到总部后，在这里登记数量，系统会自动增加总部库存。
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          商品
-        </label>
-
-        <select id="hqReceiveVariant"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          到货数量
-        </label>
-
-        <input
-          id="hqReceiveQuantity"
-          type="number"
-          min="1"
-          step="1"
-          placeholder="例如 100"
-        >
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="receiveHeadOfficeStock()"
-    >
-      确认进货
-    </button>
-
-  </div>
+  
 
 
   <div class="panel">
@@ -11685,19 +11627,51 @@ async function openProductAction(
             ${stock}
           </div>
 
-          <div class="form-group">
+                    <div class="form-grid">
 
-            <label>
-              本次采购数量
-            </label>
+            <div class="form-group">
 
-            <input
-              id="productStockAddQty"
-              type="number"
-              min="1"
-              step="1"
-              placeholder="例如 100"
-            >
+              <label>
+                本次采购数量
+              </label>
+
+              <input
+                id="productStockAddQty"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="例如 100"
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                生产日期
+              </label>
+
+              <input
+                id="productStockProductionDate"
+                type="date"
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                过期日期
+              </label>
+
+              <input
+                id="productStockExpiryDate"
+                type="date"
+              >
+
+            </div>
 
           </div>
 
@@ -12168,6 +12142,18 @@ async function confirmProductStockAdd(){
         ?.value
     );
 
+  const productionDate =
+    el("productStockProductionDate")
+      ?.value
+    ||
+    "";
+
+  const expiryDate =
+    el("productStockExpiryDate")
+      ?.value
+    ||
+    "";
+
 
   if(
     !variantId
@@ -12186,17 +12172,55 @@ async function confirmProductStockAdd(){
   }
 
 
+  if(
+    !productionDate
+    ||
+    !expiryDate
+  ){
+
+    alert(
+      "请填写生产日期和过期日期。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    expiryDate
+    <
+    productionDate
+  ){
+
+    alert(
+      "过期日期不能早于生产日期。"
+    );
+
+    return;
+
+  }
+
+
   const {
     error
   } =
     await db.rpc(
       "admin_receive_head_office_stock",
       {
+
         p_variant_id:
           variantId,
 
         p_quantity:
-          quantity
+          quantity,
+
+        p_production_date:
+          productionDate,
+
+        p_expiry_date:
+          expiryDate
+
       }
     );
 
