@@ -5512,32 +5512,7 @@ async function loadShipments(){
                         </div>
 
 
-                        <div class="form-group">
-
-                          <label>
-                            ${escapeHtml(t("productionDate"))}
-                          </label>
-
-                          <input
-                            class="receipt-production"
-                            type="date"
-                          >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                          <label>
-                            ${escapeHtml(t("expiryDate"))}
-                          </label>
-
-                          <input
-                            class="receipt-expiry"
-                            type="date"
-                          >
-
-                        </div>
+                       
 
                       </div>
 
@@ -5840,22 +5815,7 @@ async function confirmShipmentReceipt(
           .value
       );
 
-    const productionDate =
-      row
-        .querySelector(
-          ".receipt-production"
-        )
-        .value;
-
-    const expiryDate =
-      row
-        .querySelector(
-          ".receipt-expiry"
-        )
-        .value;
-
-
-    if(
+        if(
       !Number.isInteger(
         quantity
       )
@@ -5872,63 +5832,13 @@ async function confirmShipmentReceipt(
     }
 
 
-    if(
-      quantity > 0
-      &&
-      (
-        !productionDate
-        ||
-        !expiryDate
-      )
-    ){
-
-      alert(
-        "收到数量大于0时，必须填写生产日期和过期日期。"
-      );
-
-      return;
-
-    }
-
-
-    if(
-      quantity > 0
-      &&
-      expiryDate
-      <
-      productionDate
-    ){
-
-      alert(
-        "过期日期不能早于生产日期。"
-      );
-
-      return;
-
-    }
-
-
     items.push({
 
       item_id:
         row.dataset.itemId,
 
       received_quantity:
-        quantity,
-
-      production_date:
-        quantity > 0
-        ?
-        productionDate
-        :
-        null,
-
-      expiry_date:
-        quantity > 0
-        ?
-        expiryDate
-        :
-        null
+        quantity
 
     });
 
