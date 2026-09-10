@@ -4616,9 +4616,12 @@ async function loadOrders(){
             ===
             "fulfilled"
             &&
-            order.delivery_status
-            ===
-            "not_assigned"
+            [
+              "not_assigned",
+              "failed"
+            ].includes(
+              order.delivery_status
+            )
             &&
             hasPermission(
               "orders.assign_delivery"
