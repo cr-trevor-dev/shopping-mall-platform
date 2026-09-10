@@ -1105,221 +1105,31 @@ tr:last-child td{
   class="section"
 >
 
-  <div
-    class="page-title"
-    data-i18n="inventory"
-  >
+  <div class="page-title">
     库存
   </div>
 
-  <div
-    class="page-subtitle"
-    data-i18n="inventoryDesc"
-  >
-    入库、库存查看以及库存调整申请。
+  <div class="page-subtitle">
+    查看实际库存、上架商品、保质期和历史记录。
   </div>
 
-
-  <div
-    id="receivePanel"
-    class="panel hidden"
-  >
-
-    <div
-      class="panel-title"
-      data-i18n="receiveStock"
-    >
-      商品入库
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label data-i18n="region">
-          地区
-        </label>
-
-        <select id="receiveRegion"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-  商品
-</label>
-
-        <select id="receiveVariant"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label data-i18n="quantity">
-          数量
-        </label>
-
-        <input
-          id="receiveQuantity"
-          type="number"
-          min="1"
-        >
-
-      </div>
-
-
-      <div class="form-group hidden">
-
-        <label data-i18n="batchCode">
-          批次编号
-        </label>
-
-        <input id="receiveBatch">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label data-i18n="productionDate">
-          生产日期
-        </label>
-
-        <input
-          id="productionDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label data-i18n="expiryDate">
-         过期日期
-        </label>
-
-        <input
-          id="expiryDate"
-          type="date"
-        >
-
-      </div>
-
-
-      <div class="form-group hidden">
-
-        <label data-i18n="unitCost">
-          单位成本
-        </label>
-
-        <input
-          id="unitCost"
-          type="number"
-          min="0"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label data-i18n="note">
-          备注
-        </label>
-
-        <input id="receiveNote">
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="receiveStock()"
-      data-i18n="confirmReceive"
-    >
-      确认入库
-    </button>
-
-  </div>
-
-
-  <div
-  id="adjustPanel"
-  class="panel hidden"
->
-
-  <div class="panel-title">
-    库存盘点
-  </div>
-
-  <div class="note">
-    选择地区后会显示全部库存商品。只填写你实际盘点过的商品；没有盘点的商品请留空，系统不会把空白当成0。
-  </div>
-
-
-  <div class="form-grid">
-
-    <div class="form-group">
-
-      <label>
-        地区
-      </label>
-
-      <select
-        id="adjustRegion"
-        onchange="loadInventoryCountRows()"
-      ></select>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>
-        搜索商品
-      </label>
-
-      <input
-        id="adjustSearch"
-        placeholder="例如：百事、火鸡面"
-        oninput="filterInventoryCountRows()"
-      >
-
-    </div>
-
-  </div>
-
-
-  <div
-    id="inventoryCountTable"
-    style="margin-top:16px"
-  ></div>
-
-
-  <button
-    class="btn btn-amber"
-    onclick="submitInventoryCount()"
-    style="margin-top:16px"
-  >
-    提交本次盘点
-  </button>
-
-</div>
 
   <div class="panel">
 
-    <div
-      class="panel-title"
-      data-i18n="inventoryList"
-    >
-      当前库存
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          当前库存
+        </div>
+
+        <div class="panel-note">
+          收货以后才能上架，客户只能购买已经上架的数量。
+        </div>
+
+      </div>
+
     </div>
 
     <div id="inventoryTable"></div>
@@ -1329,14 +1139,71 @@ tr:last-child td{
 
   <div class="panel">
 
-    <div
-      class="panel-title"
-      data-i18n="inventoryBatches"
-    >
-      保质期 / 临期商品
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          保质期
+        </div>
+
+        <div class="panel-note">
+          查看商品剩余数量和过期日期。
+        </div>
+
+      </div>
+
     </div>
 
     <div id="batchTable"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          历史记录
+        </div>
+
+        <div class="panel-note">
+          可以查看自己负责地区的收货、上架和销售记录。
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="toolbar">
+
+      <input
+        id="managerHistoryStart"
+        type="date"
+        onchange="loadManagerInventoryHistory()"
+      >
+
+      <input
+        id="managerHistoryEnd"
+        type="date"
+        onchange="loadManagerInventoryHistory()"
+      >
+
+      <button
+        class="btn btn-light"
+        onclick="loadManagerInventoryHistory()"
+      >
+        查询
+      </button>
+
+    </div>
+
+
+    <div id="managerHistoryTable"></div>
 
   </div>
 
@@ -6155,13 +6022,10 @@ async function loadInventory(){
     return;
   }
 
-
   await Promise.all([
-
     loadInventoryList(),
-loadBatchList(),
-loadInventoryCountRows()
-
+    loadBatchList(),
+    loadManagerInventoryHistory()
   ]);
 
 }
@@ -6225,15 +6089,21 @@ async function loadInventoryList(){
               0
             );
 
+          const notListed =
+            Math.max(
+              0,
+              stock - listed
+            );
+
           const saleable =
             Math.max(
+              0,
               Math.min(
                 stock,
                 listed
               )
               -
-              reserved,
-              0
+              reserved
             );
 
 
@@ -6242,27 +6112,21 @@ async function loadInventoryList(){
             <tr>
 
               <td>
-                ${
-                  escapeHtml(
-                    regionMap[
-                      item.region_id
-                    ]
-                    ||
-                    "—"
-                  )
-                }
+                ${escapeHtml(
+                  regionMap[
+                    item.region_id
+                  ]
+                  ||
+                  "—"
+                )}
               </td>
 
               <td>
-                ${
-                  escapeHtml(
-                    variantMap[
-                      item.variant_id
-                    ]
-                    ||
+                ${escapeHtml(
+                  shipmentProductName(
                     item.variant_id
                   )
-                }
+                )}
               </td>
 
               <td>
@@ -6276,7 +6140,7 @@ async function loadInventoryList(){
               </td>
 
               <td>
-                ${reserved}
+                ${notListed}
               </td>
 
               <td>
@@ -6285,7 +6149,7 @@ async function loadInventoryList(){
                 </strong>
               </td>
 
-              <td style="min-width:165px">
+              <td style="min-width:170px">
 
                 <div class="operation-buttons">
 
@@ -6309,7 +6173,7 @@ async function loadInventoryList(){
                       ${reserved}
                     )"
                   >
-                    ${escapeHtml(t("saveListing"))}
+                    保存上架
                   </button>
 
                 </div>
@@ -6328,13 +6192,184 @@ async function loadInventoryList(){
     .innerHTML =
     makeTable(
       [
-        t("region"),
+        "地区",
         "商品",
         "实际库存",
-        t("listedStock"),
-        "已预留",
-        t("saleableStock"),
-        t("saveListing")
+        "已上架",
+        "未上架",
+        "客户可购买",
+        "调整上架"
+      ],
+      rows
+    );
+
+}
+
+
+async function loadManagerInventoryHistory(){
+
+  const startValue =
+    el("managerHistoryStart")
+      ?.value
+    ||
+    "";
+
+  const endValue =
+    el("managerHistoryEnd")
+      ?.value
+    ||
+    "";
+
+  let startAt =
+    null;
+
+  let endAt =
+    null;
+
+
+  if(startValue){
+
+    startAt =
+      new Date(
+        startValue
+        +
+        "T00:00:00"
+      )
+      .toISOString();
+
+  }
+
+
+  if(endValue){
+
+    const endDate =
+      new Date(
+        endValue
+        +
+        "T00:00:00"
+      );
+
+    endDate.setDate(
+      endDate.getDate() + 1
+    );
+
+    endAt =
+      endDate.toISOString();
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "manager_simple_inventory_history",
+      {
+        p_start_at:
+          startAt,
+
+        p_end_at:
+          endAt
+      }
+    );
+
+
+  if(error){
+
+    el("managerHistoryTable")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const rows =
+    (data || [])
+      .map(
+        item => {
+
+          const quantity =
+            Number(
+              item.quantity
+              ||
+              0
+            );
+
+          return `
+
+            <tr>
+
+              <td>
+                ${formatDate(
+                  item.event_time
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.event_type
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  regionMap[
+                    item.region_id
+                  ]
+                  ||
+                  "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  shipmentProductName(
+                    item.variant_id
+                  )
+                )}
+              </td>
+
+              <td>
+                ${
+                  quantity > 0
+                  ?
+                  "+" + quantity
+                  :
+                  quantity
+                }
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  item.description
+                  ||
+                  "—"
+                )}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("managerHistoryTable")
+    .innerHTML =
+    makeTable(
+      [
+        "时间",
+        "类型",
+        "地区",
+        "商品",
+        "数量",
+        "说明"
       ],
       rows
     );
@@ -6442,7 +6477,10 @@ async function setRegionListing(
   );
 
 
-  await loadInventoryList();
+  await Promise.all([
+  loadInventoryList(),
+  loadManagerInventoryHistory()
+]);
 
 }
 
