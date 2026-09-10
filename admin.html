@@ -861,11 +861,49 @@ tr:last-child td{
 >
 
   <div class="page-title">
-    仪表盘
+    <span id="dashboardTitle">
+      全部地区
+    </span>
+    · 经营总览
   </div>
 
   <div class="page-subtitle">
-    平台实时业务总览
+    想看哪里就选择哪里，所有核心数据会一起切换。
+  </div>
+
+
+  <div class="toolbar">
+
+    <select
+      id="dashboardRegionFilter"
+      onchange="loadDashboard()"
+    >
+      <option value="">
+        全部地区
+      </option>
+    </select>
+
+    <select
+      id="dashboardPeriodFilter"
+      onchange="loadDashboard()"
+    >
+      <option value="today">
+        今天
+      </option>
+
+      <option value="yesterday">
+        昨天
+      </option>
+
+      <option value="week">
+        本周
+      </option>
+
+      <option value="month">
+        本月
+      </option>
+    </select>
+
   </div>
 
 
@@ -874,7 +912,27 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        订单总数
+        销售额
+      </div>
+
+      <div
+        id="statSales"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        已完成订单
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        订单数
       </div>
 
       <div
@@ -885,7 +943,7 @@ tr:last-child td{
       </div>
 
       <div class="stat-note">
-        所有地区
+        选择时间内
       </div>
 
     </div>
@@ -894,7 +952,27 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        待确认订单
+        卖出数量
+      </div>
+
+      <div
+        id="statItemsSold"
+        class="stat-value"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        已完成订单
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        待处理订单
       </div>
 
       <div
@@ -905,47 +983,7 @@ tr:last-child td{
       </div>
 
       <div class="stat-note">
-        需要处理
-      </div>
-
-    </div>
-
-
-    <div class="stat-card">
-
-      <div class="stat-label">
-        待审核付款
-      </div>
-
-      <div
-        id="statPendingPayments"
-        class="stat-value"
-      >
-        —
-      </div>
-
-      <div class="stat-note">
-        submitted
-      </div>
-
-    </div>
-
-
-    <div class="stat-card">
-
-      <div class="stat-label">
-        待审批操作
-      </div>
-
-      <div
-        id="statPendingApprovals"
-        class="stat-value"
-      >
-        —
-      </div>
-
-      <div class="stat-note">
-        高风险操作
+        当前需要处理
       </div>
 
     </div>
@@ -958,14 +996,18 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        活跃地区
+        实际库存
       </div>
 
       <div
-        id="statRegions"
+        id="statStock"
         class="stat-value"
       >
         —
+      </div>
+
+      <div class="stat-note">
+        已确认收到
       </div>
 
     </div>
@@ -974,14 +1016,18 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        活跃员工
+        上架库存
       </div>
 
       <div
-        id="statStaff"
+        id="statListed"
         class="stat-value"
       >
         —
+      </div>
+
+      <div class="stat-note">
+        经理已上架
       </div>
 
     </div>
@@ -990,14 +1036,18 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        活跃配送员
+        可售库存
       </div>
 
       <div
-        id="statDelivery"
+        id="statSaleable"
         class="stat-value"
       >
         —
+      </div>
+
+      <div class="stat-note">
+        客户当前可以买
       </div>
 
     </div>
@@ -1006,14 +1056,18 @@ tr:last-child td{
     <div class="stat-card">
 
       <div class="stat-label">
-        活跃 SKU
+        待收货
       </div>
 
       <div
-        id="statSku"
+        id="statPendingShipments"
         class="stat-value"
       >
         —
+      </div>
+
+      <div class="stat-note">
+        总部已发出
       </div>
 
     </div>
@@ -1023,8 +1077,66 @@ tr:last-child td{
 
   <div class="panel">
 
-    <div class="panel-title">
-      最近订单
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          需要注意
+        </div>
+
+        <div class="panel-note">
+          付款、配送、库存、临期和人员情况
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="dashboardAlerts"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          地区商品详情
+        </div>
+
+        <div class="panel-note">
+          选择单一地区后查看
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="dashboardProducts"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <div>
+
+        <div class="panel-title">
+          最近订单
+        </div>
+
+        <div class="panel-note">
+          会跟随地区和时间一起切换
+        </div>
+
+      </div>
+
     </div>
 
     <div id="dashboardOrders"></div>
@@ -4275,113 +4387,530 @@ async function countRows(
    仪表盘
 ========================= */
 
+function dashboardDateRange(period){
+
+  const now = new Date();
+
+  let start =
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+  let end =
+    new Date(start);
+
+  end.setDate(
+    end.getDate() + 1
+  );
+
+
+  if(period === "yesterday"){
+
+    start.setDate(
+      start.getDate() - 1
+    );
+
+    end =
+      new Date(start);
+
+    end.setDate(
+      end.getDate() + 1
+    );
+
+  }
+
+
+  if(period === "week"){
+
+    const weekday =
+      (start.getDay() + 6) % 7;
+
+    start.setDate(
+      start.getDate() - weekday
+    );
+
+    end =
+      new Date(start);
+
+    end.setDate(
+      end.getDate() + 7
+    );
+
+  }
+
+
+  if(period === "month"){
+
+    start =
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+      );
+
+    end =
+      new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        1
+      );
+
+  }
+
+
+  return {
+
+    start:
+      start.toISOString(),
+
+    end:
+      end.toISOString()
+
+  };
+
+}
+
+
 async function loadDashboard(){
 
-  const values =
-    await Promise.all([
+  const regionSelect =
+    el("dashboardRegionFilter");
 
-      countRows(
-        "orders"
-      ),
+  const oldRegion =
+    regionSelect.value;
 
-      countRows(
-        "orders",
-        query =>
-          query.eq(
-            "order_status",
-            "pending_confirmation"
-          )
-      ),
 
-      countRows(
-        "payment_transactions",
-        query =>
-          query.eq(
-            "status",
-            "submitted"
-          )
-      ),
-
-      countRows(
-        "approval_requests",
-        query =>
-          query.eq(
-            "status",
-            "pending"
-          )
-      ),
-
-      countRows(
-        "regions",
-        query =>
-          query.eq(
-            "is_active",
-            true
-          )
-      ),
-
-      countRows(
-        "staff_profiles",
-        query =>
-          query.eq(
-            "status",
-            "active"
-          )
-      ),
-
-      countRows(
-        "delivery_profiles",
-        query =>
-          query.eq(
-            "status",
-            "active"
-          )
-      ),
-
-      countRows(
-        "product_variants",
-        query =>
-          query.eq(
-            "is_active",
-            true
-          )
+  regionSelect.innerHTML =
+    `
+      <option value="">
+        全部地区
+      </option>
+    `
+    +
+    regionData
+      .filter(
+        region =>
+          region.is_active
       )
+      .map(
+        region => `
 
-    ]);
+          <option value="${region.id}">
+
+            ${
+              escapeHtml(
+                region.name_zh
+                ||
+                region.name_en
+                ||
+                region.code
+              )
+            }
+
+          </option>
+
+        `
+      )
+      .join("");
 
 
-  el("statOrders").textContent =
-    values[0];
+  if(
+    oldRegion &&
+    regionData.some(
+      region =>
+        region.id === oldRegion
+        &&
+        region.is_active
+    )
+  ){
 
-  el("statPendingOrders").textContent =
-    values[1];
+    regionSelect.value =
+      oldRegion;
 
-  el("statPendingPayments").textContent =
-    values[2];
+  }
 
-  el("statPendingApprovals").textContent =
-    values[3];
 
-  el("statRegions").textContent =
-    values[4];
+  const region =
+    regionSelect.value || null;
 
-  el("statStaff").textContent =
-    values[5];
+  const period =
+    el("dashboardPeriodFilter")
+      .value
+    ||
+    "today";
 
-  el("statDelivery").textContent =
-    values[6];
-
-  el("statSku").textContent =
-    values[7];
+  const range =
+    dashboardDateRange(
+      period
+    );
 
 
   const {
-    data,
-    error
+    data:summary,
+    error:summaryError
   } =
-    await db
+    await db.rpc(
+      "admin_region_dashboard_summary",
+      {
+
+        p_region_id:
+          region,
+
+        p_start_at:
+          range.start,
+
+        p_end_at:
+          range.end
+
+      }
+    );
+
+
+  if(summaryError){
+
+    el("dashboardAlerts")
+      .innerHTML =
+      errorBox(
+        summaryError.message
+      );
+
+    return;
+
+  }
+
+
+  el("dashboardTitle")
+    .textContent =
+    summary.region_name
+    ||
+    "全部地区";
+
+
+  el("statSales")
+    .textContent =
+    money(
+      summary.sales_amount,
+      "MMK"
+    );
+
+
+  el("statOrders")
+    .textContent =
+    Number(
+      summary.orders_placed
+      ||
+      0
+    );
+
+
+  el("statItemsSold")
+    .textContent =
+    Number(
+      summary.items_sold
+      ||
+      0
+    );
+
+
+  el("statPendingOrders")
+    .textContent =
+    Number(
+      summary.pending_orders
+      ||
+      0
+    );
+
+
+  el("statStock")
+    .textContent =
+    Number(
+      summary.stock_on_hand
+      ||
+      0
+    );
+
+
+  el("statListed")
+    .textContent =
+    Number(
+      summary.listed_quantity
+      ||
+      0
+    );
+
+
+  el("statSaleable")
+    .textContent =
+    Number(
+      summary.saleable_quantity
+      ||
+      0
+    );
+
+
+  el("statPendingShipments")
+    .textContent =
+    Number(
+      summary.pending_shipments
+      ||
+      0
+    );
+
+
+  el("dashboardAlerts")
+    .innerHTML = `
+
+      <div class="operation-buttons">
+
+        <span class="badge badge-amber">
+          待审核付款 ${
+            Number(
+              summary.pending_payment_reviews
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge badge-amber">
+          待审批 ${
+            Number(
+              summary.pending_approvals
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge">
+          待配送 ${
+            Number(
+              summary.pending_delivery
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge badge-green">
+          已配送 ${
+            Number(
+              summary.delivered
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge badge-amber">
+          低库存 ${
+            Number(
+              summary.low_stock_products
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge badge-amber">
+          临期 ${
+            Number(
+              summary.near_expiry_batches
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge badge-red">
+          已过期 ${
+            Number(
+              summary.expired_batches
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge">
+          收货差异 ${
+            Number(
+              summary.receipt_discrepancy_units
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge">
+          经理 ${
+            Number(
+              summary.manager_count
+              ||
+              0
+            )
+          }
+        </span>
+
+        <span class="badge">
+          配送员 ${
+            Number(
+              summary.delivery_count
+              ||
+              0
+            )
+          }
+        </span>
+
+      </div>
+
+    `;
+
+
+  if(region){
+
+    const {
+      data:products,
+      error:productsError
+    } =
+      await db.rpc(
+        "admin_region_product_overview",
+        {
+          p_region_id:
+            region
+        }
+      );
+
+
+    if(productsError){
+
+      el("dashboardProducts")
+        .innerHTML =
+        errorBox(
+          productsError.message
+        );
+
+    }
+    else{
+
+      const productRows =
+        (products || [])
+          .map(
+            item => `
+
+              <tr>
+
+                <td>
+                  ${
+                    escapeHtml(
+                      item.product_name
+                      ||
+                      item.variant_name
+                      ||
+                      "—"
+                    )
+                  }
+                </td>
+
+                <td>
+                  ${item.stock_on_hand}
+                </td>
+
+                <td>
+                  ${item.listed_quantity}
+                </td>
+
+                <td>
+                  ${item.reserved_quantity}
+                </td>
+
+                <td>
+                  <strong>
+                    ${item.saleable_quantity}
+                  </strong>
+                </td>
+
+                <td>
+                  ${item.total_sent}
+                </td>
+
+                <td>
+                  ${item.total_received}
+                </td>
+
+                <td>
+                  ${
+                    Number(
+                      item.total_discrepancy
+                      ||
+                      0
+                    )
+                  }
+                </td>
+
+                <td>
+                  ${
+                    escapeHtml(
+                      item.next_expiry_date
+                      ||
+                      "—"
+                    )
+                  }
+                </td>
+
+              </tr>
+
+            `
+          );
+
+
+      el("dashboardProducts")
+        .innerHTML =
+        makeTable(
+          [
+            "商品",
+            "实际库存",
+            "上架库存",
+            "已预留",
+            "可售",
+            "累计发货",
+            "累计收货",
+            "差异",
+            "最近过期"
+          ],
+          productRows
+        );
+
+    }
+
+  }
+  else{
+
+    el("dashboardProducts")
+      .innerHTML =
+      `
+        <div class="empty">
+          选择一个地区后，这里会显示该地区每一种商品的详细库存和发货记录。
+        </div>
+      `;
+
+  }
+
+
+  let orderQuery =
+    db
       .from("orders")
       .select("*")
+      .gte(
+        "placed_at",
+        range.start
+      )
+      .lt(
+        "placed_at",
+        range.end
+      )
       .order(
         "created_at",
         {
@@ -4391,12 +4920,30 @@ async function loadDashboard(){
       .limit(10);
 
 
-  if(error){
+  if(region){
+
+    orderQuery =
+      orderQuery.eq(
+        "region_id",
+        region
+      );
+
+  }
+
+
+  const {
+    data:orders,
+    error:ordersError
+  } =
+    await orderQuery;
+
+
+  if(ordersError){
 
     el("dashboardOrders")
       .innerHTML =
       errorBox(
-        error.message
+        ordersError.message
       );
 
     return;
@@ -4405,24 +4952,21 @@ async function loadDashboard(){
 
 
   const rows =
-    (data || [])
+    (orders || [])
       .map(
         order => `
 
           <tr>
 
             <td class="mono">
-
               ${
                 escapeHtml(
                   order.order_number
                 )
               }
-
             </td>
 
             <td>
-
               ${
                 escapeHtml(
                   regionMap[
@@ -4432,48 +4976,39 @@ async function loadDashboard(){
                   "—"
                 )
               }
-
             </td>
 
             <td>
-
               ${
                 statusBadge(
                   order.order_status
                 )
               }
-
             </td>
 
             <td>
-
               ${
                 statusBadge(
                   order.payment_status
                 )
               }
-
             </td>
 
             <td>
-
               ${
                 money(
                   order.total_amount,
                   order.currency_code
                 )
               }
-
             </td>
 
             <td>
-
               ${
                 formatDate(
                   order.created_at
                 )
               }
-
             </td>
 
           </tr>
@@ -4485,7 +5020,6 @@ async function loadDashboard(){
   el("dashboardOrders")
     .innerHTML =
     makeTable(
-
       [
         "订单号",
         "地区",
@@ -4494,9 +5028,7 @@ async function loadDashboard(){
         "金额",
         "时间"
       ],
-
       rows
-
     );
 
 }
