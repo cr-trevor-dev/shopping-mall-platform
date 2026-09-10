@@ -3596,24 +3596,45 @@ function availableQty(
     );
 
 
-  if(!inv){
+  if(
+    !inv
+    ||
+    inv.is_available === false
+  ){
     return 0;
   }
 
 
-  return Math.max(
-    0,
+  const actual =
     Number(
       inv.stock_on_hand
       ||
       0
-    )
-    -
+    );
+
+  const listed =
+    Number(
+      inv.listed_quantity
+      ||
+      0
+    );
+
+  const reserved =
     Number(
       inv.reserved_quantity
       ||
       0
+    );
+
+
+  return Math.max(
+    0,
+    Math.min(
+      actual,
+      listed
     )
+    -
+    reserved
   );
 
 }
