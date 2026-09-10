@@ -772,7 +772,12 @@ tr:last-child td{
   >
     订单
   </div>
-
+  <div
+    class="menu-item"
+    onclick="showSection('shipments',this)"
+  >
+    总部发货
+  </div>
   <div
     class="menu-item"
     onclick="showSection('inventory',this)"
@@ -5789,7 +5794,11 @@ async function loadShipments(){
 
   const oldRegion =
     regionSelect.value;
+  const filterSelect =
+    el("shipmentRegionFilter");
 
+  const oldFilter =
+    filterSelect.value;
 
   regionSelect.innerHTML =
     `
@@ -5836,7 +5845,57 @@ async function loadShipments(){
 
   }
 
+  const filterSelect =
+    el("shipmentRegionFilter");
 
+  const oldFilter =
+    filterSelect.value;
+
+
+  filterSelect.innerHTML =
+    `
+      <option value="">
+        全部地区
+      </option>
+    `
+    +
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+
+          <option value="${region.id}">
+            ${
+              escapeHtml(
+                region.name_zh
+                ||
+                region.name_en
+                ||
+                region.code
+              )
+            }
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  if(
+    oldFilter &&
+    regionData.some(
+      region =>
+        region.id === oldFilter
+    )
+  ){
+
+    filterSelect.value =
+      oldFilter;
+
+  }
   if(
     el("shipmentItems")
     &&
