@@ -3607,50 +3607,104 @@ async function initializeStaff(){
       );
 
   }
-    const refreshStaffBadgesSafe =
-    () => {
+   const refreshStaffBadgesSafe =
 
-      updateStaffBadges()
-        .catch(
-          error =>
-            console.error(
-              "[staff badges]",
-              error
-            )
+    async () => {
+
+      try{
+
+        await updateStaffBadges();
+
+      }
+
+      catch(error){
+
+        console.error(
+
+          "[staff badges]",
+
+          error
+
         );
+
+      }
 
     };
 
-
   currentSection =
-  "dashboard";
 
-await refreshCurrent();
-
+    "dashboard";
 
   if(
+
     window.staffIndependentBadgeInterval
+
   ){
+
     clearInterval(
+
       window.staffIndependentBadgeInterval
+
     );
+
   }
 
-
   window.staffIndependentBadgeInterval =
+
     setInterval(
+
       refreshStaffBadgesSafe,
+
       3000
+
     );
 
+  setTimeout(
+
+    refreshStaffBadgesSafe,
+
+    100
+
+  );
+
+  setTimeout(
+
+    refreshStaffBadgesSafe,
+
+    1000
+
+  );
+
+  loadDashboard()
+
+    .catch(
+
+      error =>
+
+        console.error(
+
+          "[staff dashboard]",
+
+          error
+
+        )
+
+    );
 
   setupStaffRealtime()
+
     .catch(
+
       error =>
+
         console.error(
+
           "[staff realtime]",
+
           error
+
         )
+
     );
 
 
