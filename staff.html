@@ -3533,7 +3533,80 @@ async function initializeStaff(){
   applyLanguage();
 
   applyMenuPermissions();
+  const savedOrderBadge =
+    Number(
+      localStorage
+        .getItem(
+          "staffOrderBadgeCount"
+        )
+      ||
+      0
+    );
 
+
+  const savedShipmentBadge =
+    Number(
+      localStorage
+        .getItem(
+          "staffShipmentBadgeCount"
+        )
+      ||
+      0
+    );
+
+
+  const orderBadgeNode =
+    el(
+      "staffOrderCount"
+    );
+
+
+  if(
+    orderBadgeNode
+    &&
+    savedOrderBadge
+    >
+    0
+  ){
+
+    orderBadgeNode
+      .textContent =
+      savedOrderBadge;
+
+    orderBadgeNode
+      .classList
+      .remove(
+        "hidden"
+      );
+
+  }
+
+
+  const shipmentBadgeNode =
+    el(
+      "staffShipmentCount"
+    );
+
+
+  if(
+    shipmentBadgeNode
+    &&
+    savedShipmentBadge
+    >
+    0
+  ){
+
+    shipmentBadgeNode
+      .textContent =
+      savedShipmentBadge;
+
+    shipmentBadgeNode
+      .classList
+      .remove(
+        "hidden"
+      );
+
+  }
     const refreshStaffBadgesSafe =
     () => {
 
@@ -4630,130 +4703,6 @@ async function countRows(
 
 async function updateStaffBadges(){
 
-  if(!window.staffDebugBox){
-
-    const box =
-      document.createElement("pre");
-
-    box.id =
-      "staffDebugBox";
-
-    box.style.cssText =
-      "position:fixed;"
-      +"left:10px;"
-      +"right:10px;"
-      +"bottom:10px;"
-      +"max-height:42vh;"
-      +"overflow:auto;"
-      +"z-index:999999;"
-      +"background:#111;"
-      +"color:#fff;"
-      +"padding:12px;"
-      +"border-radius:10px;"
-      +"font-size:11px;"
-      +"line-height:1.5;"
-      +"white-space:pre-wrap;"
-      +"word-break:break-all;";
-
-    box.textContent =
-      "STAFF DEBUG START";
-
-    document.body
-      .appendChild(box);
-
-    window.staffDebugBox =
-      box;
-
-  }
-
-
-  const debug =
-    (...parts) => {
-
-      const line =
-        parts
-          .map(
-            item => {
-
-              if(
-                typeof item
-                ===
-                "string"
-              ){
-                return item;
-              }
-
-              try{
-                return JSON.stringify(
-                  item
-                );
-              }
-              catch(error){
-                return String(item);
-              }
-
-            }
-          )
-          .join(" ");
-
-      window.staffDebugBox
-        .textContent +=
-        "\n"
-        +
-        new Date()
-          .toLocaleTimeString()
-        +
-        " "
-        +
-        line;
-
-    };
-
-
-  if(
-    !window.staffDebugErrorsInstalled
-  ){
-
-    window.staffDebugErrorsInstalled =
-      true;
-
-
-    window.addEventListener(
-      "error",
-      event => {
-
-        debug(
-          "WINDOW ERROR:",
-          event.message,
-          event.filename,
-          event.lineno,
-          event.colno
-        );
-
-      }
-    );
-
-
-    window.addEventListener(
-      "unhandledrejection",
-      event => {
-
-        debug(
-          "UNHANDLED PROMISE:",
-          event.reason
-          ?.message
-          ||
-          event.reason
-          ||
-          "unknown"
-        );
-
-      }
-    );
-
-  }
-
-
   const updateBadge = (
     id,
     count
@@ -4762,24 +4711,12 @@ async function updateStaffBadges(){
     const node =
       el(id);
 
-    debug(
-      "updateBadge",
-      id,
-      "node=",
-      !!node,
-      "count=",
-      count
-    );
-
-
     if(!node){
       return;
     }
 
-
     node.textContent =
       count;
-
 
     node.classList.toggle(
       "hidden",
@@ -4787,48 +4724,36 @@ async function updateStaffBadges(){
     );
 
 
-    debug(
-      "after badge:",
-      id,
-      "text=",
-      node.textContent,
-      "class=",
-      node.className
-    );
+    if(
+      id
+      ===
+      "staffOrderCount"
+    ){
+
+      localStorage
+        .setItem(
+          "staffOrderBadgeCount",
+          String(count)
+        );
+
+    }
+
+
+    if(
+      id
+      ===
+      "staffShipmentCount"
+    ){
+
+      localStorage
+        .setItem(
+          "staffShipmentBadgeCount",
+          String(count)
+        );
+
+    }
 
   };
-
-
-  debug(
-    "===== BADGE RUN ====="
-  );
-
-  debug(
-    "orders.view=",
-    hasPermission(
-      "orders.view"
-    )
-  );
-
-  debug(
-    "inventory.receive=",
-    hasPermission(
-      "inventory.receive"
-    )
-  );
-
-  debug(
-    "myRegionIds=",
-    myRegionIds
-  );
-
-  debug(
-    "currentUser=",
-    currentUser
-      ?.id
-    ||
-    "none"
-  );
 
 
   const orderTask =
@@ -4836,12 +4761,11 @@ async function updateStaffBadges(){
 
       let count = 0;
 
-      try{
-
-        debug(
-          "ORDER QUERY START"
-        );
-
+      if(
+        hasPermission(
+          "orders.view"
+        )
+      ){
 
         const {
           data,
@@ -4850,44 +4774,19 @@ async function updateStaffBadges(){
           await db
             .from("orders")
             .select(
-              "id,order_status,region_id"
+              "id,order_status"
             );
-
-
-        debug(
-          "ORDER QUERY RETURNED"
-        );
 
 
         if(error){
 
-          debug(
-            "ORDER ERROR:",
-            {
-              message:
-                error.message,
-              code:
-                error.code,
-              details:
-                error.details,
-              hint:
-                error.hint
-            }
+          console.error(
+            "[staff order badge]",
+            error
           );
 
         }
         else{
-
-          debug(
-            "ORDER DATA LENGTH=",
-            (data || []).length
-          );
-
-          debug(
-            "ORDER DATA=",
-            data || []
-          );
-
 
           count =
             (data || [])
@@ -4904,24 +4803,7 @@ async function updateStaffBadges(){
               )
               .length;
 
-
-          debug(
-            "ORDER BADGE COUNT=",
-            count
-          );
-
         }
-
-      }
-      catch(error){
-
-        debug(
-          "ORDER EXCEPTION:",
-          error
-            ?.message
-          ||
-          String(error)
-        );
 
       }
 
@@ -4939,53 +4821,38 @@ async function updateStaffBadges(){
 
       let count = 0;
 
-      try{
+      if(
+        hasPermission(
+          "inventory.receive"
+        )
+        &&
+        myRegionIds.length
+      ){
+
+        const result =
+          await countRows(
+            "region_shipments",
+            query =>
+              query
+                .in(
+                  "region_id",
+                  myRegionIds
+                )
+                .eq(
+                  "status",
+                  "dispatched"
+                )
+          );
+
 
         if(
-          hasPermission(
-            "inventory.receive"
-          )
-          &&
-          myRegionIds.length
+          typeof result
+          ===
+          "number"
         ){
-
-          const result =
-            await countRows(
-              "region_shipments",
-              query =>
-                query
-                  .in(
-                    "region_id",
-                    myRegionIds
-                  )
-                  .eq(
-                    "status",
-                    "dispatched"
-                  )
-            );
-
-
-          if(
-            typeof result
-            ===
-            "number"
-          ){
-            count =
-              result;
-          }
-
+          count =
+            result;
         }
-
-      }
-      catch(error){
-
-        debug(
-          "SHIPMENT EXCEPTION:",
-          error
-            ?.message
-          ||
-          String(error)
-        );
 
       }
 
@@ -5002,11 +4869,6 @@ async function updateStaffBadges(){
     orderTask,
     shipmentTask
   ]);
-
-
-  debug(
-    "===== BADGE END ====="
-  );
 
 }
 
