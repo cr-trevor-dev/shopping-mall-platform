@@ -3535,7 +3535,7 @@ async function initializeStaff(){
   applyMenuPermissions();
 
   await loadDashboard();
-  setupStaffRealtime();
+  await setupStaffRealtime();
 }
 
 
@@ -4162,6 +4162,55 @@ async function setupStaffRealtime(){
   }
 
 
+  if(
+    window.staffBadgeRefreshInterval
+  ){
+
+    clearInterval(
+      window.staffBadgeRefreshInterval
+    );
+
+  }
+
+
+  const refreshStaffBadges =
+    async () => {
+
+      if(
+        document.visibilityState
+        !==
+        "visible"
+      ){
+        return;
+      }
+
+
+      if(
+        window.staffBadgeRefreshInProgress
+      ){
+        return;
+      }
+
+
+      window.staffBadgeRefreshInProgress =
+        true;
+
+
+      try{
+
+        await updateStaffBadges();
+
+      }
+      finally{
+
+        window.staffBadgeRefreshInProgress =
+          false;
+
+      }
+
+    };
+
+
   const refreshStaffView =
     async () => {
 
@@ -4189,13 +4238,14 @@ async function setupStaffRealtime(){
 
         await refreshCurrent();
 
+
         if(
           currentSection
           !==
           "dashboard"
         ){
 
-          await loadDashboard();
+          await refreshStaffBadges();
 
         }
 
@@ -4221,7 +4271,7 @@ async function setupStaffRealtime(){
       window.staffRealtimeTimer =
         setTimeout(
           refreshStaffView,
-          200
+          150
         );
 
     };
@@ -4240,7 +4290,7 @@ async function setupStaffRealtime(){
 
   if(accessToken){
 
-    db.realtime.setAuth(
+    await db.realtime.setAuth(
       accessToken
     );
 
@@ -4331,6 +4381,17 @@ async function setupStaffRealtime(){
 
 
       if(
+        status
+        ===
+        "SUBSCRIBED"
+      ){
+
+        refreshStaffBadges();
+
+      }
+
+
+      if(
         [
           "CHANNEL_ERROR",
           "TIMED_OUT",
@@ -4367,10 +4428,17 @@ async function setupStaffRealtime(){
   );
 
 
+  window.staffBadgeRefreshInterval =
+    setInterval(
+      refreshStaffBadges,
+      3000
+    );
+
+
   window.staffAutoRefreshInterval =
     setInterval(
       refreshStaffView,
-      5000
+      15000
     );
 
 
@@ -4516,33 +4584,47 @@ async function updateStaffBadges(){
     hasPermission(
       "orders.view"
     )
+    &&
+    myRegionIds.length
   ){
 
     const {
-      data
+      count,
+      error
     } =
       await db
-        .from("orders")
-        .select("order_status");
-
-
-    orderCount =
-      (
-        data
-        ||
-        []
-      )
-      .filter(
-        order =>
-          ![
-            "completed",
-            "cancelled"
+        .from(
+          "orders"
+        )
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        )
+        .in(
+          "region_id",
+          myRegionIds
+        )
+        .in(
+          "order_status",
+          [
+            "pending_confirmation",
+            "confirmed",
+            "after_sales"
           ]
-          .includes(
-            order.order_status
-          )
-      )
-      .length;
+        );
+
+
+    if(!error){
+
+      orderCount =
+        count
+        ??
+        0;
+
+    }
 
   }
 
@@ -4551,29 +4633,43 @@ async function updateStaffBadges(){
     hasPermission(
       "inventory.receive"
     )
+    &&
+    myRegionIds.length
   ){
 
     const {
-      data
+      count,
+      error
     } =
       await db
         .from(
           "region_shipments"
         )
-        .select("status")
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        )
+        .in(
+          "region_id",
+          myRegionIds
+        )
         .eq(
           "status",
           "dispatched"
         );
 
 
-    shipmentCount =
-      (
-        data
-        ||
-        []
-      )
-      .length;
+    if(!error){
+
+      shipmentCount =
+        count
+        ??
+        0;
+
+    }
 
   }
 
