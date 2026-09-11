@@ -4418,6 +4418,139 @@ async function setupStaffRealtime(){
 
 }
 
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_shipments"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"delivery_tasks"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"payment_transactions"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"refund_transactions"
+        },
+        refreshFromRealtime
+      );
+
+
+  window.staffRealtimeChannel =
+    channel;
+
+
+  channel.subscribe(
+    status => {
+
+      if(
+        channel
+        !==
+        window.staffRealtimeChannel
+      ){
+        return;
+      }
+
+
+      if(
+        [
+          "CHANNEL_ERROR",
+          "TIMED_OUT",
+          "CLOSED"
+        ].includes(status)
+      ){
+
+        clearTimeout(
+          window.staffRealtimeReconnectTimer
+        );
+
+
+        window.staffRealtimeReconnectTimer =
+          setTimeout(
+            () => {
+
+              if(
+                document.visibilityState
+                ===
+                "visible"
+              ){
+
+                setupStaffRealtime();
+
+              }
+
+            },
+            1500
+          );
+
+      }
+
+    }
+  );
+
+
+  window.staffAutoRefreshInterval =
+    setInterval(
+      refreshStaffView,
+      5000
+    );
+
+
+  if(
+    !window.staffVisibilityRefreshInstalled
+  ){
+
+    window.staffVisibilityRefreshInstalled =
+      true;
+
+
+    document.addEventListener(
+      "visibilitychange",
+      async () => {
+
+        if(
+          document.visibilityState
+          !==
+          "visible"
+        ){
+          return;
+        }
+
+
+        await refreshStaffView();
+
+        await setupStaffRealtime();
+
+      }
+    );
+
+  }
+
+}
+
 /* ==========================================
    RPC
 ========================================== */
