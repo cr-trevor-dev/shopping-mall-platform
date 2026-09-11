@@ -1961,7 +1961,7 @@ textarea:focus{
   </button>
 
 
-  <button
+    <button
     class="nav-item"
     data-view="orders"
     onclick="goView('orders',this)"
@@ -1969,6 +1969,13 @@ textarea:focus{
 
     <span class="nav-icon">
       📦
+    </span>
+
+    <span
+      id="bottomOrderCount"
+      class="nav-cart-count hidden"
+    >
+      0
     </span>
 
     <span data-i18n="orders">
@@ -5751,7 +5758,47 @@ function updateCartCount(){
   );
 
 }
+function updateOrderCount(){
 
+  const count =
+    currentUser
+    ?
+    orders
+      .filter(
+        order =>
+          ![
+            "completed",
+            "cancelled"
+          ]
+          .includes(
+            order.order_status
+          )
+      )
+      .length
+    :
+    0;
+
+
+  const node =
+    el("bottomOrderCount");
+
+
+  if(!node){
+    return;
+  }
+
+
+  node.textContent =
+    count;
+
+
+  node.classList
+    .toggle(
+      "hidden",
+      count <= 0
+    );
+
+}
 
 function cartItemPrice(item){
 
@@ -6997,7 +7044,7 @@ async function initializeCustomer(){
   renderPublic();
 
   renderAccount();
-
+  setupCustomerRealtime();
 }
 
 
@@ -8687,6 +8734,9 @@ async function loadOrders(){
 
 
 function renderOrders(){
+
+  updateOrderCount();
+
 
   if(!el("ordersContent")){
     return;
@@ -10876,7 +10926,190 @@ function emptyState(
   `;
 
 }
+function setupCustomerRealtime(){
 
+  if(
+    window.customerRealtimeChannel
+  ){
+
+    db.removeChannel(
+      window.customerRealtimeChannel
+    );
+
+  }
+
+
+  const refreshInventory =
+    () => {
+
+      clearTimeout(
+        window.customerInventoryRealtimeTimer
+      );
+
+
+      window.customerInventoryRealtimeTimer =
+        setTimeout(
+          async () => {
+
+            await loadPublicData();
+
+            renderPublic();
+            renderCart();
+
+
+            if(
+              el("productDetail")
+                ?.classList
+                .contains("active")
+              &&
+              currentProductId
+            ){
+
+              renderProductDetail();
+
+            }
+
+          },
+          250
+        );
+
+    };
+
+
+  const refreshOrdersLive =
+    () => {
+
+      clearTimeout(
+        window.customerOrderRealtimeTimer
+      );
+
+
+      window.customerOrderRealtimeTimer =
+        setTimeout(
+          async () => {
+
+            if(!currentUser){
+              return;
+            }
+
+
+            await loadOrders();
+
+
+            if(
+              currentOrderId
+              &&
+              el("orderDetail")
+                ?.classList
+                .contains("active")
+            ){
+
+              await openOrder(
+                currentOrderId
+              );
+
+            }
+
+          },
+          250
+        );
+
+    };
+
+
+  window.customerRealtimeChannel =
+    db
+      .channel(
+        "customer-live-sync"
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_inventory"
+        },
+        refreshInventory
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"orders"
+        },
+        refreshOrdersLive
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"payment_transactions"
+        },
+        refreshOrdersLive
+      )
+
+      .subscribe();
+
+
+  if(
+    !window.customerVisibilityRefreshInstalled
+  ){
+
+    window.customerVisibilityRefreshInstalled =
+      true;
+
+
+    document.addEventListener(
+      "visibilitychange",
+      async () => {
+
+        if(
+          document.visibilityState
+          !==
+          "visible"
+        ){
+          return;
+        }
+
+
+        await loadPublicData();
+
+        renderPublic();
+        renderCart();
+
+
+        if(currentUser){
+
+          await loadOrders();
+
+        }
+
+
+        if(
+          currentOrderId
+          &&
+          el("orderDetail")
+            ?.classList
+            .contains("active")
+        ){
+
+          await openOrder(
+            currentOrderId
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+}
 
 /* ==========================================================
    AUTH LISTENER
@@ -10948,9 +11181,11 @@ async function initialize(){
     );
 
 
-  await loadPublicData();
+    await loadPublicData();
 
   await checkSession();
+
+  setupCustomerRealtime();
 
   renderAll();
 
