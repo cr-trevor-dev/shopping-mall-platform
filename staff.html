@@ -3607,73 +3607,7 @@ async function initializeStaff(){
       );
 
   }
-   const refreshStaffBadgesSafe =
-
-    async () => {
-
-      try{
-
-        await updateStaffBadges();
-
-      }
-
-      catch(error){
-
-        console.error(
-
-          "[staff badges]",
-
-          error
-
-        );
-
-      }
-
-    };
-
-  currentSection =
-
-    "dashboard";
-
-  if(
-
-    window.staffIndependentBadgeInterval
-
-  ){
-
-    clearInterval(
-
-      window.staffIndependentBadgeInterval
-
-    );
-
-  }
-
-  window.staffIndependentBadgeInterval =
-
-    setInterval(
-
-      refreshStaffBadgesSafe,
-
-      3000
-
-    );
-
-  setTimeout(
-
-    refreshStaffBadgesSafe,
-
-    100
-
-  );
-
-  setTimeout(
-
-    refreshStaffBadgesSafe,
-
-    1000
-
-  );
+   
 
   loadDashboard()
 
