@@ -6124,161 +6124,7 @@ async function loadOrders(){
       .map(
         order => {
 
-          let buttons = "";
-
-
-          if(
-            order.order_status
-            ===
-            "pending_confirmation"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="confirmOrder('${order.id}')"
-              >
-                确认
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.order_status
-            ===
-            "confirmed"
-            &&
-            order.fulfillment_status
-            ===
-            "unfulfilled"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-light btn-small"
-                onclick="startPicking('${order.id}')"
-              >
-                开始拣货
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.fulfillment_status
-            ===
-            "picking"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="markPacked('${order.id}')"
-              >
-                已打包
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.fulfillment_status
-            ===
-            "packed"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-primary btn-small"
-                onclick="finalizeFulfillment('${order.id}')"
-              >
-                正式出库
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.fulfillment_status
-            ===
-            "fulfilled"
-            &&
-            order.delivery_status
-            ===
-            "not_assigned"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-amber btn-small"
-                onclick="assignDelivery('${order.id}','${order.region_id}')"
-              >
-                指派配送
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            [
-              "paid",
-              "partially_refunded"
-            ].includes(
-              order.payment_status
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-light btn-small"
-                onclick="refundOrder('${order.id}')"
-              >
-                退款
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            ![
-              "cancelled",
-              "completed"
-            ].includes(
-              order.order_status
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-red btn-small"
-                onclick="cancelOrder('${order.id}')"
-              >
-                取消
-              </button>
-
-            `;
-
-          }
+          
 
 
           return `
@@ -6414,15 +6260,7 @@ async function loadOrders(){
 
               </td>
 
-              <td>
-
-                <div class="operation-buttons">
-
-                  ${buttons}
-
-                </div>
-
-              </td>
+              
 
             </tr>
 
@@ -6445,7 +6283,7 @@ async function loadOrders(){
         "付款",
         "金额",
         "时间",
-        "操作"
+        
       ],
 
       rows
