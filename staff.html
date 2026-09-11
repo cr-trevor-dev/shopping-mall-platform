@@ -3534,8 +3534,16 @@ async function initializeStaff(){
 
   applyMenuPermissions();
 
-  await loadDashboard();
   await setupStaffRealtime();
+
+loadDashboard()
+  .catch(
+    error =>
+      console.error(
+        "[staff dashboard]",
+        error
+      )
+  );
 }
 
 
@@ -4580,126 +4588,131 @@ async function countRows(
 
 async function updateStaffBadges(){
 
-  let orderCount = 0;
-  let shipmentCount = 0;
+  const updateBadge = (
+    id,
+    count
+  ) => {
+
+    const node =
+      el(id);
+
+    if(!node){
+      return;
+    }
+
+    node.textContent =
+      count;
+
+    node.classList.toggle(
+      "hidden",
+      count <= 0
+    );
+
+  };
 
 
-  if(
-    hasPermission(
-      "orders.view"
-    )
-    &&
-    myRegionIds.length
-  ){
+  const orderTask =
+    (async () => {
 
-    const count =
-      await countRows(
+      let count = 0;
 
-        "orders",
+      if(
+        hasPermission(
+          "orders.view"
+        )
+        &&
+        myRegionIds.length
+      ){
 
-        query =>
-          query
-            .in(
-              "region_id",
-              myRegionIds
-            )
-            .in(
-              "order_status",
-              [
-                "pending_confirmation",
-                "confirmed",
-                "after_sales"
-              ]
-            )
+        const result =
+          await countRows(
+            "orders",
+            query =>
+              query
+                .in(
+                  "region_id",
+                  myRegionIds
+                )
+                .in(
+                  "order_status",
+                  [
+                    "pending_confirmation",
+                    "confirmed",
+                    "after_sales"
+                  ]
+                )
+          );
 
-      );
+        if(
+          typeof result
+          ===
+          "number"
+        ){
+          count =
+            result;
+        }
 
-
-    orderCount =
-      typeof count
-      ===
-      "number"
-      ?
-      count
-      :
-      0;
-
-  }
-
-
-  if(
-    hasPermission(
-      "inventory.receive"
-    )
-    &&
-    myRegionIds.length
-  ){
-
-    const count =
-      await countRows(
-
-        "region_shipments",
-
-        query =>
-          query
-            .in(
-              "region_id",
-              myRegionIds
-            )
-            .eq(
-              "status",
-              "dispatched"
-            )
-
-      );
-
-
-    shipmentCount =
-      typeof count
-      ===
-      "number"
-      ?
-      count
-      :
-      0;
-
-  }
-
-
-  [
-    [
-      "staffOrderCount",
-      orderCount
-    ],
-    [
-      "staffShipmentCount",
-      shipmentCount
-    ]
-  ]
-  .forEach(
-    ([id,count]) => {
-
-      const node =
-        el(id);
-
-
-      if(!node){
-        return;
       }
 
+      updateBadge(
+        "staffOrderCount",
+        count
+      );
 
-      node.textContent =
-        count;
+    })();
 
 
-      node.classList
-        .toggle(
-          "hidden",
-          count <= 0
-        );
+  const shipmentTask =
+    (async () => {
 
-    }
-  );
+      let count = 0;
+
+      if(
+        hasPermission(
+          "inventory.receive"
+        )
+        &&
+        myRegionIds.length
+      ){
+
+        const result =
+          await countRows(
+            "region_shipments",
+            query =>
+              query
+                .in(
+                  "region_id",
+                  myRegionIds
+                )
+                .eq(
+                  "status",
+                  "dispatched"
+                )
+          );
+
+        if(
+          typeof result
+          ===
+          "number"
+        ){
+          count =
+            result;
+        }
+
+      }
+
+      updateBadge(
+        "staffShipmentCount",
+        count
+      );
+
+    })();
+
+
+  await Promise.allSettled([
+    orderTask,
+    shipmentTask
+  ]);
 
 }
 
