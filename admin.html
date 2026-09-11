@@ -1130,27 +1130,7 @@ tr:last-child td{
   </div>
 
 
-  <div class="panel">
-
-    <div class="panel-head">
-
-      <div>
-
-        <div class="panel-title">
-          地区商品详情
-        </div>
-
-        <div class="panel-note">
-          选择单一地区后查看
-        </div>
-
-      </div>
-
-    </div>
-
-    <div id="dashboardProducts"></div>
-
-  </div>
+  
 
 
   <div class="panel">
@@ -4718,134 +4698,7 @@ async function loadDashboard(){
     `;
 
 
-  if(region){
-
-    const {
-      data:products,
-      error:productsError
-    } =
-      await db.rpc(
-        "admin_region_product_overview",
-        {
-          p_region_id:
-            region
-        }
-      );
-
-
-    if(productsError){
-
-      el("dashboardProducts")
-        .innerHTML =
-        errorBox(
-          productsError.message
-        );
-
-    }
-    else{
-
-      const productRows =
-        (products || [])
-          .map(
-            item => `
-
-              <tr>
-
-                <td>
-                  ${
-                    escapeHtml(
-                      item.product_name
-                      ||
-                      item.variant_name
-                      ||
-                      "—"
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${item.stock_on_hand}
-                </td>
-
-                <td>
-                  ${item.listed_quantity}
-                </td>
-
-                <td>
-                  ${item.reserved_quantity}
-                </td>
-
-                <td>
-                  <strong>
-                    ${item.saleable_quantity}
-                  </strong>
-                </td>
-
-                <td>
-                  ${item.total_sent}
-                </td>
-
-                <td>
-                  ${item.total_received}
-                </td>
-
-                <td>
-                  ${
-                    Number(
-                      item.total_discrepancy
-                      ||
-                      0
-                    )
-                  }
-                </td>
-
-                <td>
-                  ${
-                    escapeHtml(
-                      item.next_expiry_date
-                      ||
-                      "—"
-                    )
-                  }
-                </td>
-
-              </tr>
-
-            `
-          );
-
-
-      el("dashboardProducts")
-        .innerHTML =
-        makeTable(
-          [
-            "商品",
-            "实际库存",
-            "上架库存",
-            "已预留",
-            "可售",
-            "累计发货",
-            "累计收货",
-            "差异",
-            "最近过期"
-          ],
-          productRows
-        );
-
-    }
-
-  }
-  else{
-
-    el("dashboardProducts")
-      .innerHTML =
-      `
-        <div class="empty">
-          选择一个地区后，这里会显示该地区每一种商品的详细库存和发货记录。
-        </div>
-      `;
-
-  }
+  
 
 
   let orderQuery =
@@ -7828,6 +7681,7 @@ async function loadPaymentTransactions(){
 
   }
 
+
   const proofLinks = {};
 
 
@@ -7861,10 +7715,8 @@ async function loadPaymentTransactions(){
 
 
           const {
-            data:
-            signedData,
-            error:
-            signedError
+            data:signedData,
+            error:signedError
           } =
             await db.storage
               .from(
@@ -7893,162 +7745,89 @@ async function loadPaymentTransactions(){
         }
       )
   );
+
+
   const rows =
     (data || [])
       .map(
-        payment => {
+        payment => `
 
-          let buttons = "";
+          <tr>
 
+            <td class="mono">
+              ${escapeHtml(
+                payment.order_id
+              )}
+            </td>
 
-          if(
-            payment.status
-            ===
-            "submitted"
-          ){
+            <td>
+              ${escapeHtml(
+                regionMap[
+                  payment.region_id
+                ]
+                ||
+                "—"
+              )}
+            </td>
 
-            buttons = `
+            <td>
+              ${money(
+                payment.amount,
+                payment.currency_code
+              )}
+            </td>
 
-              <button
-                class="btn btn-green btn-small"
-                onclick="reviewPayment('${payment.id}',true)"
-              >
-                通过
-              </button>
+            <td>
+              ${escapeHtml(
+                payment.payment_method
+              )}
+            </td>
 
-              <button
-                class="btn btn-red btn-small"
-                onclick="reviewPayment('${payment.id}',false)"
-              >
-                拒绝
-              </button>
+            <td>
+              ${statusBadge(
+                payment.status
+              )}
+            </td>
 
-            `;
+            <td>
+              ${escapeHtml(
+                payment.external_reference
+                ||
+                "—"
+              )}
+            </td>
 
-          }
-
-
-          return `
-
-            <tr>
-
-              <td class="mono">
-
-                ${
-                  escapeHtml(
-                    payment.order_id
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    regionMap[
-                      payment.region_id
-                    ]
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  money(
-                    payment.amount,
-                    payment.currency_code
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    payment.payment_method
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    payment.status
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    payment.external_reference
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-               ${
+            <td>
+              ${
+                proofLinks[
+                  payment.id
+                ]
+                ?
+                `<a href="${escapeHtml(
                   proofLinks[
                     payment.id
                   ]
-                  ?
-                  `<a href="${escapeHtml(
-                    proofLinks[
-                      payment.id
-                    ]
-                  )}" target="_blank">查看凭证</a>`
-                  :
-                  "—"
-                }
+                )}" target="_blank">查看凭证</a>`
+                :
+                "—"
+              }
+            </td>
 
-              </td>
+            <td>
+              ${formatDate(
+                payment.created_at
+              )}
+            </td>
 
-              <td>
+          </tr>
 
-                ${
-                  formatDate(
-                    payment.created_at
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                <div class="operation-buttons">
-
-                  ${buttons}
-
-                </div>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
+        `
       );
 
 
   el("paymentsTable")
     .innerHTML =
     makeTable(
-
       [
         "订单 ID",
         "地区",
@@ -8057,12 +7836,9 @@ async function loadPaymentTransactions(){
         "状态",
         "参考号",
         "凭证",
-        "时间",
-        "操作"
+        "时间"
       ],
-
       rows
-
     );
 
 }
