@@ -3934,13 +3934,19 @@ function applyMenuPermissions(){
   */
 
 
+    const adjustPanel =
+    el("adjustPanel");
+
+
   if(
+    adjustPanel
+    &&
     hasPermission(
       "inventory.adjust"
     )
   ){
 
-    el("adjustPanel")
+    adjustPanel
       .classList
       .remove("hidden");
 
