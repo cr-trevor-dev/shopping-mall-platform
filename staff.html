@@ -3534,16 +3534,58 @@ async function initializeStaff(){
 
   applyMenuPermissions();
 
-  await setupStaffRealtime();
+    const refreshStaffBadgesSafe =
+    () => {
 
-loadDashboard()
-  .catch(
-    error =>
-      console.error(
-        "[staff dashboard]",
-        error
-      )
-  );
+      updateStaffBadges()
+        .catch(
+          error =>
+            console.error(
+              "[staff badges]",
+              error
+            )
+        );
+
+    };
+
+
+  refreshStaffBadgesSafe();
+
+
+  if(
+    window.staffIndependentBadgeInterval
+  ){
+    clearInterval(
+      window.staffIndependentBadgeInterval
+    );
+  }
+
+
+  window.staffIndependentBadgeInterval =
+    setInterval(
+      refreshStaffBadgesSafe,
+      3000
+    );
+
+
+  setupStaffRealtime()
+    .catch(
+      error =>
+        console.error(
+          "[staff realtime]",
+          error
+        )
+    );
+
+
+  loadDashboard()
+    .catch(
+      error =>
+        console.error(
+          "[staff dashboard]",
+          error
+        )
+    );
 }
 
 
