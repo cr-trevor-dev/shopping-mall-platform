@@ -4133,17 +4133,93 @@ async function refreshCurrent(){
   }
 
 }
-function setupStaffRealtime(){
+async function setupStaffRealtime(){
+
+  if(
+    window.staffRealtimeReconnectTimer
+  ){
+
+    clearTimeout(
+      window.staffRealtimeReconnectTimer
+    );
+
+  }
+
 
   if(
     window.staffRealtimeChannel
   ){
 
-    db.removeChannel(
-      window.staffRealtimeChannel
+    const oldChannel =
+      window.staffRealtimeChannel;
+
+    window.staffRealtimeChannel =
+      null;
+
+    await db.removeChannel(
+      oldChannel
     );
 
   }
+
+
+  if(
+    window.staffAutoRefreshInterval
+  ){
+
+    clearInterval(
+      window.staffAutoRefreshInterval
+    );
+
+  }
+
+
+  const refreshStaffView =
+    async () => {
+
+      if(
+        document.visibilityState
+        !==
+        "visible"
+      ){
+        return;
+      }
+
+
+      if(
+        window.staffRefreshInProgress
+      ){
+        return;
+      }
+
+
+      window.staffRefreshInProgress =
+        true;
+
+
+      try{
+
+        await refreshCurrent();
+
+        if(
+          currentSection
+          !==
+          "dashboard"
+        ){
+
+          await loadDashboard();
+
+        }
+
+      }
+      finally{
+
+        window.staffRefreshInProgress =
+          false;
+
+      }
+
+    };
 
 
   const refreshFromRealtime =
@@ -4156,28 +4232,34 @@ function setupStaffRealtime(){
 
       window.staffRealtimeTimer =
         setTimeout(
-          async () => {
-
-            await refreshCurrent();
-
-            if(
-              currentSection
-              !==
-              "dashboard"
-            ){
-
-              await loadDashboard();
-
-            }
-
-          },
-          250
+          refreshStaffView,
+          200
         );
 
     };
 
 
-  window.staffRealtimeChannel =
+  const {
+    data:sessionData
+  } =
+    await db.auth.getSession();
+
+
+  const accessToken =
+    sessionData.session
+      ?.access_token;
+
+
+  if(accessToken){
+
+    db.realtime.setAuth(
+      accessToken
+    );
+
+  }
+
+
+  const channel =
     db
       .channel(
         "staff-live-sync"
@@ -4241,9 +4323,67 @@ function setupStaffRealtime(){
           table:"refund_transactions"
         },
         refreshFromRealtime
-      )
+      );
 
-      .subscribe();
+
+  window.staffRealtimeChannel =
+    channel;
+
+
+  channel.subscribe(
+    status => {
+
+      if(
+        channel
+        !==
+        window.staffRealtimeChannel
+      ){
+        return;
+      }
+
+
+      if(
+        [
+          "CHANNEL_ERROR",
+          "TIMED_OUT",
+          "CLOSED"
+        ].includes(status)
+      ){
+
+        clearTimeout(
+          window.staffRealtimeReconnectTimer
+        );
+
+
+        window.staffRealtimeReconnectTimer =
+          setTimeout(
+            () => {
+
+              if(
+                document.visibilityState
+                ===
+                "visible"
+              ){
+
+                setupStaffRealtime();
+
+              }
+
+            },
+            1500
+          );
+
+      }
+
+    }
+  );
+
+
+  window.staffAutoRefreshInterval =
+    setInterval(
+      refreshStaffView,
+      5000
+    );
 
 
   if(
@@ -4260,23 +4400,16 @@ function setupStaffRealtime(){
 
         if(
           document.visibilityState
-          ===
+          !==
           "visible"
         ){
-
-          await refreshCurrent();
-
-          if(
-            currentSection
-            !==
-            "dashboard"
-          ){
-
-            await loadDashboard();
-
-          }
-
+          return;
         }
+
+
+        await refreshStaffView();
+
+        await setupStaffRealtime();
 
       }
     );
