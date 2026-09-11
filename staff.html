@@ -4611,7 +4611,7 @@ async function updateStaffBadges(){
   };
 
 
-  const orderTask =
+    const orderTask =
     (async () => {
 
       let count = 0;
@@ -4620,36 +4620,40 @@ async function updateStaffBadges(){
         hasPermission(
           "orders.view"
         )
-        &&
-        myRegionIds.length
       ){
 
-        const result =
-          await countRows(
-            "orders",
-            query =>
-              query
-                .in(
-                  "region_id",
-                  myRegionIds
-                )
-                .in(
-                  "order_status",
+        const {
+          data,
+          error
+        } =
+          await db
+            .from("orders")
+            .select("id,order_status");
+
+        if(error){
+
+          console.error(
+            "[staff order badge]",
+            error
+          );
+
+        }else{
+
+          count =
+            (data || [])
+              .filter(
+                order =>
                   [
                     "pending_confirmation",
                     "confirmed",
                     "after_sales"
                   ]
-                )
-          );
+                  .includes(
+                    order.order_status
+                  )
+              )
+              .length;
 
-        if(
-          typeof result
-          ===
-          "number"
-        ){
-          count =
-            result;
         }
 
       }
