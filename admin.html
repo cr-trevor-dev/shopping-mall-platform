@@ -12465,14 +12465,15 @@ async function loadProductRegionsAction(
 
   const [
     inventoryResult,
-    historyResult
+    historyResult,
+    shipmentItemsResult
   ] =
     await Promise.all([
 
       db
         .from("region_inventory")
         .select(
-          "id,region_id,variant_id,stock_on_hand,reserved_quantity,listed_quantity,is_available"
+          "id,region_id,variant_id,stock_on_hand,reserved_quantity,listed_quantity,is_available,updated_at"
         )
         .eq(
           "variant_id",
@@ -12491,7 +12492,17 @@ async function loadProductRegionsAction(
           p_end_at:
             null
         }
-      )
+      ),
+
+      db
+        .from("region_shipment_items")
+        .select(
+          "shipment_id,sent_quantity"
+        )
+        .eq(
+          "variant_id",
+          variant.id
+        )
 
     ]);
 
@@ -12509,13 +12520,227 @@ async function loadProductRegionsAction(
   }
 
 
+  if(shipmentItemsResult.error){
+
+    el("productRegionsResult")
+      .innerHTML =
+      errorBox(
+        shipmentItemsResult.error.message
+      );
+
+    return;
+
+  }
+
+
   const inventories =
     inventoryResult.data
     ||
     [];
 
 
-  const salesByRegion = {};
+  const shipmentItems =
+    shipmentItemsResult.data
+    ||
+    [];
+
+
+  const shipmentIds =
+    [
+      ...new Set(
+        shipmentItems
+          .map(
+            item =>
+              item.shipment_id
+          )
+          .filter(Boolean)
+      )
+    ];
+
+
+  let pendingShipments = [];
+
+
+  if(shipmentIds.length){
+
+    const {
+      data,
+      error
+    } =
+      await db
+        .from("region_shipments")
+        .select(
+          "id,region_id,status,dispatched_at"
+        )
+        .in(
+          "id",
+          shipmentIds
+        )
+        .eq(
+          "status",
+          "dispatched"
+        );
+
+
+    if(error){
+
+      el("productRegionsResult")
+        .innerHTML =
+        errorBox(
+          error.message
+        );
+
+      return;
+
+    }
+
+
+    pendingShipments =
+      data
+      ||
+      [];
+
+  }
+
+
+  const quantityByShipment = {};
+
+
+  shipmentItems
+    .forEach(
+      item => {
+
+        quantityByShipment[
+          item.shipment_id
+        ] =
+          (
+            quantityByShipment[
+              item.shipment_id
+            ]
+            ||
+            0
+          )
+          +
+          Number(
+            item.sent_quantity
+            ||
+            0
+          );
+
+      }
+    );
+
+
+  const pendingByRegion = {};
+  const lastUpdateByRegion = {};
+
+
+  pendingShipments
+    .forEach(
+      shipment => {
+
+        const regionId =
+          shipment.region_id;
+
+
+        if(!regionId){
+          return;
+        }
+
+
+        pendingByRegion[
+          regionId
+        ] =
+          (
+            pendingByRegion[
+              regionId
+            ]
+            ||
+            0
+          )
+          +
+          Number(
+            quantityByShipment[
+              shipment.id
+            ]
+            ||
+            0
+          );
+
+
+        const time =
+          shipment.dispatched_at;
+
+
+        if(
+          time
+          &&
+          (
+            !lastUpdateByRegion[
+              regionId
+            ]
+            ||
+            new Date(time)
+            >
+            new Date(
+              lastUpdateByRegion[
+                regionId
+              ]
+            )
+          )
+        ){
+
+          lastUpdateByRegion[
+            regionId
+          ] =
+            time;
+
+        }
+
+      }
+    );
+
+
+  inventories
+    .forEach(
+      inventory => {
+
+        const regionId =
+          inventory.region_id;
+
+        const time =
+          inventory.updated_at;
+
+
+        if(
+          regionId
+          &&
+          time
+          &&
+          (
+            !lastUpdateByRegion[
+              regionId
+            ]
+            ||
+            new Date(time)
+            >
+            new Date(
+              lastUpdateByRegion[
+                regionId
+              ]
+            )
+          )
+        ){
+
+          lastUpdateByRegion[
+            regionId
+          ] =
+            time;
+
+        }
+
+      }
+    );
 
 
   if(!historyResult.error){
@@ -12531,9 +12756,7 @@ async function loadProductRegionsAction(
         ===
         variant.id
         &&
-        item.event_type
-        ===
-        "订单售出"
+        item.region_id
     )
     .forEach(
       item => {
@@ -12541,28 +12764,34 @@ async function loadProductRegionsAction(
         const regionId =
           item.region_id;
 
-        if(!regionId){
-          return;
-        }
+        const time =
+          item.event_time;
 
-        salesByRegion[
-          regionId
-        ] =
+
+        if(
+          time
+          &&
           (
-            salesByRegion[
+            !lastUpdateByRegion[
               regionId
             ]
             ||
-            0
-          )
-          +
-          Math.abs(
-            Number(
-              item.quantity
-              ||
-              0
+            new Date(time)
+            >
+            new Date(
+              lastUpdateByRegion[
+                regionId
+              ]
             )
-          );
+          )
+        ){
+
+          lastUpdateByRegion[
+            regionId
+          ] =
+            time;
+
+        }
 
       }
     );
@@ -12587,12 +12816,14 @@ async function loadProductRegionsAction(
                 region.id
             );
 
+
           const actual =
             Number(
               inventory?.stock_on_hand
               ||
               0
             );
+
 
           const listed =
             Number(
@@ -12601,12 +12832,14 @@ async function loadProductRegionsAction(
               0
             );
 
+
           const reserved =
             Number(
               inventory?.reserved_quantity
               ||
               0
             );
+
 
           const saleable =
             Math.max(
@@ -12619,14 +12852,29 @@ async function loadProductRegionsAction(
               reserved
             );
 
-          const sold =
+
+          const pending =
             Number(
-              salesByRegion[
+              pendingByRegion[
                 region.id
               ]
               ||
               0
             );
+
+
+          const lastUpdate =
+            lastUpdateByRegion[
+              region.id
+            ]
+            ?
+            formatDate(
+              lastUpdateByRegion[
+                region.id
+              ]
+            )
+            :
+            "—";
 
 
           return `
@@ -12643,11 +12891,13 @@ async function loadProductRegionsAction(
                 )}
               </td>
 
-              <td>${actual}</td>
+              <td>
+                ${actual}
+              </td>
 
-              <td>${listed}</td>
-
-              <td>${reserved}</td>
+              <td>
+                ${listed}
+              </td>
 
               <td>
                 <strong>
@@ -12655,7 +12905,15 @@ async function loadProductRegionsAction(
                 </strong>
               </td>
 
-              <td>${sold}</td>
+              <td>
+                ${pending}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  lastUpdate
+                )}
+              </td>
 
             </tr>
 
@@ -12672,9 +12930,9 @@ async function loadProductRegionsAction(
         "地区",
         "实际库存",
         "已上架",
-        "客户订单预留",
         "客户可购买",
-        "已售数量"
+        "待收货",
+        "最后更新"
       ],
       rows
     );
