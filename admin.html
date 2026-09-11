@@ -298,12 +298,31 @@ textarea:focus{
 }
 
 .menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
   padding:11px 13px;
   border-radius:11px;
   margin:3px 0;
   font-size:14px;
   font-weight:700;
   cursor:pointer;
+}
+
+.menu-count{
+  flex:none;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--orange);
+  color:white;
+  font-size:10px;
+  font-weight:900;
 }
 
 .menu-item.active{
@@ -766,11 +785,20 @@ tr:last-child td{
     业务
   </div>
 
-  <div
+   <div
     class="menu-item"
     onclick="showSection('orders',this)"
   >
-    订单
+    <span>
+      订单
+    </span>
+
+    <span
+      id="adminOrderCount"
+      class="menu-count hidden"
+    >
+      0
+    </span>
   </div>
   
   <div
@@ -780,11 +808,20 @@ tr:last-child td{
     库存
   </div>
 
-  <div
+    <div
     class="menu-item"
     onclick="showSection('payments',this)"
   >
-    付款退款
+    <span>
+      付款退款
+    </span>
+
+    <span
+      id="adminPaymentCount"
+      class="menu-count hidden"
+    >
+      0
+    </span>
   </div>
 
   <div
@@ -3362,9 +3399,13 @@ async function enterAdmin(user){
     user.email;
 
 
-  await loadBaseData();
+    await loadBaseData();
 
   await loadDashboard();
+
+  await updateAdminBadges();
+
+  setupAdminRealtime();
 
 }
 
@@ -3472,7 +3513,235 @@ async function refreshCurrentSection(){
   }
 
 }
+async function updateAdminBadges(){
 
+  const [
+    orderResult,
+    paymentResult
+  ] =
+    await Promise.all([
+
+      db
+        .from("orders")
+        .select("order_status"),
+
+      db
+        .from(
+          "payment_transactions"
+        )
+        .select("status")
+
+    ]);
+
+
+  const orderCount =
+    (
+      orderResult.data
+      ||
+      []
+    )
+    .filter(
+      order =>
+        ![
+          "completed",
+          "cancelled"
+        ]
+        .includes(
+          order.order_status
+        )
+    )
+    .length;
+
+
+  const paymentCount =
+    (
+      paymentResult.data
+      ||
+      []
+    )
+    .filter(
+      payment =>
+        payment.status
+        ===
+        "submitted"
+    )
+    .length;
+
+
+  [
+    [
+      "adminOrderCount",
+      orderCount
+    ],
+    [
+      "adminPaymentCount",
+      paymentCount
+    ]
+  ]
+  .forEach(
+    ([id,count]) => {
+
+      const node =
+        el(id);
+
+
+      if(!node){
+        return;
+      }
+
+
+      node.textContent =
+        count;
+
+
+      node.classList
+        .toggle(
+          "hidden",
+          count <= 0
+        );
+
+    }
+  );
+
+}
+
+
+function setupAdminRealtime(){
+
+  if(
+    window.adminRealtimeChannel
+  ){
+
+    db.removeChannel(
+      window.adminRealtimeChannel
+    );
+
+  }
+
+
+  const refreshAdmin =
+    () => {
+
+      clearTimeout(
+        window.adminRealtimeTimer
+      );
+
+
+      window.adminRealtimeTimer =
+        setTimeout(
+          async () => {
+
+            await updateAdminBadges();
+
+            await refreshCurrentSection();
+
+          },
+          250
+        );
+
+    };
+
+
+  window.adminRealtimeChannel =
+    db
+      .channel(
+        "admin-live-sync"
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"orders"
+        },
+        refreshAdmin
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_inventory"
+        },
+        refreshAdmin
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_shipments"
+        },
+        refreshAdmin
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"delivery_tasks"
+        },
+        refreshAdmin
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"payment_transactions"
+        },
+        refreshAdmin
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"refund_transactions"
+        },
+        refreshAdmin
+      )
+
+      .subscribe();
+
+
+  if(
+    !window.adminVisibilityRefreshInstalled
+  ){
+
+    window.adminVisibilityRefreshInstalled =
+      true;
+
+
+    document.addEventListener(
+      "visibilitychange",
+      async () => {
+
+        if(
+          document.visibilityState
+          !==
+          "visible"
+        ){
+          return;
+        }
+
+
+        await updateAdminBadges();
+
+        await refreshCurrentSection();
+
+      }
+    );
+
+  }
+
+}
 
 /* =========================
    基础数据
@@ -5790,8 +6059,20 @@ async function loadShipments(){
 
 async function loadOrders(){
 
-  let query =
-    db
+    const status =
+    el("orderStatusFilter")
+      .value;
+
+  const region =
+    el("orderRegionFilter")
+      .value;
+
+
+  const {
+    data,
+    error
+  } =
+    await db
       .from("orders")
       .select("*")
       .order(
@@ -5801,42 +6082,6 @@ async function loadOrders(){
         }
       )
       .limit(300);
-
-
-  const status =
-    el("orderStatusFilter").value;
-
-  const region =
-    el("orderRegionFilter").value;
-
-
-  if(status){
-
-    query =
-      query.eq(
-        "order_status",
-        status
-      );
-
-  }
-
-
-  if(region){
-
-    query =
-      query.eq(
-        "region_id",
-        region
-      );
-
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await query;
 
 
   if(error){
@@ -5852,8 +6097,30 @@ async function loadOrders(){
   }
 
 
-  const rows =
+  const filteredData =
     (data || [])
+      .filter(
+        order =>
+          (
+            !status
+            ||
+            order.order_status
+            ===
+            status
+          )
+          &&
+          (
+            !region
+            ||
+            order.region_id
+            ===
+            region
+          )
+      );
+
+
+  const rows =
+    filteredData
       .map(
         order => {
 
