@@ -4537,13 +4537,7 @@ async function countRows(
   let query =
     db
       .from(table)
-      .select(
-        "*",
-        {
-          count:"exact",
-          head:true
-        }
-      );
+      .select("id");
 
 
   if(modifier){
@@ -4557,23 +4551,33 @@ async function countRows(
 
 
   const {
-    count,
+    data,
     error
   } =
     await query;
 
 
-  return error
-    ?
-    "—"
-    :
-    (
-      count
-      ??
-      0
+  if(error){
+
+    console.error(
+      `[staff count] ${table}:`,
+      error
     );
 
+    return "—";
+
+  }
+
+
+  return (
+    data
+    ||
+    []
+  ).length;
+
 }
+
+
 async function updateStaffBadges(){
 
   let orderCount = 0;
@@ -4588,43 +4592,37 @@ async function updateStaffBadges(){
     myRegionIds.length
   ){
 
-    const {
-      count,
-      error
-    } =
-      await db
-        .from(
-          "orders"
-        )
-        .select(
-          "id",
-          {
-            count:"exact",
-            head:true
-          }
-        )
-        .in(
-          "region_id",
-          myRegionIds
-        )
-        .in(
-          "order_status",
-          [
-            "pending_confirmation",
-            "confirmed",
-            "after_sales"
-          ]
-        );
+    const count =
+      await countRows(
+
+        "orders",
+
+        query =>
+          query
+            .in(
+              "region_id",
+              myRegionIds
+            )
+            .in(
+              "order_status",
+              [
+                "pending_confirmation",
+                "confirmed",
+                "after_sales"
+              ]
+            )
+
+      );
 
 
-    if(!error){
-
-      orderCount =
-        count
-        ??
-        0;
-
-    }
+    orderCount =
+      typeof count
+      ===
+      "number"
+      ?
+      count
+      :
+      0;
 
   }
 
@@ -4637,39 +4635,33 @@ async function updateStaffBadges(){
     myRegionIds.length
   ){
 
-    const {
-      count,
-      error
-    } =
-      await db
-        .from(
-          "region_shipments"
-        )
-        .select(
-          "id",
-          {
-            count:"exact",
-            head:true
-          }
-        )
-        .in(
-          "region_id",
-          myRegionIds
-        )
-        .eq(
-          "status",
-          "dispatched"
-        );
+    const count =
+      await countRows(
+
+        "region_shipments",
+
+        query =>
+          query
+            .in(
+              "region_id",
+              myRegionIds
+            )
+            .eq(
+              "status",
+              "dispatched"
+            )
+
+      );
 
 
-    if(!error){
-
-      shipmentCount =
-        count
-        ??
-        0;
-
-    }
+    shipmentCount =
+      typeof count
+      ===
+      "number"
+      ?
+      count
+      :
+      0;
 
   }
 
