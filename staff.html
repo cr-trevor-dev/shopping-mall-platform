@@ -3622,7 +3622,10 @@ async function initializeStaff(){
     };
 
 
-  refreshStaffBadgesSafe();
+  currentSection =
+  "dashboard";
+
+await refreshCurrent();
 
 
   if(
@@ -3651,14 +3654,7 @@ async function initializeStaff(){
     );
 
 
-  loadDashboard()
-    .catch(
-      error =>
-        console.error(
-          "[staff dashboard]",
-          error
-        )
-    );
+  
 }
 
 
