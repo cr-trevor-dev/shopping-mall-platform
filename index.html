@@ -6771,11 +6771,45 @@ async function customerRegister(){
     );
 
 
-  if(
-    error
-    ||
-    !data?.ok
-  ){
+    if(error){
+
+    let errorMessage =
+      "注册失败，请稍后再试。";
+
+    try{
+
+      if(error.context){
+
+        const errorData =
+          await error.context.json();
+
+        errorMessage =
+          errorData?.message
+          ||
+          errorMessage;
+
+      }
+
+    }
+    catch(parseError){
+
+      errorMessage =
+        error.message
+        ||
+        errorMessage;
+
+    }
+
+    showAuthMessage(
+      errorMessage
+    );
+
+    return;
+
+  }
+
+
+  if(!data?.ok){
 
     showAuthMessage(
       data?.message
