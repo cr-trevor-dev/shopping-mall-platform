@@ -1928,7 +1928,7 @@ async function initializeDelivery(){
   renderTasks();
 
   renderHistory();
-
+  setupDeliveryRealtime();
 }
 
 
@@ -2593,11 +2593,17 @@ function taskCard(
     }
 
 
-    if(
+        if(
       task.status
       ===
       "delivering"
     ){
+
+      const isCod =
+        order.payment_method
+        ===
+        "cash";
+
 
       actions = `
 
@@ -2605,7 +2611,16 @@ function taskCard(
           class="btn btn-green btn-large"
           onclick="completeDelivery('${task.id}')"
         >
-          ✅ ${escapeHtml(t("completeDelivery"))}
+          ${
+            isCod
+            ?
+            `💵 确认已收 ${money(
+              order.total_amount,
+              order.currency_code
+            )} 并完成配送`
+            :
+            `✅ ${escapeHtml(t("completeDelivery"))}`
+          }
         </button>
 
         <button
@@ -3035,11 +3050,59 @@ async function completeDelivery(
   taskId
 ){
 
-  if(
-    !confirm(
+  const task =
+    tasks.find(
+      item =>
+        item.id === taskId
+    );
+
+  const order =
+    task
+    ?
+    orderMap[
+      task.order_id
+    ]
+    :
+    null;
+
+
+  if(!order){
+    return;
+  }
+
+
+  const isCod =
+    order.payment_method
+    ===
+    "cash";
+
+
+  const message =
+    isCod
+    ?
+    (
+      "本单为货到付款。\n\n"
+      +
+      "应收金额："
+      +
+      money(
+        order.total_amount,
+        order.currency_code
+      )
+      +
+      "\n\n请确认已经收到客户付款，并且商品已经送达。"
+    )
+    :
+    (
       t("completeDelivery")
       +
       "?"
+    );
+
+
+  if(
+    !confirm(
+      message
     )
   ){
     return;
@@ -3055,9 +3118,17 @@ async function completeDelivery(
         taskId,
 
       p_note:
+        isCod
+        ?
+        "COD payment collected and customer received order"
+        :
         "Customer received order"
     },
 
+    isCod
+    ?
+    "已确认收款并完成配送。"
+    :
     t("completeDelivery")
 
   );
@@ -3476,7 +3547,103 @@ function renderProfile(){
     `;
 
 }
+function setupDeliveryRealtime(){
 
+  if(
+    window.deliveryRealtimeChannel
+  ){
+
+    db.removeChannel(
+      window.deliveryRealtimeChannel
+    );
+
+  }
+
+
+  const refreshDelivery =
+    () => {
+
+      clearTimeout(
+        window.deliveryRealtimeTimer
+      );
+
+
+      window.deliveryRealtimeTimer =
+        setTimeout(
+          async () => {
+
+            await loadTasks();
+
+            renderTasks();
+            renderHistory();
+
+          },
+          250
+        );
+
+    };
+
+
+  window.deliveryRealtimeChannel =
+    db
+      .channel(
+        "delivery-live-sync"
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"delivery_tasks"
+        },
+        refreshDelivery
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"orders"
+        },
+        refreshDelivery
+      )
+
+      .subscribe();
+
+
+  if(
+    !window.deliveryVisibilityRefreshInstalled
+  ){
+
+    window.deliveryVisibilityRefreshInstalled =
+      true;
+
+
+    document.addEventListener(
+      "visibilitychange",
+      async () => {
+
+        if(
+          document.visibilityState
+          ===
+          "visible"
+        ){
+
+          await loadTasks();
+
+          renderTasks();
+          renderHistory();
+
+        }
+
+      }
+    );
+
+  }
+
+}
 
 /* =========================
    AUTH STATE
