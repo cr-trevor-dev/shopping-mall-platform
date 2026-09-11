@@ -3508,7 +3508,7 @@ async function initializeStaff(){
   applyMenuPermissions();
 
   await loadDashboard();
-
+  setupStaffRealtime();
 }
 
 
@@ -3758,10 +3758,12 @@ async function loadBaseData(){
   await Promise.all([
 
     loadRegions(),
-    loadProducts(),
-    loadVariants()
+    loadProducts()
 
   ]);
+
+
+  await loadVariants();
 
 
   renderSelects();
@@ -4092,7 +4094,157 @@ async function refreshCurrent(){
   }
 
 }
+function setupStaffRealtime(){
 
+  if(
+    window.staffRealtimeChannel
+  ){
+
+    db.removeChannel(
+      window.staffRealtimeChannel
+    );
+
+  }
+
+
+  const refreshFromRealtime =
+    () => {
+
+      clearTimeout(
+        window.staffRealtimeTimer
+      );
+
+
+      window.staffRealtimeTimer =
+        setTimeout(
+          async () => {
+
+            await refreshCurrent();
+
+            if(
+              currentSection
+              !==
+              "dashboard"
+            ){
+
+              await loadDashboard();
+
+            }
+
+          },
+          250
+        );
+
+    };
+
+
+  window.staffRealtimeChannel =
+    db
+      .channel(
+        "staff-live-sync"
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"orders"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_inventory"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"region_shipments"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"delivery_tasks"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"payment_transactions"
+        },
+        refreshFromRealtime
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event:"*",
+          schema:"public",
+          table:"refund_transactions"
+        },
+        refreshFromRealtime
+      )
+
+      .subscribe();
+
+
+  if(
+    !window.staffVisibilityRefreshInstalled
+  ){
+
+    window.staffVisibilityRefreshInstalled =
+      true;
+
+
+    document.addEventListener(
+      "visibilitychange",
+      async () => {
+
+        if(
+          document.visibilityState
+          ===
+          "visible"
+        ){
+
+          await refreshCurrent();
+
+          if(
+            currentSection
+            !==
+            "dashboard"
+          ){
+
+            await loadDashboard();
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+}
 
 /* ==========================================
    RPC
