@@ -260,12 +260,31 @@ textarea:focus{
 }
 
 .menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
   padding:11px 12px;
   border-radius:11px;
   margin:3px 0;
   font-size:14px;
   font-weight:700;
   cursor:pointer;
+}
+
+.menu-count{
+  flex:none;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--orange);
+  color:white;
+  font-size:10px;
+  font-weight:900;
 }
 
 .menu-item.active{
@@ -765,24 +784,44 @@ tr:last-child td{
   </div>
 
 
-  <div
+    <div
     id="menuOrders"
     class="menu-item hidden"
     data-section="orders"
     onclick="showSection('orders',this)"
-    data-i18n="orders"
   >
-    订单
+
+    <span data-i18n="orders">
+      订单
+    </span>
+
+    <span
+      id="staffOrderCount"
+      class="menu-count hidden"
+    >
+      0
+    </span>
+
   </div>
 
-  <div
+    <div
     id="menuShipments"
     class="menu-item hidden"
     data-section="shipments"
     onclick="showSection('shipments',this)"
-    data-i18n="shipments"
   >
-    待收货
+
+    <span data-i18n="shipments">
+      待收货
+    </span>
+
+    <span
+      id="staffShipmentCount"
+      class="menu-count hidden"
+    >
+      0
+    </span>
+
   </div>
   <div
     id="menuInventory"
@@ -4344,10 +4383,117 @@ async function countRows(
     );
 
 }
+async function updateStaffBadges(){
 
+  let orderCount = 0;
+  let shipmentCount = 0;
+
+
+  if(
+    hasPermission(
+      "orders.view"
+    )
+  ){
+
+    const {
+      data
+    } =
+      await db
+        .from("orders")
+        .select("order_status");
+
+
+    orderCount =
+      (
+        data
+        ||
+        []
+      )
+      .filter(
+        order =>
+          ![
+            "completed",
+            "cancelled"
+          ]
+          .includes(
+            order.order_status
+          )
+      )
+      .length;
+
+  }
+
+
+  if(
+    hasPermission(
+      "inventory.receive"
+    )
+  ){
+
+    const {
+      data
+    } =
+      await db
+        .from(
+          "region_shipments"
+        )
+        .select("status")
+        .eq(
+          "status",
+          "dispatched"
+        );
+
+
+    shipmentCount =
+      (
+        data
+        ||
+        []
+      )
+      .length;
+
+  }
+
+
+  [
+    [
+      "staffOrderCount",
+      orderCount
+    ],
+    [
+      "staffShipmentCount",
+      shipmentCount
+    ]
+  ]
+  .forEach(
+    ([id,count]) => {
+
+      const node =
+        el(id);
+
+
+      if(!node){
+        return;
+      }
+
+
+      node.textContent =
+        count;
+
+
+      node.classList
+        .toggle(
+          "hidden",
+          count <= 0
+        );
+
+    }
+  );
+
+}
 
 async function loadDashboard(){
-
+  await updateStaffBadges();
   let pending =
     "—";
 
