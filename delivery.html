@@ -905,21 +905,7 @@ textarea:focus{
       配送中
     </button>
 
-    <button
-      class="tab"
-      onclick="setTaskFilter('delivered',this)"
-      data-i18n="completed"
-    >
-      已完成
-    </button>
-
-    <button
-      class="tab"
-      onclick="setTaskFilter('failed',this)"
-      data-i18n="failed"
-    >
-      配送失败
-    </button>
+    
 
   </div>
 
@@ -953,7 +939,45 @@ textarea:focus{
     查看已经完成或失败的配送任务。
   </div>
 
+  <div class="tabs">
 
+    <button
+      class="tab active"
+      data-history-filter=""
+      onclick="setHistoryFilter('',this)"
+      data-i18n="allHistory"
+    >
+      全部
+    </button>
+
+    <button
+      class="tab"
+      data-history-filter="delivered"
+      onclick="setHistoryFilter('delivered',this)"
+      data-i18n="completed"
+    >
+      已完成
+    </button>
+
+    <button
+      class="tab"
+      data-history-filter="failed"
+      onclick="setHistoryFilter('failed',this)"
+      data-i18n="failed"
+    >
+      配送失败
+    </button>
+
+    <button
+      class="tab"
+      data-history-filter="cancelled"
+      onclick="setHistoryFilter('cancelled',this)"
+      data-i18n="cancelled"
+    >
+      已取消
+    </button>
+
+  </div>
   <div
     id="historyList"
     class="task-list"
