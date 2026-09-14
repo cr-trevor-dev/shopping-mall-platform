@@ -1240,7 +1240,8 @@ let currentSection =
 
 let currentTaskFilter =
   "active";
-
+let currentHistoryFilter =
+  "";
 let failureTaskId =
   null;
 
@@ -1273,6 +1274,8 @@ zh:{
   activeTasks:"进行中",
   failed:"配送失败",
   history:"历史记录",
+    allHistory:"全部",
+  cancelled:"已取消",
   historyDesc:"查看已经完成或失败的配送任务。",
   myRegions:"我的地区",
   regionDesc:"你只能处理分配给你的地区。",
@@ -1323,6 +1326,8 @@ en:{
   activeTasks:"Active",
   failed:"Failed",
   history:"History",
+    allHistory:"All",
+  cancelled:"Cancelled",
   historyDesc:"View completed or failed delivery tasks.",
   myRegions:"My Regions",
   regionDesc:"You can only handle assigned regions.",
@@ -1373,6 +1378,8 @@ my:{
   activeTasks:"လုပ်ဆောင်နေ",
   failed:"ပို့ဆောင်မအောင်မြင်",
   history:"မှတ်တမ်း",
+    allHistory:"အားလုံး",
+  cancelled:"ပယ်ဖျက်ပြီး",
   historyDesc:"ပြီးဆုံးပြီး သို့မဟုတ် မအောင်မြင်သော အလုပ်များကိုကြည့်ရန်။",
   myRegions:"ကျွန်ုပ်၏ဒေသ",
   regionDesc:"သင့်အား တာဝန်ပေးထားသော ဒေသများကိုသာ ဆောင်ရွက်နိုင်သည်။",
@@ -1423,6 +1430,8 @@ th:{
   activeTasks:"กำลังดำเนินการ",
   failed:"จัดส่งไม่สำเร็จ",
   history:"ประวัติ",
+    allHistory:"ทั้งหมด",
+  cancelled:"ยกเลิกแล้ว",
   historyDesc:"ดูงานที่เสร็จสิ้นหรือจัดส่งไม่สำเร็จ",
   myRegions:"พื้นที่ของฉัน",
   regionDesc:"คุณสามารถจัดส่งได้เฉพาะพื้นที่ที่ได้รับมอบหมาย",
@@ -2292,7 +2301,7 @@ function setTaskFilter(
     filter;
 
 
-  document
+  el("today")
     .querySelectorAll(
       ".tab"
     )
@@ -2308,6 +2317,35 @@ function setTaskFilter(
 
 
   renderTasks();
+
+}
+
+
+function setHistoryFilter(
+  filter,
+  button
+){
+
+  currentHistoryFilter =
+    filter;
+
+
+  el("history")
+    .querySelectorAll(
+      ".tab"
+    )
+    .forEach(
+      item =>
+        item.classList
+          .remove("active")
+    );
+
+
+  button.classList
+    .add("active");
+
+
+  renderHistory();
 
 }
 
@@ -2477,7 +2515,7 @@ function renderHistory(){
   }
 
 
-  const history =
+  let history =
     tasks
       .filter(
         task =>
@@ -2490,6 +2528,22 @@ function renderHistory(){
             task.status
           )
       );
+
+
+  if(
+    currentHistoryFilter
+  ){
+
+    history =
+      history
+        .filter(
+          task =>
+            task.status
+            ===
+            currentHistoryFilter
+        );
+
+  }
 
 
   if(
