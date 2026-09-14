@@ -8956,7 +8956,8 @@ function renderOrders(){
 ========================================================== */
 
 async function openOrder(
-  orderId
+  orderId,
+  options = {}
 ){
 
   if(!currentUser){
@@ -8968,21 +8969,32 @@ async function openOrder(
   }
 
 
+  const silent =
+    options.silent
+    ===
+    true;
+
+
   currentOrderId =
     orderId;
 
 
-  goView(
-    "orderDetail"
-  );
+  if(!silent){
 
-
-  el("orderDetailContent")
-    .innerHTML =
-    emptyState(
-      t("loading"),
-      "⏳"
+    goView(
+      "orderDetail"
     );
+
+
+    el("orderDetailContent")
+      .innerHTML =
+      emptyState(
+        t("loading"),
+        "⏳"
+      );
+
+  }
+
 
   await loadPaymentMethods();
   const results =
@@ -11038,8 +11050,11 @@ function setupCustomerRealtime(){
                 .contains("active")
             ){
 
-              await openOrder(
-                currentOrderId
+                            await openOrder(
+                currentOrderId,
+                {
+                  silent:true
+                }
               );
 
             }
@@ -11132,8 +11147,11 @@ function setupCustomerRealtime(){
             .contains("active")
         ){
 
-          await openOrder(
-            currentOrderId
+                    await openOrder(
+            currentOrderId,
+            {
+              silent:true
+            }
           );
 
         }
