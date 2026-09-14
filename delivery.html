@@ -1515,7 +1515,15 @@ function applyLanguage(){
       }
     );
 
+if(
+  el("failureReason")
+){
 
+  el("failureReason")
+    .placeholder =
+    t("failurePlaceholder");
+
+}
   el("appLanguage").value =
     appLanguage;
 
@@ -1624,12 +1632,18 @@ function formatDate(value){
   }
 
 
+  const localeMap = {
+    zh:"zh-CN",
+    en:"en-US",
+    my:"my-MM",
+    th:"th-TH"
+  };
+
+
   return new Date(value)
     .toLocaleString(
-      appLanguage === "zh"
-      ?
-      "zh-CN"
-      :
+      localeMap[appLanguage]
+      ||
       "en-US",
       {
         hour12:false
@@ -1666,7 +1680,98 @@ function money(
 
 }
 
+function statusText(status){
 
+  const value =
+    String(status || "—");
+
+
+  const labels = {
+
+    zh:{
+      assigned:"已指派",
+      picked_up:"已取货",
+      delivering:"配送中",
+      delivered:"已送达",
+      failed:"配送失败",
+      cancelled:"已取消",
+      pending:"待处理",
+      pending_confirmation:"待确认",
+      completed:"已完成",
+      paid:"已付款",
+      unpaid:"未付款",
+      active:"正常",
+      confirmed:"已确认",
+      fulfilled:"已出库",
+      not_assigned:"未指派"
+    },
+
+    en:{
+      assigned:"Assigned",
+      picked_up:"Picked Up",
+      delivering:"Delivering",
+      delivered:"Delivered",
+      failed:"Failed",
+      cancelled:"Cancelled",
+      pending:"Pending",
+      pending_confirmation:"Pending Confirmation",
+      completed:"Completed",
+      paid:"Paid",
+      unpaid:"Unpaid",
+      active:"Active",
+      confirmed:"Confirmed",
+      fulfilled:"Fulfilled",
+      not_assigned:"Not Assigned"
+    },
+
+    my:{
+      assigned:"တာဝန်ပေးပြီး",
+      picked_up:"ပစ္စည်းယူပြီး",
+      delivering:"ပို့ဆောင်နေ",
+      delivered:"ပို့ဆောင်ပြီး",
+      failed:"ပို့ဆောင်မအောင်မြင်",
+      cancelled:"ပယ်ဖျက်ပြီး",
+      pending:"စောင့်ဆိုင်းနေ",
+      pending_confirmation:"အတည်ပြုရန်စောင့်ဆိုင်း",
+      completed:"ပြီးဆုံး",
+      paid:"ငွေပေးချေပြီး",
+      unpaid:"ငွေမပေးရသေး",
+      active:"အသုံးပြုနေ",
+      confirmed:"အတည်ပြုပြီး",
+      fulfilled:"ပစ္စည်းထုတ်ပြီး",
+      not_assigned:"တာဝန်မပေးရသေး"
+    },
+
+    th:{
+      assigned:"มอบหมายแล้ว",
+      picked_up:"รับสินค้าแล้ว",
+      delivering:"กำลังจัดส่ง",
+      delivered:"จัดส่งแล้ว",
+      failed:"จัดส่งไม่สำเร็จ",
+      cancelled:"ยกเลิกแล้ว",
+      pending:"รอดำเนินการ",
+      pending_confirmation:"รอยืนยัน",
+      completed:"เสร็จสิ้น",
+      paid:"ชำระแล้ว",
+      unpaid:"ยังไม่ชำระ",
+      active:"ใช้งาน",
+      confirmed:"ยืนยันแล้ว",
+      fulfilled:"จัดสินค้าออกแล้ว",
+      not_assigned:"ยังไม่มอบหมาย"
+    }
+
+  };
+
+
+  return (
+    labels[appLanguage]?.[value]
+    ||
+    labels.zh[value]
+    ||
+    value
+  );
+
+}
 function statusBadge(status){
 
   const value =
@@ -1727,7 +1832,9 @@ function statusBadge(status){
   return (
     `<span class="${cls}">`
     +
-    escapeHtml(value)
+    escapeHtml(
+  statusText(value)
+)
     +
     `</span>`
   );
@@ -1780,9 +1887,8 @@ async function login(){
   ){
 
     el("loginMessage")
-      .textContent =
-      "Email / Password required.";
-
+  .textContent =
+  t("loginRequiredFields");
     return;
 
   }
@@ -1811,13 +1917,17 @@ async function login(){
 
   if(error){
 
-    el("loginMessage")
-      .textContent =
-      error.message;
+  console.error(
+    "[delivery login]",
+    error
+  );
 
-    return;
+  el("loginMessage")
+    .textContent =
+    t("loginFailed");
 
-  }
+  return;
+}
 
 
   currentUser =
@@ -1880,9 +1990,8 @@ async function initializeDelivery(){
       .signOut();
 
     el("loginMessage")
-      .textContent =
-      "This account is not an authorized delivery account.";
-
+  .textContent =
+  t("unauthorizedAccount");
     return;
 
   }
@@ -1898,9 +2007,8 @@ async function initializeDelivery(){
       .signOut();
 
     el("loginMessage")
-      .textContent =
-      "Delivery account is not active.";
-
+  .textContent =
+  t("inactiveAccount");
     return;
 
   }
@@ -2067,11 +2175,14 @@ async function loadTasks(){
 
     tasks = [];
 
-    alert(
-      "Task load error:\n"
-      +
-      error.message
-    );
+    console.error(
+  "[delivery tasks]",
+  error
+);
+
+alert(
+  t("taskLoadError")
+);
 
     return;
 
@@ -2689,16 +2800,23 @@ function taskCard(
           class="btn btn-green btn-large"
           onclick="completeDelivery('${task.id}')"
         >
-          ${
-            isCod
-            ?
-            `💵 确认已收 ${money(
-              order.total_amount,
-              order.currency_code
-            )} 并完成配送`
-            :
-            `✅ ${escapeHtml(t("completeDelivery"))}`
-          }
+         ${
+  isCod
+  ?
+  `💵 ${escapeHtml(
+    t("codButton")
+      .replace(
+        "{amount}",
+        money(
+          order.total_amount,
+          order.currency_code
+        )
+      )
+  )}`
+  :
+  `✅ ${escapeHtml(t("completeDelivery"))}`
+}
+          
         </button>
 
         <button
@@ -2881,7 +2999,7 @@ function taskCard(
 
           <div class="info-label">
 
-            Status
+            ${escapeHtml(t("status"))}
 
           </div>
 
@@ -3025,13 +3143,16 @@ async function callDeliveryRpc(
 
   if(error){
 
-    alert(
-      "操作失败：\n"
-      +
-      error.message
-    );
+  console.error(
+    "[delivery rpc]",
+    error
+  );
 
-    return null;
+  alert(
+    t("operationFailed")
+  );
+
+  return null;
 
   }
 
@@ -3156,26 +3277,22 @@ async function completeDelivery(
 
 
   const message =
-    isCod
-    ?
-    (
-      "本单为货到付款。\n\n"
-      +
-      "应收金额："
-      +
+  isCod
+  ?
+  t("codConfirmMessage")
+    .replace(
+      "{amount}",
       money(
         order.total_amount,
         order.currency_code
       )
-      +
-      "\n\n请确认已经收到客户付款，并且商品已经送达。"
     )
-    :
-    (
-      t("completeDelivery")
-      +
-      "?"
-    );
+  :
+  (
+    t("completeDelivery")
+    +
+    "?"
+  );
 
 
   if(
@@ -3204,10 +3321,10 @@ async function completeDelivery(
     },
 
     isCod
-    ?
-    "已确认收款并完成配送。"
-    :
-    t("completeDelivery")
+?
+t("codCompleted")
+:
+t("completeDelivery")
 
   );
 
@@ -3272,10 +3389,8 @@ async function confirmFailure(){
   ){
 
     alert(
-      t("failureReason")
-      +
-      " required."
-    );
+  t("failureReasonRequired")
+);
 
     return;
 
