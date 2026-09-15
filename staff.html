@@ -6435,7 +6435,7 @@ async function confirmShipmentReceipt(
     ){
 
       alert(
-        "实际收到数量必须是0或正整数。"
+        rt("actualReceivedInvalid")
       );
 
       return;
@@ -6510,7 +6510,9 @@ async function confirmShipmentReceipt(
 
 
     alert(
-      "确认收货失败：\n"
+      rt("shipmentReceiveFailed")
++
+"\n"
       +
       error.message
     );
@@ -6521,7 +6523,7 @@ async function confirmShipmentReceipt(
 
 
   alert(
-    "收货已经确认并锁定，库存已更新。"
+    rt("shipmentReceivedLocked")
   );
 
 
@@ -6697,7 +6699,7 @@ async function loadInventoryList(){
                       ${reserved}
                     )"
                   >
-                    保存上架
+                    ${escapeHtml(rt("saveListingButton"))}
                   </button>
 
                 </div>
@@ -6716,13 +6718,13 @@ async function loadInventoryList(){
     .innerHTML =
     makeTable(
       [
-        "地区",
-        "商品",
-        "实际库存",
-        "已上架",
-        "未上架",
-        "客户可购买",
-        "调整上架"
+        rt("inventoryRegion"),
+rt("inventoryProduct"),
+rt("physicalStock"),
+rt("listed"),
+rt("notListed"),
+rt("customerCanBuy"),
+rt("adjustListing")
       ],
       rows
     );
@@ -6929,7 +6931,7 @@ async function setRegionListing(
   ){
 
     alert(
-      "上架数量必须是0或正整数。"
+      rt("listingInvalid")
     );
 
     return;
@@ -6942,7 +6944,7 @@ async function setRegionListing(
   ){
 
     alert(
-      "上架数量不能超过实际库存。"
+      rt("listingOverStock")
     );
 
     return;
@@ -6955,7 +6957,7 @@ async function setRegionListing(
   ){
 
     alert(
-      "已经被客户订单预留的数量不能下架。"
+      rt("reservedCannotUnlist")
     );
 
     return;
@@ -6986,7 +6988,9 @@ async function setRegionListing(
   if(error){
 
     alert(
-      "保存失败：\n"
+     rt("saveFailed")
++
+"\n"
       +
       error.message
     );
@@ -6997,7 +7001,7 @@ async function setRegionListing(
 
 
   alert(
-    "上架数量已保存。"
+    rt("listingSaved")
   );
 
 
@@ -7061,7 +7065,7 @@ async function loadBatchList(){
           {};
 
         let expiryStatus =
-          "未填写";
+          rt("notFilled");
 
         if(batch.expiry_date){
 
@@ -7096,21 +7100,23 @@ async function loadBatchList(){
           if(daysLeft < 0){
 
             expiryStatus =
-              "已过期";
+              rt("expiredText");
 
           }else if(daysLeft <= 30){
 
             expiryStatus =
-              "临期 · "
-              +
-              daysLeft
-              +
-              "天";
+              rt("expiringText")
++
+" · "
++
+daysLeft
++
+rt("daysText");
 
           }else{
 
             expiryStatus =
-              "正常";
+              rt("normalText");
 
           }
 
@@ -7170,12 +7176,12 @@ el("batchTable")
   makeTable(
 
     [
-      "地区",
-      "商品",
-      "剩余数量",
-      "过期日期",
-      "保质期状态"
-    ],
+  rt("inventoryRegion"),
+  rt("inventoryProduct"),
+  rt("remaining"),
+  rt("expiry"),
+  rt("expiryStatus")
+],
 
     rows
 
