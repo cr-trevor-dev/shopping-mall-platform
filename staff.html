@@ -7931,17 +7931,21 @@ async function submitInventoryCount(){
 
   if(
     !confirm(
-      "本次有 "
-      +
-      changes.length
-      +
-      " 个商品存在库存差异：\n\n"
-      +
-      preview
-      +
-      more
-      +
-      "\n\n确认提交吗？"
+rt("countConfirmPrefix")
++
+changes.length
++
+rt("countConfirmSuffix")
++
+"\n\n"
++
+preview
++
+more
++
+"\n\n"
++
+rt("confirmSubmit")
     )
   ){
 
@@ -7994,7 +7998,9 @@ async function submitInventoryCount(){
   if(approvalError){
 
     alert(
-      "无法读取审批状态：\n"
+      rt("approvalStatusFailed")
+      +
+      "\n"
       +
       approvalError.message
     );
@@ -8109,7 +8115,9 @@ async function submitInventoryCount(){
         alert(
           item.productName
           +
-          " 更新库存失败：\n"
+          rt("updateInventoryFailed")
+          +
+          "\n"
           +
           error.message
         );
@@ -8221,7 +8229,9 @@ async function submitInventoryCount(){
       alert(
         item.productName
         +
-        " 提交盘点失败：\n"
+        rt("submitCountFailed")
+        +
+        "\n"
         +
         error.message
       );
@@ -8247,17 +8257,23 @@ async function submitInventoryCount(){
 
 
   alert(
-    "库存盘点处理完成。\n\n"
+        rt("countProcessComplete")
     +
-    "新提交审批："
+    "\n\n"
+    +
+    rt("newlySubmitted")
     +
     submittedCount
     +
-    "\n等待审批："
+    "\n"
+    +
+    rt("waitingApproval")
     +
     waitingCount
     +
-    "\n已批准并更新库存："
+    "\n"
+    +
+    rt("approvedUpdated")
     +
     executedCount
   );
