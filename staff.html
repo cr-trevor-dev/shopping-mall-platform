@@ -2492,7 +2492,7 @@ const runtimeStatusKeys = {
   unfulfilled:"statusUnfulfilled",
   not_assigned:"statusNotAssigned",
   refunded:"statusRefunded",
-  refunded:"statusRefunded",
+  
   returned:"statusReturned"
 };
 
@@ -5988,15 +5988,15 @@ async function loadOrders(){
     .innerHTML =
     makeTable(
 
-      [
-        "Order",
-        "Region",
-        "Customer",
-        "Address",
-        "Status",
-        "Payment",
-        "Total",
-        "Action"
+            [
+        rt("order"),
+        rt("region"),
+        rt("customer"),
+        rt("address"),
+        rt("status"),
+        rt("payment"),
+        rt("total"),
+        rt("action")
       ],
 
       rows
@@ -6012,7 +6012,7 @@ async function confirmOrder(
 
   if(
     !confirm(
-      "Confirm this order?"
+      rt("confirmOrder")
     )
   ){
     return;
@@ -6031,7 +6031,7 @@ async function confirmOrder(
         "Staff confirmed order"
     },
 
-    "Confirmed"
+    rt("statusConfirmed")
 
   );
 
@@ -6054,7 +6054,7 @@ async function startPicking(
         "Staff started picking"
     },
 
-    "Picking started"
+    rt("pickingStarted")
 
   );
 
@@ -6077,7 +6077,7 @@ async function markPacked(
         "Staff marked order packed"
     },
 
-    "Packed"
+    rt("statusPacked")
 
   );
 
@@ -6090,7 +6090,7 @@ async function finalizeOrder(
 
   if(
     !confirm(
-      "This will deduct physical stock. Continue?"
+      rt("deductStockConfirm")
     )
   ){
     return;
@@ -6109,7 +6109,7 @@ async function finalizeOrder(
         "Staff fulfilled order"
     },
 
-    "Fulfilled"
+    rt("statusFulfilled")
 
   );
 
@@ -6137,7 +6137,9 @@ async function assignDelivery(
   if(error){
 
     alert(
-      "Cannot load delivery drivers:\n"
+      rt("cannotLoadDrivers")
+      +
+      "\n"
       +
       error.message
     );
@@ -6154,7 +6156,7 @@ async function assignDelivery(
   ){
 
     alert(
-      "No active delivery driver is assigned to this region."
+      rt("noActiveDriver")
     );
 
     return;
@@ -6188,7 +6190,9 @@ async function assignDelivery(
 
   const selected =
     prompt(
-      "Choose delivery driver:\n\n"
+      rt("chooseDeliveryDriver")
+      +
+      "\n\n"
       +
       list
     );
@@ -6214,7 +6218,7 @@ async function assignDelivery(
   ){
 
     alert(
-      "Invalid delivery driver selection."
+      rt("invalidDriver")
     );
 
     return;
@@ -6228,7 +6232,7 @@ async function assignDelivery(
 
   if(
     !confirm(
-      "Assign this order to "
+      rt("assignOrderTo")
       +
       driver.display_name
       +
@@ -6254,7 +6258,7 @@ async function assignDelivery(
         "Staff assigned delivery"
     },
 
-    "Delivery assigned."
+    rt("deliveryAssigned")
 
   );
 
@@ -6386,7 +6390,7 @@ function shipmentBadge(status){
 
     return `
       <span class="badge badge-red">
-        已取消
+                ${escapeHtml(rt("statusCancelled"))}
       </span>
     `;
 
