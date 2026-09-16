@@ -9705,9 +9705,10 @@ function renderOrderDetail(
 
                          ${
                           escapeHtml(
-                            statusText(
-                              item.new_status
-                            )
+                           statusTextForGroup(
+  item.status_group,
+  item.new_status
+)
                           )
                         }
 
@@ -9715,29 +9716,7 @@ function renderOrderDetail(
 
                       <div class="timeline-note">
 
-                        ${
-                          item.note
-                          ?
-                          escapeHtml(
-                            item.note
-                          )
-                          +
-                          "<br>"
-                          :
-                          ""
-                        }
-
-                        ${
-                          item.reason
-                          ?
-                          escapeHtml(
-                            item.reason
-                          )
-                          +
-                          "<br>"
-                          :
-                          ""
-                        }
+                       
 
                         ${
                           formatDate(
@@ -9769,56 +9748,7 @@ function renderOrderDetail(
 }
 
 
-async function cancelCustomerOrder(
-  orderId
-){
 
-  const reason =
-    prompt(
-      t("cancelReason")
-    );
-
-
-  if(!reason){
-    return;
-  }
-
-
-  const {
-    error
-  } =
-    await db.rpc(
-      "cancel_order",
-      {
-
-        p_order_id:
-          orderId,
-
-        p_reason:
-          reason
-
-      }
-    );
-
-
-  if(error){
-
-    showMessage(
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  await loadOrders();
-
-  await openOrder(
-    orderId
-  );
-
-}
 
 
 async function uploadPaymentProof(
@@ -10122,21 +10052,11 @@ function renderAccount(){
 
             </div>
 
-            <div class="account-phone">
+                        <div class="account-phone">
 
               ${
                 escapeHtml(
                   customerProfile.phone
-                )
-              }
-
-              ·
-
-              ${
-                escapeHtml(
-                  currentUser.email
-                  ||
-                  ""
                 )
               }
 
