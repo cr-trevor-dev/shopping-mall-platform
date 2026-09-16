@@ -2367,7 +2367,97 @@ approvedUpdated:"อนุมัติและอัปเดตสต็อก
 
 };
 
+const orderFlowI18n = {
 
+  zh:{
+    cancelOrderButton:"取消订单",
+    redeliverButton:"重新配送",
+    confirmReturnButton:"确认退回库存",
+    returnPending:"待退回库存",
+    returnReturned:"已退回库存",
+    statusReturned:"已退回",
+    cancelReason:"请输入取消原因：",
+    cancelOrderConfirm:"确定取消这个订单吗？取消后客户会立即看到订单已取消。",
+    cancelFulfilledConfirm:"这个订单已经出库。取消后配送任务会停止，商品会进入“待退回库存”，只有实物回仓后才能确认回库。确定继续吗？",
+    orderCancelled:"订单已取消。",
+    confirmReturnPrompt:"只有商品已经实际回到仓库后才能确认。确定商品已经退回仓库并恢复库存吗？",
+    returnConfirmed:"商品已确认退回，库存已经恢复。",
+    paidOrderRequiresRefund:"这个订单已经完成线上付款。请先处理退款，再取消订单。",
+    orderCannotCancel:"这个订单已经完成配送或已经结束，不能使用普通取消。",
+    returnNotPending:"这个订单目前没有待退回库存。",
+    returnNotRequired:"这个订单没有完成出库，不需要执行退回库存。",
+    returnStockRecordMissing:"找不到这个订单原来的出库库存记录，请不要手动增加库存。",
+    operationForbidden:"你没有执行这个操作的权限。",
+    loginFailed:"邮箱或密码不正确。"
+  },
+
+  en:{
+    cancelOrderButton:"Cancel Order",
+    redeliverButton:"Redeliver",
+    confirmReturnButton:"Confirm Stock Return",
+    returnPending:"Awaiting Stock Return",
+    returnReturned:"Stock Returned",
+    statusReturned:"Returned",
+    cancelReason:"Enter cancellation reason:",
+    cancelOrderConfirm:"Cancel this order? The customer will immediately see that the order has been cancelled.",
+    cancelFulfilledConfirm:"This order has already been fulfilled. Cancelling it will stop the delivery task and mark the goods as awaiting physical return. Stock will only be restored after the goods are back at the warehouse. Continue?",
+    orderCancelled:"Order cancelled.",
+    confirmReturnPrompt:"Only confirm after the goods have physically returned to the warehouse. Restore the goods to stock now?",
+    returnConfirmed:"The returned goods have been confirmed and stock has been restored.",
+    paidOrderRequiresRefund:"This order has already been paid online. Process the refund before cancelling the order.",
+    orderCannotCancel:"This order has already been delivered or completed and cannot use normal cancellation.",
+    returnNotPending:"This order has no stock awaiting return.",
+    returnNotRequired:"This order was not fulfilled and does not require a stock return.",
+    returnStockRecordMissing:"The original fulfillment stock record cannot be found. Do not increase stock manually.",
+    operationForbidden:"You do not have permission to perform this operation.",
+    loginFailed:"Incorrect email or password."
+  },
+
+  my:{
+    cancelOrderButton:"အော်ဒါပယ်ဖျက်",
+    redeliverButton:"ပြန်လည်ပို့ဆောင်",
+    confirmReturnButton:"ကုန်ပြန်ဝင်အတည်ပြု",
+    returnPending:"ကုန်ပြန်ဝင်ရန်စောင့်နေ",
+    returnReturned:"ကုန်ပြန်ဝင်ပြီး",
+    statusReturned:"ပြန်ဝင်ပြီး",
+    cancelReason:"ပယ်ဖျက်ရသည့်အကြောင်းပြချက်ကို ဖြည့်ပါ:",
+    cancelOrderConfirm:"ဤအော်ဒါကို ပယ်ဖျက်မလား? ပယ်ဖျက်ပြီးသည်နှင့် ဖောက်သည်ဘက်တွင် ချက်ချင်းပြသမည်။",
+    cancelFulfilledConfirm:"ဤအော်ဒါသည် ကုန်ထုတ်ပြီးဖြစ်သည်။ ပယ်ဖျက်ပါက ပို့ဆောင်ရေးတာဝန်ကို ရပ်ပြီး ကုန်ပစ္စည်းကို ပြန်ဝင်ရန်စောင့်နေအဖြစ် သတ်မှတ်မည်။ ကုန်ပစ္စည်း အမှန်တကယ်ဂိုဒေါင်သို့ ပြန်ရောက်မှသာ လက်ကျန်ပြန်တိုးမည်။ ဆက်လုပ်မလား?",
+    orderCancelled:"အော်ဒါပယ်ဖျက်ပြီးပါပြီ။",
+    confirmReturnPrompt:"ကုန်ပစ္စည်း အမှန်တကယ်ဂိုဒေါင်သို့ ပြန်ရောက်ပြီးမှသာ အတည်ပြုပါ။ ယခု လက်ကျန်ထဲသို့ ပြန်ထည့်မလား?",
+    returnConfirmed:"ကုန်ပြန်ဝင်မှု အတည်ပြုပြီး လက်ကျန်ပြန်တိုးပြီးပါပြီ။",
+    paidOrderRequiresRefund:"ဤအော်ဒါသည် အွန်လိုင်းငွေပေးချေပြီးဖြစ်သည်။ အရင်ဆုံး ငွေပြန်အမ်းပြီးမှ အော်ဒါပယ်ဖျက်ပါ။",
+    orderCannotCancel:"ဤအော်ဒါသည် ပို့ဆောင်ပြီး သို့မဟုတ် ပြီးဆုံးပြီးဖြစ်သောကြောင့် ပုံမှန်ပယ်ဖျက်၍မရပါ။",
+    returnNotPending:"ဤအော်ဒါတွင် ပြန်ဝင်ရန်စောင့်နေသော ကုန်မရှိပါ။",
+    returnNotRequired:"ဤအော်ဒါသည် ကုန်မထုတ်ရသေးသောကြောင့် ကုန်ပြန်ဝင်ရန်မလိုပါ။",
+    returnStockRecordMissing:"မူလကုန်ထုတ်မှတ်တမ်းကို ရှာမတွေ့ပါ။ လက်ကျန်ကို ကိုယ်တိုင်မတိုးပါနှင့်။",
+    operationForbidden:"ဤလုပ်ဆောင်ချက်ကို လုပ်ဆောင်ရန် ခွင့်ပြုချက်မရှိပါ။",
+    loginFailed:"အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ပါ။"
+  },
+
+  th:{
+    cancelOrderButton:"ยกเลิกคำสั่งซื้อ",
+    redeliverButton:"จัดส่งใหม่",
+    confirmReturnButton:"ยืนยันคืนสินค้าเข้าสต็อก",
+    returnPending:"รอคืนสินค้าเข้าสต็อก",
+    returnReturned:"คืนสินค้าเข้าสต็อกแล้ว",
+    statusReturned:"คืนแล้ว",
+    cancelReason:"กรอกเหตุผลในการยกเลิก:",
+    cancelOrderConfirm:"ยืนยันยกเลิกคำสั่งซื้อนี้หรือไม่? ลูกค้าจะเห็นสถานะยกเลิกทันที",
+    cancelFulfilledConfirm:"คำสั่งซื้อนี้ตัดสินค้าออกจากสต็อกแล้ว การยกเลิกจะหยุดงานจัดส่งและกำหนดสินค้าเป็นรอคืนเข้าสต็อก สต็อกจะคืนเมื่อสินค้ากลับถึงคลังจริงเท่านั้น ดำเนินการต่อหรือไม่?",
+    orderCancelled:"ยกเลิกคำสั่งซื้อแล้ว",
+    confirmReturnPrompt:"ยืนยันเฉพาะเมื่อสินค้ากลับถึงคลังจริงแล้ว ต้องการคืนสินค้าเข้าสต็อกตอนนี้หรือไม่?",
+    returnConfirmed:"ยืนยันสินค้าคืนแล้วและสต็อกได้รับการคืนเรียบร้อย",
+    paidOrderRequiresRefund:"คำสั่งซื้อนี้ชำระเงินออนไลน์แล้ว กรุณาดำเนินการคืนเงินก่อนยกเลิกคำสั่งซื้อ",
+    orderCannotCancel:"คำสั่งซื้อนี้จัดส่งหรือเสร็จสิ้นแล้ว ไม่สามารถใช้การยกเลิกแบบปกติได้",
+    returnNotPending:"คำสั่งซื้อนี้ไม่มีสินค้าที่รอคืนเข้าสต็อก",
+    returnNotRequired:"คำสั่งซื้อนี้ยังไม่ได้ตัดสินค้าออกจากสต็อก จึงไม่ต้องคืนสินค้า",
+    returnStockRecordMissing:"ไม่พบประวัติการตัดสต็อกเดิมของคำสั่งซื้อนี้ กรุณาอย่าเพิ่มสต็อกด้วยตนเอง",
+    operationForbidden:"คุณไม่มีสิทธิ์ดำเนินการนี้",
+    loginFailed:"อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+  }
+
+};
 const runtimeStatusKeys = {
 
   active:"statusActive",
@@ -2401,17 +2491,24 @@ const runtimeStatusKeys = {
   partially_refunded:"statusPartiallyRefunded",
   unfulfilled:"statusUnfulfilled",
   not_assigned:"statusNotAssigned",
-  refunded:"statusRefunded"
-
+  refunded:"statusRefunded",
+  refunded:"statusRefunded",
+  returned:"statusReturned"
 };
 
 
 function rt(key){
 
   return (
+    orderFlowI18n[
+      appLanguage
+    ]?.[key]
+    ||
     runtimeI18n[
       appLanguage
     ]?.[key]
+    ||
+    orderFlowI18n.en[key]
     ||
     runtimeI18n.en[key]
     ||
@@ -3316,7 +3413,55 @@ function statusBadge(status){
 
 }
 
+function returnStatusBadge(
+  status
+){
 
+  if(
+    !status
+    ||
+    status === "none"
+  ){
+    return "";
+  }
+
+
+  const key =
+    status === "pending"
+    ?
+    "returnPending"
+    :
+    status === "returned"
+    ?
+    "returnReturned"
+    :
+    null;
+
+
+  if(!key){
+    return "";
+  }
+
+
+  const className =
+    status === "returned"
+    ?
+    "badge badge-green"
+    :
+    "badge badge-amber";
+
+
+  return (
+    `<span class="${className}">`
+    +
+    escapeHtml(
+      rt(key)
+    )
+    +
+    `</span>`
+  );
+
+}
 function makeTable(
   headers,
   rows
@@ -3577,7 +3722,7 @@ async function login(){
 
     el("loginMessage")
       .textContent =
-      "Email / Password required.";
+      rt("emailPasswordRequired");
 
     return;
 
@@ -3609,7 +3754,7 @@ async function login(){
 
     el("loginMessage")
       .textContent =
-      error.message;
+      rt("loginFailed");
 
     return;
 
@@ -3677,7 +3822,7 @@ async function initializeStaff(){
 
     el("loginMessage")
       .textContent =
-      "This account is not an authorized staff account.";
+      rt("unauthorizedStaff");
 
     return;
 
@@ -3695,7 +3840,7 @@ async function initializeStaff(){
 
     el("loginMessage")
       .textContent =
-      "Staff account is not active.";
+     rt("staffInactive");
 
     return;
 
@@ -4802,6 +4947,95 @@ async function setupStaffRealtime(){
    RPC
 ========================================== */
 
+function rpcErrorMessage(
+  error
+){
+
+  const value =
+    String(
+      error?.message
+      ||
+      ""
+    );
+
+
+  if(
+    value.includes(
+      "PAID_ORDER_REQUIRES_REFUND"
+    )
+  ){
+    return rt(
+      "paidOrderRequiresRefund"
+    );
+  }
+
+
+  if(
+    value.includes(
+      "ORDER_CANNOT_BE_CANCELLED"
+    )
+  ){
+    return rt(
+      "orderCannotCancel"
+    );
+  }
+
+
+  if(
+    value.includes(
+      "ORDER_RETURN_NOT_PENDING"
+    )
+  ){
+    return rt(
+      "returnNotPending"
+    );
+  }
+
+
+  if(
+    value.includes(
+      "ORDER_WAS_NOT_FULFILLED"
+    )
+  ){
+    return rt(
+      "returnNotRequired"
+    );
+  }
+
+
+  if(
+    value.includes(
+      "ORDER_SALE_MOVEMENTS_NOT_FOUND"
+    )
+  ){
+    return rt(
+      "returnStockRecordMissing"
+    );
+  }
+
+
+  if(
+    value.includes(
+      "FORBIDDEN"
+    )
+  ){
+    return rt(
+      "operationForbidden"
+    );
+  }
+
+
+  return (
+    rt("operationFailed")
+    +
+    "\n"
+    +
+    value
+  );
+
+}
+
+
 async function callRpc(
   name,
   params,
@@ -4821,9 +5055,9 @@ async function callRpc(
   if(error){
 
     alert(
-      "Operation failed:\n"
-      +
-      error.message
+      rpcErrorMessage(
+        error
+      )
     );
 
     return null;
@@ -4841,6 +5075,8 @@ async function callRpc(
 
 
   await refreshCurrent();
+
+  await updateStaffBadges();
 
   return data;
 
@@ -4973,7 +5209,7 @@ async function updateStaffBadges(){
           await db
             .from("orders")
             .select(
-              "id,order_status"
+             "id,order_status,return_status"
             );
 
 
@@ -4989,16 +5225,22 @@ async function updateStaffBadges(){
 
           count =
             (data || [])
-              .filter(
+                           .filter(
                 order =>
-                  [
-                    "pending_confirmation",
-                    "confirmed",
-                    "after_sales"
-                  ]
-                  .includes(
-                    order.order_status
+                  (
+                    [
+                      "pending_confirmation",
+                      "confirmed",
+                      "after_sales"
+                    ]
+                    .includes(
+                      order.order_status
+                    )
                   )
+                  ||
+                  order.return_status
+                  ===
+                  "pending"
               )
               .length;
 
@@ -5386,7 +5628,7 @@ async function loadOrders(){
       .map(
         order => {
 
-          let buttons = "";
+                    let buttons = "";
 
 
           if(
@@ -5405,7 +5647,7 @@ async function loadOrders(){
                 class="btn btn-green btn-small"
                 onclick="confirmOrder('${order.id}')"
               >
-                Confirm
+                ${escapeHtml(rt("confirmButton"))}
               </button>
 
             `;
@@ -5433,7 +5675,7 @@ async function loadOrders(){
                 class="btn btn-light btn-small"
                 onclick="startPicking('${order.id}')"
               >
-                Start Picking
+                ${escapeHtml(rt("startPickingButton"))}
               </button>
 
             `;
@@ -5457,7 +5699,7 @@ async function loadOrders(){
                 class="btn btn-green btn-small"
                 onclick="markPacked('${order.id}')"
               >
-                Packed
+                ${escapeHtml(rt("packedButton"))}
               </button>
 
             `;
@@ -5481,14 +5723,19 @@ async function loadOrders(){
                 class="btn btn-primary btn-small"
                 onclick="finalizeOrder('${order.id}')"
               >
-                Fulfill
+                ${escapeHtml(rt("fulfillButton"))}
               </button>
 
             `;
 
           }
 
+
           if(
+            order.order_status
+            !==
+            "cancelled"
+            &&
             order.fulfillment_status
             ===
             "fulfilled"
@@ -5505,18 +5752,30 @@ async function loadOrders(){
             )
           ){
 
+            const deliveryButtonText =
+              order.delivery_status
+              ===
+              "failed"
+              ?
+              rt("redeliverButton")
+              :
+              rt("assignDeliveryButton");
+
+
             buttons += `
 
               <button
                 class="btn btn-amber btn-small"
                 onclick="assignDelivery('${order.id}','${order.region_id}')"
               >
-                Assign Delivery
+                ${escapeHtml(deliveryButtonText)}
               </button>
 
             `;
 
           }
+
+
           if(
             hasPermission(
               "orders.cancel"
@@ -5528,15 +5787,51 @@ async function loadOrders(){
             ].includes(
               order.order_status
             )
+            &&
+            order.delivery_status
+            !==
+            "delivered"
           ){
 
             buttons += `
 
               <button
                 class="btn btn-red btn-small"
-                onclick="requestOrderCancellation('${order.id}','${order.region_id}')"
+                onclick="cancelOrder('${order.id}',${order.fulfillment_status === "fulfilled"})"
               >
-                Request Cancel
+                ${escapeHtml(rt("cancelOrderButton"))}
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            hasPermission(
+              "orders.cancel"
+            )
+            &&
+            order.order_status
+            ===
+            "cancelled"
+            &&
+            order.fulfillment_status
+            ===
+            "fulfilled"
+            &&
+            order.return_status
+            ===
+            "pending"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="confirmOrderReturn('${order.id}')"
+              >
+                ${escapeHtml(rt("confirmReturnButton"))}
               </button>
 
             `;
@@ -5643,7 +5938,11 @@ async function loadOrders(){
                     order.delivery_status
                   )
                 }
-
+                ${
+                  returnStatusBadge(
+                    order.return_status
+                  )
+                }
               </td>
 
               <td>
@@ -5960,173 +6259,86 @@ async function assignDelivery(
   );
 
 }
-async function requestOrderCancellation(
+async function cancelOrder(
   orderId,
-  regionId
+  fulfilled
 ){
-
-  const {
-    data:
-      approvalRows,
-    error:
-      approvalError
-  } =
-    await db
-      .from(
-        "approval_requests"
-      )
-      .select(
-        "id,status,reason,requested_at,reviewed_at"
-      )
-      .eq(
-        "action_type",
-        "order_cancel"
-      )
-      .eq(
-        "region_id",
-        regionId
-      )
-      .eq(
-        "target_id",
-        orderId
-      )
-      .eq(
-        "requested_by",
-        currentUser.id
-      )
-      .in(
-        "status",
-        [
-          "pending",
-          "approved"
-        ]
-      )
-      .order(
-        "requested_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(20);
-
-
-  if(approvalError){
-
-    alert(
-      "Cannot check approval status:\n"
-      +
-      approvalError.message
-    );
-
-    return;
-
-  }
-
-
-  const approved =
-    (approvalRows || [])
-      .find(
-        item =>
-          item.status
-          ===
-          "approved"
-      );
-
-
-  if(approved){
-
-    if(
-      !confirm(
-        "This cancellation request has been approved. Execute cancellation now?"
-      )
-    ){
-      return;
-    }
-
-
-    await callRpc(
-
-      "cancel_order",
-
-      {
-        p_order_id:
-          orderId,
-
-        p_reason:
-          approved.reason
-          ||
-          "Approved staff cancellation"
-      },
-
-      "Order cancelled."
-
-    );
-
-    return;
-
-  }
-
-
-  const pending =
-    (approvalRows || [])
-      .find(
-        item =>
-          item.status
-          ===
-          "pending"
-      );
-
-
-  if(pending){
-
-    alert(
-      "Cancellation request is still waiting for Super Admin approval."
-    );
-
-    return;
-
-  }
-
 
   const reason =
     prompt(
-      "Reason for cancellation:"
+      rt("cancelReason")
     );
 
 
-  if(!reason){
+  if(
+    !reason
+    ||
+    !reason.trim()
+  ){
+    return;
+  }
+
+
+  const message =
+    fulfilled
+    ?
+    rt("cancelFulfilledConfirm")
+    :
+    rt("cancelOrderConfirm");
+
+
+  if(
+    !confirm(message)
+  ){
     return;
   }
 
 
   await callRpc(
 
-    "request_dangerous_action",
+    "cancel_order",
 
     {
-      p_action_type:
-        "order_cancel",
-
-      p_region_id:
-        regionId,
-
-      p_target_type:
-        "order",
-
-      p_target_id:
+      p_order_id:
         orderId,
 
-      p_payload:{
-        order_id:
-          orderId
-      },
-
       p_reason:
-        reason
-
+        reason.trim()
     },
 
-    "Cancellation approval request submitted."
+    rt("orderCancelled")
+
+  );
+
+}
+
+
+async function confirmOrderReturn(
+  orderId
+){
+
+  if(
+    !confirm(
+      rt("confirmReturnPrompt")
+    )
+  ){
+    return;
+  }
+
+
+  await callRpc(
+
+    "confirm_order_return",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Physical return confirmed by regional staff"
+    },
+
+    rt("returnConfirmed")
 
   );
 
@@ -8008,7 +8220,7 @@ actual
   }
 
 
-  const preview =
+    const preview =
     changes
       .slice(
         0,
@@ -8018,7 +8230,7 @@ actual
         item =>
           item.productName
           +
-          "："
+          ": "
           +
           item.systemCount
           +
@@ -8026,7 +8238,7 @@ actual
           +
           item.actualCount
           +
-          "（"
+          " ("
           +
           (
             item.delta > 0
@@ -8038,7 +8250,7 @@ actual
           +
           item.delta
           +
-          "）"
+          ")"
       )
       .join("\n");
 
