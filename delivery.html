@@ -677,8 +677,8 @@ textarea:focus{
 
     <div class="form-group">
 
-      <label>
-        Language / 语言
+            <label data-i18n="language">
+        语言
       </label>
 
       <select
@@ -742,7 +742,10 @@ textarea:focus{
       SnacksHub
     </span>
 
-    · Delivery
+        ·
+    <span data-i18n="deliveryWorkspaceShort">
+      配送
+    </span>
 
   </div>
 
@@ -1152,10 +1155,44 @@ textarea:focus{
         失败原因
       </label>
 
-      <textarea
-        id="failureReason"
-        
-      ></textarea>
+            <select id="failureReason">
+
+        <option
+          value=""
+          data-i18n="chooseFailureReason"
+        >
+          请选择原因
+        </option>
+
+        <option
+          value="customer_unreachable"
+          data-i18n="failureCustomerUnreachable"
+        >
+          客户联系不上
+        </option>
+
+        <option
+          value="customer_refused"
+          data-i18n="failureCustomerRefused"
+        >
+          客户拒收
+        </option>
+
+        <option
+          value="address_issue"
+          data-i18n="failureAddressIssue"
+        >
+          地址问题
+        </option>
+
+        <option
+          value="other"
+          data-i18n="failureOther"
+        >
+          其他
+        </option>
+
+      </select>
 
     </div>
 
@@ -1318,7 +1355,16 @@ zh:{
   codConfirmMessage:"本单为货到付款。\n\n应收金额：{amount}\n\n请确认已经收到客户付款，并且商品已经送达。",
   codCompleted:"已确认收款并完成配送。",
   failureReasonRequired:"请输入配送失败原因。",
-  failurePlaceholder:"例如：客户联系不上 / 地址错误",
+    pageTitle:"SnacksHub · 配送员",
+  deliveryWorkspaceShort:"配送",
+  chooseFailureReason:"请选择原因",
+  failureCustomerUnreachable:"客户联系不上",
+  failureCustomerRefused:"客户拒收",
+  failureAddressIssue:"地址问题",
+  failureOther:"其他",
+  failureOtherNoteRequired:"选择“其他”时，请填写具体备注。",
+  failureSubmitted:"配送失败已记录。",
+  noRegions:"目前没有负责地区",
   regions:"负责地区"
 },
 
@@ -1381,7 +1427,16 @@ en:{
   codConfirmMessage:"This is a cash-on-delivery order.\n\nAmount to collect: {amount}\n\nConfirm that payment has been collected and the order has been delivered.",
   codCompleted:"Payment collected and delivery completed.",
   failureReasonRequired:"Failure reason is required.",
-  failurePlaceholder:"For example: customer unreachable / incorrect address",
+    pageTitle:"SnacksHub · Delivery",
+  deliveryWorkspaceShort:"Delivery",
+  chooseFailureReason:"Select a reason",
+  failureCustomerUnreachable:"Customer unreachable",
+  failureCustomerRefused:"Customer refused delivery",
+  failureAddressIssue:"Address issue",
+  failureOther:"Other",
+  failureOtherNoteRequired:"Please add details when Other is selected.",
+  failureSubmitted:"Delivery failure recorded.",
+  noRegions:"No assigned regions",
   regions:"Regions"
 },
 
@@ -1444,7 +1499,16 @@ my:{
   codConfirmMessage:"ဤအော်ဒါသည် ပစ္စည်းရောက်မှငွေချေစနစ်ဖြစ်သည်။\n\nလက်ခံရမည့်ငွေ: {amount}\n\nဖောက်သည်ထံမှ ငွေလက်ခံပြီး ပစ္စည်းပို့ဆောင်ပြီးကြောင်း အတည်ပြုပါ",
   codCompleted:"ငွေလက်ခံပြီး ပို့ဆောင်မှုအပြီးသတ်ပြီးပါပြီ",
   failureReasonRequired:"ပို့ဆောင်မှုမအောင်မြင်သည့်အကြောင်းရင်းကို ဖြည့်ပါ",
-  failurePlaceholder:"ဥပမာ - ဖောက်သည်ကိုဆက်သွယ်မရ / လိပ်စာမှား",
+    pageTitle:"SnacksHub · ပို့ဆောင်ရေး",
+  deliveryWorkspaceShort:"ပို့ဆောင်ရေး",
+  chooseFailureReason:"အကြောင်းရင်းရွေးပါ",
+  failureCustomerUnreachable:"ဖောက်သည်ကို ဆက်သွယ်မရ",
+  failureCustomerRefused:"ဖောက်သည်က ပစ္စည်းလက်မခံ",
+  failureAddressIssue:"လိပ်စာပြဿနာ",
+  failureOther:"အခြား",
+  failureOtherNoteRequired:"အခြားကိုရွေးပါက အသေးစိတ်မှတ်ချက် ဖြည့်ပါ",
+  failureSubmitted:"ပို့ဆောင်မှုမအောင်မြင်ကြောင်း မှတ်တမ်းတင်ပြီးပါပြီ",
+  noRegions:"တာဝန်ယူထားသော ဒေသမရှိသေးပါ",
   regions:"တာဝန်ယူဒေသ"
 },
 
@@ -1507,7 +1571,16 @@ th:{
   codConfirmMessage:"คำสั่งซื้อนี้เป็นเก็บเงินปลายทาง\n\nยอดที่ต้องรับ: {amount}\n\nโปรดยืนยันว่าได้รับเงินจากลูกค้าและส่งสินค้าเรียบร้อยแล้ว",
   codCompleted:"ยืนยันรับเงินและจัดส่งเรียบร้อยแล้ว",
   failureReasonRequired:"กรุณาระบุเหตุผลที่จัดส่งไม่สำเร็จ",
-  failurePlaceholder:"เช่น ติดต่อผู้รับไม่ได้ / ที่อยู่ไม่ถูกต้อง",
+    pageTitle:"SnacksHub · พนักงานจัดส่ง",
+  deliveryWorkspaceShort:"จัดส่ง",
+  chooseFailureReason:"เลือกเหตุผล",
+  failureCustomerUnreachable:"ติดต่อลูกค้าไม่ได้",
+  failureCustomerRefused:"ลูกค้าปฏิเสธรับสินค้า",
+  failureAddressIssue:"มีปัญหาเกี่ยวกับที่อยู่",
+  failureOther:"อื่น ๆ",
+  failureOtherNoteRequired:"กรุณาระบุรายละเอียดเมื่อเลือกอื่น ๆ",
+  failureSubmitted:"บันทึกการจัดส่งไม่สำเร็จแล้ว",
+  noRegions:"ยังไม่มีพื้นที่ที่รับผิดชอบ",
   regions:"พื้นที่รับผิดชอบ"
 }
 
@@ -1541,6 +1614,10 @@ function applyLanguage(){
     appLanguage;
 
 
+  document.title =
+    t("pageTitle");
+
+
   document
     .querySelectorAll(
       "[data-i18n]"
@@ -1559,15 +1636,7 @@ function applyLanguage(){
       }
     );
 
-if(
-  el("failureReason")
-){
 
-  el("failureReason")
-    .placeholder =
-    t("failurePlaceholder");
-
-}
   el("appLanguage").value =
     appLanguage;
 
@@ -1592,20 +1661,7 @@ function changeLoginLanguage(){
   );
 
 
-  el("loginTitle").textContent =
-    t("loginTitle");
-
-  el("loginDescription").textContent =
-    t("loginDescription");
-
-  el("emailLabel").textContent =
-    t("email");
-
-  el("passwordLabel").textContent =
-    t("password");
-
-  el("loginButton").textContent =
-    t("login");
+  applyLanguage();
 
 }
 
@@ -1624,12 +1680,7 @@ function changeAppLanguage(){
 
   rebuildMaps();
 
-applyLanguage();
-
-renderTasks();
-renderHistory();
-renderProfile();
-renderRegions();
+  applyLanguage();
 
 }
 
@@ -1821,7 +1872,39 @@ function statusText(status){
   );
 
 }
-function statusBadge(status){
+function failureReasonText(
+  reason
+){
+
+  const map = {
+
+    customer_unreachable:
+      "failureCustomerUnreachable",
+
+    customer_refused:
+      "failureCustomerRefused",
+
+    address_issue:
+      "failureAddressIssue",
+
+    other:
+      "failureOther"
+
+  };
+
+
+  return (
+    map[reason]
+    ?
+    t(
+      map[reason]
+    )
+    :
+    reason
+  );
+
+}
+  function statusBadge(status){
 
   const value =
     String(status || "—");
@@ -2787,7 +2870,7 @@ function taskCard(
   let actions = "";
 
 
-  if(
+    if(
     !historyMode
   ){
 
@@ -2804,6 +2887,13 @@ function taskCard(
           onclick="markPickedUp('${task.id}')"
         >
           📦 ${escapeHtml(t("pickup"))}
+        </button>
+
+        <button
+          class="btn btn-red btn-large"
+          onclick="openFailureModal('${task.id}')"
+        >
+          ⚠️ ${escapeHtml(t("failDelivery"))}
         </button>
 
       `;
@@ -2826,12 +2916,19 @@ function taskCard(
           🛵 ${escapeHtml(t("startDelivery"))}
         </button>
 
+        <button
+          class="btn btn-red btn-large"
+          onclick="openFailureModal('${task.id}')"
+        >
+          ⚠️ ${escapeHtml(t("failDelivery"))}
+        </button>
+
       `;
 
     }
 
 
-        if(
+    if(
       task.status
       ===
       "delivering"
@@ -2849,23 +2946,22 @@ function taskCard(
           class="btn btn-green btn-large"
           onclick="completeDelivery('${task.id}')"
         >
-         ${
-  isCod
-  ?
-  `💵 ${escapeHtml(
-    t("codButton")
-      .replace(
-        "{amount}",
-        money(
-          order.total_amount,
-          order.currency_code
-        )
-      )
-  )}`
-  :
-  `✅ ${escapeHtml(t("completeDelivery"))}`
-}
-          
+          ${
+            isCod
+            ?
+            `💵 ${escapeHtml(
+              t("codButton")
+                .replace(
+                  "{amount}",
+                  money(
+                    order.total_amount,
+                    order.currency_code
+                  )
+                )
+            )}`
+            :
+            `✅ ${escapeHtml(t("completeDelivery"))}`
+          }
         </button>
 
         <button
@@ -3081,8 +3177,12 @@ function taskCard(
         </div>
 
 
-        ${
+               ${
+          task.status === "failed"
+          &&
           task.delivery_note
+          &&
+          task.delivery_note !== "Delivery failed"
           ?
 
           `
@@ -3137,9 +3237,11 @@ function taskCard(
               "
             >
 
-              ${
+                           ${
                 escapeHtml(
-                  task.failure_reason
+                  failureReasonText(
+                    task.failure_reason
+                  )
                 )
               }
 
@@ -3422,8 +3524,7 @@ async function confirmFailure(){
 
   const reason =
     el("failureReason")
-      .value
-      .trim();
+      .value;
 
   const note =
     el("failureNote")
@@ -3438,8 +3539,23 @@ async function confirmFailure(){
   ){
 
     alert(
-  t("failureReasonRequired")
-);
+      t("failureReasonRequired")
+    );
+
+    return;
+
+  }
+
+
+  if(
+    reason === "other"
+    &&
+    !note
+  ){
+
+    alert(
+      t("failureOtherNoteRequired")
+    );
 
     return;
 
@@ -3470,7 +3586,7 @@ async function confirmFailure(){
         "Delivery failed"
     },
 
-    t("failDelivery")
+    t("failureSubmitted")
 
   );
 
@@ -3497,7 +3613,7 @@ function renderRegions(){
     el("regionContent")
       .innerHTML =
       emptyState(
-        t("noTasks"),
+        t("noRegions"),
         "📍"
       );
 
@@ -3595,7 +3711,13 @@ function renderProfile(){
             region.id
           ]
       )
-      .join("、")
+      .join(
+  appLanguage === "zh"
+  ?
+  "、"
+  :
+  " · "
+)
     ||
     "—";
 
