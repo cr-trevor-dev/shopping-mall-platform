@@ -3125,7 +3125,48 @@ function statusBadge(status){
 
 }
 
+function returnStatusBadge(
+  status
+){
 
+  if(
+    !status
+    ||
+    status === "none"
+  ){
+    return "";
+  }
+
+
+  if(
+    status === "pending"
+  ){
+
+    return (
+      `<span class="badge badge-amber">` +
+      `待商品回库` +
+      `</span>`
+    );
+
+  }
+
+
+  if(
+    status === "returned"
+  ){
+
+    return (
+      `<span class="badge badge-green">` +
+      `已回库` +
+      `</span>`
+    );
+
+  }
+
+
+  return statusBadge(status);
+
+}
 function makeTable(
   headers,
   rows
@@ -5967,12 +6008,190 @@ async function loadOrders(){
       );
 
 
-  const rows =
+    const rows =
     filteredData
       .map(
         order => {
 
-          
+          let buttons = "";
+
+
+          if(
+            order.order_status
+            ===
+            "pending_confirmation"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="confirmOrder('${order.id}')"
+              >
+                确认订单
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.order_status
+            ===
+            "confirmed"
+            &&
+            order.fulfillment_status
+            ===
+            "unfulfilled"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-light btn-small"
+                onclick="startPicking('${order.id}')"
+              >
+                开始拣货
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "picking"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="markPacked('${order.id}')"
+              >
+                完成打包
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.fulfillment_status
+            ===
+            "packed"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-primary btn-small"
+                onclick="finalizeFulfillment('${order.id}')"
+              >
+                正式出库
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.order_status
+            !==
+            "cancelled"
+            &&
+            order.fulfillment_status
+            ===
+            "fulfilled"
+            &&
+            [
+              "not_assigned",
+              "failed"
+            ].includes(
+              order.delivery_status
+            )
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-amber btn-small"
+                onclick="assignDelivery('${order.id}','${order.region_id}')"
+              >
+                ${
+                  order.delivery_status
+                  ===
+                  "failed"
+                  ?
+                  "重新配送"
+                  :
+                  "指派配送"
+                }
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            ![
+              "cancelled",
+              "completed"
+            ].includes(
+              order.order_status
+            )
+            &&
+            order.delivery_status
+            !==
+            "delivered"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="cancelOrder('${order.id}',${order.fulfillment_status === "fulfilled"})"
+              >
+                取消订单
+              </button>
+
+            `;
+
+          }
+
+
+          if(
+            order.order_status
+            ===
+            "cancelled"
+            &&
+            order.fulfillment_status
+            ===
+            "fulfilled"
+            &&
+            order.return_status
+            ===
+            "pending"
+          ){
+
+            buttons += `
+
+              <button
+                class="btn btn-green btn-small"
+                onclick="confirmOrderReturn('${order.id}')"
+              >
+                确认回库
+              </button>
+
+            `;
+
+          }
 
 
           return `
@@ -6075,6 +6294,12 @@ async function loadOrders(){
                   )
                 }
 
+                ${
+                  returnStatusBadge(
+                    order.return_status
+                  )
+                }
+
               </td>
 
               <td>
@@ -6108,7 +6333,15 @@ async function loadOrders(){
 
               </td>
 
-              
+              <td>
+
+                <div class="operation-buttons">
+
+                  ${buttons}
+
+                </div>
+
+              </td>
 
             </tr>
 
@@ -6131,7 +6364,7 @@ async function loadOrders(){
         "付款",
         "金额",
         "时间",
-        
+        "操作"
       ],
 
       rows
@@ -6270,7 +6503,8 @@ async function finalizeFulfillment(
 
 
 async function cancelOrder(
-  orderId
+  orderId,
+  fulfilled
 ){
 
   const reason =
@@ -6279,7 +6513,26 @@ async function cancelOrder(
     );
 
 
-  if(!reason){
+  if(
+    !reason
+    ||
+    !reason.trim()
+  ){
+    return;
+  }
+
+
+  const message =
+    fulfilled
+    ?
+    "这张订单已经出库。取消后不会立即恢复库存，必须等商品实际退回仓库后再确认回库。确定取消？"
+    :
+    "确定取消这张订单？";
+
+
+  if(
+    !confirm(message)
+  ){
     return;
   }
 
@@ -6293,7 +6546,7 @@ async function cancelOrder(
         orderId,
 
       p_reason:
-        reason
+        reason.trim()
     },
 
     "订单已取消"
@@ -6439,7 +6692,36 @@ async function assignDelivery(
 
 }
 
+async function confirmOrderReturn(
+  orderId
+){
 
+  if(
+    !confirm(
+      "只有商品已经实际退回仓库后才能确认。确认现在恢复库存？"
+    )
+  ){
+    return;
+  }
+
+
+  await rpc(
+
+    "confirm_order_return",
+
+    {
+      p_order_id:
+        orderId,
+
+      p_note:
+        "Super Admin 确认商品已实际退回仓库"
+    },
+
+    "商品已确认回库，库存已恢复"
+
+  );
+
+}
 async function refundOrder(
   orderId
 ){
