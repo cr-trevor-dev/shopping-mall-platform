@@ -2833,7 +2833,8 @@ zh:{
   invalidRegion:"选择的地区无效。",
   phoneAlreadyRegistered:"该手机号已经注册，请直接登录。",
   accountUnavailable:"该账号目前无法登录。",
-  deliveryFailed:"配送未成功",
+    deliveryFailed:"配送未成功",
+  paymentMethodUnavailable:"当前付款方式不可用，请重新选择。",
   hot:"热门"
 },
 
@@ -2861,7 +2862,8 @@ en:{
   invalidRegion:"The selected region is invalid.",
   phoneAlreadyRegistered:"This phone number is already registered. Please sign in.",
   accountUnavailable:"This account is currently unable to sign in.",
-  deliveryFailed:"Delivery Unsuccessful",
+    deliveryFailed:"Delivery Unsuccessful",
+  paymentMethodUnavailable:"This payment method is currently unavailable. Please choose another method.",
   hot:"HOT"
 },
 
@@ -2889,7 +2891,8 @@ my:{
   invalidRegion:"ရွေးချယ်ထားသော ဒေသ မမှန်ပါ။",
   phoneAlreadyRegistered:"ဤဖုန်းနံပါတ် စာရင်းသွင်းပြီးဖြစ်သည်။ ဝင်ရောက်ပါ။",
   accountUnavailable:"ဤအကောင့်ဖြင့် လောလောဆယ် ဝင်ရောက်၍မရပါ။",
-  deliveryFailed:"ပို့ဆောင်မှု မအောင်မြင်ပါ",
+    deliveryFailed:"ပို့ဆောင်မှု မအောင်မြင်ပါ",
+  paymentMethodUnavailable:"ဤငွေပေးချေမှုနည်းလမ်းကို လောလောဆယ် အသုံးမပြုနိုင်ပါ။ အခြားနည်းလမ်းကို ရွေးပါ။",
   hot:"လူကြိုက်များ"
 },
 
@@ -2917,7 +2920,8 @@ th:{
   invalidRegion:"พื้นที่ที่เลือกไม่ถูกต้อง",
   phoneAlreadyRegistered:"หมายเลขโทรศัพท์นี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบ",
   accountUnavailable:"บัญชีนี้ไม่สามารถเข้าสู่ระบบได้ในขณะนี้",
-  deliveryFailed:"จัดส่งไม่สำเร็จ",
+    deliveryFailed:"จัดส่งไม่สำเร็จ",
+  paymentMethodUnavailable:"วิธีการชำระเงินนี้ไม่สามารถใช้งานได้ กรุณาเลือกใหม่",
   hot:"ยอดนิยม"
 }
 
@@ -2934,7 +2938,8 @@ zh:{
 
   pending_confirmation:"待确认",
   confirmed:"已确认",
-  cancelled:"已取消",
+    cancelled:"已取消",
+  after_sales:"售后处理中",
   completed:"已完成",
 
   unpaid:"未付款",
@@ -2972,7 +2977,8 @@ en:{
 
   pending_confirmation:"Pending Confirmation",
   confirmed:"Confirmed",
-  cancelled:"Cancelled",
+    cancelled:"Cancelled",
+  after_sales:"After-sales in Progress",
   completed:"Completed",
 
   unpaid:"Unpaid",
@@ -3010,7 +3016,8 @@ my:{
 
   pending_confirmation:"အတည်ပြုရန်စောင့်",
   confirmed:"အတည်ပြုပြီး",
-  cancelled:"ပယ်ဖျက်ပြီး",
+    cancelled:"ပယ်ဖျက်ပြီး",
+  after_sales:"အရောင်းပြီးနောက် ဝန်ဆောင်မှု ဆောင်ရွက်နေ",
   completed:"ပြီးဆုံး",
 
   unpaid:"ငွေမချေရသေး",
@@ -3048,7 +3055,8 @@ th:{
 
   pending_confirmation:"รอยืนยัน",
   confirmed:"ยืนยันแล้ว",
-  cancelled:"ยกเลิกแล้ว",
+    cancelled:"ยกเลิกแล้ว",
+  after_sales:"กำลังดำเนินการหลังการขาย",
   completed:"เสร็จสมบูรณ์",
 
   unpaid:"ยังไม่ชำระ",
@@ -8739,9 +8747,11 @@ async function placeOrder(){
     return;
 
   }
-  const checkoutPaymentMethod =
+    const checkoutPaymentMethod =
     el("checkoutPaymentMethod")
-      .value;
+      ?.value
+    ||
+    "";
 
 
   const checkoutPaymentInfo =
@@ -8754,6 +8764,17 @@ async function placeOrder(){
       )
     ||
     null;
+
+
+  if(!checkoutPaymentInfo){
+
+    showMessage(
+      t("paymentMethodUnavailable")
+    );
+
+    return;
+
+  }
   const button =
     el("checkoutSubmitButton");
 
@@ -9147,7 +9168,7 @@ function renderOrders(){
             </div>
 
 
-            <div class="status-row">
+                        <div class="status-row">
 
               ${
                 statusBadge(
@@ -9156,16 +9177,28 @@ function renderOrders(){
               }
 
               ${
+                order.order_status
+                !==
+                "cancelled"
+                ?
                 statusBadge(
                   order.fulfillment_status
                 )
+                :
+                ""
               }
 
               ${
-               statusBadge(
-  order.delivery_status,
-  "delivery"
-)
+                order.order_status
+                !==
+                "cancelled"
+                ?
+                statusBadge(
+                  order.delivery_status,
+                  "delivery"
+                )
+                :
+                ""
               }
 
             </div>
@@ -9303,12 +9336,16 @@ async function openOrder(
           orderId
         ),
 
-      db
+            db
         .from("order_status_history")
         .select("*")
         .eq(
           "order_id",
           orderId
+        )
+        .neq(
+          "status_group",
+          "return"
         )
         .order(
           "created_at",
@@ -9552,7 +9589,11 @@ function renderOrderDetail(
     "prepaid";
 
 
-  const canSubmitPayment =
+    const canSubmitPayment =
+  order.order_status
+  !==
+  "cancelled"
+  &&
   isPrepaidPayment
   &&
   paymentMethods.some(
@@ -9582,15 +9623,30 @@ function renderOrderDetail(
         </div>
 
 
-        <div class="status-row">
+                <div class="status-row">
 
           ${statusBadge(order.order_status)}
 
           ${statusBadge(order.payment_status)}
 
-          ${statusBadge(order.fulfillment_status)}
+          ${
+            order.order_status !== "cancelled"
+            ?
+            statusBadge(order.fulfillment_status)
+            :
+            ""
+          }
 
-          ${statusBadge(order.delivery_status,"delivery")}
+          ${
+            order.order_status !== "cancelled"
+            ?
+            statusBadge(
+              order.delivery_status,
+              "delivery"
+            )
+            :
+            ""
+          }
 
         </div>
 
