@@ -2309,7 +2309,7 @@ let productMap = {};
 let variantMap = {};
 let imageMap = {};
 let inventoryMap = {};
-
+let currentBatchInfo = null;
 let selectedRegionId =
   localStorage.getItem(
     "mallRegionId"
@@ -4887,7 +4887,7 @@ function renderProducts(list){
    PRODUCT DETAIL
 ========================================================== */
 
-function openProduct(productId){
+async function openProduct(productId){
 
   currentProductId =
     productId;
@@ -4924,6 +4924,8 @@ function openProduct(productId){
   currentProductQty =
     1;
 
+
+    await loadCurrentBatchInfo();
 
   renderProductDetail();
 
@@ -5361,7 +5363,42 @@ function renderProductDetail(){
 
             </div>
 
+            ${
+              currentBatchInfo
+              ?
+              `
 
+                <div class="notice">
+
+                  ${
+                    currentBatchInfo.production_date
+                    ?
+                    `
+                      ${escapeHtml(t("productionDate"))}:
+                      ${escapeHtml(currentBatchInfo.production_date)}
+                      <br>
+                    `
+                    :
+                    ""
+                  }
+
+                  ${
+                    currentBatchInfo.expiry_date
+                    ?
+                    `
+                      ${escapeHtml(t("expiryDate"))}:
+                      ${escapeHtml(currentBatchInfo.expiry_date)}
+                    `
+                    :
+                    ""
+                  }
+
+                </div>
+
+              `
+              :
+              ""
+            }
             <div class="qty-row">
 
               <div>
@@ -5458,9 +5495,60 @@ function renderProductDetail(){
   `;
 
 }
+async function loadCurrentBatchInfo(){
+
+  currentBatchInfo =
+    null;
 
 
-function selectVariant(
+  if(
+    !selectedRegionId
+    ||
+    !currentVariantId
+  ){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "customer_available_batch_info",
+      {
+        p_region_id:
+          selectedRegionId,
+
+        p_variant_id:
+          currentVariantId
+      }
+    );
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  currentBatchInfo =
+    Array.isArray(data)
+    ?
+    data[0]
+    ||
+    null
+    :
+    data
+    ||
+    null;
+
+}
+
+async function selectVariant(
   variantId
 ){
 
@@ -5472,6 +5560,9 @@ function selectVariant(
 
   currentProductQty =
     1;
+
+
+  await loadCurrentBatchInfo();
 
   renderProductDetail();
 
@@ -5946,7 +6037,191 @@ function cartSubtotal(){
     );
 
 }
+function cartItemCount(){
 
+  return currentRegionCart()
+    .reduce(
+      (
+        sum,
+        item
+      ) =>
+        sum
+        +
+        Number(
+          item.quantity
+          ||
+          0
+        ),
+      0
+    );
+
+}
+
+
+function cartDeliveryFee(){
+
+  const region =
+    getCurrentRegion();
+
+
+  if(!region){
+    return 0;
+  }
+
+
+  const subtotal =
+    cartSubtotal();
+
+  const items =
+    cartItemCount();
+
+  const freeByItems =
+    region.free_delivery_min_items
+    !==
+    null
+    &&
+    region.free_delivery_min_items
+    !==
+    undefined
+    &&
+    items
+    >=
+    Number(
+      region.free_delivery_min_items
+    );
+
+
+  const freeByAmount =
+    region.free_delivery_min_amount
+    !==
+    null
+    &&
+    region.free_delivery_min_amount
+    !==
+    undefined
+    &&
+    subtotal
+    >=
+    Number(
+      region.free_delivery_min_amount
+    );
+
+
+  if(
+    freeByItems
+    ||
+    freeByAmount
+  ){
+    return 0;
+  }
+
+
+  return Number(
+    region.delivery_fee
+    ||
+    0
+  );
+
+}
+
+
+function cartFreeDeliveryMessage(){
+
+  const region =
+    getCurrentRegion();
+
+
+  if(!region){
+    return "";
+  }
+
+
+  const subtotal =
+    cartSubtotal();
+
+  const items =
+    cartItemCount();
+
+  const minItems =
+    Number(
+      region.free_delivery_min_items
+      ||
+      0
+    );
+
+  const minAmount =
+    Number(
+      region.free_delivery_min_amount
+      ||
+      0
+    );
+
+
+  if(
+    cartDeliveryFee()
+    ===
+    0
+    &&
+    Number(
+      region.delivery_fee
+      ||
+      0
+    )
+    >
+    0
+  ){
+
+    return t(
+      "freeDeliveryReached"
+    );
+
+  }
+
+
+  const messages = [];
+
+
+  if(
+    minItems
+    &&
+    items < minItems
+  ){
+
+    messages.push(
+      t("freeDeliveryItems")
+        .replace(
+          "{count}",
+          minItems - items
+        )
+    );
+
+  }
+
+
+  if(
+    minAmount
+    &&
+    subtotal < minAmount
+  ){
+
+    messages.push(
+      t("freeDeliveryAmount")
+        .replace(
+          "{amount}",
+          money(
+            minAmount - subtotal
+          )
+        )
+    );
+
+  }
+
+
+  return messages.join(
+    " / "
+  );
+
+}
 
 function renderCart(){
 
@@ -6262,6 +6537,32 @@ function renderCart(){
           </div>
 
 
+                    <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("deliveryFee"))}
+            </span>
+
+            <strong>
+              ${money(cartDeliveryFee())}
+            </strong>
+
+          </div>
+
+
+          ${
+            cartFreeDeliveryMessage()
+            ?
+            `
+              <div class="notice">
+                ${escapeHtml(cartFreeDeliveryMessage())}
+              </div>
+            `
+            :
+            ""
+          }
+
+
           <div class="summary-total">
 
             <span>
@@ -6269,7 +6570,11 @@ function renderCart(){
             </span>
 
             <span>
-              ${money(subtotal)}
+              ${money(
+                subtotal
+                +
+                cartDeliveryFee()
+              )}
             </span>
 
           </div>
@@ -7675,67 +7980,7 @@ async function saveAddress(){
 
 }
 
-async function loadPaymentMethods(){
 
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        "payment_methods"
-      )
-      .select("*")
-      .eq(
-        "is_active",
-        true
-      )
-      .order(
-        "sort_order"
-      );
-
-
-  if(error){
-
-    console.error(
-      error
-    );
-
-    paymentMethods = [];
-
-    return;
-
-  }
-
-
-  paymentMethods =
-    data || [];
-
-}
-
-
-function paymentMethodName(
-  method
-){
-
-  if(!method){
-    return "—";
-  }
-
-
-  return (
-    method[
-      `name_${appLanguage}`
-    ]
-    ||
-    method.name_zh
-    ||
-    method.name_en
-    ||
-    method.code
-  );
-
-}
 /* ==========================================================
    CHECKOUT
 ========================================================== */
@@ -8326,52 +8571,71 @@ function renderCheckout(){
           </div>
 
 
-          <div class="summary-total">
+                   <div class="summary-line">
 
             <span>
               ${escapeHtml(t("subtotal"))}
             </span>
 
-            <span>
+            <strong>
               ${money(cartSubtotal())}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-line">
+
+            <span>
+              ${escapeHtml(t("deliveryFee"))}
+            </span>
+
+            <strong>
+              ${money(cartDeliveryFee())}
+            </strong>
+
+          </div>
+
+
+          ${
+            cartFreeDeliveryMessage()
+            ?
+            `
+              <div class="notice">
+                ${escapeHtml(cartFreeDeliveryMessage())}
+              </div>
+            `
+            :
+            ""
+          }
+
+
+          <div class="summary-total">
+
+            <span>
+              ${escapeHtml(t("total"))}
+            </span>
+
+            <span>
+              ${money(
+                cartSubtotal()
+                +
+                cartDeliveryFee()
+              )}
             </span>
 
           </div>
 
 
-          <div class="form-group">
+          <div class="notice">
 
-            <label>
-              ${escapeHtml(t("paymentMethod"))}
-            </label>
+            <strong>
+              ${escapeHtml(t("cashOnDelivery"))}
+            </strong>
 
-                        <select id="checkoutPaymentMethod">
+            <br>
 
-              ${
-                paymentMethods
-                  .map(
-                    method => `
-
-                      <option
-                        value="${escapeHtml(method.code)}"
-                      >
-
-                        ${
-                          escapeHtml(
-                            paymentMethodName(
-                              method
-                            )
-                          )
-                        }
-
-                      </option>
-
-                    `
-                  )
-                  .join("")
-              }
-
-            </select>
+            ${escapeHtml(t("cashOnDeliveryHint"))}
 
           </div>
 
@@ -8747,34 +9011,7 @@ async function placeOrder(){
     return;
 
   }
-    const checkoutPaymentMethod =
-    el("checkoutPaymentMethod")
-      ?.value
-    ||
-    "";
-
-
-  const checkoutPaymentInfo =
-    paymentMethods
-      .find(
-        method =>
-          method.code
-          ===
-          checkoutPaymentMethod
-      )
-    ||
-    null;
-
-
-  if(!checkoutPaymentInfo){
-
-    showMessage(
-      t("paymentMethodUnavailable")
-    );
-
-    return;
-
-  }
+    
   const button =
     el("checkoutSubmitButton");
 
@@ -8811,8 +9048,7 @@ async function placeOrder(){
             address.id,
 
           p_payment_method:
-           checkoutPaymentMethod,
-
+  "cash",
           p_customer_note:
             el("checkoutNote")
               .value
@@ -8923,23 +9159,8 @@ async function placeOrder(){
           </div>
 
 
-          <div style="margin-top:7px">
-
-           ${
-  escapeHtml(
-    checkoutPaymentInfo
-      ?.method_type
-    ===
-    "prepaid"
-    ?
-    t("paymentPending")
-    :
-    paymentMethodName(
-      checkoutPaymentInfo
-    )
-  )
-}
-
+          <          <div style="margin-top:7px">
+            ${escapeHtml(t("cashOnDelivery"))}
           </div>
 
 
@@ -9287,7 +9508,7 @@ async function openOrder(
   }
 
 
-  await loadPaymentMethods();
+  
   const results =
     await Promise.all([
 
@@ -9343,28 +9564,10 @@ async function openOrder(
           "order_id",
           orderId
         )
-        .neq(
-          "status_group",
-          "return"
-        )
-        .order(
+                .order(
           "created_at",
           {
             ascending:true
-          }
-        ),
-
-      db
-        .from("payment_transactions")
-        .select("*")
-        .eq(
-          "order_id",
-          orderId
-        )
-        .order(
-          "created_at",
-          {
-            ascending:false
           }
         )
 
@@ -9387,7 +9590,7 @@ async function openOrder(
   }
 
 
-  const order =
+    const order =
     results[0].data;
 
   const items =
@@ -9400,17 +9603,11 @@ async function openOrder(
     ||
     [];
 
-  const payments =
-    results[3].data
-    ||
-    [];
-
 
   renderOrderDetail(
     order,
     items,
-    history,
-    payments
+    history
   );
 
 }
@@ -9459,157 +9656,8 @@ function orderVariantName(item){
 function renderOrderDetail(
   order,
   items,
-  history,
-  payments
+  history
 ){
-
-  
-
-
-  const newestPayment =
-    payments[0];
-    const selectedPaymentMethod =
-    paymentMethods
-      .find(
-        method =>
-          method.code
-          ===
-          order.payment_method
-      )
-    ||
-    (
-      order.payment_method
-      ?
-      {
-        code:
-          order.payment_method,
-
-        method_type:
-          order.payment_method
-          ===
-          "cash"
-          ?
-          "cod"
-          :
-          "prepaid",
-
-        name_zh:
-          (
-            {
-              cash:
-                "货到付款",
-
-              kpay:
-                "KPay",
-
-              wavepay:
-                "WavePay",
-
-              bank_transfer:
-                "银行转账"
-            }
-          )[
-            order.payment_method
-          ]
-          ||
-          order.payment_method,
-
-               name_en:
-          (
-            {
-              cash:
-                "Cash on Delivery",
-
-              kpay:
-                "KPay",
-
-              wavepay:
-                "WavePay",
-
-              bank_transfer:
-                "Bank Transfer"
-            }
-          )[
-            order.payment_method
-          ]
-          ||
-          order.payment_method,
-
-        name_my:
-          (
-            {
-              cash:
-                "ပစ္စည်းရောက်မှ ငွေချေ",
-
-              kpay:
-                "KPay",
-
-              wavepay:
-                "WavePay",
-
-              bank_transfer:
-                "ဘဏ်လွှဲ"
-            }
-          )[
-            order.payment_method
-          ]
-          ||
-          order.payment_method,
-
-        name_th:
-          (
-            {
-              cash:
-                "เก็บเงินปลายทาง",
-
-              kpay:
-                "KPay",
-
-              wavepay:
-                "WavePay",
-
-              bank_transfer:
-                "โอนธนาคาร"
-            }
-          )[
-            order.payment_method
-          ]
-          ||
-          order.payment_method
-      }
-      :
-      null
-    );
-
-
-  const isPrepaidPayment =
-    selectedPaymentMethod
-      ?.method_type
-    ===
-    "prepaid";
-
-
-    const canSubmitPayment =
-  order.order_status
-  !==
-  "cancelled"
-  &&
-  isPrepaidPayment
-  &&
-  paymentMethods.some(
-    method =>
-      method.code
-      ===
-      order.payment_method
-  )
-  &&
-  [
-    "unpaid",
-    "failed"
-  ]
-  .includes(
-    order.payment_status
-  );
 
   el("orderDetailContent")
     .innerHTML = `
@@ -9808,184 +9856,21 @@ function renderOrderDetail(
       </div>
 
 
-            <div class="form-card">
+                  <div class="form-card">
 
         <div class="form-title">
-
           ${escapeHtml(t("paymentMethod"))}
-
         </div>
-
 
         <div class="notice">
-
           <strong>
-
-            ${
-              escapeHtml(
-                paymentMethodName(
-                  selectedPaymentMethod
-                )
-                ||
-                order.payment_method
-                ||
-                "—"
-              )
-            }
-
+            ${escapeHtml(t("cashOnDelivery"))}
           </strong>
 
+          <br>
 
-          ${
-            isPrepaidPayment
-            &&
-            selectedPaymentMethod
-              ?.bank_name
-            ?
-            `<br>🏦 ${escapeHtml(
-              selectedPaymentMethod.bank_name
-            )}`
-            :
-            ""
-          }
-
-
-          ${
-            isPrepaidPayment
-            &&
-            selectedPaymentMethod
-              ?.account_name
-            ?
-            `<br>👤 ${escapeHtml(
-              selectedPaymentMethod.account_name
-            )}`
-            :
-            ""
-          }
-
-
-          ${
-            isPrepaidPayment
-            &&
-            selectedPaymentMethod
-              ?.account_number
-            ?
-            `<br>💳 ${escapeHtml(
-              selectedPaymentMethod.account_number
-            )}`
-            :
-            ""
-          }
-
+          ${escapeHtml(t("cashOnDeliveryHint"))}
         </div>
-
-
-        ${
-          newestPayment
-          ?
-          `
-
-          <div class="notice">
-
-            ${
-              escapeHtml(
-                t("status")
-              )
-            }:
-
-            ${
-              escapeHtml(
-                statusText(
-                  newestPayment.status
-                )
-              )
-            }
-
-            ${
-              newestPayment.external_reference
-              ?
-              "<br>"
-              +
-              escapeHtml(
-                newestPayment.external_reference
-              )
-              :
-              ""
-            }
-
-          </div>
-
-          `
-          :
-          ""
-        }
-
-
-        ${
-          canSubmitPayment
-          ?
-          `
-
-          <div class="form-group">
-
-            <label>
-              ${escapeHtml(t("paymentReference"))}
-            </label>
-
-            <input
-              id="paymentReference"
-              placeholder="${escapeHtml(t("paymentReferenceOptional"))}"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              ${escapeHtml(t("submitPayment"))}
-            </label>
-
-            <input
-              id="paymentProofFile"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-            >
-
-          </div>
-
-
-          <button
-            id="paymentProofSubmitButton"
-            class="btn btn-primary"
-            onclick="submitPaymentProof(
-              '${order.id}',
-              '${order.payment_method || ""}'
-            )"
-          >
-
-            ${escapeHtml(t("submit"))}
-
-          </button>
-
-          `
-          :
-          (
-            isPrepaidPayment
-            &&
-            !newestPayment
-            ?
-            `<div class="notice">${
-              escapeHtml(
-                statusText(
-                  order.payment_status
-                )
-              )
-            }</div>`
-            :
-            ""
-          )
-        }
 
       </div>
 
@@ -10080,193 +9965,7 @@ function renderOrderDetail(
 
 
 
-async function uploadPaymentProof(
-  file,
-  orderId
-){
 
-  if(!file){
-
-    throw new Error(
-      t("paymentProofRequired")
-    );
-
-  }
-
-
-  const extension =
-    (
-      file.name
-        .split(".")
-        .pop()
-      ||
-      "jpg"
-    )
-    .toLowerCase()
-    .replace(
-      /[^a-z0-9]/g,
-      ""
-    )
-    ||
-    "jpg";
-
-
-  const filePath =
-    currentUser.id
-    +
-    "/"
-    +
-    orderId
-    +
-    "/"
-    +
-    Date.now()
-    +
-    "-"
-    +
-    crypto.randomUUID()
-    +
-    "."
-    +
-    extension;
-
-
-  const {
-    error
-  } =
-    await db.storage
-      .from(
-        "payment-proofs"
-      )
-      .upload(
-        filePath,
-        file,
-        {
-          cacheControl:
-            "3600",
-
-          upsert:
-            false
-        }
-      );
-
-
-  if(error){
-    throw error;
-  }
-
-
-  return filePath;
-
-}
-
-
-async function submitPaymentProof(
-  orderId,
-  method
-){
-
-  const reference =
-    el("paymentReference")
-      ?.value
-      .trim()
-    ||
-    "";
-
-
-  const file =
-    el("paymentProofFile")
-      ?.files?.[0];
-
-
-  if(!file){
-
-    showMessage(
-      t("paymentProofRequired")
-    );
-
-    return;
-
-  }
-
-
-  const button =
-    el(
-      "paymentProofSubmitButton"
-    );
-
-
-  if(button){
-
-    button.disabled =
-      true;
-
-    button.textContent =
-      t("loading");
-
-  }
-
-
-  try{
-
-    const proofPath =
-      await uploadPaymentProof(
-        file,
-        orderId
-      );
-
-
-    const {
-      error
-    } =
-      await db.rpc(
-        "submit_payment_proof",
-        {
-
-          p_order_id:
-            orderId,
-
-          p_payment_method:
-            method,
-
-          p_external_reference:
-            reference
-            ||
-            null,
-
-          p_proof_url:
-            proofPath
-
-        }
-      );
-
-
-    if(error){
-      throw error;
-    }
-
-
-    showMessage(
-      t("paymentSubmitted")
-    );
-
-
-    await loadOrders();
-
-    await openOrder(
-      orderId
-    );
-
-  }
-  catch(error){
-
-    showMessage(
-      error.message
-    );
-
-  }
-
-}
 
 
 /* ==========================================================
