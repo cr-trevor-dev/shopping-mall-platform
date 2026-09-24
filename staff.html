@@ -4948,16 +4948,7 @@ function showSection(
     );
 
 
-  const targetSection =
-    el(name);
-
-
-  if(!targetSection){
-    return;
-  }
-
-
-  targetSection
+  el(name)
     .classList
     .add("active");
 
@@ -4973,23 +4964,11 @@ function showSection(
     );
 
 
-  if(menu){
-    menu.classList
-      .add("active");
-  }
+  menu.classList
+    .add("active");
 
 
-  if(
-    name !== "driverSelect"
-  ){
-    refreshCurrent();
-  }
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
+  refreshCurrent();
 
 }
 
@@ -5020,8 +4999,7 @@ async function refreshCurrent(){
 
   },
 
-driverSelect:
-  async () => {},
+
 
 shipments:
   loadShipments,
