@@ -1010,7 +1010,93 @@ tr:last-child td{
   </div>
 
 </section>
+<!-- BUSINESS DATA -->
 
+<section
+  id="business"
+  class="section"
+>
+
+  <div
+    class="page-title"
+    data-i18n="businessData"
+  >
+    经营数据
+  </div>
+
+  <div class="toolbar">
+
+    <select
+      id="businessRegion"
+      onchange="loadBusinessData()"
+    ></select>
+
+    <select
+      id="businessRange"
+      onchange="toggleBusinessDates()"
+    >
+      <option value="today">今天</option>
+      <option value="week">本周</option>
+      <option value="month">本月</option>
+      <option value="custom">自定义</option>
+    </select>
+
+    <input
+      id="businessStart"
+      class="hidden"
+      type="date"
+      onchange="loadBusinessData()"
+    >
+
+    <input
+      id="businessEnd"
+      class="hidden"
+      type="date"
+      onchange="loadBusinessData()"
+    >
+
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-label">销售额</div>
+      <div id="businessSales" class="stat-value">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">完成订单</div>
+      <div id="businessOrders" class="stat-value">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">售出件数</div>
+      <div id="businessItems" class="stat-value">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">配送成功</div>
+      <div id="businessDeliverySuccess" class="stat-value">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">配送失败</div>
+      <div id="businessDeliveryFailed" class="stat-value">—</div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="panel-title">
+      商品销售
+    </div>
+
+    <div id="businessProducts"></div>
+
+  </div>
+
+</section>
 
 <!-- ORDERS -->
 
@@ -1035,7 +1121,12 @@ tr:last-child td{
 
 
   <div class="toolbar">
-
+<input
+  id="orderSearch"
+  type="search"
+  placeholder="订单号 / 客户姓名 / 电话"
+  oninput="loadOrders()"
+>
     <select
       id="orderStatusFilter"
       onchange="loadOrders()"
@@ -1076,7 +1167,62 @@ tr:last-child td{
   </div>
 
 </section>
-<!-- SHIPMENTS -->
+<!-- ORDER DETAIL -->
+
+<section
+  id="orderDetail"
+  class="section"
+>
+
+  <div class="toolbar">
+
+    <button
+      class="btn btn-light"
+      onclick="showSection('orders',document.querySelector('[data-section=orders]'))"
+    >
+      ← <span data-i18n="back">返回</span>
+    </button>
+
+  </div>
+
+  <div
+    class="page-title"
+    data-i18n="orders"
+  >
+    订单
+  </div>
+
+  <div id="orderDetailContent"></div>
+
+</section>
+
+
+<!-- DRIVER SELECT -->
+
+<section
+  id="driverSelect"
+  class="section"
+>
+
+  <div class="toolbar">
+
+    <button
+      class="btn btn-light"
+      onclick="showSection('orderDetail',document.querySelector('[data-section=orders]'))"
+    >
+      ← <span data-i18n="back">返回</span>
+    </button>
+
+  </div>
+
+  <div class="page-title">
+    配送员
+  </div>
+
+  <div id="driverSelectList"></div>
+
+</section>
+  <!-- SHIPMENTS -->
 
 <section
   id="shipments"
@@ -1237,35 +1383,7 @@ tr:last-child td{
 </section>
 
 
-<!-- PAYMENTS -->
 
-<section
-  id="payments"
-  class="section"
->
-
-  <div
-    class="page-title"
-    data-i18n="payments"
-  >
-    付款审核
-  </div>
-
-  <div
-    class="page-subtitle"
-    data-i18n="paymentsDesc"
-  >
-    客户提交付款证明后，由有权限的员工审核。
-  </div>
-
-
-  <div class="panel">
-
-    <div id="paymentsTable"></div>
-
-  </div>
-
-</section>
 
 
 <!-- CUSTOMERS -->
@@ -1423,20 +1541,20 @@ zh:{
   logout:"退出",
   workspace:"员工工作台",
   dashboard:"工作台",
+  businessData:"经营数据",
   dashboardDesc:"这里只显示你有权限处理的地区和工作。",
   orders:"订单",
   ordersDesc:"只会看到你负责地区内的订单。",
   inventory:"库存",
     inventoryDesc:"商品上架、当前库存、保质期和库存盘点。",
-  payments:"付款审核",
-  paymentsDesc:"客户提交付款证明后，由有权限的员工审核。",
+  
   customers:"客户",
   customersDesc:"查看客户基础资料。",
   myProfile:"我的账号",
   profileDesc:"当前员工身份、角色、地区和权限。",
   pendingOrders:"待确认订单",
   pickingOrders:"拣货中",
-  submittedPayments:"待审核付款",
+  
   myRegions:"负责地区",
   recentOrders:"最近订单",
   allOrders:"全部订单",
@@ -1482,20 +1600,20 @@ en:{
   logout:"Logout",
   workspace:"Staff Workspace",
   dashboard:"Dashboard",
+  businessData:"Business Data",
   dashboardDesc:"Only work and regions you are authorized to access are shown.",
   orders:"Orders",
   ordersDesc:"Only orders from your assigned regions are visible.",
   inventory:"Inventory",
     inventoryDesc:"Manage product listing, current stock, expiry dates and stocktake.",
-  payments:"Payment Review",
-  paymentsDesc:"Review customer payment submissions.",
+  
   customers:"Customers",
   customersDesc:"View customer profiles.",
   myProfile:"My Account",
   profileDesc:"Your staff identity, roles, regions and permissions.",
   pendingOrders:"Pending Orders",
   pickingOrders:"Picking",
-  submittedPayments:"Payments to Review",
+  
   myRegions:"My Regions",
   recentOrders:"Recent Orders",
   allOrders:"All Orders",
@@ -1541,20 +1659,20 @@ my:{
   logout:"ထွက်မည်",
   workspace:"ဝန်ထမ်းအလုပ်စခန်း",
   dashboard:"အလုပ်စခန်း",
+  businessData:"လုပ်ငန်းအချက်အလက်",
   dashboardDesc:"သင့်ခွင့်ပြုချက်ရှိသော ဒေသနှင့်အလုပ်များကိုသာ ပြသပါသည်။",
   orders:"အော်ဒါ",
   ordersDesc:"သင်တာဝန်ယူထားသော ဒေသ၏အော်ဒါများကိုသာ ကြည့်နိုင်သည်။",
   inventory:"ကုန်ပစ္စည်းစာရင်း",
     inventoryDesc:"ကုန်ပစ္စည်းရောင်းရန်တင်ခြင်း၊ လက်ကျန်၊ သက်တမ်းကုန်ရက်နှင့် စာရင်းစစ်ခြင်း။",
-  payments:"ငွေပေးချေမှုစစ်ဆေး",
-  paymentsDesc:"ဖောက်သည်ပေးပို့သော ငွေပေးချေမှုကို စစ်ဆေးပါ။",
+  
   customers:"ဖောက်သည်များ",
   customersDesc:"ဖောက်သည်အချက်အလက်ကြည့်ရန်။",
   myProfile:"ကျွန်ုပ်အကောင့်",
   profileDesc:"သင့်ဝန်ထမ်းအချက်အလက်၊ အခန်းကဏ္ဍနှင့် ခွင့်ပြုချက်များ။",
   pendingOrders:"အတည်ပြုရန်အော်ဒါ",
   pickingOrders:"ပစ္စည်းရွေးနေ",
-  submittedPayments:"စစ်ဆေးရန်ငွေပေးချေမှု",
+  
   myRegions:"တာဝန်ယူဒေသ",
   recentOrders:"နောက်ဆုံးအော်ဒါ",
   allOrders:"အော်ဒါအားလုံး",
@@ -1600,20 +1718,20 @@ th:{
   logout:"ออกจากระบบ",
   workspace:"ระบบพนักงาน",
   dashboard:"หน้าหลัก",
+ businessData:"ข้อมูลการขาย",
   dashboardDesc:"แสดงเฉพาะงานและพื้นที่ที่คุณมีสิทธิ์",
   orders:"คำสั่งซื้อ",
   ordersDesc:"ดูได้เฉพาะคำสั่งซื้อในพื้นที่ที่ได้รับมอบหมาย",
   inventory:"สต็อก",
     inventoryDesc:"จัดการการเปิดขาย ดูสต็อก วันหมดอายุ และตรวจนับสต็อก",
-  payments:"ตรวจสอบการชำระเงิน",
-  paymentsDesc:"ตรวจสอบหลักฐานการชำระเงินของลูกค้า",
+  
   customers:"ลูกค้า",
   customersDesc:"ดูข้อมูลลูกค้า",
   myProfile:"บัญชีของฉัน",
   profileDesc:"ข้อมูลพนักงาน บทบาท พื้นที่ และสิทธิ์ของคุณ",
   pendingOrders:"รอยืนยัน",
   pickingOrders:"กำลังจัดสินค้า",
-  submittedPayments:"รอตรวจชำระเงิน",
+  
   myRegions:"พื้นที่รับผิดชอบ",
   recentOrders:"คำสั่งซื้อล่าสุด",
   allOrders:"คำสั่งซื้อทั้งหมด",
@@ -1830,7 +1948,33 @@ submitCountFailed:" 提交盘点失败：",
 countProcessComplete:"库存盘点处理完成。",
 newlySubmitted:"新提交审批：",
 waitingApproval:"等待审批：",
-approvedUpdated:"已批准并更新库存："
+approvedUpdated:"已批准并更新库存：",
+viewDetail:"查看详情",
+back:"返回",
+businessData:"经营数据",
+product:"商品",
+unitPrice:"单价",
+subtotal:"小计",
+pickList:"拣货清单",
+amountDetail:"金额明细",
+merchandiseAmount:"商品金额",
+deliveryFee:"配送费",
+discount:"优惠",
+amountToCollect:"应收金额",
+deliveryFailure:"配送失败资料",
+failureReason:"失败原因",
+failureTime:"失败时间",
+deliveryNote:"配送备注",
+noActionRequired:"当前无需处理",
+cannotLoadOrders:"无法读取订单。",
+cannotLoadOrderDetail:"无法读取订单详情。",
+cannotLoadBusiness:"无法读取经营数据。",
+selectDriver:"选择",
+vehicle:"车辆",
+plate:"车牌",
+confirmAssignDriver:"确定指派给这位配送员吗？",
+soldQuantity:"售出数量",
+salesAmount:"销售额"
 
 },
 
@@ -2007,7 +2151,33 @@ submitCountFailed:" stock count submission failed:",
 countProcessComplete:"Stock count processing completed.",
 newlySubmitted:"New approvals submitted: ",
 waitingApproval:"Waiting for approval: ",
-approvedUpdated:"Approved and inventory updated: "
+approvedUpdated:"Approved and inventory updated: ",
+viewDetail:"View Details",
+back:"Back",
+businessData:"Business Data",
+product:"Product",
+unitPrice:"Unit Price",
+subtotal:"Subtotal",
+pickList:"Pick List",
+amountDetail:"Amount Details",
+merchandiseAmount:"Merchandise",
+deliveryFee:"Delivery Fee",
+discount:"Discount",
+amountToCollect:"Amount to Collect",
+deliveryFailure:"Delivery Failure",
+failureReason:"Failure Reason",
+failureTime:"Failure Time",
+deliveryNote:"Delivery Note",
+noActionRequired:"No action required",
+cannotLoadOrders:"Unable to load orders.",
+cannotLoadOrderDetail:"Unable to load order details.",
+cannotLoadBusiness:"Unable to load business data.",
+selectDriver:"Select",
+vehicle:"Vehicle",
+plate:"Plate",
+confirmAssignDriver:"Assign this driver?",
+soldQuantity:"Quantity Sold",
+salesAmount:"Sales"
 
 },
 
@@ -2184,7 +2354,33 @@ submitCountFailed:" ရေတွက်မှုတင်ပြမအောင်
 countProcessComplete:"ကုန်လက်ကျန်ရေတွက်မှု ဆောင်ရွက်ပြီးပါပြီ။",
 newlySubmitted:"အသစ်တင်ပြသောအတည်ပြုမှု: ",
 waitingApproval:"အတည်ပြုရန်စောင့်နေ: ",
-approvedUpdated:"အတည်ပြုပြီး ကုန်လက်ကျန်အပ်ဒိတ်လုပ်ပြီး: "
+approvedUpdated:"အတည်ပြုပြီး ကုန်လက်ကျန်အပ်ဒိတ်လုပ်ပြီး: ",
+viewDetail:"အသေးစိတ်ကြည့်ရန်",
+back:"နောက်သို့",
+businessData:"လုပ်ငန်းအချက်အလက်",
+product:"ကုန်ပစ္စည်း",
+unitPrice:"တစ်ခုဈေး",
+subtotal:"စုစုပေါင်းခွဲ",
+pickList:"ပစ္စည်းရွေးစာရင်း",
+amountDetail:"ငွေပမာဏအသေးစိတ်",
+merchandiseAmount:"ကုန်ပစ္စည်းတန်ဖိုး",
+deliveryFee:"ပို့ဆောင်ခ",
+discount:"လျှော့ဈေး",
+amountToCollect:"ကောက်ခံရမည့်ငွေ",
+deliveryFailure:"ပို့ဆောင်မှုမအောင်မြင်",
+failureReason:"မအောင်မြင်သည့်အကြောင်း",
+failureTime:"မအောင်မြင်ချိန်",
+deliveryNote:"ပို့ဆောင်မှုမှတ်ချက်",
+noActionRequired:"လက်ရှိလုပ်ဆောင်ရန်မလိုပါ",
+cannotLoadOrders:"အော်ဒါများကိုဖတ်မရပါ။",
+cannotLoadOrderDetail:"အော်ဒါအသေးစိတ်ကိုဖတ်မရပါ။",
+cannotLoadBusiness:"လုပ်ငန်းအချက်အလက်ကိုဖတ်မရပါ။",
+selectDriver:"ရွေးမည်",
+vehicle:"ယာဉ်",
+plate:"ယာဉ်နံပါတ်",
+confirmAssignDriver:"ဤပို့ဆောင်သူကို တာဝန်ပေးမလား?",
+soldQuantity:"ရောင်းပြီးအရေအတွက်",
+salesAmount:"ရောင်းရငွေ"
 
 },
 
@@ -2361,7 +2557,33 @@ submitCountFailed:" ส่งผลการนับไม่สำเร็จ
 countProcessComplete:"ดำเนินการตรวจนับสต็อกเสร็จแล้ว",
 newlySubmitted:"ส่งขออนุมัติใหม่: ",
 waitingApproval:"รออนุมัติ: ",
-approvedUpdated:"อนุมัติและอัปเดตสต็อกแล้ว: "
+approvedUpdated:"อนุมัติและอัปเดตสต็อกแล้ว: ",
+viewDetail:"ดูรายละเอียด",
+back:"กลับ",
+businessData:"ข้อมูลการขาย",
+product:"สินค้า",
+unitPrice:"ราคาต่อหน่วย",
+subtotal:"ยอดย่อย",
+pickList:"รายการจัดสินค้า",
+amountDetail:"รายละเอียดจำนวนเงิน",
+merchandiseAmount:"ยอดค่าสินค้า",
+deliveryFee:"ค่าจัดส่ง",
+discount:"ส่วนลด",
+amountToCollect:"ยอดที่ต้องเก็บ",
+deliveryFailure:"ข้อมูลจัดส่งไม่สำเร็จ",
+failureReason:"สาเหตุ",
+failureTime:"เวลาที่ไม่สำเร็จ",
+deliveryNote:"หมายเหตุการจัดส่ง",
+noActionRequired:"ขณะนี้ไม่ต้องดำเนินการ",
+cannotLoadOrders:"ไม่สามารถโหลดคำสั่งซื้อได้",
+cannotLoadOrderDetail:"ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้",
+cannotLoadBusiness:"ไม่สามารถโหลดข้อมูลการขายได้",
+selectDriver:"เลือก",
+vehicle:"รถ",
+plate:"ทะเบียนรถ",
+confirmAssignDriver:"ยืนยันมอบหมายให้พนักงานจัดส่งคนนี้หรือไม่?",
+soldQuantity:"จำนวนที่ขาย",
+salesAmount:"ยอดขาย"
 
 }
 
