@@ -13076,8 +13076,8 @@ async function loadProductRegionsAction(
 
       db
         .from("region_shipment_items")
-        .select(
-          "shipment_id,sent_quantity"
+                .select(
+          "shipment_id,sent_quantity,received_quantity,discrepancy_quantity,updated_at"
         )
         .eq(
           "variant_id",
@@ -13143,22 +13143,18 @@ async function loadProductRegionsAction(
 
   if(shipmentIds.length){
 
-    const {
+        const {
       data,
       error
     } =
       await db
         .from("region_shipments")
         .select(
-          "id,region_id,status,dispatched_at"
+          "id,region_id,status,shipment_number,dispatched_at,received_at"
         )
         .in(
           "id",
           shipmentIds
-        )
-        .eq(
-          "status",
-          "dispatched"
         );
 
 
@@ -13175,10 +13171,20 @@ async function loadProductRegionsAction(
     }
 
 
-    pendingShipments =
+        const allShipments =
       data
       ||
       [];
+
+
+    pendingShipments =
+      allShipments
+        .filter(
+          shipment =>
+            shipment.status
+            ===
+            "dispatched"
+        );
 
   }
 
@@ -13211,7 +13217,9 @@ async function loadProductRegionsAction(
     );
 
 
-  const pendingByRegion = {};
+    const pendingByRegion = {};
+  const receivedByRegion = {};
+  const soldByRegion = {};
   const lastUpdateByRegion = {};
 
 
@@ -13341,8 +13349,63 @@ async function loadProductRegionsAction(
     .forEach(
       item => {
 
-        const regionId =
+               const regionId =
           item.region_id;
+
+
+        const quantity =
+          Math.abs(
+            Number(
+              item.quantity
+              ||
+              0
+            )
+          );
+
+
+        if(
+          item.event_type
+          ===
+          "地区收货"
+        ){
+
+          receivedByRegion[
+            regionId
+          ] =
+            (
+              receivedByRegion[
+                regionId
+              ]
+              ||
+              0
+            )
+            +
+            quantity;
+
+        }
+
+
+        if(
+          item.event_type
+          ===
+          "订单售出"
+        ){
+
+          soldByRegion[
+            regionId
+          ] =
+            (
+              soldByRegion[
+                regionId
+              ]
+              ||
+              0
+            )
+            +
+            quantity;
+
+        }
+
 
         const time =
           item.event_time;
@@ -13413,11 +13476,40 @@ async function loadProductRegionsAction(
             );
 
 
-          const reserved =
+                    const reserved =
             Number(
               inventory?.reserved_quantity
               ||
               0
+            );
+
+
+          const received =
+            Number(
+              receivedByRegion[
+                region.id
+              ]
+              ||
+              0
+            );
+
+
+          const sold =
+            Number(
+              soldByRegion[
+                region.id
+              ]
+              ||
+              0
+            );
+
+
+          const unlisted =
+            Math.max(
+              0,
+              actual
+              -
+              listed
             );
 
 
@@ -13471,12 +13563,24 @@ async function loadProductRegionsAction(
                 )}
               </td>
 
+                           <td>
+                ${received}
+              </td>
+
+              <td>
+                ${sold}
+              </td>
+
               <td>
                 ${actual}
               </td>
 
               <td>
                 ${listed}
+              </td>
+
+              <td>
+                ${unlisted}
               </td>
 
               <td>
@@ -13501,18 +13605,220 @@ async function loadProductRegionsAction(
 
         }
       );
+  const shipmentDetailRows =
+    (
+      allShipments
+      ||
+      []
+    )
+    .flatMap(
+      shipment => {
 
+        const region =
+          regionData.find(
+            item =>
+              item.id
+              ===
+              shipment.region_id
+          );
+
+
+        const items =
+          shipmentItems.filter(
+            item =>
+              item.shipment_id
+              ===
+              shipment.id
+          );
+
+
+        return items.map(
+          item => {
+
+            const sent =
+              Number(
+                item.sent_quantity
+                ||
+                0
+              );
+
+
+            const received =
+              item.received_quantity
+              ===
+              null
+              ?
+              "待收货"
+              :
+              Number(
+                item.received_quantity
+                ||
+                0
+              );
+
+
+            const difference =
+              item.received_quantity
+              ===
+              null
+              ?
+              "—"
+              :
+              Number(
+                item.discrepancy_quantity
+                ??
+                (
+                  Number(
+                    item.received_quantity
+                    ||
+                    0
+                  )
+                  -
+                  sent
+                )
+              );
+
+
+            const statusText =
+              shipment.status
+              ===
+              "dispatched"
+              ?
+              "待收货"
+              :
+              shipment.status
+              ===
+              "received"
+              ?
+              "已收货"
+              :
+              shipment.status
+              ===
+              "cancelled"
+              ?
+              "已取消"
+              :
+              (
+                shipment.status
+                ||
+                "—"
+              );
+
+
+            return `
+              <tr>
+
+                <td>
+                  ${escapeHtml(
+                    shipment.shipment_number
+                    ||
+                    shipment.id
+                    ||
+                    "—"
+                  )}
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    region?.name_zh
+                    ||
+                    region?.name_en
+                    ||
+                    "—"
+                  )}
+                </td>
+
+                <td>
+                  ${formatDate(
+                    shipment.dispatched_at
+                  )}
+                </td>
+
+                <td>
+                  ${
+                    shipment.received_at
+                    ?
+                    formatDate(
+                      shipment.received_at
+                    )
+                    :
+                    "—"
+                  }
+                </td>
+
+                <td>
+                  ${sent}
+                </td>
+
+                <td>
+                  ${received}
+                </td>
+
+                <td>
+                  ${difference}
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    statusText
+                  )}
+                </td>
+
+              </tr>
+            `;
+
+          }
+        );
+
+      }
+    );
+
+
+  const regionTable =
+    makeTable(
+      [
+        "地区",
+        "累计收货",
+        "已销售",
+        "实际库存",
+        "当前上架",
+        "未上架",
+        "客户可购买",
+        "待收货",
+        "最后变动"
+      ],
+      rows
+    );
+
+
+  const shipmentDetailTable =
+    makeTable(
+      [
+        "发货单",
+        "发往地区",
+        "发货时间",
+        "收货时间",
+        "总部发出",
+        "实际收到",
+        "差异",
+        "状态"
+      ],
+      shipmentDetailRows
+    );
 
   el("productRegionsResult")
     .innerHTML =
     makeTable(
-      [
+       [
         "地区",
+        "累计收货",
+        "已销售",
         "实际库存",
-        "已上架",
+        "当前上架",
+        "未上架",
         "客户可购买",
         "待收货",
-        "最后更新"
+        "最后变动"
       ],
       rows
     );
