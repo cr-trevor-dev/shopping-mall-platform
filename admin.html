@@ -2546,12 +2546,12 @@ tr:last-child td{
   class="section"
 >
 
-    <div class="page-title">
+  <div class="page-title">
     商品分类
   </div>
 
   <div class="page-subtitle">
-    建立简单分类，例如薯片、饼干、糖果、饮料。
+    新增客户浏览商品时使用的分类。
   </div>
 
 
@@ -2562,23 +2562,23 @@ tr:last-child td{
     </div>
 
 
-    <div class="form-grid">
+    <div
+      class="form-grid"
+      style="margin-top:14px"
+    >
 
       <div class="form-group">
 
         <label>
-          分类代码
+          分类名称 *
         </label>
 
         <input
-          id="categoryCode"
-          placeholder="例如 chips_new"
+          id="categoryZh"
+          placeholder="例如：薯片"
         >
 
       </div>
-
-
-      <
 
 
       <div class="form-group">
@@ -2589,78 +2589,8 @@ tr:last-child td{
 
         <input
           id="categoryIcon"
-          placeholder="例如 🍪"
+          placeholder="例如：🍟"
         >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文
-        </label>
-
-        <input id="categoryZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          English
-        </label>
-
-        <input id="categoryEn">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          မြန်မာ
-        </label>
-
-        <input id="categoryMy">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          ไทย
-        </label>
-
-        <input id="categoryTh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          排序
-        </label>
-
-        <input
-          id="categorySort"
-          type="number"
-          value="100"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          图片网址
-        </label>
-
-        <input id="categoryImage">
 
       </div>
 
@@ -2671,213 +2601,7 @@ tr:last-child td{
       class="btn btn-primary"
       onclick="createCategory()"
     >
-      保存分类
-    </button>
-
-  </div>
-
-
-  <div class="panel">
-
-    <div class="panel-title">
-      新增筛选属性
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          分类
-        </label>
-
-        <select id="attributeCategory"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          属性代码
-        </label>
-
-        <input
-          id="attributeCode"
-          placeholder="例如 flavor"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文名称
-        </label>
-
-        <input id="attributeZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          English
-        </label>
-
-        <input id="attributeEn">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          输入类型
-        </label>
-
-        <select id="attributeType">
-
-          <option value="select">
-            select
-          </option>
-
-          <option value="multi_select">
-            multi_select
-          </option>
-
-          <option value="boolean">
-            boolean
-          </option>
-
-          <option value="number">
-            number
-          </option>
-
-          <option value="text">
-            text
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          排序
-        </label>
-
-        <input
-          id="attributeSort"
-          type="number"
-          value="100"
-        >
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="createAttribute()"
-    >
-      保存属性
-    </button>
-
-  </div>
-
-
-  <div class="panel">
-
-    <div class="panel-title">
-      新增属性选项
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          属性
-        </label>
-
-        <select id="optionAttribute"></select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          value_key
-        </label>
-
-        <input
-          id="optionKey"
-          placeholder="例如 spicy"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          中文
-        </label>
-
-        <input id="optionZh">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          English
-        </label>
-
-        <input id="optionEn">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          မြန်မာ
-        </label>
-
-        <input id="optionMy">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          ไทย
-        </label>
-
-        <input id="optionTh">
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="createAttributeOption()"
-    >
-      保存选项
+      + 新增分类
     </button>
 
   </div>
@@ -2889,18 +2613,10 @@ tr:last-child td{
       分类列表
     </div>
 
-    <div id="categoriesTable"></div>
-
-  </div>
-
-
-  <div class="panel">
-
-    <div class="panel-title">
-      筛选属性
-    </div>
-
-    <div id="attributesTable"></div>
+    <div
+      id="categoriesTable"
+      style="margin-top:14px"
+    ></div>
 
   </div>
 
@@ -10964,30 +10680,34 @@ function updateCategoryParentState(){
 
 async function createCategory(){
 
-  const code =
-    el("categoryCode")
-      .value
-      .trim();
-
-  const zh =
+  const name =
     el("categoryZh")
       .value
       .trim();
 
+  const icon =
+    el("categoryIcon")
+      .value
+      .trim();
 
-  if(
-    !code
-    ||
-    !zh
-  ){
+
+  if(!name){
 
     alert(
-      "分类代码和中文名称必须填写。"
+      "请输入分类名称。"
     );
 
     return;
 
   }
+
+
+  const code =
+    "category_"
+    +
+    crypto.randomUUID()
+      .replaceAll("-","")
+      .slice(0,12);
 
 
   const {
@@ -11007,39 +10727,27 @@ async function createCategory(){
           null,
 
         icon:
-          el("categoryIcon").value
+          icon
           ||
           null,
 
         name_zh:
-          zh,
+          name,
 
         name_en:
-          el("categoryEn").value
-          ||
           null,
 
         name_my:
-          el("categoryMy").value
-          ||
           null,
 
         name_th:
-          el("categoryTh").value
-          ||
           null,
 
         image_url:
-          el("categoryImage").value
-          ||
           null,
 
         sort_order:
-          Number(
-            el("categorySort").value
-            ||
-            100
-          ),
+          100,
 
         is_active:
           true
@@ -11060,23 +10768,18 @@ async function createCategory(){
   }
 
 
-  alert(
-    "分类保存成功。"
-  );
-
-
-  el("categoryCode").value = "";
-  el("categoryIcon").value = "";
   el("categoryZh").value = "";
-  el("categoryEn").value = "";
-  el("categoryMy").value = "";
-  el("categoryTh").value = "";
-  el("categoryImage").value = "";
+  el("categoryIcon").value = "";
 
 
   await loadBaseData();
 
   await loadCategories();
+
+
+  alert(
+    "分类保存成功。"
+  );
 
 }
 
@@ -11281,50 +10984,26 @@ async function createAttributeOption(){
 
 async function loadCategories(){
 
-  await Promise.all([
-
-    loadCategoriesBase(),
-    loadAttributesBase()
-
-  ]);
-
+  await loadCategoriesBase();
 
   renderBaseSelects();
 
 
-    const categoryRows =
+  const categoryRows =
     categoryData
       .map(
         category => `
 
           <tr>
 
-            <td class="mono">
-              ${escapeHtml(category.code)}
+            <td>
+              <strong>
+                ${escapeHtml(category.name_zh)}
+              </strong>
             </td>
 
-            <td>
-              ${escapeHtml(category.name_zh)}
-            </td>
-
-            <td>
+            <td style="font-size:22px">
               ${escapeHtml(category.icon || "—")}
-            </td>
-
-            <td>
-              ${category.sort_order}
-            </td>
-
-            <td>
-              ${
-                statusBadge(
-                  category.is_active
-                  ?
-                  "active"
-                  :
-                  "inactive"
-                )
-              }
             </td>
 
             <td>
@@ -11360,87 +11039,11 @@ async function loadCategories(){
     .innerHTML =
     makeTable(
       [
-        "代码",
         "分类名称",
         "图标",
-        "排序",
-        "状态",
         "操作"
       ],
       categoryRows
-    );
-
-
-  const attributeRows =
-    attributeData
-      .map(
-        attribute => {
-
-          const category =
-            categoryData.find(
-              item =>
-                item.id
-                ===
-                attribute.category_id
-            );
-
-
-          return `
-
-            <tr>
-
-              <td>
-                ${escapeHtml(category?.name_zh || "—")}
-              </td>
-
-              <td class="mono">
-                ${escapeHtml(attribute.code)}
-              </td>
-
-              <td>
-                ${escapeHtml(attribute.name_zh)}
-              </td>
-
-              <td>
-                ${escapeHtml(attribute.input_type)}
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    attribute.is_active
-                    ?
-                    "active"
-                    :
-                    "inactive"
-                  )
-                }
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
-      );
-
-
-  el("attributesTable")
-    .innerHTML =
-    makeTable(
-
-      [
-        "分类",
-        "代码",
-        "名称",
-        "类型",
-        "状态"
-      ],
-
-      attributeRows
-
     );
 
 }
