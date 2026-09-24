@@ -11072,15 +11072,7 @@ function setupCustomerRealtime(){
         refreshOrdersLive
       )
 
-      .on(
-        "postgres_changes",
-        {
-          event:"*",
-          schema:"public",
-          table:"payment_transactions"
-        },
-        refreshOrdersLive
-      )
+      
 
       .subscribe();
 
