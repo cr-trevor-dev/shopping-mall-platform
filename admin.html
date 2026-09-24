@@ -1839,7 +1839,42 @@ tr:last-child td{
           全部地区
         </option>
       </select>
+      <select
+        id="historyProductFilter"
+        onchange="loadSimpleInventoryHistory()"
+      >
+        <option value="">
+          全部商品
+        </option>
+      </select>
 
+
+      <select
+        id="historyTypeFilter"
+        onchange="loadSimpleInventoryHistory()"
+      >
+        <option value="">
+          全部类型
+        </option>
+        <option value="总部进货">
+          总部进货
+        </option>
+        <option value="总部发货">
+          总部发货
+        </option>
+        <option value="地区收货">
+          地区收货
+        </option>
+        <option value="上架调整">
+          上架调整
+        </option>
+        <option value="库存调整">
+          库存调整
+        </option>
+        <option value="销售扣减">
+          销售扣减
+        </option>
+      </select>
 
       <input
         id="historyStart"
@@ -7861,8 +7896,60 @@ async function loadSimpleInventoryHistory(){
             )}
           </option>
         `
-      )
+           )
       .join("");
+
+
+  const productSelect =
+    el("historyProductFilter");
+
+  const oldProduct =
+    productSelect
+      ?.value
+    ||
+    "";
+
+  if(productSelect){
+
+    productSelect.innerHTML =
+      `<option value="">全部商品</option>`
+      +
+      variantData
+        .map(
+          variant => {
+
+            const product =
+              productData.find(
+                item =>
+                  item.id
+                  ===
+                  variant.product_id
+              );
+
+            return `
+              <option value="${variant.id}">
+                ${escapeHtml(
+                  product?.name_zh
+                  ||
+                  product?.name_en
+                  ||
+                  variant.sku
+                  ||
+                  "商品"
+                )}
+              </option>
+            `;
+
+          }
+        )
+        .join("");
+
+    if(oldProduct){
+      productSelect.value =
+        oldProduct;
+    }
+
+  }
 
 
   if(oldRegion){
@@ -7949,8 +8036,41 @@ async function loadSimpleInventoryHistory(){
   }
 
 
-  const rows =
+    const productFilter =
+    el("historyProductFilter")
+      ?.value
+    ||
+    "";
+
+  const typeFilter =
+    el("historyTypeFilter")
+      ?.value
+    ||
+    "";
+
+
+  const filteredHistory =
     (data || [])
+      .filter(
+        item =>
+          !productFilter
+          ||
+          item.variant_id
+          ===
+          productFilter
+      )
+      .filter(
+        item =>
+          !typeFilter
+          ||
+          item.event_type
+          ===
+          typeFilter
+      );
+
+
+  const rows =
+    filteredHistory
       .map(
         item => {
 
@@ -8020,9 +8140,7 @@ async function loadSimpleInventoryHistory(){
               </td>
 
             </tr>
-
           `;
-
         }
       );
 
@@ -12723,39 +12841,36 @@ async function openProductAction(
   }
 
 
-  if(action === "history"){
+    if(action === "history"){
 
     if(!variant){
       return;
     }
 
-
-    productActionShell(
-      product,
-      "商品历史",
-      `
-
-        <div class="panel">
-
-          <div id="productHistoryResult">
-            <div class="empty">
-              正在读取完整历史...
-            </div>
-          </div>
-
-        </div>
-
-      `
+    showSection(
+      "inventory",
+      document.querySelector(
+        `[onclick*="showSection('inventory'"]`
+      )
     );
 
+    const productFilter =
+      el("historyProductFilter");
 
-    await loadProductHistoryAction(
-      product,
-      variant
-    );
+    if(productFilter){
+      productFilter.value =
+        variant.id;
+    }
+
+    await loadSimpleInventoryHistory();
+
+    el("historyTable")
+      ?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
 
     return;
-
   }
 
 
