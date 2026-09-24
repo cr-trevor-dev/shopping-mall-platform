@@ -6838,124 +6838,282 @@ let pendingDeliveryRegionId = null;
 
 async function assignDelivery(orderId, regionId){
 
-  pendingDeliveryOrderId = orderId;
-  pendingDeliveryRegionId = regionId;
+  function debugStep(message){
 
-  const {data:drivers,error} =
-    await db.rpc(
-      "get_assignable_delivery_drivers_v2",
-      {p_region_id:regionId}
+    let box =
+      document.getElementById("deliveryDebugBox");
+
+    if(!box){
+
+      box =
+        document.createElement("div");
+
+      box.id =
+        "deliveryDebugBox";
+
+      box.style.cssText =
+        "position:fixed;left:8px;right:8px;bottom:8px;z-index:999999;background:#111;color:#00ff88;padding:12px;border-radius:10px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:55vh;overflow:auto;";
+
+      document.body.appendChild(box);
+
+    }
+
+    box.innerText +=
+      message + "\n";
+
+  }
+
+
+  debugStep("① 已点击【指派配送员】");
+
+  debugStep(
+    "订单ID：" + orderId
+  );
+
+  debugStep(
+    "地区ID：" + regionId
+  );
+
+
+  try{
+
+    pendingDeliveryOrderId =
+      orderId;
+
+    pendingDeliveryRegionId =
+      regionId;
+
+    debugStep(
+      "② 准备读取配送员"
     );
 
-  if(error){
-    alert(rt("cannotLoadDrivers"));
-    return;
-  }
 
-  if(!drivers || !drivers.length){
-    alert(rt("noActiveDriver"));
-    return;
-  }
-
-
-  const oldSelector =
-    el("inlineDriverSelect");
-
-  if(oldSelector){
-    oldSelector.remove();
-  }
+    const result =
+      await db.rpc(
+        "get_assignable_delivery_drivers_v2",
+        {
+          p_region_id:
+            regionId
+        }
+      );
 
 
-  const selector =
-    document.createElement("div");
-
-  selector.id =
-    "inlineDriverSelect";
-
-  selector.className =
-    "panel";
-
-  selector.style.marginTop =
-    "12px";
+    debugStep(
+      "③ Supabase 已返回结果"
+    );
 
 
-  selector.innerHTML = `
+    if(result.error){
 
-    <div class="panel-title">
-      ${escapeHtml(rt("deliveryDriver"))}
-    </div>
+      debugStep(
+        "❌ Supabase错误："
+        +
+        (
+          result.error.message
+          ||
+          JSON.stringify(result.error)
+        )
+      );
 
-    <div style="margin-top:12px">
+      return;
 
-      ${
-        drivers.map(driver => `
+    }
 
-          <div
-            class="panel"
-            style="margin-bottom:10px"
-          >
 
-            <div class="panel-head">
+    const drivers =
+      result.data || [];
 
-              <div>
 
-                <div class="panel-title">
-                  ${escapeHtml(driver.display_name || "—")}
+    debugStep(
+      "④ 找到配送员数量："
+      +
+      drivers.length
+    );
+
+
+    if(!drivers.length){
+
+      debugStep(
+        "❌ 没有可用配送员"
+      );
+
+      return;
+
+    }
+
+
+    drivers.forEach(
+      (driver,index) => {
+
+        debugStep(
+          "配送员"
+          +
+          (index + 1)
+          +
+          "："
+          +
+          (
+            driver.display_name
+            ||
+            "无姓名"
+          )
+          +
+          " / "
+          +
+          (
+            driver.delivery_code
+            ||
+            "无编号"
+          )
+        );
+
+      }
+    );
+
+
+    debugStep(
+      "⑤ 开始生成配送员列表"
+    );
+
+
+    const oldSelector =
+      el("inlineDriverSelect");
+
+
+    if(oldSelector){
+
+      oldSelector.remove();
+
+      debugStep(
+        "已删除旧配送员列表"
+      );
+
+    }
+
+
+    const selector =
+      document.createElement("div");
+
+
+    selector.id =
+      "inlineDriverSelect";
+
+    selector.className =
+      "panel";
+
+    selector.style.marginTop =
+      "12px";
+
+
+    debugStep(
+      "⑥ 配送员容器创建成功"
+    );
+
+
+    selector.innerHTML = `
+
+      <div class="panel-title">
+        ${escapeHtml(rt("deliveryDriver"))}
+      </div>
+
+      <div style="margin-top:12px">
+
+        ${
+          drivers.map(driver => `
+
+            <div
+              class="panel"
+              style="margin-bottom:10px"
+            >
+
+              <div class="panel-head">
+
+                <div>
+
+                  <div class="panel-title">
+                    ${escapeHtml(driver.display_name || "—")}
+                  </div>
+
+                  <div class="small">
+                    ${escapeHtml(driver.delivery_code || "—")}
+                  </div>
+
                 </div>
 
-                <div class="small">
-                  ${escapeHtml(driver.delivery_code || "—")}
-                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-small"
+                >
+                  ${escapeHtml(rt("selectDriver"))}
+                </button>
 
               </div>
 
-              <button
-                type="button"
-                class="btn btn-primary btn-small"
-                onclick="confirmDriverAssignment('${driver.id}')"
-              >
-                ${escapeHtml(rt("selectDriver"))}
-              </button>
-
             </div>
 
-            <div
-              class="small"
-              style="line-height:1.8"
-            >
+          `).join("")
+        }
 
-              ${escapeHtml(rt("phone"))}：
-              ${escapeHtml(driver.phone || "—")}
+      </div>
 
-              <br>
-
-              ${escapeHtml(rt("vehicle"))}：
-              ${escapeHtml(driver.vehicle_type || "—")}
-
-              <br>
-
-              ${escapeHtml(rt("plate"))}：
-              ${escapeHtml(driver.vehicle_plate || "—")}
-
-            </div>
-
-          </div>
-
-        `).join("")
-      }
-
-    </div>
-
-  `;
+    `;
 
 
-  el("orderDetailContent")
-    .appendChild(
+    debugStep(
+      "⑦ HTML生成成功"
+    );
+
+
+    const target =
+      el("orderDetailContent");
+
+
+    if(!target){
+
+      debugStep(
+        "❌ 找不到 orderDetailContent"
+      );
+
+      return;
+
+    }
+
+
+    debugStep(
+      "⑧ 找到订单详情容器"
+    );
+
+
+    target.appendChild(
       selector
     );
 
 
-  
+    debugStep(
+      "⑨ 配送员列表插入成功"
+    );
+
+    debugStep(
+      "✅ assignDelivery 执行结束"
+    );
+
+
+  }
+  catch(error){
+
+    debugStep(
+      "❌ 捕获到错误"
+    );
+
+    debugStep(
+      error?.stack
+      ||
+      error?.message
+      ||
+      String(error)
+    );
+
+  }
 
 }
 
