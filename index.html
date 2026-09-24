@@ -2389,6 +2389,14 @@ zh:{
   chooseAddress:"请选择收货地址",
   addAddress:"新增地址",
   paymentMethod:"付款方式",
+ deliveryFee:"配送费",
+cashOnDelivery:"货到付款",
+cashOnDeliveryHint:"商品送达后，可向配送员现金付款或现场转账。",
+freeDeliveryReached:"本单已达到免配送费条件",
+freeDeliveryItems:"再购买 {count} 件即可免配送费",
+freeDeliveryAmount:"再购买 {amount} 即可免配送费",
+productionDate:"生产日期",
+expiryDate:"有效期至", 
   customerNote:"订单备注",
   placeOrder:"提交订单",
   loginRequired:"结账前请先登录。",
@@ -2501,6 +2509,14 @@ en:{
   chooseAddress:"Choose delivery address",
   addAddress:"Add Address",
   paymentMethod:"Payment Method",
+  deliveryFee:"Delivery Fee",
+cashOnDelivery:"Cash on Delivery",
+cashOnDeliveryHint:"Pay the driver by cash or transfer when your order arrives.",
+freeDeliveryReached:"Free delivery applied to this order",
+freeDeliveryItems:"Add {count} more item(s) for free delivery",
+freeDeliveryAmount:"Add {amount} more for free delivery",
+productionDate:"Production Date",
+expiryDate:"Expiry Date",
   customerNote:"Order Note",
   placeOrder:"Place Order",
   loginRequired:"Please sign in before checkout.",
@@ -2613,6 +2629,14 @@ my:{
   chooseAddress:"လိပ်စာရွေးပါ",
   addAddress:"လိပ်စာထည့်",
   paymentMethod:"ငွေပေးချေမှုနည်းလမ်း",
+  deliveryFee:"ပို့ဆောင်ခ",
+cashOnDelivery:"ပစ္စည်းရောက်မှ ငွေချေ",
+cashOnDeliveryHint:"ပစ္စည်းရောက်ချိန်တွင် ပို့ဆောင်သူအား ငွေသား သို့မဟုတ် ငွေလွှဲဖြင့် ပေးချေနိုင်သည်",
+freeDeliveryReached:"ဤအော်ဒါသည် ပို့ဆောင်ခအခမဲ့ ရရှိပါသည်",
+freeDeliveryItems:"ပို့ဆောင်ခအခမဲ့ရရန် နောက်ထပ် {count} ခု ဝယ်ပါ",
+freeDeliveryAmount:"ပို့ဆောင်ခအခမဲ့ရရန် နောက်ထပ် {amount} ဖိုး ဝယ်ပါ",
+productionDate:"ထုတ်လုပ်သည့်ရက်",
+expiryDate:"သက်တမ်းကုန်ရက်",
   customerNote:"အော်ဒါမှတ်ချက်",
   placeOrder:"အော်ဒါတင်မည်",
   loginRequired:"ငွေမရှင်းမီ အကောင့်ဝင်ပါ။",
@@ -2725,6 +2749,14 @@ th:{
   chooseAddress:"เลือกที่อยู่จัดส่ง",
   addAddress:"เพิ่มที่อยู่",
   paymentMethod:"วิธีชำระเงิน",
+  deliveryFee:"ค่าจัดส่ง",
+cashOnDelivery:"ชำระเงินปลายทาง",
+cashOnDeliveryHint:"ชำระเงินสดหรือโอนให้พนักงานจัดส่งเมื่อได้รับสินค้า",
+freeDeliveryReached:"คำสั่งซื้อนี้ได้รับสิทธิ์จัดส่งฟรี",
+freeDeliveryItems:"ซื้อเพิ่มอีก {count} ชิ้นเพื่อรับส่งฟรี",
+freeDeliveryAmount:"ซื้อเพิ่มอีก {amount} เพื่อรับส่งฟรี",
+productionDate:"วันที่ผลิต",
+expiryDate:"วันหมดอายุ",
   customerNote:"หมายเหตุ",
   placeOrder:"สั่งซื้อ",
   loginRequired:"กรุณาเข้าสู่ระบบก่อนชำระเงิน",
@@ -9159,7 +9191,7 @@ async function placeOrder(){
           </div>
 
 
-          <          <div style="margin-top:7px">
+          <div style="margin-top:7px">
             ${escapeHtml(t("cashOnDelivery"))}
           </div>
 
