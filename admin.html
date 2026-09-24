@@ -803,20 +803,11 @@ tr:last-child td{
   
  
 
-    <div
+     <div
     class="menu-item"
-    onclick="showSection('payments',this)"
+    onclick="showSection('reports',this)"
   >
-    <span>
-      付款退款
-    </span>
-
-    <span
-      id="adminPaymentCount"
-      class="menu-count hidden"
-    >
-      0
-    </span>
+    销售报表 / 地区结算
   </div>
 
   <div
@@ -1329,7 +1320,150 @@ tr:last-child td{
   </div>
 
 </section>
-<!-- 订单 -->
+<!-- 销售报表 -->
+
+<section
+  id="reports"
+  class="section"
+>
+
+  <div class="page-title">
+    销售报表 / 地区结算
+  </div>
+
+  <div class="page-subtitle">
+    按地区和时间查看已经完成的真实销售。
+  </div>
+
+
+  <div class="toolbar">
+
+    <select
+      id="reportRegion"
+      onchange="loadSalesReport()"
+    >
+      <option value="">
+        全部地区
+      </option>
+    </select>
+
+    <select
+      id="reportPeriod"
+      onchange="loadSalesReport()"
+    >
+
+      <option value="today">
+        今天
+      </option>
+
+      <option value="yesterday">
+        昨天
+      </option>
+
+      <option value="week">
+        本周
+      </option>
+
+      <option
+        value="month"
+        selected
+      >
+        本月
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat-card">
+      <div class="stat-label">
+        实际完成销售额
+      </div>
+      <div
+        id="reportSales"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">
+        商品销售额
+      </div>
+      <div
+        id="reportMerchandise"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">
+        配送费收入
+      </div>
+      <div
+        id="reportDeliveryFee"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">
+        完成订单
+      </div>
+      <div
+        id="reportOrders"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">
+        售出件数
+      </div>
+      <div
+        id="reportItems"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      商品销售
+    </div>
+
+    <div id="reportProducts"></div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      品牌销售
+    </div>
+
+    <div id="reportBrands"></div>
+
+  </div>
+
+</section>
+  <!-- 订单 -->
 
 <section
   id="orders"
@@ -1345,7 +1479,14 @@ tr:last-child td{
   </div>
 
 
-  <div class="toolbar">
+    <div class="toolbar">
+
+    <input
+      id="orderSearch"
+      type="search"
+      placeholder="订单号 / 客户姓名 / 电话"
+      oninput="loadOrders()"
+    >
 
     <select
       id="orderStatusFilter"
@@ -1529,167 +1670,7 @@ tr:last-child td{
 </section>
 
 
-<!-- 付款 -->
 
-<section
-  id="payments"
-  class="section"
->
-
-  <div class="page-title">
-    付款退款
-  </div>
-
-  <div class="page-subtitle">
-    付款审核与退款处理
-  </div>
-
-  <div class="panel">
-
-    <div class="panel-title">
-      收款方式
-    </div>
-
-    <div class="safe-note">
-      客户结账时只会看到这里启用的付款方式。货到付款不需要填写收款账号。
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="form-group">
-
-        <label>
-          付款方式
-        </label>
-
-        <select
-          id="payMethodCode"
-          onchange="fillPaymentMethodForm()"
-        >
-
-          <option value="cash">
-            货到付款
-          </option>
-
-          <option value="kpay">
-            KPay
-          </option>
-
-          <option value="wavepay">
-            WavePay
-          </option>
-
-          <option value="bank_transfer">
-            银行转账
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          收款人姓名
-        </label>
-
-        <input
-          id="payMethodAccountName"
-          placeholder="例如：Myo"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          收款账号 / 电话号码
-        </label>
-
-        <input
-          id="payMethodAccountNumber"
-          placeholder="例如：09xxxxxxxxx"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          银行名称
-        </label>
-
-        <input
-          id="payMethodBankName"
-          placeholder="KPay / WavePay 可留空"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          状态
-        </label>
-
-        <select id="payMethodActive">
-
-          <option value="true">
-            启用
-          </option>
-
-          <option value="false">
-            停用
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="btn btn-primary"
-      onclick="savePaymentMethod()"
-    >
-      保存收款方式
-    </button>
-
-
-    <div
-      id="paymentMethodsTable"
-      style="margin-top:18px"
-    ></div>
-
-  </div>
-  <div class="panel">
-
-    <div class="panel-title">
-      付款记录
-    </div>
-
-    <div id="paymentsTable"></div>
-
-  </div>
-
-
-  <div class="panel">
-
-    <div class="panel-title">
-      退款记录
-    </div>
-
-    <div id="refundsTable"></div>
-
-  </div>
-
-</section>
 
 
 <!-- 配送 -->
@@ -2249,7 +2230,52 @@ tr:last-child td{
         >
 
       </div>
+      <div class="form-group">
 
+        <label>
+          配送费
+        </label>
+
+        <input
+          id="regionDeliveryFee"
+          type="number"
+          min="0"
+          value="0"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          满多少件免配送费
+        </label>
+
+        <input
+          id="regionFreeItems"
+          type="number"
+          min="1"
+          placeholder="不设置可留空"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          满多少金额免配送费
+        </label>
+
+        <input
+          id="regionFreeAmount"
+          type="number"
+          min="1"
+          placeholder="不设置可留空"
+        >
+
+      </div>
     </div>
 
 
@@ -2283,12 +2309,12 @@ tr:last-child td{
   class="section"
 >
 
-  <div class="page-title">
-    分类与筛选属性
+    <div class="page-title">
+    商品分类
   </div>
 
   <div class="page-subtitle">
-    两级分类 + 动态商品筛选
+    建立简单分类，例如薯片、饼干、糖果、饮料。
   </div>
 
 
@@ -2315,48 +2341,7 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group">
-
-        <label>
-          级别
-        </label>
-
-        <select
-          id="categoryLevel"
-          onchange="updateCategoryParentState()"
-        >
-
-          <option value="1">
-            一级分类
-          </option>
-
-          <option value="2">
-            二级分类
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label>
-          上级分类
-        </label>
-
-        <select
-          id="categoryParent"
-          disabled
-        >
-
-          <option value="">
-            一级分类不需要
-          </option>
-
-        </select>
-
-      </div>
+      <
 
 
       <div class="form-group">
@@ -3482,17 +3467,17 @@ async function refreshCurrentSection(){
     dashboard:
       loadDashboard,
 
-        orders:
+    orders:
       loadOrders,
+
+    reports:
+      loadSalesReport,
 
     shipments:
       loadShipments,
 
     inventory:
       loadInventory,
-
-    payments:
-      loadPayments,
 
     delivery:
       loadDelivery,
@@ -3531,28 +3516,17 @@ async function refreshCurrentSection(){
 }
 async function updateAdminBadges(){
 
-  const [
-    orderResult,
-    paymentResult
-  ] =
-    await Promise.all([
-
-      db
-        .from("orders")
-        .select("order_status"),
-
-      db
-        .from(
-          "payment_transactions"
-        )
-        .select("status")
-
-    ]);
+  const {
+    data
+  } =
+    await db
+      .from("orders")
+      .select("order_status");
 
 
   const orderCount =
     (
-      orderResult.data
+      data
       ||
       []
     )
@@ -3569,55 +3543,24 @@ async function updateAdminBadges(){
     .length;
 
 
-  const paymentCount =
-    (
-      paymentResult.data
-      ||
-      []
-    )
-    .filter(
-      payment =>
-        payment.status
-        ===
-        "submitted"
-    )
-    .length;
+  const node =
+    el("adminOrderCount");
 
 
-  [
-    [
-      "adminOrderCount",
-      orderCount
-    ],
-    [
-      "adminPaymentCount",
-      paymentCount
-    ]
-  ]
-  .forEach(
-    ([id,count]) => {
-
-      const node =
-        el(id);
+  if(!node){
+    return;
+  }
 
 
-      if(!node){
-        return;
-      }
+  node.textContent =
+    orderCount;
 
 
-      node.textContent =
-        count;
-
-
-      node.classList
-        .toggle(
-          "hidden",
-          count <= 0
-        );
-
-    }
-  );
+  node.classList
+    .toggle(
+      "hidden",
+      orderCount <= 0
+    );
 
 }
 
@@ -4072,7 +4015,17 @@ function renderBaseSelects(){
     `<option value="">全部地区</option>`
     +
     regionOptions;
+  if(
+    el("reportRegion")
+  ){
 
+    el("reportRegion")
+      .innerHTML =
+      `<option value="">全部地区</option>`
+      +
+      regionOptions;
+
+  }
 
   const variantOptions =
     variantData
@@ -4176,37 +4129,7 @@ function renderBaseSelects(){
     regionChecks;
 
 
-  const levelOne =
-    categoryData
-      .filter(
-        category =>
-          category.level === 1
-          &&
-          category.is_active
-      );
-
-
-  el("categoryParent")
-    .innerHTML =
-    `<option value="">请选择一级分类</option>`
-    +
-    levelOne
-      .map(
-        category => `
-
-          <option value="${category.id}">
-
-            ${
-              escapeHtml(
-                category.name_zh
-              )
-            }
-
-          </option>
-
-        `
-      )
-      .join("");
+  
 
 
   const categoryOptions =
@@ -4220,13 +4143,7 @@ function renderBaseSelects(){
 
           <option value="${category.id}">
 
-            ${
-              category.level === 1
-              ?
-              "一级 · "
-              :
-              "二级 · "
-            }
+           
 
             ${
               escapeHtml(
@@ -4634,15 +4551,7 @@ async function loadDashboard(){
 
       <div class="operation-buttons">
 
-        <span class="badge badge-amber">
-          待审核付款 ${
-            Number(
-              summary.pending_payment_reviews
-              ||
-              0
-            )
-          }
-        </span>
+        
 
         <span class="badge badge-amber">
           待审批 ${
@@ -6157,10 +6066,38 @@ async function loadOrders(){
   }
 
 
-  const filteredData =
+    const filteredData =
     (data || [])
       .filter(
         order =>
+          (
+            !search
+            ||
+            (
+              order.order_number
+              ||
+              ""
+            )
+            .toLowerCase()
+            .includes(search)
+            ||
+            (
+              order.recipient_name_snapshot
+              ||
+              ""
+            )
+            .toLowerCase()
+            .includes(search)
+            ||
+            (
+              order.recipient_phone_snapshot
+              ||
+              ""
+            )
+            .toLowerCase()
+            .includes(search)
+          )
+          &&
           (
             !status
             ||
