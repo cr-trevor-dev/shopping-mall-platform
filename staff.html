@@ -4987,20 +4987,23 @@ async function refreshCurrent(){
       loadOrders,
 
     orderDetail:
-      async () => {
+  async () => {
 
-        if(currentOrderDetailId){
+    if(currentOrderDetailId){
 
-          await openOrderDetail(
-            currentOrderDetailId
-          );
+      await openOrderDetail(
+        currentOrderDetailId
+      );
 
-        }
+    }
 
-      },
+  },
 
-    shipments:
-      loadShipments,
+driverSelect:
+  async () => {},
+
+shipments:
+  loadShipments,
 
     inventory:
       loadInventory,
