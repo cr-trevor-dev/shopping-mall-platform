@@ -803,7 +803,15 @@ tr:last-child td{
     </span>
 
   </div>
-
+  <div
+    id="menuBusiness"
+    class="menu-item hidden"
+    data-section="business"
+    onclick="showSection('business',this)"
+    data-i18n="businessData"
+  >
+    经营数据
+  </div>
     <div
     id="menuShipments"
     class="menu-item hidden"
@@ -834,15 +842,7 @@ tr:last-child td{
   </div>
 
 
-  <div
-    id="menuPayments"
-    class="menu-item hidden"
-    data-section="payments"
-    onclick="showSection('payments',this)"
-    data-i18n="payments"
-  >
-    付款审核
-  </div>
+  
 
 
   <div
@@ -940,23 +940,7 @@ tr:last-child td{
     </div>
 
 
-    <div class="stat">
-
-      <div
-        class="stat-label"
-        data-i18n="submittedPayments"
-      >
-        待审核付款
-      </div>
-
-      <div
-        id="statPayments"
-        class="stat-value"
-      >
-        —
-      </div>
-
-    </div>
+    
 
 
     <div class="stat">
@@ -4372,7 +4356,7 @@ async function loadAccessControl(){
 
 function applyMenuPermissions(){
 
-  if(
+   if(
     hasPermission(
       "orders.view"
     )
@@ -4381,6 +4365,14 @@ function applyMenuPermissions(){
     el("menuOrders")
       .classList
       .remove("hidden");
+
+    if(el("menuBusiness")){
+
+      el("menuBusiness")
+        .classList
+        .remove("hidden");
+
+    }
 
   }
 
@@ -4411,9 +4403,6 @@ function applyMenuPermissions(){
   }
 
 
-  
-
-
   if(
     hasPermission(
       "customers.view"
@@ -4423,11 +4412,7 @@ function applyMenuPermissions(){
     el("menuCustomers")
       .classList
       .remove("hidden");
-    if(el("menuBusiness")){
-      el("menuBusiness")
-        .classList
-        .remove("hidden");
-    }
+
   }
 
 
@@ -4714,7 +4699,13 @@ function renderSelects(){
 
     }
   );
+  if(el("businessRegion")){
 
+    el("businessRegion")
+      .innerHTML =
+      regionOptions;
+
+  }
 }
 
 
@@ -6597,7 +6588,7 @@ async function confirmDriverAssignment(driverId){
   );
 }
 
-}
+
 async function cancelOrder(
   orderId,
   fulfilled
