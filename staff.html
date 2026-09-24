@@ -1019,10 +1019,35 @@ tr:last-child td{
       id="businessRange"
       onchange="toggleBusinessDates()"
     >
-      <option value="today">今天</option>
-      <option value="week">本周</option>
-      <option value="month">本月</option>
-      <option value="custom">自定义</option>
+
+      <option
+        value="today"
+        data-i18n="today"
+      >
+        今天
+      </option>
+
+      <option
+        value="week"
+        data-i18n="thisWeek"
+      >
+        本周
+      </option>
+
+      <option
+        value="month"
+        data-i18n="thisMonth"
+      >
+        本月
+      </option>
+
+      <option
+        value="custom"
+        data-i18n="customRange"
+      >
+        自定义
+      </option>
+
     </select>
 
     <input
@@ -1041,38 +1066,112 @@ tr:last-child td{
 
   </div>
 
+
   <div class="stats">
 
     <div class="stat">
-      <div class="stat-label">销售额</div>
-      <div id="businessSales" class="stat-value">—</div>
+
+      <div
+        class="stat-label"
+        data-i18n="businessSales"
+      >
+        销售额
+      </div>
+
+      <div
+        id="businessSales"
+        class="stat-value"
+      >
+        —
+      </div>
+
     </div>
 
-    <div class="stat">
-      <div class="stat-label">完成订单</div>
-      <div id="businessOrders" class="stat-value">—</div>
-    </div>
 
     <div class="stat">
-      <div class="stat-label">售出件数</div>
-      <div id="businessItems" class="stat-value">—</div>
+
+      <div
+        class="stat-label"
+        data-i18n="completedOrders"
+      >
+        完成订单
+      </div>
+
+      <div
+        id="businessOrders"
+        class="stat-value"
+      >
+        —
+      </div>
+
     </div>
 
-    <div class="stat">
-      <div class="stat-label">配送成功</div>
-      <div id="businessDeliverySuccess" class="stat-value">—</div>
-    </div>
 
     <div class="stat">
-      <div class="stat-label">配送失败</div>
-      <div id="businessDeliveryFailed" class="stat-value">—</div>
+
+      <div
+        class="stat-label"
+        data-i18n="itemsSold"
+      >
+        售出件数
+      </div>
+
+      <div
+        id="businessItems"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="deliverySuccess"
+      >
+        配送成功
+      </div>
+
+      <div
+        id="businessDeliverySuccess"
+        class="stat-value"
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div
+        class="stat-label"
+        data-i18n="deliveryFailed"
+      >
+        配送失败
+      </div>
+
+      <div
+        id="businessDeliveryFailed"
+        class="stat-value"
+      >
+        —
+      </div>
+
     </div>
 
   </div>
 
+
   <div class="panel">
 
-    <div class="panel-title">
+    <div
+      class="panel-title"
+      data-i18n="productSales"
+    >
       商品销售
     </div>
 
@@ -1081,6 +1180,7 @@ tr:last-child td{
   </div>
 
 </section>
+
 
 <!-- ORDERS -->
 
@@ -1105,12 +1205,15 @@ tr:last-child td{
 
 
   <div class="toolbar">
-<input
-  id="orderSearch"
-  type="search"
-  placeholder="订单号 / 客户姓名 / 电话"
-  oninput="loadOrders()"
->
+
+    <input
+      id="orderSearch"
+      type="search"
+      placeholder="订单号 / 客户姓名 / 电话"
+      data-i18n-placeholder="orderSearchPlaceholder"
+      oninput="loadOrders()"
+    >
+
     <select
       id="orderStatusFilter"
       onchange="loadOrders()"
@@ -1123,20 +1226,32 @@ tr:last-child td{
         全部订单
       </option>
 
-      <option value="pending_confirmation">
-        pending_confirmation
+      <option
+        value="pending_confirmation"
+        data-i18n="pendingConfirmation"
+      >
+        待确认
       </option>
 
-      <option value="confirmed">
-        confirmed
+      <option
+        value="confirmed"
+        data-i18n="confirmedOrders"
+      >
+        已确认
       </option>
 
-      <option value="cancelled">
-        cancelled
+      <option
+        value="cancelled"
+        data-i18n="cancelledOrders"
+      >
+        已取消
       </option>
 
-      <option value="completed">
-        completed
+      <option
+        value="completed"
+        data-i18n="completedOrdersFilter"
+      >
+        已完成
       </option>
 
     </select>
@@ -1151,6 +1266,8 @@ tr:last-child td{
   </div>
 
 </section>
+
+
 <!-- ORDER DETAIL -->
 
 <section
@@ -1199,7 +1316,10 @@ tr:last-child td{
 
   </div>
 
-  <div class="page-title">
+  <div
+    class="page-title"
+    data-i18n="deliveryDriver"
+  >
     配送员
   </div>
 
@@ -1574,7 +1694,23 @@ zh:{
   receiptLocked:"确认后不能再次收货。如第一次确认有误，需要提交库存更正审批。",
   listedStock:"上架库存",
   saleableStock:"可售库存",
-  saveListing:"保存上架"
+    saveListing:"保存上架",
+  today:"今天",
+  thisWeek:"本周",
+  thisMonth:"本月",
+  customRange:"自定义",
+  businessSales:"销售额",
+  completedOrders:"完成订单",
+  itemsSold:"售出件数",
+  deliverySuccess:"配送成功",
+  deliveryFailed:"配送失败",
+  productSales:"商品销售",
+  orderSearchPlaceholder:"订单号 / 客户姓名 / 电话",
+  pendingConfirmation:"待确认",
+  confirmedOrders:"已确认",
+  cancelledOrders:"已取消",
+  completedOrdersFilter:"已完成",
+  deliveryDriver:"配送员"
 },
 
 en:{
@@ -1633,7 +1769,23 @@ en:{
   receiptLocked:"A shipment can only be received once. If the first confirmation is wrong, submit an inventory correction for approval.",
   listedStock:"Listed Stock",
   saleableStock:"Saleable Stock",
-  saveListing:"Save Listing"
+    saveListing:"Save Listing",
+  today:"Today",
+  thisWeek:"This Week",
+  thisMonth:"This Month",
+  customRange:"Custom",
+  businessSales:"Sales",
+  completedOrders:"Completed Orders",
+  itemsSold:"Items Sold",
+  deliverySuccess:"Delivery Success",
+  deliveryFailed:"Delivery Failed",
+  productSales:"Product Sales",
+  orderSearchPlaceholder:"Order No. / Customer / Phone",
+  pendingConfirmation:"Pending Confirmation",
+  confirmedOrders:"Confirmed",
+  cancelledOrders:"Cancelled",
+  completedOrdersFilter:"Completed",
+  deliveryDriver:"Delivery Driver"
 },
 
 my:{
@@ -1692,7 +1844,23 @@ my:{
   receiptLocked:"အတည်ပြုပြီးနောက် ထပ်မံလက်ခံ၍မရပါ။ ပထမအတည်ပြုမှုမှားပါက လက်ကျန်ပြင်ဆင်မှုအတွက် အတည်ပြုချက်တင်ရမည်။",
   listedStock:"ရောင်းရန်တင်ထား",
   saleableStock:"ရောင်းနိုင်",
-  saveListing:"တင်ရောင်းပမာဏသိမ်း"
+    saveListing:"တင်ရောင်းပမာဏသိမ်း",
+  today:"ယနေ့",
+  thisWeek:"ယခုအပတ်",
+  thisMonth:"ယခုလ",
+  customRange:"စိတ်ကြိုက်",
+  businessSales:"ရောင်းရငွေ",
+  completedOrders:"ပြီးဆုံးအော်ဒါ",
+  itemsSold:"ရောင်းပြီးအရေအတွက်",
+  deliverySuccess:"ပို့ဆောင်မှုအောင်မြင်",
+  deliveryFailed:"ပို့ဆောင်မှုမအောင်မြင်",
+  productSales:"ကုန်ပစ္စည်းရောင်းအား",
+  orderSearchPlaceholder:"အော်ဒါနံပါတ် / ဖောက်သည်အမည် / ဖုန်း",
+  pendingConfirmation:"အတည်ပြုရန်စောင့်",
+  confirmedOrders:"အတည်ပြုပြီး",
+  cancelledOrders:"ပယ်ဖျက်ပြီး",
+  completedOrdersFilter:"ပြီးဆုံး",
+  deliveryDriver:"ပို့ဆောင်သူ"
 },
 
 th:{
@@ -1751,7 +1919,23 @@ th:{
   receiptLocked:"หลังยืนยันแล้วจะรับซ้ำไม่ได้ หากยืนยันครั้งแรกผิด ต้องส่งคำขอแก้ไขสต็อกเพื่ออนุมัติ",
   listedStock:"สต็อกที่เปิดขาย",
   saleableStock:"สต็อกที่ขายได้",
-  saveListing:"บันทึกการเปิดขาย"
+    saveListing:"บันทึกการเปิดขาย",
+  today:"วันนี้",
+  thisWeek:"สัปดาห์นี้",
+  thisMonth:"เดือนนี้",
+  customRange:"กำหนดเอง",
+  businessSales:"ยอดขาย",
+  completedOrders:"คำสั่งซื้อสำเร็จ",
+  itemsSold:"จำนวนสินค้าที่ขาย",
+  deliverySuccess:"จัดส่งสำเร็จ",
+  deliveryFailed:"จัดส่งไม่สำเร็จ",
+  productSales:"ยอดขายสินค้า",
+  orderSearchPlaceholder:"เลขคำสั่งซื้อ / ชื่อลูกค้า / โทรศัพท์",
+  pendingConfirmation:"รอยืนยัน",
+  confirmedOrders:"ยืนยันแล้ว",
+  cancelledOrders:"ยกเลิกแล้ว",
+  completedOrdersFilter:"เสร็จสมบูรณ์",
+  deliveryDriver:"พนักงานจัดส่ง"
 }
 
 };
@@ -3357,7 +3541,23 @@ function applyLanguage(){
       }
     );
 
+  document
+    .querySelectorAll(
+      "[data-i18n-placeholder]"
+    )
+    .forEach(
+      item => {
 
+        const key =
+          item.getAttribute(
+            "data-i18n-placeholder"
+          );
+
+        item.placeholder =
+          t(key);
+
+      }
+    );
   el("workspaceTitle")
     .textContent =
     t("workspace");
