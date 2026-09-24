@@ -6795,73 +6795,109 @@ async function assignDelivery(orderId, regionId){
     return;
   }
 
-  const container = el("driverSelectList");
 
-  container.innerHTML =
-    drivers.map(driver => `
+  const oldSelector =
+    el("inlineDriverSelect");
 
-      <div class="panel" style="margin-bottom:12px">
+  if(oldSelector){
+    oldSelector.remove();
+  }
 
-        <div class="panel-head">
 
-          <div>
-            <div class="panel-title">
-              ${escapeHtml(driver.display_name || "—")}
+  const selector =
+    document.createElement("div");
+
+  selector.id =
+    "inlineDriverSelect";
+
+  selector.className =
+    "panel";
+
+  selector.style.marginTop =
+    "12px";
+
+
+  selector.innerHTML = `
+
+    <div class="panel-title">
+      ${escapeHtml(rt("deliveryDriver"))}
+    </div>
+
+    <div style="margin-top:12px">
+
+      ${
+        drivers.map(driver => `
+
+          <div
+            class="panel"
+            style="margin-bottom:10px"
+          >
+
+            <div class="panel-head">
+
+              <div>
+
+                <div class="panel-title">
+                  ${escapeHtml(driver.display_name || "—")}
+                </div>
+
+                <div class="small">
+                  ${escapeHtml(driver.delivery_code || "—")}
+                </div>
+
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-small"
+                onclick="confirmDriverAssignment('${driver.id}')"
+              >
+                ${escapeHtml(rt("selectDriver"))}
+              </button>
+
             </div>
 
-            <div class="panel-note">
-              ${escapeHtml(driver.delivery_code || "—")}
+            <div
+              class="small"
+              style="line-height:1.8"
+            >
+
+              ${escapeHtml(rt("phone"))}：
+              ${escapeHtml(driver.phone || "—")}
+
+              <br>
+
+              ${escapeHtml(rt("vehicle"))}：
+              ${escapeHtml(driver.vehicle_type || "—")}
+
+              <br>
+
+              ${escapeHtml(rt("plate"))}：
+              ${escapeHtml(driver.vehicle_plate || "—")}
+
             </div>
+
           </div>
 
-          <button
-            class="btn btn-primary btn-small"
-            onclick="confirmDriverAssignment('${driver.id}')"
-          >
-            ${escapeHtml(rt("selectDriver"))}
-          </button>
+        `).join("")
+      }
 
-        </div>
+    </div>
 
-        <div class="small" style="line-height:1.8">
-          ${escapeHtml(rt("phone"))}：
-          ${escapeHtml(driver.phone || "—")}
-          <br>
-          ${escapeHtml(rt("vehicle"))}：
-          ${escapeHtml(driver.vehicle_type || "—")}
-          <br>
-          ${escapeHtml(rt("plate"))}：
-          ${escapeHtml(driver.vehicle_plate || "—")}
-        </div>
-
-      </div>
-
-    `).join("");
-
-  document
-  .querySelectorAll(
-    ".section"
-  )
-  .forEach(
-    section =>
-      section.classList
-        .remove("active")
-  );
+  `;
 
 
-el("driverSelect")
-  .classList
-  .add("active");
+  el("orderDetailContent")
+    .appendChild(
+      selector
+    );
 
 
-currentSection =
-  "driverSelect";
+  selector.scrollIntoView({
+    behavior:"smooth",
+    block:"nearest"
+  });
 
-
-window.scrollTo({
-  top:0,
-  behavior:"smooth"
-});
 }
 
 async function confirmDriverAssignment(driverId){
