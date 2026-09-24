@@ -4189,17 +4189,7 @@ function applyMenuPermissions(){
   }
 
 
-  if(
-    hasPermission(
-      "payments.view"
-    )
-  ){
-
-    el("menuPayments")
-      .classList
-      .remove("hidden");
-
-  }
+  
 
 
   if(
@@ -4211,7 +4201,11 @@ function applyMenuPermissions(){
     el("menuCustomers")
       .classList
       .remove("hidden");
-
+    if(el("menuBusiness")){
+      el("menuBusiness")
+        .classList
+        .remove("hidden");
+    }
   }
 
 
@@ -4557,7 +4551,8 @@ async function refreshCurrent(){
 
     dashboard:
       loadDashboard,
-
+    business:
+      loadBusinessData,
     orders:
       loadOrders,
     shipments:
@@ -4565,8 +4560,7 @@ async function refreshCurrent(){
     inventory:
       loadInventory,
 
-    payments:
-      loadPayments,
+    
 
     customers:
       loadCustomers,
@@ -4810,15 +4804,7 @@ async function setupStaffRealtime(){
         refreshFromRealtime
       )
 
-      .on(
-        "postgres_changes",
-        {
-          event:"*",
-          schema:"public",
-          table:"payment_transactions"
-        },
-        refreshFromRealtime
-      )
+      
 
       .on(
         "postgres_changes",
@@ -5314,243 +5300,371 @@ async function updateStaffBadges(){
 }
 
 async function loadDashboard(){
+
   await updateStaffBadges();
-  let pending =
-    "—";
 
-  let picking =
-    "—";
+  let pending = "—";
+  let picking = "—";
+  let shipmentCount = "—";
 
-  let paymentCount =
-    "—";
-  let shipmentCount =
-    "—";
-
-  if(
-    hasPermission(
-      "orders.view"
-    )
-  ){
+  if(hasPermission("orders.view")){
 
     pending =
       await countRows(
-
         "orders",
-
         query =>
           query.eq(
             "order_status",
             "pending_confirmation"
           )
-
       );
-
 
     picking =
       await countRows(
-
         "orders",
-
         query =>
           query.eq(
             "fulfillment_status",
             "picking"
           )
-
       );
 
   }
 
-
-  if(
-    hasPermission(
-      "payments.view"
-    )
-  ){
-
-    paymentCount =
-      await countRows(
-
-        "payment_transactions",
-
-        query =>
-          query.eq(
-            "status",
-            "submitted"
-          )
-
-      );
-
-  }
-
-  if(
-    hasPermission(
-      "inventory.receive"
-    )
-  ){
+  if(hasPermission("inventory.receive")){
 
     shipmentCount =
       await countRows(
         "region_shipments",
         query =>
-          query.eq(
-            "status",
-            "dispatched"
-          )
+          query.eq("status","dispatched")
       );
 
   }
-  el("statPending")
-    .textContent =
-    pending;
 
-  el("statPicking")
-    .textContent =
-    picking;
+  el("statPending").textContent = pending;
+  el("statPicking").textContent = picking;
+  el("statRegions").textContent = myRegionIds.length;
+  el("statShipments").textContent = shipmentCount;
 
-  el("statPayments")
-    .textContent =
-    paymentCount;
+  if(!hasPermission("orders.view")){
 
-  el("statRegions")
-    .textContent =
-    myRegionIds.length;
-  el("statShipments")
-    .textContent =
-    shipmentCount;
-
-  if(
-    !hasPermission(
-      "orders.view"
-    )
-  ){
-
-    el("dashboardOrders")
-      .innerHTML =
-      `<div class="empty">No order permission</div>`;
+    el("dashboardOrders").innerHTML =
+      `<div class="empty">${escapeHtml(rt("noOrderPermission"))}</div>`;
 
     return;
-
   }
 
-
-  const {
-    data,
-    error
-  } =
+  const {data,error} =
     await db
-      .from(
-        "orders"
-      )
+      .from("orders")
       .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(10);
-
+      .order("created_at",{ascending:false})
+      .limit(8);
 
   if(error){
 
-    el("dashboardOrders")
-      .innerHTML =
-      errorBox(
-        error.message
-      );
+    el("dashboardOrders").innerHTML =
+      errorBox(rt("cannotLoadOrders"));
 
     return;
-
   }
 
-
   const rows =
-    (data || [])
-      .map(
-        order => `
+    (data || []).map(order => `
 
-          <tr>
+      <tr>
 
-            <td class="mono">
+        <td class="mono">
+          ${escapeHtml(order.order_number)}
+        </td>
 
-              ${
-                escapeHtml(
-                  order.order_number
-                )
-              }
+        <td>
+          ${escapeHtml(
+            regionMap[order.region_id]
+            ||
+            order.region_name_zh_snapshot
+            ||
+            "—"
+          )}
+        </td>
 
-            </td>
+        <td>
+          ${statusBadge(order.order_status)}
+        </td>
 
-            <td>
+        <td>
+          ${money(order.total_amount,order.currency_code)}
+        </td>
 
-              ${
-                escapeHtml(
-                  regionMap[
-                    order.region_id
-                  ]
-                  ||
-                  order.region_name_zh_snapshot
-                  ||
-                  "—"
-                )
-              }
+        <td>
+          <button
+            class="btn btn-light btn-small"
+            onclick="openOrderDetail('${order.id}')"
+          >
+            ${escapeHtml(rt("viewDetail"))}
+          </button>
+        </td>
 
-            </td>
+      </tr>
 
-            <td>
+    `);
 
-              ${
-                statusBadge(
-                  order.order_status
-                )
-              }
+  el("dashboardOrders").innerHTML =
+    makeTable(
+      [
+        rt("order"),
+        rt("region"),
+        rt("status"),
+        rt("total"),
+        rt("action")
+      ],
+      rows
+    );
+}
 
-            </td>
 
-            <td>
+function getBusinessDateRange(){
 
-              ${
-                statusBadge(
-                  order.fulfillment_status
-                )
-              }
+  const mode =
+    el("businessRange")?.value
+    ||
+    "today";
 
-            </td>
+  const now = new Date();
 
-            <td>
+  let start = new Date(now);
+  let end = new Date(now);
 
-              ${
-                money(
-                  order.total_amount,
-                  order.currency_code
-                )
-              }
+  if(mode === "today"){
 
-            </td>
+    start.setHours(0,0,0,0);
+    end.setDate(start.getDate()+1);
+    end.setHours(0,0,0,0);
 
-          </tr>
+  }
+  else if(mode === "week"){
 
-        `
+    const day =
+      (now.getDay()+6)%7;
+
+    start.setDate(now.getDate()-day);
+    start.setHours(0,0,0,0);
+
+    end = new Date(start);
+    end.setDate(start.getDate()+7);
+
+  }
+  else if(mode === "month"){
+
+    start =
+      new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
       );
 
+    end =
+      new Date(
+        now.getFullYear(),
+        now.getMonth()+1,
+        1
+      );
 
-  el("dashboardOrders")
-    .innerHTML =
-    makeTable(
+  }
+  else{
 
-      [
-        "Order",
-        "Region",
-        "Status",
-        "Fulfillment",
-        "Total"
-      ],
+    const startValue =
+      el("businessStart")?.value;
 
-      rows
+    const endValue =
+      el("businessEnd")?.value;
 
+    if(!startValue || !endValue){
+      return null;
+    }
+
+    start =
+      new Date(startValue+"T00:00:00");
+
+    end =
+      new Date(endValue+"T00:00:00");
+
+    end.setDate(end.getDate()+1);
+  }
+
+  return {start,end};
+}
+
+
+function toggleBusinessDates(){
+
+  const custom =
+    el("businessRange")?.value === "custom";
+
+  el("businessStart")
+    ?.classList
+    .toggle("hidden",!custom);
+
+  el("businessEnd")
+    ?.classList
+    .toggle("hidden",!custom);
+
+  loadBusinessData();
+}
+
+
+async function loadBusinessData(){
+
+  if(!hasPermission("orders.view")){
+    return;
+  }
+
+  const regionId =
+    el("businessRegion")?.value
+    ||
+    myRegionIds[0];
+
+  if(!regionId){
+    return;
+  }
+
+  const range =
+    getBusinessDateRange();
+
+  if(!range){
+    return;
+  }
+
+  const {data:summary,error} =
+    await db.rpc(
+      "staff_region_dashboard_summary",
+      {
+        p_region_id:regionId,
+        p_start_at:range.start.toISOString(),
+        p_end_at:range.end.toISOString()
+      }
     );
 
+  if(error){
+    el("businessProducts").innerHTML =
+      errorBox(rt("cannotLoadBusiness"));
+    return;
+  }
+
+  el("businessSales").textContent =
+    money(summary?.sales_amount || 0);
+
+  el("businessOrders").textContent =
+    summary?.orders_completed || 0;
+
+  el("businessItems").textContent =
+    summary?.items_sold || 0;
+
+  el("businessDeliverySuccess").textContent =
+    summary?.delivery_success || 0;
+
+  el("businessDeliveryFailed").textContent =
+    summary?.delivery_failed || 0;
+
+  const {data:completedOrders} =
+    await db
+      .from("orders")
+      .select("id")
+      .eq("region_id",regionId)
+      .eq("order_status","completed")
+      .gte("completed_at",range.start.toISOString())
+      .lt("completed_at",range.end.toISOString());
+
+  const orderIds =
+    (completedOrders || [])
+      .map(item => item.id);
+
+  if(!orderIds.length){
+
+    el("businessProducts").innerHTML =
+      `<div class="empty">${escapeHtml(t("noData"))}</div>`;
+
+    return;
+  }
+
+  const {data:items,error:itemError} =
+    await db
+      .from("order_items")
+      .select(
+        "product_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,quantity,line_total"
+      )
+      .in("order_id",orderIds);
+
+  if(itemError){
+
+    el("businessProducts").innerHTML =
+      errorBox(rt("cannotLoadBusiness"));
+
+    return;
+  }
+
+  const totals = {};
+
+  (items || []).forEach(item => {
+
+    const key =
+      item.product_id
+      ||
+      item.product_name_zh_snapshot;
+
+    if(!totals[key]){
+
+      totals[key] = {
+        name:
+          item[`product_name_${appLanguage}_snapshot`]
+          ||
+          item.product_name_zh_snapshot
+          ||
+          item.product_name_en_snapshot
+          ||
+          "—",
+        quantity:0,
+        amount:0
+      };
+
+    }
+
+    totals[key].quantity +=
+      Number(item.quantity || 0);
+
+    totals[key].amount +=
+      Number(item.line_total || 0);
+
+  });
+
+  const rows =
+    Object.values(totals)
+      .sort(
+        (a,b) =>
+          b.quantity-a.quantity
+      )
+      .map((item,index) => `
+
+        <tr>
+          <td>${index+1}</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${item.quantity}</td>
+          <td>${money(item.amount)}</td>
+        </tr>
+
+      `);
+
+  el("businessProducts").innerHTML =
+    makeTable(
+      [
+        "#",
+        rt("product"),
+        rt("soldQuantity"),
+        rt("salesAmount")
+      ],
+      rows
+    );
 }
 
 
@@ -5560,449 +5674,493 @@ async function loadDashboard(){
 
 async function loadOrders(){
 
-  if(
-    !hasPermission(
-      "orders.view"
-    )
-  ){
-
+  if(!hasPermission("orders.view")){
     return;
-
   }
-
 
   let query =
     db
-      .from(
-        "orders"
-      )
+      .from("orders")
       .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
+      .order("created_at",{ascending:false})
       .limit(250);
 
-
   const status =
-    el(
-      "orderStatusFilter"
-    ).value;
-
+    el("orderStatusFilter").value;
 
   if(status){
-
-    query =
-      query.eq(
-        "order_status",
-        status
-      );
-
+    query = query.eq("order_status",status);
   }
 
-
-  const {
-    data,
-    error
-  } =
-    await query;
-
+  const {data,error} = await query;
 
   if(error){
-
-    el("ordersTable")
-      .innerHTML =
-      errorBox(
-        error.message
-      );
-
+    el("ordersTable").innerHTML =
+      errorBox(rt("cannotLoadOrders"));
     return;
-
   }
 
-
-  const rows =
-    (data || [])
-      .map(
-        order => {
-
-                    let buttons = "";
-
-
-          if(
-            order.order_status
-            ===
-            "pending_confirmation"
-            &&
-            hasPermission(
-              "orders.confirm"
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="confirmOrder('${order.id}')"
-              >
-                ${escapeHtml(rt("confirmButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.order_status
-            ===
-            "confirmed"
-            &&
-            order.fulfillment_status
-            ===
-            "unfulfilled"
-            &&
-            hasPermission(
-              "orders.pack"
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-light btn-small"
-                onclick="startPicking('${order.id}')"
-              >
-                ${escapeHtml(rt("startPickingButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.fulfillment_status
-            ===
-            "picking"
-            &&
-            hasPermission(
-              "orders.pack"
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="markPacked('${order.id}')"
-              >
-                ${escapeHtml(rt("packedButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.fulfillment_status
-            ===
-            "packed"
-            &&
-            hasPermission(
-              "orders.pack"
-            )
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-primary btn-small"
-                onclick="finalizeOrder('${order.id}')"
-              >
-                ${escapeHtml(rt("fulfillButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            order.order_status
-            !==
-            "cancelled"
-            &&
-            order.fulfillment_status
-            ===
-            "fulfilled"
-            &&
-            [
-              "not_assigned",
-              "failed"
-            ].includes(
-              order.delivery_status
-            )
-            &&
-            hasPermission(
-              "orders.assign_delivery"
-            )
-          ){
-
-            const deliveryButtonText =
-              order.delivery_status
-              ===
-              "failed"
-              ?
-              rt("redeliverButton")
-              :
-              rt("assignDeliveryButton");
-
-
-            buttons += `
-
-              <button
-                class="btn btn-amber btn-small"
-                onclick="assignDelivery('${order.id}','${order.region_id}')"
-              >
-                ${escapeHtml(deliveryButtonText)}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            hasPermission(
-              "orders.cancel"
-            )
-            &&
-            ![
-              "cancelled",
-              "completed"
-            ].includes(
-              order.order_status
-            )
-            &&
-            order.delivery_status
-            !==
-            "delivered"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-red btn-small"
-                onclick="cancelOrder('${order.id}',${order.fulfillment_status === "fulfilled"})"
-              >
-                ${escapeHtml(rt("cancelOrderButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          if(
-            hasPermission(
-              "orders.cancel"
-            )
-            &&
-            order.order_status
-            ===
-            "cancelled"
-            &&
-            order.fulfillment_status
-            ===
-            "fulfilled"
-            &&
-            order.return_status
-            ===
-            "pending"
-          ){
-
-            buttons += `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="confirmOrderReturn('${order.id}')"
-              >
-                ${escapeHtml(rt("confirmReturnButton"))}
-              </button>
-
-            `;
-
-          }
-
-
-          return `
-
-            <tr>
-
-              <td>
-
-                <div class="mono">
-
-                  ${
-                    escapeHtml(
-                      order.order_number
-                    )
-                  }
-
-                </div>
-
-                <div class="small">
-
-                  ${
-                    formatDate(
-                      order.created_at
-                    )
-                  }
-
-                </div>
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    regionMap[
-                      order.region_id
-                    ]
-                    ||
-                    order.region_name_zh_snapshot
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    order.recipient_name_snapshot
-                    ||
-                    "—"
-                  )
-                }
-
-                <div class="small">
-
-                  ${
-                    escapeHtml(
-                      order.recipient_phone_snapshot
-                      ||
-                      ""
-                    )
-                  }
-
-                </div>
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    order.full_address_snapshot
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    order.order_status
-                  )
-                }
-
-                ${
-                  statusBadge(
-                    order.fulfillment_status
-                  )
-                }
-
-                ${
-                  statusBadge(
-                    order.delivery_status
-                  )
-                }
-                ${
-                  returnStatusBadge(
-                    order.return_status
-                  )
-                }
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    order.payment_status
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  money(
-                    order.total_amount,
-                    order.currency_code
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                <div class="operation-buttons">
-
-                  ${buttons}
-
-                </div>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
+  const keyword =
+    String(el("orderSearch")?.value || "")
+      .trim()
+      .toLowerCase();
+
+  const filtered =
+    (data || []).filter(order => {
+
+      if(!keyword){
+        return true;
+      }
+
+      return [
+        order.order_number,
+        order.recipient_name_snapshot,
+        order.recipient_phone_snapshot
+      ]
+      .some(value =>
+        String(value || "")
+          .toLowerCase()
+          .includes(keyword)
       );
 
+    });
 
-  el("ordersTable")
-    .innerHTML =
+  const rows =
+    filtered.map(order => `
+
+      <tr>
+
+        <td>
+          <div class="mono">
+            ${escapeHtml(order.order_number)}
+          </div>
+          <div class="small">
+            ${formatDate(order.created_at)}
+          </div>
+        </td>
+
+        <td>
+          ${
+            escapeHtml(
+              regionMap[order.region_id]
+              ||
+              order.region_name_zh_snapshot
+              ||
+              "—"
+            )
+          }
+        </td>
+
+        <td>
+          ${escapeHtml(order.recipient_name_snapshot || "—")}
+          <div class="small">
+            ${escapeHtml(order.recipient_phone_snapshot || "")}
+          </div>
+        </td>
+
+        <td>
+          ${statusBadge(order.order_status)}
+          ${statusBadge(order.fulfillment_status)}
+          ${statusBadge(order.delivery_status)}
+          ${returnStatusBadge(order.return_status)}
+        </td>
+
+        <td>
+          ${money(order.total_amount,order.currency_code)}
+        </td>
+
+        <td>
+          <button
+            class="btn btn-primary btn-small"
+            onclick="openOrderDetail('${order.id}')"
+          >
+            ${escapeHtml(rt("viewDetail"))}
+          </button>
+        </td>
+
+      </tr>
+
+    `);
+
+  el("ordersTable").innerHTML =
     makeTable(
-
-            [
+      [
         rt("order"),
         rt("region"),
         rt("customer"),
-        rt("address"),
         rt("status"),
-        rt("payment"),
         rt("total"),
         rt("action")
       ],
-
       rows
-
     );
+}
 
+
+async function openOrderDetail(orderId){
+
+  const [
+    orderResult,
+    itemResult,
+    deliveryResult
+  ] =
+    await Promise.all([
+
+      db
+        .from("orders")
+        .select("*")
+        .eq("id",orderId)
+        .single(),
+
+      db
+        .from("order_items")
+        .select(
+          "id,order_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity,unit_price,line_total,sales_unit_code_snapshot"
+        )
+        .eq("order_id",orderId),
+
+      db
+        .from("delivery_tasks")
+        .select("*")
+        .eq("order_id",orderId)
+        .order("created_at",{ascending:false})
+        .limit(1)
+
+    ]);
+
+  if(orderResult.error || itemResult.error){
+    alert(rt("cannotLoadOrderDetail"));
+    return;
+  }
+
+  const order = orderResult.data;
+  const items = itemResult.data || [];
+  const task = deliveryResult.data?.[0] || null;
+
+  const productRows =
+    items.map(item => {
+
+      const productName =
+        item[`product_name_${appLanguage}_snapshot`]
+        ||
+        item.product_name_zh_snapshot
+        ||
+        item.product_name_en_snapshot
+        ||
+        "—";
+
+      const variantName =
+        item[`variant_name_${appLanguage}_snapshot`]
+        ||
+        item.variant_name_zh_snapshot
+        ||
+        item.variant_name_en_snapshot
+        ||
+        "";
+
+      const specification =
+        item[`specification_${appLanguage}_snapshot`]
+        ||
+        item.specification_zh_snapshot
+        ||
+        item.specification_en_snapshot
+        ||
+        "";
+
+      return `
+
+        <tr>
+
+          <td>
+            <strong>${escapeHtml(productName)}</strong>
+
+            ${
+              variantName
+              ?
+              `<div class="small">${escapeHtml(variantName)}</div>`
+              :
+              ""
+            }
+
+            ${
+              specification
+              ?
+              `<div class="small">${escapeHtml(specification)}</div>`
+              :
+              ""
+            }
+          </td>
+
+          <td>
+            ${escapeHtml(item.quantity)}
+          </td>
+
+          <td>
+            ${money(item.unit_price,order.currency_code)}
+          </td>
+
+          <td>
+            ${money(item.line_total,order.currency_code)}
+          </td>
+
+        </tr>
+
+      `;
+
+    });
+
+  let actions = "";
+
+  if(
+    order.order_status === "pending_confirmation"
+    &&
+    hasPermission("orders.confirm")
+  ){
+    actions += `
+      <button
+        class="btn btn-green"
+        onclick="confirmOrder('${order.id}')"
+      >
+        ${escapeHtml(rt("confirmButton"))}
+      </button>
+    `;
+  }
+
+  if(
+    order.order_status === "confirmed"
+    &&
+    order.fulfillment_status === "unfulfilled"
+    &&
+    hasPermission("orders.pack")
+  ){
+    actions += `
+      <button
+        class="btn btn-light"
+        onclick="startPicking('${order.id}')"
+      >
+        ${escapeHtml(rt("startPickingButton"))}
+      </button>
+    `;
+  }
+
+  if(
+    order.fulfillment_status === "picking"
+    &&
+    hasPermission("orders.pack")
+  ){
+    actions += `
+      <button
+        class="btn btn-green"
+        onclick="markPacked('${order.id}')"
+      >
+        ${escapeHtml(rt("packedButton"))}
+      </button>
+    `;
+  }
+
+  if(
+    order.fulfillment_status === "packed"
+    &&
+    hasPermission("orders.pack")
+  ){
+    actions += `
+      <button
+        class="btn btn-primary"
+        onclick="finalizeOrder('${order.id}')"
+      >
+        ${escapeHtml(rt("fulfillButton"))}
+      </button>
+    `;
+  }
+
+  if(
+    order.order_status !== "cancelled"
+    &&
+    order.fulfillment_status === "fulfilled"
+    &&
+    ["not_assigned","failed"].includes(order.delivery_status)
+    &&
+    hasPermission("orders.assign_delivery")
+  ){
+    actions += `
+      <button
+        class="btn btn-amber"
+        onclick="assignDelivery('${order.id}','${order.region_id}')"
+      >
+        ${
+          escapeHtml(
+            order.delivery_status === "failed"
+            ?
+            rt("redeliverButton")
+            :
+            rt("assignDeliveryButton")
+          )
+        }
+      </button>
+    `;
+  }
+
+  if(
+    hasPermission("orders.cancel")
+    &&
+    !["cancelled","completed"].includes(order.order_status)
+    &&
+    order.delivery_status !== "delivered"
+  ){
+    actions += `
+      <button
+        class="btn btn-red"
+        onclick="cancelOrder('${order.id}',${order.fulfillment_status === "fulfilled"})"
+      >
+        ${escapeHtml(rt("cancelOrderButton"))}
+      </button>
+    `;
+  }
+
+  if(
+    hasPermission("orders.cancel")
+    &&
+    order.order_status === "cancelled"
+    &&
+    order.fulfillment_status === "fulfilled"
+    &&
+    order.return_status === "pending"
+  ){
+    actions += `
+      <button
+        class="btn btn-green"
+        onclick="confirmOrderReturn('${order.id}')"
+      >
+        ${escapeHtml(rt("confirmReturnButton"))}
+      </button>
+    `;
+  }
+
+  const failureBlock =
+    task?.failed_at
+    ?
+    `
+      <div class="panel">
+        <div class="panel-title">
+          ${escapeHtml(rt("deliveryFailure"))}
+        </div>
+
+        <div style="line-height:1.9;margin-top:10px">
+          <strong>${escapeHtml(rt("failureReason"))}：</strong>
+          ${escapeHtml(task.failure_reason || "—")}
+          <br>
+
+          <strong>${escapeHtml(rt("failureTime"))}：</strong>
+          ${escapeHtml(formatDate(task.failed_at))}
+          <br>
+
+          <strong>${escapeHtml(rt("deliveryNote"))}：</strong>
+          ${escapeHtml(task.delivery_note || "—")}
+        </div>
+      </div>
+    `
+    :
+    "";
+
+  el("orderDetailContent").innerHTML = `
+
+    <div class="panel">
+
+      <div class="panel-title">
+        ${escapeHtml(order.order_number)}
+      </div>
+
+      <div style="line-height:1.9;margin-top:12px">
+
+        <strong>${escapeHtml(rt("customer"))}：</strong>
+        ${escapeHtml(order.recipient_name_snapshot || "—")}
+        <br>
+
+        <strong>${escapeHtml(rt("phone"))}：</strong>
+        ${escapeHtml(order.recipient_phone_snapshot || "—")}
+        <br>
+
+        <strong>${escapeHtml(rt("address"))}：</strong>
+        ${escapeHtml(order.full_address_snapshot || "—")}
+        <br>
+
+        <strong>${escapeHtml(rt("status"))}：</strong>
+        ${statusBadge(order.order_status)}
+        ${statusBadge(order.fulfillment_status)}
+        ${statusBadge(order.delivery_status)}
+        ${returnStatusBadge(order.return_status)}
+
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panel-title">
+        ${escapeHtml(rt("pickList"))}
+      </div>
+
+      <div style="margin-top:12px">
+
+        ${
+          makeTable(
+            [
+              rt("product"),
+              rt("quantity"),
+              rt("unitPrice"),
+              rt("subtotal")
+            ],
+            productRows
+          )
+        }
+
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panel-title">
+        ${escapeHtml(rt("amountDetail"))}
+      </div>
+
+      <div style="line-height:2;margin-top:10px">
+
+        ${escapeHtml(rt("merchandiseAmount"))}：
+        <strong>${money(order.subtotal,order.currency_code)}</strong>
+        <br>
+
+        ${escapeHtml(rt("deliveryFee"))}：
+        <strong>${money(order.delivery_fee,order.currency_code)}</strong>
+        <br>
+
+        ${escapeHtml(rt("discount"))}：
+        <strong>${money(order.discount_amount,order.currency_code)}</strong>
+        <br>
+
+        ${escapeHtml(rt("amountToCollect"))}：
+        <strong>${money(order.total_amount,order.currency_code)}</strong>
+
+      </div>
+
+    </div>
+
+    ${failureBlock}
+
+    <div class="panel">
+      <div class="operation-buttons">
+        ${actions || `<span class="small">${escapeHtml(rt("noActionRequired"))}</span>`}
+      </div>
+    </div>
+
+  `;
+
+  showSection(
+    "orderDetail",
+    document.querySelector('[data-section="orders"]')
+  );
 }
 
 
@@ -6115,152 +6273,107 @@ async function finalizeOrder(
 
 }
 
-async function assignDelivery(
-  orderId,
-  regionId
-){
+let pendingDeliveryOrderId = null;
+let pendingDeliveryRegionId = null;
 
-  const {
-    data:
-      drivers,
-    error
-  } =
+async function assignDelivery(orderId, regionId){
+
+  pendingDeliveryOrderId = orderId;
+  pendingDeliveryRegionId = regionId;
+
+  const {data:drivers,error} =
     await db.rpc(
-      "get_assignable_delivery_drivers",
-      {
-        p_region_id:
-          regionId
-      }
+      "get_assignable_delivery_drivers_v2",
+      {p_region_id:regionId}
     );
-
 
   if(error){
-
-    alert(
-      rt("cannotLoadDrivers")
-      +
-      "\n"
-      +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !drivers
-    ||
-    drivers.length === 0
-  ){
-
-    alert(
-      rt("noActiveDriver")
-    );
-
-    return;
-
-  }
-
-
-  const list =
-    drivers
-      .map(
-        (
-          driver,
-          index
-        ) =>
-          (
-            (index + 1)
-            +
-            ". "
-            +
-            driver.display_name
-            +
-            " ("
-            +
-            driver.delivery_code
-            +
-            ")"
-          )
-      )
-      .join("\n");
-
-
-  const selected =
-    prompt(
-      rt("chooseDeliveryDriver")
-      +
-      "\n\n"
-      +
-      list
-    );
-
-
-  if(!selected){
+    alert(rt("cannotLoadDrivers"));
     return;
   }
 
-
-  const index =
-    Number(selected)
-    -
-    1;
-
-
-  if(
-    !Number.isInteger(index)
-    ||
-    index < 0
-    ||
-    index >= drivers.length
-  ){
-
-    alert(
-      rt("invalidDriver")
-    );
-
-    return;
-
-  }
-
-
-  const driver =
-    drivers[index];
-
-
-  if(
-    !confirm(
-      rt("assignOrderTo")
-      +
-      driver.display_name
-      +
-      "?"
-    )
-  ){
+  if(!drivers || !drivers.length){
+    alert(rt("noActiveDriver"));
     return;
   }
 
+  const container = el("driverSelectList");
+
+  container.innerHTML =
+    drivers.map(driver => `
+
+      <div class="panel" style="margin-bottom:12px">
+
+        <div class="panel-head">
+
+          <div>
+            <div class="panel-title">
+              ${escapeHtml(driver.display_name || "—")}
+            </div>
+
+            <div class="panel-note">
+              ${escapeHtml(driver.delivery_code || "—")}
+            </div>
+          </div>
+
+          <button
+            class="btn btn-primary btn-small"
+            onclick="confirmDriverAssignment('${driver.id}')"
+          >
+            ${escapeHtml(rt("selectDriver"))}
+          </button>
+
+        </div>
+
+        <div class="small" style="line-height:1.8">
+          ${escapeHtml(rt("phone"))}：
+          ${escapeHtml(driver.phone || "—")}
+          <br>
+          ${escapeHtml(rt("vehicle"))}：
+          ${escapeHtml(driver.vehicle_type || "—")}
+          <br>
+          ${escapeHtml(rt("plate"))}：
+          ${escapeHtml(driver.vehicle_plate || "—")}
+        </div>
+
+      </div>
+
+    `).join("");
+
+  showSection(
+    "driverSelect",
+    document.querySelector('[data-section="orders"]')
+  );
+}
+
+async function confirmDriverAssignment(driverId){
+
+  if(!pendingDeliveryOrderId || !driverId){
+    return;
+  }
+
+  if(!confirm(rt("confirmAssignDriver"))){
+    return;
+  }
 
   await callRpc(
-
     "assign_delivery_task",
-
     {
-      p_order_id:
-        orderId,
-
-      p_delivery_id:
-        driver.id,
-
-      p_note:
-        "Staff assigned delivery"
+      p_order_id:pendingDeliveryOrderId,
+      p_delivery_id:driverId,
+      p_note:"Staff assigned delivery"
     },
-
     rt("deliveryAssigned")
-
   );
+
+  pendingDeliveryOrderId = null;
+  pendingDeliveryRegionId = null;
+
+  showSection(
+    "orders",
+    document.querySelector('[data-section="orders"]')
+  );
+}
 
 }
 async function cancelOrder(
@@ -8631,328 +8744,7 @@ rt("confirmSubmit")
 }
 
 
-/* ==========================================
-   PAYMENTS
-========================================== */
 
-async function loadPayments(){
-
-  if(
-    !hasPermission(
-      "payments.view"
-    )
-  ){
-    return;
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        "payment_transactions"
-      )
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      )
-      .limit(250);
-
-
-  if(error){
-
-    el("paymentsTable")
-      .innerHTML =
-      errorBox(
-        error.message
-      );
-
-    return;
-
-  }
-
-const proofLinks = {};
-
-
-await Promise.all(
-
-  (data || [])
-    .map(
-      async payment => {
-
-        if(
-          !payment.proof_url
-        ){
-          return;
-        }
-
-
-        const externalUrl =
-          safeExternalUrl(
-            payment.proof_url
-          );
-
-
-        if(externalUrl){
-
-          proofLinks[
-            payment.id
-          ] =
-            externalUrl;
-
-          return;
-
-        }
-
-
-        const {
-          data:
-            signedData,
-          error:
-            signedError
-        } =
-          await db.storage
-            .from(
-              "payment-proofs"
-            )
-            .createSignedUrl(
-              payment.proof_url,
-              3600
-            );
-
-
-        if(
-          !signedError
-          &&
-          signedData
-            ?.signedUrl
-        ){
-
-          proofLinks[
-            payment.id
-          ] =
-            signedData.signedUrl;
-
-        }
-
-      }
-    )
-
-);
-  const rows =
-    (data || [])
-      .map(
-        payment => {
-
-          let buttons = "";
-
-
-          if(
-            payment.status
-            ===
-            "submitted"
-            &&
-            hasPermission(
-              "payments.confirm"
-            )
-          ){
-
-            buttons = `
-
-              <button
-                class="btn btn-green btn-small"
-                onclick="reviewPayment('${payment.id}',true)"
-              >
-                Approve
-              </button>
-
-              <button
-                class="btn btn-red btn-small"
-                onclick="reviewPayment('${payment.id}',false)"
-              >
-                Reject
-              </button>
-
-            `;
-
-          }
-
-
-          return `
-
-            <tr>
-
-              <td class="mono">
-
-                ${
-                  escapeHtml(
-                    payment.order_id
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    regionMap[
-                      payment.region_id
-                    ]
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  money(
-                    payment.amount,
-                    payment.currency_code
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                ${
-                  escapeHtml(
-                    payment.payment_method
-                  )
-                }
-
-              </td>
-
-              <td>
-                ${statusBadge(payment.status)}
-              </td>
-
-             <td>
-
-  ${
-    proofLinks[
-      payment.id
-    ]
-    ?
-    `
-      <a
-        href="${
-          escapeHtml(
-            proofLinks[
-              payment.id
-            ]
-          )
-        }"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Proof
-      </a>
-    `
-    :
-    "—"
-  }
-
-</td>
-
-              <td>
-
-                <div class="operation-buttons">
-
-                  ${buttons}
-
-                </div>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
-      );
-
-
-  el("paymentsTable")
-    .innerHTML =
-    makeTable(
-
-      [
-        "Order",
-        "Region",
-        "Amount",
-        "Method",
-        "Status",
-        "Proof",
-        "Action"
-      ],
-
-      rows
-
-    );
-
-}
-
-
-async function reviewPayment(
-  id,
-  approve
-){
-
-  const note =
-    prompt(
-      approve
-      ?
-      "Note (optional):"
-      :
-      "Rejection reason:"
-    )
-    ||
-    "";
-
-
-  if(
-    !approve
-    &&
-    !note
-  ){
-    return;
-  }
-
-
-  await callRpc(
-
-    "review_payment",
-
-    {
-      p_payment_id:
-        id,
-
-      p_approve:
-        approve,
-
-      p_note:
-        note
-    },
-
-    approve
-    ?
-    "Payment approved."
-    :
-    "Payment rejected."
-
-  );
-
-}
 
 
 /* ==========================================
