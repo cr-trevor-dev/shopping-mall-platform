@@ -1480,6 +1480,9 @@ const db =
 let currentSection =
   "dashboard";
 
+let currentOrderDetailId =
+  null;
+
 let currentUser = null;
 let staffProfile = null;
 
@@ -4760,20 +4763,35 @@ function showSection(
 
 async function refreshCurrent(){
 
-  const map = {
+   const map = {
 
     dashboard:
       loadDashboard,
+
     business:
       loadBusinessData,
+
     orders:
       loadOrders,
+
+    orderDetail:
+      async () => {
+
+        if(currentOrderDetailId){
+
+          await openOrderDetail(
+            currentOrderDetailId
+          );
+
+        }
+
+      },
+
     shipments:
       loadShipments,
+
     inventory:
       loadInventory,
-
-    
 
     customers:
       loadCustomers,
@@ -6011,6 +6029,9 @@ async function loadOrders(){
 
 
 async function openOrderDetail(orderId){
+
+  currentOrderDetailId =
+    orderId;
 
   const [
     orderResult,
