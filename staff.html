@@ -1573,7 +1573,67 @@ tr:last-child td{
 
 
 <script>
+window.addEventListener("error", function(event){
 
+  const box =
+    document.createElement("div");
+
+  box.style.cssText =
+    "position:fixed;left:10px;right:10px;bottom:10px;z-index:999999;background:#111;color:#ff6b6b;padding:12px;border-radius:10px;font-size:12px;white-space:pre-wrap;max-height:45vh;overflow:auto;";
+
+  box.innerText =
+    "JS ERROR\n\n"
+    +
+    "Message: "
+    +
+    event.message
+    +
+    "\n\nFile: "
+    +
+    event.filename
+    +
+    "\n\nLine: "
+    +
+    event.lineno
+    +
+    "\nColumn: "
+    +
+    event.colno
+    +
+    "\n\nError: "
+    +
+    (event.error?.stack || event.error || "");
+
+  document.body.appendChild(box);
+
+});
+
+
+window.addEventListener(
+  "unhandledrejection",
+  function(event){
+
+    const box =
+      document.createElement("div");
+
+    box.style.cssText =
+      "position:fixed;left:10px;right:10px;bottom:10px;z-index:999999;background:#111;color:#ffd166;padding:12px;border-radius:10px;font-size:12px;white-space:pre-wrap;max-height:45vh;overflow:auto;";
+
+    box.innerText =
+      "PROMISE ERROR\n\n"
+      +
+      (
+        event.reason?.stack
+        ||
+        event.reason?.message
+        ||
+        String(event.reason)
+      );
+
+    document.body.appendChild(box);
+
+  }
+);
 /* ==========================================
    SUPABASE
 ========================================== */
