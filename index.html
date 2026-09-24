@@ -2392,9 +2392,9 @@ zh:{
  deliveryFee:"配送费",
 cashOnDelivery:"货到付款",
 cashOnDeliveryHint:"商品送达后，可向配送员现金付款或现场转账。",
-freeDeliveryReached:"本单已达到免配送费条件",
-freeDeliveryItems:"再购买 {count} 件即可免配送费",
-freeDeliveryAmount:"再购买 {amount} 即可免配送费",
+freeDeliveryReached:"🎉 已享免运费",
+freeDeliveryItems:"当前 {current} 件，再买 {count} 件即可免运",
+freeDeliveryAmount:"再买 {amount} 即可免运",
 productionDate:"生产日期",
 expiryDate:"有效期至", 
   customerNote:"订单备注",
@@ -2512,8 +2512,8 @@ en:{
   deliveryFee:"Delivery Fee",
 cashOnDelivery:"Cash on Delivery",
 cashOnDeliveryHint:"Pay the driver by cash or transfer when your order arrives.",
-freeDeliveryReached:"Free delivery applied to this order",
-freeDeliveryItems:"Add {count} more item(s) for free delivery",
+freeDeliveryReached:"🎉 Free delivery unlocked",
+freeDeliveryItems:"Currently {current} item(s). Add {count} more for free delivery",
 freeDeliveryAmount:"Add {amount} more for free delivery",
 productionDate:"Production Date",
 expiryDate:"Expiry Date",
@@ -2632,8 +2632,8 @@ my:{
   deliveryFee:"ပို့ဆောင်ခ",
 cashOnDelivery:"ပစ္စည်းရောက်မှ ငွေချေ",
 cashOnDeliveryHint:"ပစ္စည်းရောက်ချိန်တွင် ပို့ဆောင်သူအား ငွေသား သို့မဟုတ် ငွေလွှဲဖြင့် ပေးချေနိုင်သည်",
-freeDeliveryReached:"ဤအော်ဒါသည် ပို့ဆောင်ခအခမဲ့ ရရှိပါသည်",
-freeDeliveryItems:"ပို့ဆောင်ခအခမဲ့ရရန် နောက်ထပ် {count} ခု ဝယ်ပါ",
+freeDeliveryReached:"🎉 ပို့ဆောင်ခအခမဲ့ ရရှိပါပြီ",
+freeDeliveryItems:"လက်ရှိ {current} ခု၊ ပို့ဆောင်ခအခမဲ့ရရန် နောက်ထပ် {count} ခု ဝယ်ပါ",
 freeDeliveryAmount:"ပို့ဆောင်ခအခမဲ့ရရန် နောက်ထပ် {amount} ဖိုး ဝယ်ပါ",
 productionDate:"ထုတ်လုပ်သည့်ရက်",
 expiryDate:"သက်တမ်းကုန်ရက်",
@@ -2752,8 +2752,8 @@ th:{
   deliveryFee:"ค่าจัดส่ง",
 cashOnDelivery:"ชำระเงินปลายทาง",
 cashOnDeliveryHint:"ชำระเงินสดหรือโอนให้พนักงานจัดส่งเมื่อได้รับสินค้า",
-freeDeliveryReached:"คำสั่งซื้อนี้ได้รับสิทธิ์จัดส่งฟรี",
-freeDeliveryItems:"ซื้อเพิ่มอีก {count} ชิ้นเพื่อรับส่งฟรี",
+freeDeliveryReached:"🎉 ได้รับสิทธิ์จัดส่งฟรีแล้ว",
+freeDeliveryItems:"ขณะนี้ {current} ชิ้น ซื้อเพิ่มอีก {count} ชิ้นเพื่อรับส่งฟรี",
 freeDeliveryAmount:"ซื้อเพิ่มอีก {amount} เพื่อรับส่งฟรี",
 productionDate:"วันที่ผลิต",
 expiryDate:"วันหมดอายุ",
@@ -6219,8 +6219,12 @@ function cartFreeDeliveryMessage(){
     items < minItems
   ){
 
-    messages.push(
+        messages.push(
       t("freeDeliveryItems")
+        .replace(
+          "{current}",
+          items
+        )
         .replace(
           "{count}",
           minItems - items
