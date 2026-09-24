@@ -4948,7 +4948,16 @@ function showSection(
     );
 
 
-  el(name)
+  const targetSection =
+    el(name);
+
+
+  if(!targetSection){
+    return;
+  }
+
+
+  targetSection
     .classList
     .add("active");
 
@@ -4964,11 +4973,23 @@ function showSection(
     );
 
 
-  menu.classList
-    .add("active");
+  if(menu){
+    menu.classList
+      .add("active");
+  }
 
 
-  refreshCurrent();
+  if(
+    name !== "driverSelect"
+  ){
+    refreshCurrent();
+  }
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
 }
 
