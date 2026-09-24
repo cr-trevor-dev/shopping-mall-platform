@@ -1871,8 +1871,8 @@ tr:last-child td{
         <option value="库存调整">
           库存调整
         </option>
-        <option value="销售扣减">
-          销售扣减
+                <option value="订单售出">
+          订单售出
         </option>
       </select>
 
@@ -6227,18 +6227,42 @@ async function loadRegionalSettlement(){
   }
 
 
-  let orderQuery =
+    let cancelledQuery =
     db
       .from("orders")
       .select(
-        "id,order_status,delivery_status,region_id,created_at"
+        "id,region_id,cancelled_at"
+      )
+      .eq(
+        "order_status",
+        "cancelled"
       )
       .gte(
-        "created_at",
+        "cancelled_at",
         range.start
       )
-      .lte(
-        "created_at",
+      .lt(
+        "cancelled_at",
+        range.end
+      );
+
+
+  let failedQuery =
+    db
+      .from("delivery_tasks")
+      .select(
+        "id,region_id,failed_at"
+      )
+      .eq(
+        "status",
+        "failed"
+      )
+      .gte(
+        "failed_at",
+        range.start
+      )
+      .lt(
+        "failed_at",
         range.end
       );
 
@@ -6249,11 +6273,15 @@ async function loadRegionalSettlement(){
       .select(
         "amount,status,region_id,created_at"
       )
+      .eq(
+        "status",
+        "processed"
+      )
       .gte(
         "created_at",
         range.start
       )
-      .lte(
+      .lt(
         "created_at",
         range.end
       );
@@ -6261,8 +6289,14 @@ async function loadRegionalSettlement(){
 
   if(region){
 
-    orderQuery =
-      orderQuery.eq(
+    cancelledQuery =
+      cancelledQuery.eq(
+        "region_id",
+        region
+      );
+
+    failedQuery =
+      failedQuery.eq(
         "region_id",
         region
       );
@@ -6277,21 +6311,35 @@ async function loadRegionalSettlement(){
 
 
   const [
-    orderResult,
+    cancelledResult,
+    failedResult,
     refundResult
   ] =
     await Promise.all([
-      orderQuery,
+      cancelledQuery,
+      failedQuery,
       refundQuery
     ]);
 
 
-  if(orderResult.error){
+  if(cancelledResult.error){
 
     el("settlementProducts")
       .innerHTML =
       errorBox(
-        orderResult.error.message
+        cancelledResult.error.message
+      );
+
+    return;
+  }
+
+
+  if(failedResult.error){
+
+    el("settlementProducts")
+      .innerHTML =
+      errorBox(
+        failedResult.error.message
       );
 
     return;
@@ -6313,33 +6361,27 @@ async function loadRegionalSettlement(){
   const report =
     reportResult.data || {};
 
-  const orders =
-    orderResult.data || [];
-
-  const refunds =
-    refundResult.data || [];
-
 
   const cancelled =
-    orders.filter(
-      order =>
-        order.order_status
-        ===
-        "cancelled"
+    (
+      cancelledResult.data
+      ||
+      []
     ).length;
 
 
   const failed =
-    orders.filter(
-      order =>
-        order.delivery_status
-        ===
-        "failed"
-        &&
-        order.order_status
-        !==
-        "completed"
+    (
+      failedResult.data
+      ||
+      []
     ).length;
+
+
+  const refunds =
+    refundResult.data
+    ||
+    [];
 
 
   const refundAmount =
