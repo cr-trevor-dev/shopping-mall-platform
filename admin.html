@@ -13806,22 +13806,49 @@ async function loadProductRegionsAction(
       shipmentDetailRows
     );
 
-  el("productRegionsResult")
+    el("productRegionsResult")
     .innerHTML =
-    makeTable(
-       [
-        "地区",
-        "累计收货",
-        "已销售",
-        "实际库存",
-        "当前上架",
-        "未上架",
-        "客户可购买",
-        "待收货",
-        "最后变动"
-      ],
-      rows
-    );
+      regionTable
+      +
+      `
+        <div
+          class="panel"
+          style="
+            margin-top:14px;
+            margin-bottom:0
+          "
+        >
+
+          <div class="panel-head">
+
+            <div>
+
+              <div class="panel-title">
+                发货 / 收货记录
+              </div>
+
+              <div class="panel-note">
+                当前商品每一笔发往地区的数量、时间、实际收货和差异都会保留。
+              </div>
+
+            </div>
+
+          </div>
+
+          ${
+            shipmentDetailRows.length
+            ?
+            shipmentDetailTable
+            :
+            `
+              <div class="empty">
+                暂无发货记录。
+              </div>
+            `
+          }
+
+        </div>
+      `;
 
 }
 
