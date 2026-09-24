@@ -11987,6 +11987,7 @@ function renderSimpleProductList(){
               product.id
             );
 
+
           const stock =
             variant
             ?
@@ -11999,6 +12000,23 @@ function renderSimpleProductList(){
             )
             :
             0;
+
+
+          const retailPrice =
+            variant
+            ?
+            Number(
+              variant.retail_price
+              ||
+              0
+            )
+            :
+            Number(
+              product.price
+              ||
+              0
+            );
+
 
           const category =
             categoryData.find(
@@ -12014,6 +12032,7 @@ function renderSimpleProductList(){
             <tr>
 
               <td>
+
                 <strong>
                   ${escapeHtml(
                     product.name_zh
@@ -12033,15 +12052,21 @@ function renderSimpleProductList(){
                   :
                   ""
                 }
+
               </td>
 
-              <td class="mono">
-                ${escapeHtml(
-                  product.product_code
-                  ||
-                  "—"
-                )}
+
+              <td>
+
+                <strong>
+                  ${money(
+                    retailPrice,
+                    "MMK"
+                  )}
+                </strong>
+
               </td>
+
 
               <td>
                 ${escapeHtml(
@@ -12051,11 +12076,15 @@ function renderSimpleProductList(){
                 )}
               </td>
 
+
               <td>
+
                 <strong>
                   ${stock}
                 </strong>
+
               </td>
+
 
               <td>
                 ${statusBadge(
@@ -12063,9 +12092,18 @@ function renderSimpleProductList(){
                 )}
               </td>
 
+
               <td>
 
                 <div class="operation-buttons">
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','edit')"
+                  >
+                    详情 / 修改
+                  </button>
+
 
                   <button
                     class="btn btn-green btn-small"
@@ -12075,6 +12113,7 @@ function renderSimpleProductList(){
                     增加库存
                   </button>
 
+
                   <button
                     class="btn btn-primary btn-small"
                     onclick="openProductAction('${product.id}','ship')"
@@ -12082,6 +12121,7 @@ function renderSimpleProductList(){
                   >
                     发货
                   </button>
+
 
                   <button
                     class="btn btn-light btn-small"
@@ -12091,6 +12131,7 @@ function renderSimpleProductList(){
                     查看地区
                   </button>
 
+
                   <button
                     class="btn btn-light btn-small"
                     onclick="openProductAction('${product.id}','history')"
@@ -12099,12 +12140,6 @@ function renderSimpleProductList(){
                     历史
                   </button>
 
-                  <button
-                    class="btn btn-light btn-small"
-                    onclick="openProductAction('${product.id}','edit')"
-                  >
-                    编辑
-                  </button>
 
                   <button
                     class="btn ${
@@ -12116,6 +12151,7 @@ function renderSimpleProductList(){
                     } btn-small"
                     onclick="openProductAction('${product.id}','status')"
                   >
+
                     ${
                       product.status === "active"
                       ?
@@ -12123,6 +12159,7 @@ function renderSimpleProductList(){
                       :
                       "重新上架"
                     }
+
                   </button>
 
                 </div>
@@ -12142,7 +12179,7 @@ function renderSimpleProductList(){
     makeTable(
       [
         "商品",
-        "商品代码",
+        "当前售价",
         "分类",
         "总部库存",
         "状态",
