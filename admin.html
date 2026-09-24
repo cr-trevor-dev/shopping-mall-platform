@@ -10810,13 +10810,19 @@ function renderQuickProductSelects(){
 
           <option value="${category.id}">
 
+                     <option value="${category.id}">
+
             ${
-              category.level === 1
-              ?
-              "一级 · "
-              :
-              "二级 · "
+              escapeHtml(
+                category.name_zh
+                ||
+                category.name_en
+                ||
+                category.code
+              )
             }
+
+          </option>
 
             ${
               escapeHtml(
