@@ -1270,9 +1270,11 @@ let regionAssignments = [];
 let regionData = [];
 let tasks = [];
 let orders = [];
+let orderItems = [];
 
 let regionMap = {};
 let orderMap = {};
+let orderItemsMap = {};
 
 let currentSection =
   "today";
@@ -1366,7 +1368,10 @@ zh:{
   failureOther:"其他",
   failureOtherNoteRequired:"选择“其他”时，请填写具体备注。",
   failureSubmitted:"配送失败已记录。",
-  noRegions:"目前没有负责地区",
+    noRegions:"目前没有负责地区",
+  orderItems:"商品明细",
+  quantity:"数量",
+  noOrderItems:"暂无商品明细",
   regions:"负责地区"
 },
 
@@ -1438,7 +1443,10 @@ en:{
   failureOther:"Other",
   failureOtherNoteRequired:"Please add details when Other is selected.",
   failureSubmitted:"Delivery failure recorded.",
-  noRegions:"No assigned regions",
+    noRegions:"No assigned regions",
+  orderItems:"Order Items",
+  quantity:"Quantity",
+  noOrderItems:"No item details available",
   regions:"Regions"
 },
 
@@ -1510,7 +1518,10 @@ my:{
   failureOther:"အခြား",
   failureOtherNoteRequired:"အခြားကိုရွေးပါက အသေးစိတ်မှတ်ချက် ဖြည့်ပါ",
   failureSubmitted:"ပို့ဆောင်မှုမအောင်မြင်ကြောင်း မှတ်တမ်းတင်ပြီးပါပြီ",
-  noRegions:"တာဝန်ယူထားသော ဒေသမရှိသေးပါ",
+    noRegions:"တာဝန်ယူထားသော ဒေသမရှိသေးပါ",
+  orderItems:"အော်ဒါကုန်ပစ္စည်းများ",
+  quantity:"အရေအတွက်",
+  noOrderItems:"ကုန်ပစ္စည်းအသေးစိတ်မရှိပါ",
   regions:"တာဝန်ယူဒေသ"
 },
 
@@ -1582,7 +1593,10 @@ th:{
   failureOther:"อื่น ๆ",
   failureOtherNoteRequired:"กรุณาระบุรายละเอียดเมื่อเลือกอื่น ๆ",
   failureSubmitted:"บันทึกการจัดส่งไม่สำเร็จแล้ว",
-  noRegions:"ยังไม่มีพื้นที่ที่รับผิดชอบ",
+    noRegions:"ยังไม่มีพื้นที่ที่รับผิดชอบ",
+  orderItems:"รายการสินค้า",
+  quantity:"จำนวน",
+  noOrderItems:"ไม่มีรายละเอียดสินค้า",
   regions:"พื้นที่รับผิดชอบ"
 }
 
@@ -2346,7 +2360,8 @@ alert(
     orderIds.length === 0
   ){
 
-    orders = [];
+        orders = [];
+    orderItems = [];
 
     rebuildMaps();
 
@@ -2372,10 +2387,44 @@ alert(
     orders = [];
 
   }
-  else{
+    else{
 
     orders =
       orderResult.data
+      ||
+      [];
+
+  }
+
+
+  const itemResult =
+    await db
+      .from("order_items")
+      .select(
+        "id,order_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity"
+      )
+      .in(
+        "order_id",
+        orderIds
+      );
+
+
+  if(
+    itemResult.error
+  ){
+
+    console.error(
+      "[delivery order items]",
+      itemResult.error
+    );
+
+    orderItems = [];
+
+  }
+  else{
+
+    orderItems =
+      itemResult.data
       ||
       [];
 
@@ -2415,13 +2464,36 @@ function rebuildMaps(){
   orderMap = {};
 
 
-  orders.forEach(
+    orders.forEach(
     order => {
 
       orderMap[
         order.id
       ] =
         order;
+
+    }
+  );
+
+
+  orderItemsMap = {};
+
+  orderItems.forEach(
+    item => {
+
+      if(
+        !orderItemsMap[
+          item.order_id
+        ]
+      ){
+        orderItemsMap[
+          item.order_id
+        ] = [];
+      }
+
+      orderItemsMap[
+        item.order_id
+      ].push(item);
 
     }
   );
@@ -2868,7 +2940,83 @@ function taskCard(
     ||
     "—";
 
+  const orderItems =
+    orderItemsMap[
+      task.order_id
+    ]
+    ||
+    [];
 
+  const orderItemsHtml =
+    orderItems
+      .map(item => {
+
+        const productName =
+          item[
+            `product_name_${appLanguage}_snapshot`
+          ]
+          ||
+          item.product_name_zh_snapshot
+          ||
+          item.product_name_en_snapshot
+          ||
+          "—";
+
+        const variantName =
+          item[
+            `variant_name_${appLanguage}_snapshot`
+          ]
+          ||
+          item.variant_name_zh_snapshot
+          ||
+          item.variant_name_en_snapshot
+          ||
+          "";
+
+        const specification =
+          item[
+            `specification_${appLanguage}_snapshot`
+          ]
+          ||
+          item.specification_zh_snapshot
+          ||
+          item.specification_en_snapshot
+          ||
+          "";
+
+        const details =
+          [
+            variantName,
+            specification
+          ]
+          .filter(Boolean)
+          .join(" · ");
+
+        return `
+          <div style="margin-bottom:10px">
+            <strong>
+              ${escapeHtml(productName)}
+            </strong>
+
+            ${
+              details
+              ?
+              `<div class="info-secondary">
+                ${escapeHtml(details)}
+              </div>`
+              :
+              ""
+            }
+
+            <div class="info-secondary">
+              ${escapeHtml(t("quantity"))}：
+              ${escapeHtml(item.quantity ?? 0)}
+            </div>
+          </div>
+        `;
+
+      })
+      .join("");
   let actions = "";
 
 
@@ -3119,7 +3267,21 @@ function taskCard(
 
         </div>
 
+        <div class="info-block">
 
+          <div class="info-label">
+            ${escapeHtml(t("orderItems"))}
+          </div>
+
+          <div class="address-box">
+            ${
+              orderItemsHtml
+              ||
+              escapeHtml(t("noOrderItems"))
+            }
+          </div>
+
+        </div>
         <div class="info-block">
 
           <div class="info-label">
