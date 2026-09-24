@@ -5945,10 +5945,181 @@ async function loadShipments(){
 /* =========================
    订单
 ========================= */
+async function loadSalesReport(){
 
+  const region =
+    el("reportRegion").value
+    ||
+    null;
+
+  const period =
+    el("reportPeriod").value
+    ||
+    "month";
+
+  const range =
+    dashboardDateRange(
+      period
+    );
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "admin_sales_report_v1",
+      {
+        p_region_id:
+          region,
+
+        p_start_at:
+          range.start,
+
+        p_end_at:
+          range.end
+      }
+    );
+
+
+  if(error){
+
+    el("reportProducts")
+      .innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  el("reportSales").textContent =
+    money(
+      data?.sales_amount || 0,
+      "MMK"
+    );
+
+  el("reportMerchandise").textContent =
+    money(
+      data?.merchandise_amount || 0,
+      "MMK"
+    );
+
+  el("reportDeliveryFee").textContent =
+    money(
+      data?.delivery_fee_amount || 0,
+      "MMK"
+    );
+
+  el("reportOrders").textContent =
+    Number(
+      data?.completed_orders || 0
+    );
+
+  el("reportItems").textContent =
+    Number(
+      data?.items_sold || 0
+    );
+
+
+  const productRows =
+    (
+      data?.products || []
+    )
+    .map(
+      item => `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(item.name || "—")}
+          </td>
+
+          <td>
+            ${escapeHtml(item.spec || "—")}
+          </td>
+
+          <td>
+            ${Number(item.quantity || 0)}
+          </td>
+
+          <td>
+            ${money(item.amount || 0,"MMK")}
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  el("reportProducts")
+    .innerHTML =
+    makeTable(
+      [
+        "商品",
+        "规格",
+        "售出数量",
+        "销售额"
+      ],
+      productRows
+    );
+
+
+  const brandRows =
+    (
+      data?.brands || []
+    )
+    .map(
+      item => `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(item.name || "—")}
+          </td>
+
+          <td>
+            ${Number(item.quantity || 0)}
+          </td>
+
+          <td>
+            ${money(item.amount || 0,"MMK")}
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  el("reportBrands")
+    .innerHTML =
+    makeTable(
+      [
+        "品牌",
+        "售出数量",
+        "销售额"
+      ],
+      brandRows
+    );
+
+}
 async function loadOrders(){
 
-    const status =
+     const search =
+    (
+      el("orderSearch")
+        ?.value
+      ||
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
+  const status =
     el("orderStatusFilter")
       .value;
 
@@ -8740,16 +8911,43 @@ async function loadDelivery(){
             </td>
 
             <td>
-              ${statusBadge(task.status)}
-            </td>
+  ${statusBadge(task.status)}
+</td>
 
-            <td>
-              ${escapeHtml(task.failure_reason || "—")}
-            </td>
+<td>
+  ${escapeHtml(task.failure_reason || "—")}
+</td>
 
-            <td>
-              ${formatDate(task.assigned_at)}
-            </td>
+<td>
+  ${escapeHtml(task.delivery_note || "—")}
+</td>
+
+<td>
+  ${
+    task.failed_at
+    ?
+    formatDate(task.failed_at)
+    :
+    "—"
+  }
+</td>
+
+<td>
+  ${
+    task.cod_collected_amount
+    ?
+    money(
+      task.cod_collected_amount,
+      "MMK"
+    )
+    :
+    "—"
+  }
+</td>
+
+<td>
+  ${formatDate(task.assigned_at)}
+</td>
 
           </tr>
 
@@ -8764,13 +8962,16 @@ async function loadDelivery(){
     makeTable(
 
       [
-        "订单",
-        "地区",
-        "配送员",
-        "状态",
-        "失败原因",
-        "指派时间"
-      ],
+  "订单",
+  "地区",
+  "配送员",
+  "状态",
+  "失败原因",
+  "配送备注",
+  "失败时间",
+  "实收金额",
+  "指派时间"
+],
 
       rows
 
@@ -9738,28 +9939,16 @@ async function loadAudit(){
 async function createRegion(){
 
   const code =
-    el("regionCode")
-      .value
-      .trim();
+    el("regionCode").value.trim();
 
   const zh =
-    el("regionZh")
-      .value
-      .trim();
+    el("regionZh").value.trim();
 
   const en =
-    el("regionEn")
-      .value
-      .trim();
+    el("regionEn").value.trim();
 
 
-  if(
-    !code
-    ||
-    !zh
-    ||
-    !en
-  ){
+  if(!code || !zh || !en){
 
     alert(
       "地区代码、中文和 English 必须填写。"
@@ -9774,19 +9963,13 @@ async function createRegion(){
     error
   } =
     await db
-      .from(
-        "regions"
-      )
+      .from("regions")
       .insert({
 
-        code:
-          code,
+        code,
 
-        name_zh:
-          zh,
-
-        name_en:
-          en,
+        name_zh: zh,
+        name_en: en,
 
         name_my:
           el("regionMy").value
@@ -9804,6 +9987,31 @@ async function createRegion(){
             ||
             100
           ),
+
+        delivery_fee:
+          Number(
+            el("regionDeliveryFee").value
+            ||
+            0
+          ),
+
+        free_delivery_min_items:
+          el("regionFreeItems").value
+          ?
+          Number(
+            el("regionFreeItems").value
+          )
+          :
+          null,
+
+        free_delivery_min_amount:
+          el("regionFreeAmount").value
+          ?
+          Number(
+            el("regionFreeAmount").value
+          )
+          :
+          null,
 
         is_active:
           true
@@ -9828,8 +10036,103 @@ async function createRegion(){
     "地区保存成功。"
   );
 
-
   await loadBaseData();
+  await loadRegions();
+
+}
+
+
+async function saveRegionDeliveryRules(
+  id
+){
+
+  const fee =
+    Number(
+      el(`regionFee_${id}`).value
+      ||
+      0
+    );
+
+  const items =
+    el(`regionItems_${id}`).value;
+
+  const amount =
+    el(`regionAmount_${id}`).value;
+
+
+  if(
+    fee < 0
+    ||
+    (
+      items
+      &&
+      Number(items) <= 0
+    )
+    ||
+    (
+      amount
+      &&
+      Number(amount) <= 0
+    )
+  ){
+
+    alert(
+      "配送费不能小于0，免配送费条件必须大于0。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db
+      .from("regions")
+      .update({
+
+        delivery_fee:
+          fee,
+
+        free_delivery_min_items:
+          items
+          ?
+          Number(items)
+          :
+          null,
+
+        free_delivery_min_amount:
+          amount
+          ?
+          Number(amount)
+          :
+          null,
+
+        updated_at:
+          new Date()
+            .toISOString()
+
+      })
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(
+      "保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "配送规则已保存。"
+  );
 
   await loadRegions();
 
@@ -9859,19 +10162,35 @@ async function loadRegions(){
             </td>
 
             <td>
-              ${escapeHtml(region.name_en)}
+              <input
+                id="regionFee_${region.id}"
+                type="number"
+                min="0"
+                value="${Number(region.delivery_fee || 0)}"
+                style="width:110px"
+              >
             </td>
 
             <td>
-              ${escapeHtml(region.name_my || "—")}
+              <input
+                id="regionItems_${region.id}"
+                type="number"
+                min="1"
+                value="${region.free_delivery_min_items || ""}"
+                placeholder="不限"
+                style="width:90px"
+              >
             </td>
 
             <td>
-              ${escapeHtml(region.name_th || "—")}
-            </td>
-
-            <td>
-              ${region.sort_order}
+              <input
+                id="regionAmount_${region.id}"
+                type="number"
+                min="1"
+                value="${region.free_delivery_min_amount || ""}"
+                placeholder="不限"
+                style="width:120px"
+              >
             </td>
 
             <td>
@@ -9888,26 +10207,35 @@ async function loadRegions(){
 
             <td>
 
-              <button
-                class="btn ${
-                  region.is_active
-                  ?
-                  "btn-red"
-                  :
-                  "btn-green"
-                } btn-small"
-                onclick="toggleRegion('${region.id}',${!region.is_active})"
-              >
+              <div class="operation-buttons">
 
-                ${
-                  region.is_active
-                  ?
-                  "停用"
-                  :
-                  "启用"
-                }
+                <button
+                  class="btn btn-primary btn-small"
+                  onclick="saveRegionDeliveryRules('${region.id}')"
+                >
+                  保存配送规则
+                </button>
 
-              </button>
+                <button
+                  class="btn ${
+                    region.is_active
+                    ?
+                    "btn-red"
+                    :
+                    "btn-green"
+                  } btn-small"
+                  onclick="toggleRegion('${region.id}',${!region.is_active})"
+                >
+                  ${
+                    region.is_active
+                    ?
+                    "停用"
+                    :
+                    "启用"
+                  }
+                </button>
+
+              </div>
 
             </td>
 
@@ -9920,20 +10248,16 @@ async function loadRegions(){
   el("regionsTable")
     .innerHTML =
     makeTable(
-
       [
-        "代码",
-        "中文",
-        "English",
-        "မြန်မာ",
-        "ไทย",
-        "排序",
+        "地区代码",
+        "地区名称",
+        "配送费",
+        "满件免配送费",
+        "满金额免配送费",
         "状态",
         "操作"
       ],
-
       rows
-
     );
 
 }
@@ -9988,17 +10312,7 @@ async function toggleRegion(
 ========================= */
 
 function updateCategoryParentState(){
-
-  const level =
-    Number(
-      el("categoryLevel").value
-    );
-
-
-  el("categoryParent")
-    .disabled =
-    level === 1;
-
+  return;
 }
 
 
@@ -10013,11 +10327,6 @@ async function createCategory(){
     el("categoryZh")
       .value
       .trim();
-
-  const level =
-    Number(
-      el("categoryLevel").value
-    );
 
 
   if(
@@ -10035,41 +10344,20 @@ async function createCategory(){
   }
 
 
-  if(
-    level === 2
-    &&
-    !el("categoryParent").value
-  ){
-
-    alert(
-      "二级分类必须选择上级分类。"
-    );
-
-    return;
-
-  }
-
-
   const {
     error
   } =
     await db
-      .from(
-        "categories"
-      )
+      .from("categories")
       .insert({
 
         code:
           code,
 
         level:
-          level,
+          1,
 
         parent_id:
-          level === 2
-          ?
-          el("categoryParent").value
-          :
           null,
 
         icon:
@@ -10129,6 +10417,15 @@ async function createCategory(){
   alert(
     "分类保存成功。"
   );
+
+
+  el("categoryCode").value = "";
+  el("categoryIcon").value = "";
+  el("categoryZh").value = "";
+  el("categoryEn").value = "";
+  el("categoryMy").value = "";
+  el("categoryTh").value = "";
+  el("categoryImage").value = "";
 
 
   await loadBaseData();
@@ -10349,123 +10646,82 @@ async function loadCategories(){
   renderBaseSelects();
 
 
-  const categoryRows =
+    const categoryRows =
     categoryData
       .map(
-        category => {
+        category => `
 
-          const parent =
-            categoryData
-              .find(
-                item =>
-                  item.id
-                  ===
-                  category.parent_id
-              );
+          <tr>
 
+            <td class="mono">
+              ${escapeHtml(category.code)}
+            </td>
 
-          return `
+            <td>
+              ${escapeHtml(category.name_zh)}
+            </td>
 
-            <tr>
+            <td>
+              ${escapeHtml(category.icon || "—")}
+            </td>
 
-              <td class="mono">
-                ${escapeHtml(category.code)}
-              </td>
+            <td>
+              ${category.sort_order}
+            </td>
 
-              <td>
-                ${category.level}
-              </td>
+            <td>
+              ${
+                statusBadge(
+                  category.is_active
+                  ?
+                  "active"
+                  :
+                  "inactive"
+                )
+              }
+            </td>
 
-              <td>
+            <td>
 
+              <button
+                class="btn ${
+                  category.is_active
+                  ?
+                  "btn-red"
+                  :
+                  "btn-green"
+                } btn-small"
+                onclick="toggleCategory('${category.id}',${!category.is_active})"
+              >
                 ${
-                  escapeHtml(
-                    category.name_zh
-                  )
+                  category.is_active
+                  ?
+                  "停用"
+                  :
+                  "启用"
                 }
+              </button>
 
-              </td>
+            </td>
 
-              <td>
+          </tr>
 
-                ${
-                  escapeHtml(
-                    parent
-                    ?.name_zh
-                    ||
-                    "—"
-                  )
-                }
-
-              </td>
-
-              <td>
-                ${category.sort_order}
-              </td>
-
-              <td>
-
-                ${
-                  statusBadge(
-                    category.is_active
-                    ?
-                    "active"
-                    :
-                    "inactive"
-                  )
-                }
-
-              </td>
-
-              <td>
-
-                <button
-                  class="btn ${
-                    category.is_active
-                    ?
-                    "btn-red"
-                    :
-                    "btn-green"
-                  } btn-small"
-                  onclick="toggleCategory('${category.id}',${!category.is_active})"
-                >
-
-                  ${
-                    category.is_active
-                    ?
-                    "停用"
-                    :
-                    "启用"
-                  }
-
-                </button>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }
+        `
       );
 
 
   el("categoriesTable")
     .innerHTML =
     makeTable(
-
       [
         "代码",
-        "级别",
-        "名称",
-        "上级",
+        "分类名称",
+        "图标",
         "排序",
         "状态",
         "操作"
       ],
-
       categoryRows
-
     );
 
 
