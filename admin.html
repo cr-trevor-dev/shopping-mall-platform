@@ -803,11 +803,18 @@ tr:last-child td{
   
  
 
-     <div
+      <div
     class="menu-item"
     onclick="showSection('reports',this)"
   >
-    销售报表 / 地区结算
+    销售报表
+  </div>
+
+  <div
+    class="menu-item"
+    onclick="showSection('settlement',this)"
+  >
+    地区结算
   </div>
 
   <div
@@ -1328,7 +1335,7 @@ tr:last-child td{
 >
 
   <div class="page-title">
-    销售报表 / 地区结算
+    销售报表
   </div>
 
   <div class="page-subtitle">
@@ -1347,9 +1354,10 @@ tr:last-child td{
       </option>
     </select>
 
+
     <select
       id="reportPeriod"
-      onchange="loadSalesReport()"
+      onchange="toggleAdminReportDates('report');loadSalesReport()"
     >
 
       <option value="today">
@@ -1371,7 +1379,26 @@ tr:last-child td{
         本月
       </option>
 
+      <option value="custom">
+        自定义
+      </option>
+
     </select>
+
+
+    <input
+      id="reportStart"
+      class="hidden"
+      type="date"
+      onchange="loadSalesReport()"
+    >
+
+    <input
+      id="reportEnd"
+      class="hidden"
+      type="date"
+      onchange="loadSalesReport()"
+    >
 
   </div>
 
@@ -1390,6 +1417,7 @@ tr:last-child td{
       </div>
     </div>
 
+
     <div class="stat-card">
       <div class="stat-label">
         商品销售额
@@ -1401,6 +1429,7 @@ tr:last-child td{
         —
       </div>
     </div>
+
 
     <div class="stat-card">
       <div class="stat-label">
@@ -1414,6 +1443,7 @@ tr:last-child td{
       </div>
     </div>
 
+
     <div class="stat-card">
       <div class="stat-label">
         完成订单
@@ -1425,6 +1455,7 @@ tr:last-child td{
         —
       </div>
     </div>
+
 
     <div class="stat-card">
       <div class="stat-label">
@@ -1459,6 +1490,177 @@ tr:last-child td{
     </div>
 
     <div id="reportBrands"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 地区结算 -->
+
+<section
+  id="settlement"
+  class="section"
+>
+
+  <div class="page-title">
+    地区结算
+  </div>
+
+  <div class="page-subtitle">
+    只按真实完成订单计算，取消和未完成配送不计入销售。
+  </div>
+
+
+  <div class="toolbar">
+
+    <select
+      id="settlementRegion"
+      onchange="loadRegionalSettlement()"
+    >
+      <option value="">
+        全部地区
+      </option>
+    </select>
+
+
+    <select
+      id="settlementPeriod"
+      onchange="toggleAdminReportDates('settlement');loadRegionalSettlement()"
+    >
+
+      <option value="today">
+        今天
+      </option>
+
+      <option value="yesterday">
+        昨天
+      </option>
+
+      <option value="week">
+        本周
+      </option>
+
+      <option
+        value="month"
+        selected
+      >
+        本月
+      </option>
+
+      <option value="custom">
+        自定义
+      </option>
+
+    </select>
+
+
+    <input
+      id="settlementStart"
+      class="hidden"
+      type="date"
+      onchange="loadRegionalSettlement()"
+    >
+
+    <input
+      id="settlementEnd"
+      class="hidden"
+      type="date"
+      onchange="loadRegionalSettlement()"
+    >
+
+  </div>
+
+
+  <div class="stats">
+
+    <div class="stat-card">
+      <div class="stat-label">
+        实际完成销售额
+      </div>
+      <div
+        id="settlementSales"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-label">
+        配送费
+      </div>
+      <div
+        id="settlementDeliveryFee"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-label">
+        实际完成订单
+      </div>
+      <div
+        id="settlementOrders"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-label">
+        取消订单
+      </div>
+      <div
+        id="settlementCancelled"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-label">
+        配送失败未完成
+      </div>
+      <div
+        id="settlementFailed"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+
+    <div class="stat-card">
+      <div class="stat-label">
+        退款记录金额
+      </div>
+      <div
+        id="settlementRefunds"
+        class="stat-value"
+      >
+        —
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-title">
+      结算商品明细
+    </div>
+
+    <div id="settlementProducts"></div>
 
   </div>
 
@@ -3470,8 +3672,11 @@ async function refreshCurrentSection(){
     orders:
       loadOrders,
 
-    reports:
+        reports:
       loadSalesReport,
+
+    settlement:
+      loadRegionalSettlement,
 
     shipments:
       loadShipments,
@@ -4015,17 +4220,24 @@ function renderBaseSelects(){
     `<option value="">全部地区</option>`
     +
     regionOptions;
-  if(
-    el("reportRegion")
-  ){
+    [
+    "reportRegion",
+    "settlementRegion"
+  ].forEach(
+    id => {
 
-    el("reportRegion")
-      .innerHTML =
-      `<option value="">全部地区</option>`
-      +
-      regionOptions;
+      if(el(id)){
 
-  }
+        el(id)
+          .innerHTML =
+          `<option value="">全部地区</option>`
+          +
+          regionOptions;
+
+      }
+
+    }
+  );
 
   const variantOptions =
     variantData
@@ -5854,6 +6066,335 @@ async function loadShipments(){
 /* =========================
    订单
 ========================= */
+function toggleAdminReportDates(prefix){
+
+  const period =
+    el(prefix + "Period")
+      ?.value;
+
+  const custom =
+    period === "custom";
+
+  [
+    prefix + "Start",
+    prefix + "End"
+  ].forEach(
+    id => {
+
+      const node = el(id);
+
+      if(node){
+        node.classList.toggle(
+          "hidden",
+          !custom
+        );
+      }
+
+    }
+  );
+
+}
+
+
+function adminReportDateRange(prefix){
+
+  const period =
+    el(prefix + "Period")
+      ?.value
+    ||
+    "month";
+
+  if(period !== "custom"){
+    return dashboardDateRange(period);
+  }
+
+  const startValue =
+    el(prefix + "Start")
+      ?.value;
+
+  const endValue =
+    el(prefix + "End")
+      ?.value;
+
+  if(!startValue || !endValue){
+    return null;
+  }
+
+  return {
+
+    start:
+      new Date(
+        startValue + "T00:00:00"
+      ).toISOString(),
+
+    end:
+      new Date(
+        endValue + "T23:59:59.999"
+      ).toISOString()
+
+  };
+
+}
+
+
+async function loadRegionalSettlement(){
+
+  const region =
+    el("settlementRegion")
+      ?.value
+    ||
+    null;
+
+  const range =
+    adminReportDateRange(
+      "settlement"
+    );
+
+  if(!range){
+
+    el("settlementProducts")
+      .innerHTML =
+      errorBox(
+        "请选择完整的开始日期和结束日期。"
+      );
+
+    return;
+  }
+
+
+  const reportResult =
+    await db.rpc(
+      "admin_sales_report_v1",
+      {
+
+        p_region_id:
+          region,
+
+        p_start_at:
+          range.start,
+
+        p_end_at:
+          range.end
+
+      }
+    );
+
+
+  if(reportResult.error){
+
+    el("settlementProducts")
+      .innerHTML =
+      errorBox(
+        reportResult.error.message
+      );
+
+    return;
+  }
+
+
+  let orderQuery =
+    db
+      .from("orders")
+      .select(
+        "id,order_status,delivery_status,region_id,created_at"
+      )
+      .gte(
+        "created_at",
+        range.start
+      )
+      .lte(
+        "created_at",
+        range.end
+      );
+
+
+  let refundQuery =
+    db
+      .from("refund_transactions")
+      .select(
+        "amount,status,region_id,created_at"
+      )
+      .gte(
+        "created_at",
+        range.start
+      )
+      .lte(
+        "created_at",
+        range.end
+      );
+
+
+  if(region){
+
+    orderQuery =
+      orderQuery.eq(
+        "region_id",
+        region
+      );
+
+    refundQuery =
+      refundQuery.eq(
+        "region_id",
+        region
+      );
+
+  }
+
+
+  const [
+    orderResult,
+    refundResult
+  ] =
+    await Promise.all([
+      orderQuery,
+      refundQuery
+    ]);
+
+
+  if(orderResult.error){
+
+    el("settlementProducts")
+      .innerHTML =
+      errorBox(
+        orderResult.error.message
+      );
+
+    return;
+  }
+
+
+  if(refundResult.error){
+
+    el("settlementProducts")
+      .innerHTML =
+      errorBox(
+        refundResult.error.message
+      );
+
+    return;
+  }
+
+
+  const report =
+    reportResult.data || {};
+
+  const orders =
+    orderResult.data || [];
+
+  const refunds =
+    refundResult.data || [];
+
+
+  const cancelled =
+    orders.filter(
+      order =>
+        order.order_status
+        ===
+        "cancelled"
+    ).length;
+
+
+  const failed =
+    orders.filter(
+      order =>
+        order.delivery_status
+        ===
+        "failed"
+        &&
+        order.order_status
+        !==
+        "completed"
+    ).length;
+
+
+  const refundAmount =
+    refunds.reduce(
+      (sum,item) =>
+        sum
+        +
+        Number(
+          item.amount || 0
+        ),
+      0
+    );
+
+
+  el("settlementSales").textContent =
+    money(
+      report.sales_amount || 0,
+      "MMK"
+    );
+
+  el("settlementDeliveryFee").textContent =
+    money(
+      report.delivery_fee_amount || 0,
+      "MMK"
+    );
+
+  el("settlementOrders").textContent =
+    Number(
+      report.completed_orders || 0
+    );
+
+  el("settlementCancelled").textContent =
+    cancelled;
+
+  el("settlementFailed").textContent =
+    failed;
+
+  el("settlementRefunds").textContent =
+    money(
+      refundAmount,
+      "MMK"
+    );
+
+
+  const productRows =
+    (
+      report.products || []
+    )
+    .map(
+      item => `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(item.name || "—")}
+          </td>
+
+          <td>
+            ${escapeHtml(item.spec || "—")}
+          </td>
+
+          <td>
+            ${Number(item.quantity || 0)}
+          </td>
+
+          <td>
+            ${money(item.amount || 0,"MMK")}
+          </td>
+
+        </tr>
+
+      `
+    );
+
+
+  el("settlementProducts")
+    .innerHTML =
+    makeTable(
+      [
+        "商品",
+        "规格",
+        "售出数量",
+        "销售额"
+      ],
+      productRows
+    );
+
+}
+
+
 async function loadSalesReport(){
 
   const region =
@@ -5861,15 +6402,22 @@ async function loadSalesReport(){
     ||
     null;
 
-  const period =
-    el("reportPeriod").value
-    ||
-    "month";
-
   const range =
-    dashboardDateRange(
-      period
+    adminReportDateRange(
+      "report"
     );
+
+
+  if(!range){
+
+    el("reportProducts")
+      .innerHTML =
+      errorBox(
+        "请选择完整的开始日期和结束日期。"
+      );
+
+    return;
+  }
 
 
   const {
@@ -5879,6 +6427,7 @@ async function loadSalesReport(){
     await db.rpc(
       "admin_sales_report_v1",
       {
+
         p_region_id:
           region,
 
@@ -5887,6 +6436,7 @@ async function loadSalesReport(){
 
         p_end_at:
           range.end
+
       }
     );
 
@@ -5900,7 +6450,6 @@ async function loadSalesReport(){
       );
 
     return;
-
   }
 
 
@@ -10789,11 +11338,9 @@ function renderQuickProductSelects(){
   const categorySelect =
     el("quickProductCategory");
 
-
   if(!categorySelect){
     return;
   }
-
 
   categorySelect.innerHTML =
     `<option value="">请选择分类</option>`
@@ -10809,9 +11356,6 @@ function renderQuickProductSelects(){
         category => `
 
           <option value="${category.id}">
-
-                     <option value="${category.id}">
-
             ${
               escapeHtml(
                 category.name_zh
@@ -10821,19 +11365,6 @@ function renderQuickProductSelects(){
                 category.code
               )
             }
-
-          </option>
-
-            ${
-              escapeHtml(
-                category.name_zh
-                ||
-                category.name_en
-                ||
-                category.code
-              )
-            }
-
           </option>
 
         `
