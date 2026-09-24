@@ -2144,6 +2144,9 @@ selectDriver:"选择",
 vehicle:"车辆",
 plate:"车牌",
 confirmAssignDriver:"确定指派给这位配送员吗？",
+assignedDriver:"已指派配送员",
+deliveryCode:"配送员编号",
+deliveryStatus:"配送状态",
 soldQuantity:"售出数量",
 salesAmount:"销售额"
 
@@ -6495,7 +6498,55 @@ async function openOrderDetail(orderId){
     `
     :
     "";
+  let deliveryDriverBlock = "";
 
+  if(task?.delivery_id){
+
+    const {data:driverProfile,error:driverProfileError} =
+      await db
+        .from("delivery_profiles")
+        .select(
+          "id,delivery_code,display_name,phone,vehicle_type,vehicle_plate,status"
+        )
+        .eq("id",task.delivery_id)
+        .maybeSingle();
+
+    if(!driverProfileError && driverProfile){
+
+      deliveryDriverBlock = `
+        <div class="panel">
+          <div class="panel-title">
+            ${escapeHtml(rt("assignedDriver"))}
+          </div>
+
+          <div style="line-height:1.9;margin-top:10px">
+            <strong>${escapeHtml(rt("name"))}：</strong>
+            ${escapeHtml(driverProfile.display_name || "—")}
+            <br>
+
+            <strong>${escapeHtml(rt("deliveryCode"))}：</strong>
+            ${escapeHtml(driverProfile.delivery_code || "—")}
+            <br>
+
+            <strong>${escapeHtml(rt("phone"))}：</strong>
+            ${escapeHtml(driverProfile.phone || "—")}
+            <br>
+
+            <strong>${escapeHtml(rt("vehicle"))}：</strong>
+            ${escapeHtml(driverProfile.vehicle_type || "—")}
+            <br>
+
+            <strong>${escapeHtml(rt("plate"))}：</strong>
+            ${escapeHtml(driverProfile.vehicle_plate || "—")}
+            <br>
+
+            <strong>${escapeHtml(rt("deliveryStatus"))}：</strong>
+            ${statusBadge(task.status || order.delivery_status || "—")}
+          </div>
+        </div>
+      `;
+    }
+  }
   el("orderDetailContent").innerHTML = `
 
     <div class="panel">
@@ -6580,6 +6631,8 @@ async function openOrderDetail(orderId){
       </div>
 
     </div>
+
+        ${deliveryDriverBlock}
 
     ${failureBlock}
 
