@@ -6838,10 +6838,30 @@ async function assignDelivery(orderId, regionId){
 
     `).join("");
 
-  showSection(
-    "driverSelect",
-    document.querySelector('[data-section="orders"]')
+  document
+  .querySelectorAll(
+    ".section"
+  )
+  .forEach(
+    section =>
+      section.classList
+        .remove("active")
   );
+
+
+el("driverSelect")
+  .classList
+  .add("active");
+
+
+currentSection =
+  "driverSelect";
+
+
+window.scrollTo({
+  top:0,
+  behavior:"smooth"
+});
 }
 
 async function confirmDriverAssignment(driverId){
