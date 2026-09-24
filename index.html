@@ -3234,11 +3234,56 @@ function changeLanguage(lang){
     lang
   );
 
+
+  const activeView =
+    document.querySelector(
+      ".view.active"
+    )?.id
+    ||
+    "home";
+
+
   rebuildMaps();
 
   applyLanguage();
 
   renderAll();
+
+
+  if(
+    activeView === "checkout"
+  ){
+
+    renderCheckout();
+
+  }
+
+
+  if(
+    activeView === "orders"
+  ){
+
+    renderOrders();
+
+  }
+
+
+  if(
+    activeView === "account"
+  ){
+
+    renderAccount();
+
+  }
+
+
+  if(
+    activeView === "cart"
+  ){
+
+    renderCart();
+
+  }
 
 }
 
