@@ -13219,9 +13219,10 @@ async function loadProductRegionsAction(
     );
 
 
-    const pendingByRegion = {};
+     const pendingByRegion = {};
   const receivedByRegion = {};
   const soldByRegion = {};
+  const returnedByRegion = {};
   const lastUpdateByRegion = {};
 
 
@@ -13332,7 +13333,137 @@ async function loadProductRegionsAction(
       }
     );
 
+  const inventoryRegionMap = {};
 
+  inventories.forEach(
+    inventory => {
+
+      if(inventory.id && inventory.region_id){
+        inventoryRegionMap[
+          inventory.id
+        ] =
+          inventory.region_id;
+      }
+
+    }
+  );
+
+
+  const inventoryIds =
+    Object.keys(
+      inventoryRegionMap
+    );
+
+
+  if(inventoryIds.length){
+
+    const {
+      data:returnMovements,
+      error:returnMovementError
+    } =
+      await db
+        .from("inventory_movements")
+        .select(
+          "region_inventory_id,movement_type,quantity,created_at"
+        )
+        .in(
+          "region_inventory_id",
+          inventoryIds
+        )
+        .eq(
+          "movement_type",
+          "return"
+        );
+
+
+    if(returnMovementError){
+
+      el("productRegionsResult")
+        .innerHTML =
+        errorBox(
+          returnMovementError.message
+        );
+
+      return;
+
+    }
+
+
+    (
+      returnMovements
+      ||
+      []
+    )
+    .forEach(
+      movement => {
+
+        const regionId =
+          inventoryRegionMap[
+            movement.region_inventory_id
+          ];
+
+
+        if(!regionId){
+          return;
+        }
+
+
+        returnedByRegion[
+          regionId
+        ] =
+          (
+            returnedByRegion[
+              regionId
+            ]
+            ||
+            0
+          )
+          +
+          Math.abs(
+            Number(
+              movement.quantity
+              ||
+              0
+            )
+          );
+
+
+        const time =
+          movement.created_at;
+
+
+        if(
+          time
+          &&
+          (
+            !lastUpdateByRegion[
+              regionId
+            ]
+            ||
+            new Date(time)
+            >
+            new Date(
+              lastUpdateByRegion[
+                regionId
+              ]
+            )
+          )
+        ){
+
+          lastUpdateByRegion[
+            regionId
+          ] =
+            time;
+
+        }
+
+      }
+    );
+
+  }
+
+
+  if(!historyResult.error){
   if(!historyResult.error){
 
     (
@@ -13496,9 +13627,19 @@ async function loadProductRegionsAction(
             );
 
 
-          const sold =
+                    const sold =
             Number(
               soldByRegion[
+                region.id
+              ]
+              ||
+              0
+            );
+
+
+          const returned =
+            Number(
+              returnedByRegion[
                 region.id
               ]
               ||
@@ -13569,8 +13710,12 @@ async function loadProductRegionsAction(
                 ${received}
               </td>
 
-              <td>
+                            <td>
                 ${sold}
+              </td>
+
+              <td>
+                ${returned}
               </td>
 
               <td>
@@ -13782,6 +13927,7 @@ async function loadProductRegionsAction(
         "地区",
         "累计收货",
         "已销售",
+        "退货入库",
         "实际库存",
         "当前上架",
         "未上架",
@@ -14205,7 +14351,13 @@ async function loadProductHistoryAction(
           event_time:
             movement.created_at,
 
-          event_type:
+                    event_type:
+            movement.movement_type
+            ===
+            "return"
+            ?
+            "退货入库"
+            :
             "库存调整",
 
           region_id:
