@@ -13138,7 +13138,9 @@ async function loadProductRegionsAction(
     ];
 
 
-  let pendingShipments = [];
+    let pendingShipments = [];
+
+  let allShipments = [];
 
 
   if(shipmentIds.length){
@@ -13171,7 +13173,7 @@ async function loadProductRegionsAction(
     }
 
 
-        const allShipments =
+           allShipments =
       data
       ||
       [];
