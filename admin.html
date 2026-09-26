@@ -14777,14 +14777,38 @@ function filterProductShipmentHistory(){
           }
 
 
-          const shipmentDate =
-            String(
+                   const shipmentMoment =
+            new Date(
               record.dispatchedAt
-            )
-            .slice(
-              0,
-              10
             );
+
+
+          const shipmentDate =
+            [
+              shipmentMoment
+                .getFullYear(),
+
+              String(
+                shipmentMoment
+                  .getMonth()
+                +
+                1
+              )
+                .padStart(
+                  2,
+                  "0"
+                ),
+
+              String(
+                shipmentMoment
+                  .getDate()
+              )
+                .padStart(
+                  2,
+                  "0"
+                )
+            ]
+            .join("-");
 
 
           if(
