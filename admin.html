@@ -4108,40 +4108,48 @@ function renderBaseSelects(){
       .join("");
 
 
-  el("attributeCategory")
-    .innerHTML =
-    categoryOptions;
+    if(el("attributeCategory")){
+
+    el("attributeCategory")
+      .innerHTML =
+      categoryOptions;
+
+  }
 
   el("productCategory")
     .innerHTML =
     categoryOptions;
 
 
-  el("optionAttribute")
-    .innerHTML =
-    attributeData
-      .filter(
-        attribute =>
-          attribute.is_active
-      )
-      .map(
-        attribute => `
+    if(el("optionAttribute")){
 
-          <option value="${attribute.id}">
+    el("optionAttribute")
+      .innerHTML =
+      attributeData
+        .filter(
+          attribute =>
+            attribute.is_active
+        )
+        .map(
+          attribute => `
 
-            ${
-              escapeHtml(
-                attribute.name_zh
-                ||
-                attribute.code
-              )
-            }
+            <option value="${attribute.id}">
 
-          </option>
+              ${
+                escapeHtml(
+                  attribute.name_zh
+                  ||
+                  attribute.code
+                )
+              }
 
-        `
-      )
-      .join("");
+            </option>
+
+          `
+        )
+        .join("");
+
+  }
 
 
   el("variantProduct")
