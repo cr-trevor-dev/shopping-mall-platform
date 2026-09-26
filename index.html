@@ -3798,36 +3798,13 @@ function availableQty(
   }
 
 
-  const actual =
-    Number(
-      inv.stock_on_hand
-      ||
-      0
-    );
-
-  const listed =
-    Number(
-      inv.listed_quantity
-      ||
-      0
-    );
-
-  const reserved =
-    Number(
-      inv.reserved_quantity
-      ||
-      0
-    );
-
-
   return Math.max(
     0,
-    Math.min(
-      actual,
-      listed
+    Number(
+      inv.customer_saleable_quantity
+      ||
+      0
     )
-    -
-    reserved
   );
 
 }
@@ -3875,7 +3852,11 @@ async function loadPublicData(){
 
       db
         .from("region_inventory")
-        .select("*")
+        .select("*"),
+
+      db.rpc(
+        "customer_saleable_inventory"
+      )
 
     ]);
 
@@ -3934,6 +3915,52 @@ async function loadPublicData(){
     results[5].data
     ||
     [];
+
+
+  const saleableRows =
+    results[6].data
+    ||
+    [];
+
+
+  const saleableMap =
+    {};
+
+
+  saleableRows.forEach(
+    item => {
+
+      saleableMap[
+        `${item.region_id}:${item.variant_id}`
+      ] =
+        Math.max(
+          0,
+          Number(
+            item.saleable_quantity
+            ||
+            0
+          )
+        );
+
+    }
+  );
+
+
+  inventory =
+    inventory.map(
+      item => ({
+
+        ...item,
+
+        customer_saleable_quantity:
+          saleableMap[
+            `${item.region_id}:${item.variant_id}`
+          ]
+          ??
+          0
+
+      })
+    );
 
 
   if(
@@ -6149,47 +6176,23 @@ function cartDeliveryFee(){
   const subtotal =
     cartSubtotal();
 
-  const items =
-    cartItemCount();
 
-  const freeByItems =
-    region.free_delivery_min_items
-    !==
-    null
-    &&
-    region.free_delivery_min_items
-    !==
-    undefined
-    &&
-    items
-    >=
-    Number(
-      region.free_delivery_min_items
-    );
-
-
-  const freeByAmount =
-    region.free_delivery_min_amount
-    !==
-    null
-    &&
-    region.free_delivery_min_amount
-    !==
-    undefined
-    &&
-    subtotal
-    >=
+  const minAmount =
     Number(
       region.free_delivery_min_amount
+      ||
+      0
     );
 
 
   if(
-    freeByItems
-    ||
-    freeByAmount
+    minAmount > 0
+    &&
+    subtotal >= minAmount
   ){
+
     return 0;
+
   }
 
 
@@ -6216,15 +6219,6 @@ function cartFreeDeliveryMessage(){
   const subtotal =
     cartSubtotal();
 
-  const items =
-    cartItemCount();
-
-  const minItems =
-    Number(
-      region.free_delivery_min_items
-      ||
-      0
-    );
 
   const minAmount =
     Number(
@@ -6234,46 +6228,29 @@ function cartFreeDeliveryMessage(){
     );
 
 
-  if(
-    cartDeliveryFee()
-    ===
-    0
-    &&
+  const deliveryFee =
     Number(
       region.delivery_fee
       ||
       0
-    )
-    >
-    0
+    );
+
+
+  if(
+    deliveryFee <= 0
+  ){
+    return "";
+  }
+
+
+  if(
+    minAmount
+    &&
+    subtotal >= minAmount
   ){
 
     return t(
       "freeDeliveryReached"
-    );
-
-  }
-
-
-  const messages = [];
-
-
-  if(
-    minItems
-    &&
-    items < minItems
-  ){
-
-        messages.push(
-      t("freeDeliveryItems")
-        .replace(
-          "{current}",
-          items
-        )
-        .replace(
-          "{count}",
-          minItems - items
-        )
     );
 
   }
@@ -6285,22 +6262,20 @@ function cartFreeDeliveryMessage(){
     subtotal < minAmount
   ){
 
-    messages.push(
-      t("freeDeliveryAmount")
-        .replace(
-          "{amount}",
-          money(
-            minAmount - subtotal
-          )
+    return t(
+      "freeDeliveryAmount"
+    )
+      .replace(
+        "{amount}",
+        money(
+          minAmount - subtotal
         )
-    );
+      );
 
   }
 
 
-  return messages.join(
-    " / "
-  );
+  return "";
 
 }
 
