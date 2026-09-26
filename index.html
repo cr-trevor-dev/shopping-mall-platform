@@ -7933,11 +7933,7 @@ async function saveAddress(){
         region_id:
           regionId,
 
-        township:
-          el("newAddressTownship")
-            ?.value
-            .trim()
-          ||
+                township:
           null,
 
         street:
@@ -8482,15 +8478,7 @@ function renderCheckout(){
               </div>
 
 
-              <div class="form-group">
-
-                <label>
-                  ${escapeHtml(t("township"))}
-                </label>
-
-                <input id="newAddressTownship">
-
-              </div>
+              
 
 
               <div class="form-group">
@@ -8967,9 +8955,13 @@ function checkoutErrorMessage(
   }
 
 
-  if(
+    if(
     value.includes(
       "INSUFFICIENT_STOCK"
+    )
+    ||
+    value.includes(
+      "INSUFFICIENT_VALID_BATCH_STOCK"
     )
     ||
     value.includes(
