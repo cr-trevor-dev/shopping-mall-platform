@@ -9583,27 +9583,19 @@ async function setDeliveryStatus(
   }
 
 
-  const {
+    const {
     error
   } =
-    await db
-      .from(
-        "delivery_profiles"
-      )
-      .update({
+    await db.rpc(
+      "admin_set_delivery_status",
+      {
+        p_delivery_id:
+          id,
 
-        status:
-          status,
-
-        updated_at:
-          new Date()
-            .toISOString()
-
-      })
-      .eq(
-        "id",
-        id
-      );
+        p_status:
+          status
+      }
+    );
 
 
   if(error){
