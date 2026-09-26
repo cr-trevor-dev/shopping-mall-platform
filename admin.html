@@ -2470,8 +2470,8 @@ tr:last-child td{
       <div class="form-group">
 
         <label>
-          配送费
-        </label>
+  基础配送费
+</label>
 
         <input
           id="regionDeliveryFee"
@@ -2483,20 +2483,7 @@ tr:last-child td{
       </div>
 
 
-      <div class="form-group">
-
-        <label>
-          满多少件免配送费
-        </label>
-
-        <input
-          id="regionFreeItems"
-          type="number"
-          min="1"
-          placeholder="不设置可留空"
-        >
-
-      </div>
+      
 
 
       <div class="form-group">
@@ -10357,13 +10344,7 @@ async function createRegion(){
             0
           ),
 
-        free_delivery_min_items:
-          el("regionFreeItems").value
-          ?
-          Number(
-            el("regionFreeItems").value
-          )
-          :
+                free_delivery_min_items:
           null,
 
         free_delivery_min_amount:
@@ -10415,21 +10396,14 @@ async function saveRegionDeliveryRules(
       0
     );
 
-  const items =
-    el(`regionItems_${id}`).value;
+  
 
   const amount =
     el(`regionAmount_${id}`).value;
 
 
-  if(
+    if(
     fee < 0
-    ||
-    (
-      items
-      &&
-      Number(items) <= 0
-    )
     ||
     (
       amount
@@ -10457,11 +10431,7 @@ async function saveRegionDeliveryRules(
         delivery_fee:
           fee,
 
-        free_delivery_min_items:
-          items
-          ?
-          Number(items)
-          :
+                free_delivery_min_items:
           null,
 
         free_delivery_min_amount:
@@ -10533,16 +10503,7 @@ async function loadRegions(){
               >
             </td>
 
-            <td>
-              <input
-                id="regionItems_${region.id}"
-                type="number"
-                min="1"
-                value="${region.free_delivery_min_items || ""}"
-                placeholder="不限"
-                style="width:90px"
-              >
-            </td>
+           
 
             <td>
               <input
@@ -10614,7 +10575,7 @@ async function loadRegions(){
         "地区代码",
         "地区名称",
         "配送费",
-        "满件免配送费",
+        
         "满金额免配送费",
         "状态",
         "操作"
@@ -12112,7 +12073,13 @@ function renderSimpleProductList(){
                   >
                     增加库存
                   </button>
-
+                                    <button
+                    class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','adjustStock')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    调整库存
+                  </button>
 
                   <button
                     class="btn btn-primary btn-small"
@@ -12232,7 +12199,290 @@ function productActionShell(
 
 }
 
+async function loadHeadOfficeAdjustmentBatches(
+  variantId
+){
 
+  const target =
+    el("hqAdjustBatchList");
+
+  if(!target){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "head_office_inventory_batches"
+      )
+      .select(
+        "id,received_date,production_date,expiry_date,quantity_received,quantity_remaining,status,created_at"
+      )
+      .eq(
+        "variant_id",
+        variantId
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    target.innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const batches =
+    data || [];
+
+
+  if(!batches.length){
+
+    target.innerHTML =
+      `<div class="empty">这个商品目前没有总部批次记录。</div>`;
+
+    return;
+
+  }
+
+
+  const rows =
+    batches.map(
+      batch => {
+
+        const production =
+          batch.production_date
+          ?
+          `
+            <div>
+              生产日期：
+              ${escapeHtml(batch.production_date)}
+            </div>
+          `
+          :
+          "";
+
+
+        const expiry =
+          batch.expiry_date
+          ?
+          `
+            <div>
+              过期日期：
+              ${escapeHtml(batch.expiry_date)}
+            </div>
+          `
+          :
+          "";
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${formatDate(
+                batch.created_at
+              )}
+            </td>
+
+            <td>
+
+              <div>
+                到货：
+                ${Number(
+                  batch.quantity_received
+                  ||
+                  0
+                )}
+              </div>
+
+              <div>
+                当前剩余：
+                <strong>
+                  ${Number(
+                    batch.quantity_remaining
+                    ||
+                    0
+                  )}
+                </strong>
+              </div>
+
+              ${production}
+              ${expiry}
+
+            </td>
+
+            <td>
+
+              <input
+                id="hqAdjustDelta_${batch.id}"
+                type="number"
+                step="1"
+                placeholder="例如 -10 或 10"
+                style="width:130px"
+              >
+
+            </td>
+
+            <td>
+
+              <input
+                id="hqAdjustReason_${batch.id}"
+                placeholder="必须填写调整原因"
+                style="min-width:200px"
+              >
+
+            </td>
+
+            <td>
+
+              <button
+                class="btn btn-primary btn-small"
+                onclick="confirmHeadOfficeAdjustment('${batch.id}')"
+              >
+                确认调整
+              </button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+  target.innerHTML =
+    makeTable(
+      [
+        "进货时间",
+        "批次资料",
+        "调整数量",
+        "调整原因",
+        "操作"
+      ],
+      rows
+    );
+
+}
+
+
+async function confirmHeadOfficeAdjustment(
+  batchId
+){
+
+  const delta =
+    Number(
+      el(
+        `hqAdjustDelta_${batchId}`
+      )
+      ?.value
+    );
+
+  const reason =
+    (
+      el(
+        `hqAdjustReason_${batchId}`
+      )
+      ?.value
+      ||
+      ""
+    )
+    .trim();
+
+
+  if(
+    !Number.isInteger(delta)
+    ||
+    delta === 0
+  ){
+
+    alert(
+      "调整数量必须是非 0 的整数。\n例如减少10件填写 -10，增加10件填写 10。"
+    );
+
+    return;
+
+  }
+
+
+  if(!reason){
+
+    alert(
+      "库存调整必须填写原因。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !confirm(
+      `确认调整库存 ${delta > 0 ? "+" : ""}${delta} 件吗？\n\n原因：${reason}\n\n这次操作会永久保留在库存历史中。`
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_adjust_head_office_stock",
+      {
+
+        p_batch_id:
+          batchId,
+
+        p_delta:
+          delta,
+
+        p_reason:
+          reason
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "库存调整失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "总部库存调整完成，历史记录已保存。"
+  );
+
+
+  await loadProducts();
+
+}
 async function openProductAction(
   productId,
   action
@@ -12334,10 +12584,10 @@ async function openProductAction(
             </div>
 
 
-            <div class="form-group">
+                        <div class="form-group">
 
               <label>
-                生产日期
+                生产日期（可选）
               </label>
 
               <input
@@ -12351,13 +12601,22 @@ async function openProductAction(
             <div class="form-group">
 
               <label>
-                过期日期
+                过期日期（可选）
               </label>
 
               <input
                 id="productStockExpiryDate"
                 type="date"
               >
+
+            </div>
+
+
+            <div class="full">
+
+              <div class="small">
+                日期不是必填项。填写后会跟随本次进货批次保存，不会覆盖以前批次的日期。
+              </div>
 
             </div>
 
@@ -12379,7 +12638,46 @@ async function openProductAction(
 
   }
 
+  if(action === "adjustStock"){
 
+    if(!variant){
+      return;
+    }
+
+
+    productActionShell(
+      product,
+      "调整总部库存",
+      `
+
+        <div class="panel">
+
+          <div class="safe-note">
+            这里只用于纠正总部库存错误。每次调整都会保留具体批次、调整数量、原因、操作人和时间，不会删除原来的进货或发货历史。
+          </div>
+
+          <div
+            id="hqAdjustBatchList"
+            style="margin-top:16px"
+          >
+            <div class="empty">
+              正在读取总部批次...
+            </div>
+          </div>
+
+        </div>
+
+      `
+    );
+
+
+    await loadHeadOfficeAdjustmentBatches(
+      variant.id
+    );
+
+    return;
+
+  }
   if(action === "ship"){
 
     if(!variant){
@@ -12831,13 +13129,13 @@ async function confirmProductStockAdd(){
     el("productStockProductionDate")
       ?.value
     ||
-    "";
+    null;
 
   const expiryDate =
     el("productStockExpiryDate")
       ?.value
     ||
-    "";
+    null;
 
 
   if(
@@ -12858,24 +13156,11 @@ async function confirmProductStockAdd(){
 
 
   if(
-    !productionDate
-    ||
-    !expiryDate
-  ){
-
-    alert(
-      "请填写生产日期和过期日期。"
-    );
-
-    return;
-
-  }
-
-
-  if(
-    expiryDate
-    <
     productionDate
+    &&
+    expiryDate
+    &&
+    expiryDate < productionDate
   ){
 
     alert(
