@@ -14491,22 +14491,29 @@ async function loadProductRegionsAction(
     );
 
 
-  const shipmentDetailTable =
-    makeTable(
-      [
-        "发货单",
-        "发往地区",
-        "发货时间",
-        "收货时间",
-        "总部发出",
-        "实际收到",
-        "差异",
-        "状态"
-      ],
-      shipmentDetailRows
-    );
+    const shipmentRegionOptions =
+    regionData
+      .filter(
+        region =>
+          region.is_active
+      )
+      .map(
+        region => `
+          <option value="${region.id}">
+            ${escapeHtml(
+              region.name_zh
+              ||
+              region.name_en
+              ||
+              region.code
+            )}
+          </option>
+        `
+      )
+      .join("");
 
-    el("productRegionsResult")
+
+  el("productRegionsResult")
     .innerHTML =
       regionTable
       +
@@ -14528,27 +14535,203 @@ async function loadProductRegionsAction(
               </div>
 
               <div class="panel-note">
-                当前商品每一笔发往地区的数量、时间、实际收货和差异都会保留。
+                不选择日期和地区时显示当前商品全部发货记录；可以单独或同时筛选日期、地区。
               </div>
 
             </div>
 
           </div>
 
-          ${
-            shipmentDetailRows.length
-            ?
-            shipmentDetailTable
-            :
-            `
-              <div class="empty">
-                暂无发货记录。
-              </div>
-            `
-          }
+
+          <div
+            class="form-grid"
+            style="margin-bottom:16px"
+          >
+
+            <div class="form-group">
+
+              <label>
+                发货日期
+              </label>
+
+              <input
+                id="productShipmentFilterDate"
+                type="date"
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                发往地区
+              </label>
+
+              <select
+                id="productShipmentFilterRegion"
+              >
+
+                <option value="">
+                  全部地区
+                </option>
+
+                ${shipmentRegionOptions}
+
+              </select>
+
+            </div>
+
+
+            <div
+              class="form-group"
+              style="
+                display:flex;
+                align-items:flex-end;
+              "
+            >
+
+              <button
+                class="btn btn-primary"
+                onclick="filterProductShipmentHistory()"
+              >
+                查询
+              </button>
+
+              <button
+                class="btn btn-light"
+                onclick="clearProductShipmentHistoryFilter()"
+                style="margin-left:8px"
+              >
+                清除筛选
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div id="productShipmentHistorySummary">
+          </div>
+
+
+          <div id="productShipmentHistoryTable">
+          </div>
 
         </div>
       `;
+
+
+  window.currentProductShipmentHistory =
+    (
+      allShipments
+      ||
+      []
+    )
+    .flatMap(
+      shipment => {
+
+        const region =
+          regionData.find(
+            item =>
+              item.id
+              ===
+              shipment.region_id
+          );
+
+
+        return shipmentItems
+          .filter(
+            item =>
+              item.shipment_id
+              ===
+              shipment.id
+          )
+          .map(
+            item => ({
+
+              shipmentId:
+                shipment.id,
+
+              shipmentNumber:
+                shipment.shipment_number
+                ||
+                shipment.id
+                ||
+                "—",
+
+              regionId:
+                shipment.region_id,
+
+              regionName:
+                region?.name_zh
+                ||
+                region?.name_en
+                ||
+                region?.code
+                ||
+                "—",
+
+              dispatchedAt:
+                shipment.dispatched_at,
+
+              receivedAt:
+                shipment.received_at,
+
+              sent:
+                Number(
+                  item.sent_quantity
+                  ||
+                  0
+                ),
+
+              received:
+                item.received_quantity
+                ===
+                null
+                ?
+                null
+                :
+                Number(
+                  item.received_quantity
+                  ||
+                  0
+                ),
+
+              difference:
+                item.received_quantity
+                ===
+                null
+                ?
+                null
+                :
+                Number(
+                  item.discrepancy_quantity
+                  ??
+                  (
+                    Number(
+                      item.received_quantity
+                      ||
+                      0
+                    )
+                    -
+                    Number(
+                      item.sent_quantity
+                      ||
+                      0
+                    )
+                  )
+                ),
+
+              status:
+                shipment.status
+
+            }))
+      }
+    );
+
+
+  filterProductShipmentHistory();
 
 }
 
