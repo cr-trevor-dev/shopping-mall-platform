@@ -2880,7 +2880,7 @@ let regionMap = {};
 let productMap = {};
 let variantMap = {};
 let headOfficeStockMap = {};
-
+let headOfficeBatchStockMap = {};
 /* =========================
    基础工具
 ========================= */
@@ -7235,7 +7235,10 @@ async function refundOrder(
 
 async function loadInventory(){
 
-  await loadHeadOfficeStockMap();
+    await Promise.all([
+    loadHeadOfficeStockMap(),
+    loadHeadOfficeBatchStockMap()
+  ]);
 
   renderHeadOfficeInventory();
 
@@ -7284,7 +7287,174 @@ async function loadHeadOfficeStockMap(){
 
 }
 
+async function loadHeadOfficeBatchStockMap(){
 
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        "head_office_inventory_batches"
+      )
+      .select(
+        "variant_id,quantity_remaining,expiry_date"
+      )
+      .gt(
+        "quantity_remaining",
+        0
+      );
+
+
+  if(error){
+
+    headOfficeBatchStockMap = {};
+
+    return;
+
+  }
+
+
+  headOfficeBatchStockMap = {};
+
+
+  const today =
+    new Date();
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  const thirtyDaysLater =
+    new Date(today);
+
+  thirtyDaysLater.setDate(
+    thirtyDaysLater.getDate()
+    +
+    30
+  );
+
+
+  (data || []).forEach(
+    batch => {
+
+      const variantId =
+        batch.variant_id;
+
+      const quantity =
+        Number(
+          batch.quantity_remaining
+          ||
+          0
+        );
+
+
+      if(
+        !headOfficeBatchStockMap[
+          variantId
+        ]
+      ){
+
+        headOfficeBatchStockMap[
+          variantId
+        ] = {
+          saleable:0,
+          expiring:0,
+          expired:0
+        };
+
+      }
+
+
+      if(!batch.expiry_date){
+
+        headOfficeBatchStockMap[
+          variantId
+        ].saleable +=
+          quantity;
+
+        return;
+
+      }
+
+
+      const expiry =
+        new Date(
+          `${batch.expiry_date}T00:00:00`
+        );
+
+
+      if(expiry < today){
+
+        headOfficeBatchStockMap[
+          variantId
+        ].expired +=
+          quantity;
+
+        return;
+
+      }
+
+
+      headOfficeBatchStockMap[
+        variantId
+      ].saleable +=
+        quantity;
+
+
+      if(
+        expiry
+        <=
+        thirtyDaysLater
+      ){
+
+        headOfficeBatchStockMap[
+          variantId
+        ].expiring +=
+          quantity;
+
+      }
+
+    }
+  );
+
+
+  Object.keys(
+    headOfficeStockMap
+  ).forEach(
+    variantId => {
+
+      if(
+        !headOfficeBatchStockMap[
+          variantId
+        ]
+      ){
+
+        headOfficeBatchStockMap[
+          variantId
+        ] = {
+          saleable:
+            Number(
+              headOfficeStockMap[
+                variantId
+              ]
+              ||
+              0
+            ),
+          expiring:0,
+          expired:0
+        };
+
+      }
+
+    }
+  );
+
+}
 function renderHeadOfficeInventory(){
 
   const select =
@@ -11876,13 +12046,14 @@ function openNewProductPage(){
 
 async function loadProducts(){
 
-  await Promise.all([
+    await Promise.all([
 
     loadRegionsBase(),
     loadCategoriesBase(),
     loadProductsBase(),
     loadVariantsBase(),
-    loadHeadOfficeStockMap()
+    loadHeadOfficeStockMap(),
+    loadHeadOfficeBatchStockMap()
 
   ]);
 
@@ -12046,11 +12217,82 @@ function renderSimpleProductList(){
               </td>
 
 
-              <td>
+                            <td>
 
                 <strong>
                   ${stock}
                 </strong>
+
+              </td>
+
+
+              <td>
+
+                <strong>
+                  ${
+                    variant
+                    ?
+                    (
+                      headOfficeBatchStockMap[
+                        variant.id
+                      ]?.saleable
+                      ??
+                      stock
+                    )
+                    :
+                    0
+                  }
+                </strong>
+
+              </td>
+
+
+              <td>
+
+                ${
+                  variant
+                  &&
+                  (
+                    headOfficeBatchStockMap[
+                      variant.id
+                    ]?.expiring
+                    ||
+                    0
+                  ) > 0
+                  ?
+                  `<strong>⚠️ ${
+                    headOfficeBatchStockMap[
+                      variant.id
+                    ].expiring
+                  }</strong>`
+                  :
+                  "0"
+                }
+
+              </td>
+
+
+              <td>
+
+                ${
+                  variant
+                  &&
+                  (
+                    headOfficeBatchStockMap[
+                      variant.id
+                    ]?.expired
+                    ||
+                    0
+                  ) > 0
+                  ?
+                  `<strong>⚠️ ${
+                    headOfficeBatchStockMap[
+                      variant.id
+                    ].expired
+                  }</strong>`
+                  :
+                  "0"
+                }
 
               </td>
 
@@ -12149,7 +12391,7 @@ function renderSimpleProductList(){
       );
 
 
-  el("productsTable")
+    el("productsTable")
     .innerHTML =
     makeTable(
       [
@@ -12157,6 +12399,9 @@ function renderSimpleProductList(){
         "当前售价",
         "分类",
         "总部库存",
+        "可发货",
+        "临期≤30天",
+        "已过期",
         "状态",
         "操作"
       ],
@@ -12734,8 +12979,19 @@ async function openProductAction(
 
         <div class="panel">
 
-          <div class="safe-note">
-            当前总部库存：${stock}。确认发货后，总部库存会立即扣减；地区继续按照现有流程由经理确认收货。
+                   <div class="safe-note">
+            实际库存：${stock}　
+            可发货：${headOfficeBatchStockMap[variant.id]?.saleable ?? stock}　
+            临期≤30天：${headOfficeBatchStockMap[variant.id]?.expiring ?? 0}　
+            已过期：${headOfficeBatchStockMap[variant.id]?.expired ?? 0}
+            <br>
+            ${
+              (headOfficeBatchStockMap[variant.id]?.expired ?? 0) > 0
+              ?
+              "⚠️ 已过期库存不会自动删除，也不能发货。实际报废后请通过“调整库存”扣除并填写原因。"
+              :
+              "确认发货后，总部库存会立即扣减；地区继续按照现有流程由经理确认收货。"
+            }
           </div>
 
           <div class="form-grid">
