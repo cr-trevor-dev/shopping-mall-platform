@@ -7642,6 +7642,16 @@ async function loadInventoryList(){
         "region_inventory"
       )
       .select("*")
+      .in(
+        "region_id",
+        myRegionIds.length
+        ?
+        myRegionIds
+        :
+        [
+          "00000000-0000-0000-0000-000000000000"
+        ]
+      )
       .order(
         "updated_at",
         {
@@ -7663,8 +7673,156 @@ async function loadInventoryList(){
   }
 
 
+  const inventoryRows =
+    data
+    ||
+    [];
+
+
+  const inventoryIds =
+    inventoryRows
+      .map(
+        item =>
+          item.id
+      );
+
+
+  let batchRows =
+    [];
+
+
+  if(inventoryIds.length){
+
+    const {
+      data:
+        batchData,
+      error:
+        batchError
+    } =
+      await db
+        .from(
+          "inventory_batches"
+        )
+        .select(
+          "id,region_inventory_id,quantity_remaining,production_date,expiry_date,status"
+        )
+        .in(
+          "region_inventory_id",
+          inventoryIds
+        );
+
+
+    if(batchError){
+
+      el("inventoryTable")
+        .innerHTML =
+        errorBox(
+          batchError.message
+        );
+
+      return;
+
+    }
+
+
+    batchRows =
+      batchData
+      ||
+      [];
+
+  }
+
+
+  const today =
+    new Date();
+
+
+  const todayKey =
+    [
+      today.getFullYear(),
+      String(
+        today.getMonth() + 1
+      )
+      .padStart(
+        2,
+        "0"
+      ),
+      String(
+        today.getDate()
+      )
+      .padStart(
+        2,
+        "0"
+      )
+    ]
+    .join("-");
+
+
+  const batchSummary =
+    {};
+
+
+  batchRows.forEach(
+    batch => {
+
+      const inventoryId =
+        batch.region_inventory_id;
+
+
+      if(!batchSummary[inventoryId]){
+
+        batchSummary[inventoryId] = {
+          hasBatches:false,
+          validStock:0,
+          expiredStock:0
+        };
+
+      }
+
+
+      const summary =
+        batchSummary[
+          inventoryId
+        ];
+
+
+      summary.hasBatches =
+        true;
+
+
+      const remaining =
+        Math.max(
+          0,
+          Number(
+            batch.quantity_remaining
+            ||
+            0
+          )
+        );
+
+
+      if(
+        batch.expiry_date
+        &&
+        batch.expiry_date < todayKey
+      ){
+
+        summary.expiredStock +=
+          remaining;
+
+      }else{
+
+        summary.validStock +=
+          remaining;
+
+      }
+
+    }
+  );
+
+
   const rows =
-    (data || [])
+    inventoryRows
       .map(
         item => {
 
@@ -7675,12 +7833,14 @@ async function loadInventoryList(){
               0
             );
 
+
           const listed =
             Number(
               item.listed_quantity
               ||
               0
             );
+
 
           const reserved =
             Number(
@@ -7689,17 +7849,53 @@ async function loadInventoryList(){
               0
             );
 
+
+          const summary =
+            batchSummary[
+              item.id
+            ]
+            ||
+            null;
+
+
+          const validBatchStock =
+            summary
+            &&
+            summary.hasBatches
+            ?
+            Math.min(
+              stock,
+              summary.validStock
+            )
+            :
+            stock;
+
+
+          const expiredStock =
+            summary
+            &&
+            summary.hasBatches
+            ?
+            Math.min(
+              stock,
+              summary.expiredStock
+            )
+            :
+            0;
+
+
           const notListed =
             Math.max(
               0,
               stock - listed
             );
 
+
           const saleable =
             Math.max(
               0,
               Math.min(
-                stock,
+                validBatchStock,
                 listed
               )
               -
@@ -7707,32 +7903,56 @@ async function loadInventoryList(){
             );
 
 
+          const expiredInfo =
+            expiredStock > 0
+            ?
+            `
+              <div
+                class="small"
+                style="margin-top:4px"
+              >
+                已过期库存：
+                ${expiredStock}
+              </div>
+            `
+            :
+            "";
+
+
           return `
 
             <tr>
 
               <td>
+
                 ${escapeHtml(
                   regionMap[
                     item.region_id
                   ]
                   ||
-                  "—"
+                  ""
                 )}
+
               </td>
 
               <td>
+
                 ${escapeHtml(
                   shipmentProductName(
                     item.variant_id
                   )
                 )}
+
               </td>
 
               <td>
+
                 <strong>
                   ${stock}
                 </strong>
+
+                ${expiredInfo}
+
               </td>
 
               <td>
@@ -7744,9 +7964,11 @@ async function loadInventoryList(){
               </td>
 
               <td>
+
                 <strong>
                   ${saleable}
                 </strong>
+
               </td>
 
               <td style="min-width:170px">
@@ -7757,7 +7979,7 @@ async function loadInventoryList(){
                     id="listing-${item.id}"
                     type="number"
                     min="${reserved}"
-                    max="${stock}"
+                    max="${validBatchStock}"
                     step="1"
                     value="${listed}"
                     style="width:85px;padding:7px"
@@ -7770,10 +7992,15 @@ async function loadInventoryList(){
                       '${item.variant_id}',
                       '${item.id}',
                       ${stock},
-                      ${reserved}
+                      ${reserved},
+                      ${validBatchStock}
                     )"
                   >
-                    ${escapeHtml(rt("saveListingButton"))}
+                    ${escapeHtml(
+                      rt(
+                        "saveListingButton"
+                      )
+                    )}
                   </button>
 
                 </div>
@@ -7793,12 +8020,12 @@ async function loadInventoryList(){
     makeTable(
       [
         rt("inventoryRegion"),
-rt("inventoryProduct"),
-rt("physicalStock"),
-rt("listed"),
-rt("notListed"),
-rt("customerCanBuy"),
-rt("adjustListing")
+        rt("inventoryProduct"),
+        rt("physicalStock"),
+        rt("listed"),
+        rt("notListed"),
+        rt("customerCanBuy"),
+        rt("adjustListing")
       ],
       rows
     );
@@ -7982,7 +8209,8 @@ async function setRegionListing(
   variantId,
   inventoryId,
   stock,
-  reserved
+  reserved,
+  validBatchStock
 ){
 
   const input =
@@ -7991,6 +8219,7 @@ async function setRegionListing(
       +
       inventoryId
     );
+
 
   const quantity =
     Number(
@@ -8019,6 +8248,23 @@ async function setRegionListing(
 
     alert(
       rt("listingOverStock")
+    );
+
+    return;
+
+  }
+
+
+  if(
+    quantity > validBatchStock
+  ){
+
+    alert(
+      "上架数量不能超过当前未过期的有效批次库存。\n\n"
+      +
+      "当前有效批次库存："
+      +
+      validBatchStock
     );
 
     return;
@@ -8062,7 +8308,7 @@ async function setRegionListing(
   if(error){
 
     alert(
-     rt("saveFailed")
+      rt("saveFailed")
       +
       "\n"
       +
@@ -8080,9 +8326,9 @@ async function setRegionListing(
 
 
   await Promise.all([
-  loadInventoryList(),
-  loadManagerInventoryHistory()
-]);
+    loadInventoryList(),
+    loadManagerInventoryHistory()
+  ]);
 
 }
 
@@ -8128,138 +8374,240 @@ async function loadBatchList(){
   }
 
 
-  const rows =
-  (data || [])
-    .map(
-      batch => {
+  const visibleBatches =
+    (data || [])
+      .filter(
+        batch => {
 
-        const inventory =
-          batch.region_inventory
-          ||
-          {};
+          const regionId =
+            batch.region_inventory
+              ?.region_id;
 
-        let expiryStatus =
-          rt("notFilled");
-
-        if(batch.expiry_date){
-
-          const today =
-            new Date();
-
-          today.setHours(
-            0,
-            0,
-            0,
-            0
+          return (
+            regionId
+            &&
+            myRegionIds.includes(
+              regionId
+            )
           );
 
-          const expiry =
-            new Date(
-              batch.expiry_date
-              +
-              "T00:00:00"
+        }
+      );
+
+
+  const rows =
+    visibleBatches
+      .map(
+        batch => {
+
+          const inventory =
+            batch.region_inventory
+            ||
+            {};
+
+
+          let expiryStatus =
+            "";
+
+
+          if(batch.expiry_date){
+
+            const today =
+              new Date();
+
+            today.setHours(
+              0,
+              0,
+              0,
+              0
             );
 
-          const daysLeft =
-            Math.ceil(
-              (
-                expiry
-                -
-                today
-              )
-              /
-              86400000
-            );
 
-          if(daysLeft < 0){
+            const expiry =
+              new Date(
+                batch.expiry_date
+                +
+                "T00:00:00"
+              );
 
-            expiryStatus =
-              rt("expiredText");
 
-          }else if(daysLeft <= 30){
+            const daysLeft =
+              Math.ceil(
+                (
+                  expiry
+                  -
+                  today
+                )
+                /
+                86400000
+              );
 
-            expiryStatus =
-              rt("expiringText")
-              +
-              " · "
-              +
-              daysLeft
-              +
-              rt("daysText");
 
-          }else{
+            if(daysLeft < 0){
 
-            expiryStatus =
-              rt("normalText");
+              expiryStatus =
+                rt("expiredText");
+
+            }else if(daysLeft <= 30){
+
+              expiryStatus =
+                rt("expiringText")
+                +
+                " · "
+                +
+                daysLeft
+                +
+                rt("daysText");
+
+            }else{
+
+              expiryStatus =
+                rt("normalText");
+
+            }
 
           }
 
-        }
+
+          const productionHtml =
+            batch.production_date
+            ?
+            `
+              <div>
+                ${escapeHtml(
+                  i18n[
+                    appLanguage
+                  ]?.productionDate
+                  ||
+                  i18n.zh.productionDate
+                )}：
+                ${escapeHtml(
+                  batch.production_date
+                )}
+              </div>
+            `
+            :
+            "";
 
 
-        return `
+          const expiryHtml =
+            batch.expiry_date
+            ?
+            `
+              <div>
+                ${escapeHtml(
+                  i18n[
+                    appLanguage
+                  ]?.expiryDate
+                  ||
+                  i18n.zh.expiryDate
+                )}：
+                ${escapeHtml(
+                  batch.expiry_date
+                )}
+              </div>
 
-          <tr>
+              <div>
+                ${escapeHtml(
+                  expiryStatus
+                )}
+              </div>
+            `
+            :
+            "";
 
-            <td>
-              ${
-                escapeHtml(
+
+          return `
+
+            <tr>
+
+              <td>
+
+                ${escapeHtml(
                   regionMap[
                     inventory.region_id
                   ]
                   ||
-                  "—"
-                )
-              }
-            </td>
+                  ""
+                )}
 
-            <td>
-              ${
-                escapeHtml(
+              </td>
+
+              <td>
+
+                ${escapeHtml(
                   variantMap[
                     inventory.variant_id
                   ]
                   ||
-                  "—"
-                )
-              }
-            </td>
+                  ""
+                )}
 
-            <td>
-              ${batch.quantity_remaining}
-            </td>
+              </td>
 
-            <td>
-              ${batch.expiry_date || "—"}
-            </td>
+              <td>
 
-            <td>
-              ${escapeHtml(expiryStatus)}
-            </td>
+                ${Number(
+                  batch.quantity_remaining
+                  ||
+                  0
+                )}
 
-          </tr>
+              </td>
 
-        `;
+              <td>
 
-      }
+                ${productionHtml}
+
+                ${expiryHtml}
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+  el("batchTable")
+    .innerHTML =
+    makeTable(
+      [
+        rt("inventoryRegion"),
+        rt("inventoryProduct"),
+        rt("remaining"),
+        (
+          i18n[
+            appLanguage
+          ]?.batchCode
+          ||
+          i18n.zh.batchCode
+        )
+        +
+        " / "
+        +
+        (
+          i18n[
+            appLanguage
+          ]?.productionDate
+          ||
+          i18n.zh.productionDate
+        )
+        +
+        " / "
+        +
+        (
+          i18n[
+            appLanguage
+          ]?.expiryDate
+          ||
+          i18n.zh.expiryDate
+        )
+      ],
+      rows
     );
-
-
-el("batchTable")
-  .innerHTML =
-  makeTable(
-
-    [
-  rt("inventoryRegion"),
-  rt("inventoryProduct"),
-  rt("remaining"),
-  rt("expiry"),
-  rt("expiryStatus")
-],
-
-    rows
-
-  );
 
 }
 
