@@ -2930,7 +2930,63 @@ function formatDate(value){
 
 }
 
+function businessDateKey(value){
 
+  if(!value){
+    return "";
+  }
+
+
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-CA",
+      {
+        timeZone:
+          "Asia/Yangon",
+
+        year:
+          "numeric",
+
+        month:
+          "2-digit",
+
+        day:
+          "2-digit"
+      }
+    )
+    .formatToParts(
+      new Date(value)
+    );
+
+
+  const values = {};
+
+
+  parts.forEach(
+    part => {
+
+      if(
+        part.type
+        !==
+        "literal"
+      ){
+
+        values[
+          part.type
+        ] =
+          part.value;
+
+      }
+
+    }
+  );
+
+
+  return (
+    `${values.year}-${values.month}-${values.day}`
+  );
+
+}
 function money(
   value,
   currency = "MMK"
@@ -14777,38 +14833,10 @@ function filterProductShipmentHistory(){
           }
 
 
-                   const shipmentMoment =
-            new Date(
+                             const shipmentDate =
+            businessDateKey(
               record.dispatchedAt
             );
-
-
-          const shipmentDate =
-            [
-              shipmentMoment
-                .getFullYear(),
-
-              String(
-                shipmentMoment
-                  .getMonth()
-                +
-                1
-              )
-                .padStart(
-                  2,
-                  "0"
-                ),
-
-              String(
-                shipmentMoment
-                  .getDate()
-              )
-                .padStart(
-                  2,
-                  "0"
-                )
-            ]
-            .join("-");
 
 
           if(
