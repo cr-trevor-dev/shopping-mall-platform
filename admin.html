@@ -7289,21 +7289,27 @@ async function loadHeadOfficeStockMap(){
 
 async function loadHeadOfficeBatchStockMap(){
 
-  const {
-    data,
+    const {
+    data:
+      allBatches,
     error
   } =
-    await db
-      .from(
-        "head_office_inventory_batches"
-      )
-      .select(
-        "variant_id,quantity_remaining,expiry_date"
-      )
-      .gt(
-        "quantity_remaining",
-        0
+    await db.rpc(
+      "admin_head_office_inventory_batches"
+    );
+
+
+  const data =
+    (allBatches || [])
+      .filter(
+        batch =>
+          Number(
+            batch.quantity_remaining
+            ||
+            0
+          ) > 0
       );
+    
 
 
   if(error){
@@ -12464,26 +12470,23 @@ async function loadHeadOfficeAdjustmentBatches(
   }
 
 
-  const {
-    data,
+    const {
+    data:
+      allBatches,
     error
   } =
-    await db
-      .from(
-        "head_office_inventory_batches"
-      )
-      .select(
-        "id,received_date,production_date,expiry_date,quantity_received,quantity_remaining,status,created_at"
-      )
-      .eq(
-        "variant_id",
-        variantId
-      )
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
+    await db.rpc(
+      "admin_head_office_inventory_batches"
+    );
+
+
+  const data =
+    (allBatches || [])
+      .filter(
+        batch =>
+          batch.variant_id
+          ===
+          variantId
       );
 
 
