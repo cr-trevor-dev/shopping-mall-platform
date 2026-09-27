@@ -2401,7 +2401,7 @@ alert(
     await db
       .from("order_items")
       .select(
-        "id,order_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity"
+                "id,order_id,sku_code_snapshot,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity,item_status"
       )
       .in(
         "order_id",
@@ -2947,8 +2947,14 @@ function taskCard(
     ||
     [];
 
-  const orderItemsHtml =
+    const orderItemsHtml =
     orderItems
+      .filter(
+        item =>
+          item.item_status
+          !==
+          "cancelled"
+      )
       .map(item => {
 
         const productName =
@@ -2990,10 +2996,21 @@ function taskCard(
             specification
           ]
           .filter(Boolean)
+          .filter(
+            (
+              value,
+              index,
+              array
+            ) =>
+              array.indexOf(value)
+              ===
+              index
+          )
           .join(" · ");
 
         return `
           <div style="margin-bottom:10px">
+
             <strong>
               ${escapeHtml(productName)}
             </strong>
@@ -3008,10 +3025,21 @@ function taskCard(
               ""
             }
 
+            ${
+              item.sku_code_snapshot
+              ?
+              `<div class="info-secondary">
+                SKU：${escapeHtml(item.sku_code_snapshot)}
+              </div>`
+              :
+              ""
+            }
+
             <div class="info-secondary">
               ${escapeHtml(t("quantity"))}：
-              ${escapeHtml(item.quantity ?? 0)}
+              <strong>${escapeHtml(item.quantity ?? 0)}</strong>
             </div>
+
           </div>
         `;
 
