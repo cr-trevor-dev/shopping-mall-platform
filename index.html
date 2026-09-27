@@ -9564,7 +9564,7 @@ async function openOrder(
         )
         .single(),
 
-      db
+            db
         .from("customer_order_items")
         .select(
           `
@@ -9592,6 +9592,9 @@ async function openOrder(
           quantity,
           unit_price,
           line_total,
+          item_status,
+          cancellation_reason,
+          cancelled_at,
           created_at
           `
         )
@@ -10744,11 +10747,7 @@ async function saveAccountAddress(){
         region_id:
           regionId,
 
-        township:
-          el("accountAddressTownship")
-            ?.value
-            .trim()
-          ||
+                township:
           null,
 
         street:
