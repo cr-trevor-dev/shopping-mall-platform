@@ -12830,50 +12830,7 @@ function renderSimpleProductList(){
                     } btn-small"
                     onclick="openProductAction('${product.id}','status')"
                   >
-  if(action === "batches"){
-
-    if(!variant){
-      return;
-    }
-
-
-    productActionShell(
-      product,
-      "批次详情",
-      `
-
-        ${variantChooser}
-
-        <div class="panel">
-
-          <div class="safe-note">
-            这里只查看总部批次资料，不会修改库存。
-          </div>
-
-          <div
-            id="hqBatchDetailList"
-            style="margin-top:16px"
-          >
-
-            <div class="empty">
-              正在读取批次资料...
-            </div>
-
-          </div>
-
-        </div>
-
-      `
-    );
-
-
-    await loadHeadOfficeBatchDetails(
-      variant.id
-    );
-
-    return;
-
-  }
+  
                     ${
                       product.status === "active"
                       ?
@@ -13532,7 +13489,50 @@ async function openProductAction(
     ?.classList
     .remove("hidden");
 
+  if(action === "batches"){
 
+    if(!variant){
+      return;
+    }
+
+
+    productActionShell(
+      product,
+      "批次详情",
+      `
+
+        ${variantChooser}
+
+        <div class="panel">
+
+          <div class="safe-note">
+            这里只查看总部批次资料，不会修改库存。
+          </div>
+
+          <div
+            id="hqBatchDetailList"
+            style="margin-top:16px"
+          >
+
+            <div class="empty">
+              正在读取批次资料...
+            </div>
+
+          </div>
+
+        </div>
+
+      `
+    );
+
+
+    await loadHeadOfficeBatchDetails(
+      variant.id
+    );
+
+    return;
+
+  }
   if(action === "stock"){
 
     if(!variant){
