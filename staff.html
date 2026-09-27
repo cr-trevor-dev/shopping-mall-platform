@@ -6095,13 +6095,17 @@ async function loadBusinessData(){
     return;
   }
 
-  const {data:items,error:itemError} =
+    const {data:items,error:itemError} =
     await db
       .from("order_items")
       .select(
-        "product_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,quantity,line_total"
+        "product_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,quantity,line_total,item_status"
       )
-      .in("order_id",orderIds);
+      .in("order_id",orderIds)
+      .eq(
+        "item_status",
+        "active"
+      );
 
   if(itemError){
 
@@ -6325,7 +6329,7 @@ async function openOrderDetail(orderId){
       db
         .from("order_items")
         .select(
-          "id,order_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity,unit_price,line_total,sales_unit_code_snapshot"
+                   "id,order_id,sku_code_snapshot,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity,unit_price,line_total,sales_unit_code_snapshot,item_status,cancellation_reason,cancelled_at,cancelled_by"
         )
         .eq("order_id",orderId),
 
@@ -6377,6 +6381,42 @@ async function openOrderDetail(orderId){
         ||
         "";
 
+            const cancelled =
+        item.item_status
+        ===
+        "cancelled";
+
+
+      const canCancelItem =
+        !cancelled
+        &&
+        hasPermission(
+          "orders.cancel"
+        )
+        &&
+        ![
+          "cancelled",
+          "completed"
+        ].includes(
+          order.order_status
+        )
+        &&
+        order.fulfillment_status
+        !==
+        "fulfilled"
+        &&
+        order.delivery_status
+        !==
+        "delivered"
+        &&
+        items.filter(
+          row =>
+            row.item_status
+            !==
+            "cancelled"
+        ).length > 1;
+
+
       return `
 
         <tr>
@@ -6399,6 +6439,14 @@ async function openOrderDetail(orderId){
               :
               ""
             }
+
+            ${
+              item.sku_code_snapshot
+              ?
+              `<div class="small">SKU：${escapeHtml(item.sku_code_snapshot)}</div>`
+              :
+              ""
+            }
           </td>
 
           <td>
@@ -6411,6 +6459,71 @@ async function openOrderDetail(orderId){
 
           <td>
             ${money(item.line_total,order.currency_code)}
+          </td>
+
+          <td>
+
+            ${
+              cancelled
+              ?
+              `
+                <strong>已取消</strong>
+
+                ${
+                  item.cancellation_reason
+                  ?
+                  `
+                    <div class="small">
+                      ${escapeHtml(item.cancellation_reason)}
+                    </div>
+                  `
+                  :
+                  ""
+                }
+
+                ${
+                  item.cancelled_at
+                  ?
+                  `
+                    <div class="small">
+                      ${escapeHtml(
+                        formatDate(
+                          item.cancelled_at
+                        )
+                      )}
+                    </div>
+                  `
+                  :
+                  ""
+                }
+              `
+              :
+              "正常"
+            }
+
+          </td>
+
+          <td>
+
+            ${
+              canCancelItem
+              ?
+              `
+                <button
+                  type="button"
+                  class="btn btn-red btn-small"
+                  onclick="cancelSingleOrderItem(
+                    '${item.id}',
+                    '${order.id}'
+                  )"
+                >
+                  取消此商品
+                </button>
+              `
+              :
+              "—"
+            }
+
           </td>
 
         </tr>
@@ -6661,13 +6774,15 @@ async function openOrderDetail(orderId){
 
       <div style="margin-top:12px">
 
-        ${
+                ${
           makeTable(
             [
               rt("product"),
               rt("quantity"),
               rt("unitPrice"),
-              rt("subtotal")
+              rt("subtotal"),
+              rt("status"),
+              rt("action")
             ],
             productRows
           )
@@ -7054,7 +7169,117 @@ async function cancelOrder(
 
 }
 
+async function cancelSingleOrderItem(
+  orderItemId,
+  orderId
+){
 
+  const reason =
+    prompt(
+      rt("cancelReason")
+    );
+
+
+  if(
+    reason === null
+  ){
+    return;
+  }
+
+
+  const cleanReason =
+    reason.trim();
+
+
+  if(!cleanReason){
+    return;
+  }
+
+
+  if(
+    !confirm(
+      "确认只取消这个商品？"
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "cancel_order_item",
+      {
+        p_order_item_id:
+          orderItemId,
+
+        p_reason:
+          cleanReason
+      }
+    );
+
+
+  if(error){
+
+    const message =
+      String(
+        error.message
+        ||
+        ""
+      );
+
+
+    if(
+      message.includes(
+        "LAST_ITEM_USE_FULL_ORDER_CANCEL"
+      )
+    ){
+
+      alert(
+        "这是订单最后一个有效商品，请使用“取消订单”。"
+      );
+
+    }
+    else if(
+      message.includes(
+        "FULFILLED_ITEM_REQUIRES_RETURN_FLOW"
+      )
+    ){
+
+      alert(
+        "这个商品已经出库，不能直接单独取消，需要走退货流程。"
+      );
+
+    }
+    else{
+
+      alert(
+        "取消商品失败：\n"
+        +
+        message
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  alert(
+    "商品已取消，库存占用和订单金额已重新计算。"
+  );
+
+
+  await loadOrders();
+
+
+  await openOrderDetail(
+    orderId
+  );
+
+}
 async function confirmOrderReturn(
   orderId
 ){
