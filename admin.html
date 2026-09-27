@@ -6890,6 +6890,34 @@ async function showAdminOrderItems(
   orderNumber
 ){
 
+  const orderResult =
+    await db
+      .from("orders")
+      .select("*")
+      .eq(
+        "id",
+        orderId
+      )
+      .single();
+
+
+  if(orderResult.error){
+
+    alert(
+      "读取订单失败：\n"
+      +
+      orderResult.error.message
+    );
+
+    return;
+
+  }
+
+
+  const order =
+    orderResult.data;
+
+
   const {
     data,
     error
@@ -6936,9 +6964,35 @@ async function showAdminOrderItems(
   }
 
 
-  const lines =
+  const canCancelItem =
+    ![
+      "cancelled",
+      "completed"
+    ].includes(
+      order.order_status
+    )
+    &&
+    order.delivery_status
+    !==
+    "delivered"
+    &&
+    order.fulfillment_status
+    !==
+    "fulfilled";
+
+
+  const activeCount =
+    items.filter(
+      item =>
+        item.item_status
+        !==
+        "cancelled"
+    ).length;
+
+
+  const rows =
     items.map(
-      (item,index) => {
+      item => {
 
         const name =
           item.product_name_zh_snapshot
@@ -6951,18 +7005,19 @@ async function showAdminOrderItems(
         const variant =
           [
             item.variant_name_zh_snapshot,
-            item.specification_zh_snapshot
+            item.specification_zh_snapshot,
+            item.sku_code_snapshot
           ]
           .filter(Boolean)
           .filter(
             (
               value,
-              i,
+              index,
               array
             ) =>
               array.indexOf(value)
               ===
-              i
+              index
           )
           .join(" · ");
 
@@ -6973,79 +7028,309 @@ async function showAdminOrderItems(
           "cancelled";
 
 
-        return (
-          (index + 1)
-          +
-          ". "
-          +
-          name
-          +
-          (
-            variant
-            ?
-            " · " + variant
-            :
-            ""
-          )
-          +
-          " ×"
-          +
-          Number(
-            item.quantity
-            ||
-            0
-          )
-          +
-          " · "
-          +
-          money(
-            item.line_total
-            ||
-            0,
-            "MMK"
-          )
-          +
-          (
-            cancelled
-            ?
-            "\n已取消："
-            +
-            (
-              item.cancellation_reason
-              ||
-              "未填写原因"
-            )
-            +
-            (
-              item.cancelled_at
-              ?
-              " · "
-              +
-              formatDate(
-                item.cancelled_at
-              )
-              :
-              ""
-            )
-            :
-            ""
-          )
-        );
+        const cancelButton =
+          !cancelled
+          &&
+          canCancelItem
+          &&
+          activeCount > 1
+          ?
+          `
+
+            <button
+              class="btn btn-red btn-small"
+              onclick="cancelSingleOrderItem(
+                '${item.id}',
+                '${orderId}',
+                '${escapeHtml(orderNumber)}'
+              )"
+            >
+              取消此商品
+            </button>
+
+          `
+          :
+          "";
+
+
+        return `
+
+          <tr>
+
+            <td>
+
+              <strong>
+                ${escapeHtml(name)}
+              </strong>
+
+              ${
+                variant
+                ?
+                `
+                  <div class="small">
+                    ${escapeHtml(variant)}
+                  </div>
+                `
+                :
+                ""
+              }
+
+            </td>
+
+
+            <td>
+              ${Number(
+                item.quantity
+                ||
+                0
+              )}
+            </td>
+
+
+            <td>
+              ${money(
+                item.unit_price
+                ||
+                0,
+                order.currency_code
+                ||
+                "MMK"
+              )}
+            </td>
+
+
+            <td>
+              ${money(
+                item.line_total
+                ||
+                0,
+                order.currency_code
+                ||
+                "MMK"
+              )}
+            </td>
+
+
+            <td>
+
+              ${
+                cancelled
+                ?
+                `
+                  <strong>已取消</strong>
+
+                  <div class="small">
+                    ${escapeHtml(
+                      item.cancellation_reason
+                      ||
+                      "未填写原因"
+                    )}
+                  </div>
+
+                  ${
+                    item.cancelled_at
+                    ?
+                    `
+                      <div class="small">
+                        ${formatDate(
+                          item.cancelled_at
+                        )}
+                      </div>
+                    `
+                    :
+                    ""
+                  }
+                `
+                :
+                "正常"
+              }
+
+            </td>
+
+
+            <td>
+              ${cancelButton}
+            </td>
+
+          </tr>
+
+        `;
 
       }
     );
 
 
-  alert(
-    "订单 "
-    +
-    orderNumber
-    +
-    "\n\n"
-    +
-    lines.join(
-      "\n\n"
+  productActionShell(
+    {
+      name_zh:
+        `订单 ${orderNumber}`
+    },
+    "商品明细",
+    `
+
+      <div class="panel">
+
+        <div class="small">
+          当前订单金额
+        </div>
+
+        <div style="
+          font-size:22px;
+          font-weight:800;
+          margin-top:4px;
+          margin-bottom:16px;
+        ">
+
+          ${money(
+            order.total_amount
+            ||
+            0,
+            order.currency_code
+            ||
+            "MMK"
+          )}
+
+        </div>
+
+
+        ${makeTable(
+          [
+            "商品 / SKU",
+            "数量",
+            "单价",
+            "小计",
+            "状态 / 取消记录",
+            "操作"
+          ],
+          rows
+        )}
+
+      </div>
+
+    `
+  );
+
+}
+
+
+async function cancelSingleOrderItem(
+  orderItemId,
+  orderId,
+  orderNumber
+){
+
+  const reason =
+    prompt(
+      "请输入取消这个商品的原因："
+    );
+
+
+  if(reason === null){
+    return;
+  }
+
+
+  const cleanReason =
+    reason.trim();
+
+
+  if(!cleanReason){
+
+    alert(
+      "必须填写取消原因。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !confirm(
+      "确认只取消这个商品？\n\n"
+      +
+      "系统会释放这个商品占用的库存，并重新计算订单金额。"
     )
+  ){
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "cancel_order_item",
+      {
+        p_order_item_id:
+          orderItemId,
+
+        p_reason:
+          cleanReason
+      }
+    );
+
+
+  if(error){
+
+    const message =
+      String(
+        error.message
+        ||
+        ""
+      );
+
+
+    if(
+      message.includes(
+        "LAST_ITEM_USE_FULL_ORDER_CANCEL"
+      )
+    ){
+
+      alert(
+        "这是订单最后一个有效商品。\n"
+        +
+        "如果需要取消，请直接使用“取消订单”。"
+      );
+
+    }
+    else if(
+      message.includes(
+        "FULFILLED_ITEM_REQUIRES_RETURN_FLOW"
+      )
+    ){
+
+      alert(
+        "这个商品已经正式出库，不能直接单独取消，需要走退货流程。"
+      );
+
+    }
+    else{
+
+      alert(
+        "取消商品失败：\n"
+        +
+        message
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  alert(
+    "这个商品已经取消，订单金额和库存占用已经重新计算。"
+  );
+
+
+  await loadOrders();
+
+
+  await showAdminOrderItems(
+    orderId,
+    orderNumber
   );
 
 }
@@ -12805,19 +13090,7 @@ function renderSimpleProductList(){
               <td>
 
                 <strong>
-                  ${
-                    variant
-                    ?
-                    (
-                      headOfficeBatchStockMap[
-                        variant.id
-                      ]?.saleable
-                      ??
-                      stock
-                    )
-                    :
-                    0
-                  }
+                                    ${saleableStock}
                 </strong>
 
               </td>
@@ -12825,22 +13098,10 @@ function renderSimpleProductList(){
 
               <td>
 
-                ${
-                  variant
-                  &&
-                  (
-                    headOfficeBatchStockMap[
-                      variant.id
-                    ]?.expiring
-                    ||
-                    0
-                  ) > 0
+                                ${
+                  expiringStock > 0
                   ?
-                  `<strong>⚠️ ${
-                    headOfficeBatchStockMap[
-                      variant.id
-                    ].expiring
-                  }</strong>`
+                  `<strong>⚠️ ${expiringStock}</strong>`
                   :
                   "0"
                 }
@@ -12850,22 +13111,10 @@ function renderSimpleProductList(){
 
               <td>
 
-                ${
-                  variant
-                  &&
-                  (
-                    headOfficeBatchStockMap[
-                      variant.id
-                    ]?.expired
-                    ||
-                    0
-                  ) > 0
+                               ${
+                  expiredStock > 0
                   ?
-                  `<strong>⚠️ ${
-                    headOfficeBatchStockMap[
-                      variant.id
-                    ].expired
-                  }</strong>`
+                  `<strong>⚠️ ${expiredStock}</strong>`
                   :
                   "0"
                 }
