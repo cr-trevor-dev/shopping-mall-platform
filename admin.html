@@ -2875,7 +2875,7 @@ let variantData = [];
 let roleData = [];
 let attributeData = [];
 let deliveryData = [];
-
+let workforceEmailMap = {};
 let regionMap = {};
 let productMap = {};
 let variantMap = {};
@@ -6836,7 +6836,19 @@ async function loadOrders(){
 
               <td>
 
-                <div class="operation-buttons">
+                               <div class="operation-buttons">
+
+                  <button
+                    class="btn btn-light btn-small"
+                    onclick="showAdminOrderItems(
+                      '${order.id}',
+                      '${escapeHtml(
+                        order.order_number
+                      )}'
+                    )"
+                  >
+                    商品明细
+                  </button>
 
                   ${buttons}
 
@@ -6873,7 +6885,170 @@ async function loadOrders(){
     );
 
 }
+async function showAdminOrderItems(
+  orderId,
+  orderNumber
+){
 
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("order_items")
+      .select("*")
+      .eq(
+        "order_id",
+        orderId
+      )
+      .order(
+        "created_at"
+      );
+
+
+  if(error){
+
+    alert(
+      "读取订单商品失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  const items =
+    data
+    ||
+    [];
+
+
+  if(!items.length){
+
+    alert(
+      "这张订单没有商品明细。"
+    );
+
+    return;
+
+  }
+
+
+  const lines =
+    items.map(
+      (item,index) => {
+
+        const name =
+          item.product_name_zh_snapshot
+          ||
+          item.product_name_en_snapshot
+          ||
+          "商品";
+
+
+        const variant =
+          [
+            item.variant_name_zh_snapshot,
+            item.specification_zh_snapshot
+          ]
+          .filter(Boolean)
+          .filter(
+            (
+              value,
+              i,
+              array
+            ) =>
+              array.indexOf(value)
+              ===
+              i
+          )
+          .join(" · ");
+
+
+        const cancelled =
+          item.item_status
+          ===
+          "cancelled";
+
+
+        return (
+          (index + 1)
+          +
+          ". "
+          +
+          name
+          +
+          (
+            variant
+            ?
+            " · " + variant
+            :
+            ""
+          )
+          +
+          " ×"
+          +
+          Number(
+            item.quantity
+            ||
+            0
+          )
+          +
+          " · "
+          +
+          money(
+            item.line_total
+            ||
+            0,
+            "MMK"
+          )
+          +
+          (
+            cancelled
+            ?
+            "\n已取消："
+            +
+            (
+              item.cancellation_reason
+              ||
+              "未填写原因"
+            )
+            +
+            (
+              item.cancelled_at
+              ?
+              " · "
+              +
+              formatDate(
+                item.cancelled_at
+              )
+              :
+              ""
+            )
+            :
+            ""
+          )
+        );
+
+      }
+    );
+
+
+  alert(
+    "订单 "
+    +
+    orderNumber
+    +
+    "\n\n"
+    +
+    lines.join(
+      "\n\n"
+    )
+  );
+
+}
 
 async function confirmOrder(
   orderId
@@ -9218,7 +9393,33 @@ async function createDeliveryProfile(){
 
 
 async function loadDelivery(){
+  const workforceResult =
+    await db.rpc(
+      "admin_workforce_directory"
+    );
 
+
+  if(!workforceResult.error){
+
+    (
+      workforceResult.data
+      ||
+      []
+    )
+    .forEach(
+      item => {
+
+        workforceEmailMap[
+          item.id
+        ] =
+          item.login_email
+          ||
+          "—";
+
+      }
+    );
+
+  }
   const profileResult =
     await db
       .from(
@@ -9309,7 +9510,17 @@ async function loadDelivery(){
               <td>
                 ${escapeHtml(driver.phone || "—")}
               </td>
+              <td>
 
+                ${escapeHtml(
+                  workforceEmailMap[
+                    driver.id
+                  ]
+                  ||
+                  "—"
+                )}
+
+              </td>
               <td>
 
                 ${
@@ -9398,6 +9609,7 @@ async function loadDelivery(){
           "编号",
           "姓名",
           "电话",
+                    "登录邮箱",
           "车辆",
           "负责地区",
           "状态",
@@ -9760,7 +9972,33 @@ async function createStaffProfile(){
 
 
 async function loadStaff(){
+  const workforceResult =
+    await db.rpc(
+      "admin_workforce_directory"
+    );
 
+
+  if(!workforceResult.error){
+
+    (
+      workforceResult.data
+      ||
+      []
+    )
+    .forEach(
+      item => {
+
+        workforceEmailMap[
+          item.id
+        ] =
+          item.login_email
+          ||
+          "—";
+
+      }
+    );
+
+  }
   const [
     profileResult,
     roleAssignmentResult,
@@ -9920,7 +10158,17 @@ async function loadStaff(){
             <td>
               ${escapeHtml(staff.phone || "—")}
             </td>
+            <td>
 
+              ${escapeHtml(
+                workforceEmailMap[
+                  staff.id
+                ]
+                ||
+                "—"
+              )}
+
+            </td>
             <td>
               ${escapeHtml(roles)}
             </td>
@@ -9989,6 +10237,7 @@ async function loadStaff(){
         "员工",
         "姓名",
         "电话",
+       "登录邮箱",
         "角色",
         "地区",
         "状态",
@@ -12043,22 +12292,174 @@ let currentProductActionVariantId = null;
 let currentProductActionTargetStatus = null;
 
 
-function productVariantFor(productId){
+function productVariantsFor(
+  productId
+){
+
+  return variantData
+    .filter(
+      item =>
+        item.product_id
+        ===
+        productId
+    )
+    .sort(
+      (a,b) =>
+        Number(
+          a.sort_order
+          ||
+          100
+        )
+        -
+        Number(
+          b.sort_order
+          ||
+          100
+        )
+    );
+
+}
+
+
+function productVariantFor(
+  productId
+){
+
+  const variants =
+    productVariantsFor(
+      productId
+    );
+
 
   return (
-    variantData.find(
+    variants.find(
       item =>
-        item.product_id === productId
-        &&
         item.is_active
     )
     ||
-    variantData.find(
-      item =>
-        item.product_id === productId
-    )
+    variants[0]
     ||
     null
+  );
+
+}
+
+
+function productVariantLabel(
+  variant
+){
+
+  if(!variant){
+    return "—";
+  }
+
+
+  const parts =
+    [
+      variant.flavor_zh,
+      variant.specification_zh,
+      variant.name_zh
+    ]
+    .filter(Boolean)
+    .filter(
+      (
+        value,
+        index,
+        array
+      ) =>
+        array.indexOf(value)
+        ===
+        index
+    );
+
+
+  return (
+    parts.join(" · ")
+    ||
+    variant.sku_code
+    ||
+    "默认规格"
+  );
+
+}
+
+
+function productVariantOptions(
+  productId,
+  selectedId
+){
+
+  return productVariantsFor(
+    productId
+  )
+  .map(
+    variant => `
+
+      <option
+        value="${variant.id}"
+        ${
+          variant.id
+          ===
+          selectedId
+          ?
+          "selected"
+          :
+          ""
+        }
+      >
+
+        ${
+          escapeHtml(
+            productVariantLabel(
+              variant
+            )
+          )
+        }
+
+        · ${escapeHtml(
+          variant.sku_code
+          ||
+          "—"
+        )}
+
+        · ${money(
+          variant.retail_price
+          ||
+          0,
+          "MMK"
+        )}
+
+        ${
+          variant.is_active
+          ?
+          ""
+          :
+          " · 已停用"
+        }
+
+      </option>
+
+    `
+  )
+  .join("");
+
+}
+
+
+function changeProductActionVariant(
+  productId,
+  action,
+  variantId
+){
+
+  currentProductActionVariantId =
+    variantId;
+
+
+  openProductAction(
+    productId,
+    action,
+    variantId
   );
 
 }
@@ -12379,6 +12780,13 @@ function renderSimpleProductList(){
                   </button>
                                     <button
                     class="btn btn-light btn-small"
+                    onclick="openProductAction('${product.id}','batches')"
+                    ${variant ? "" : "disabled"}
+                  >
+                    批次详情
+                  </button>
+                                    <button
+                    class="btn btn-light btn-small"
                     onclick="openProductAction('${product.id}','adjustStock')"
                     ${variant ? "" : "disabled"}
                   >
@@ -12422,7 +12830,50 @@ function renderSimpleProductList(){
                     } btn-small"
                     onclick="openProductAction('${product.id}','status')"
                   >
+  if(action === "batches"){
 
+    if(!variant){
+      return;
+    }
+
+
+    productActionShell(
+      product,
+      "批次详情",
+      `
+
+        ${variantChooser}
+
+        <div class="panel">
+
+          <div class="safe-note">
+            这里只查看总部批次资料，不会修改库存。
+          </div>
+
+          <div
+            id="hqBatchDetailList"
+            style="margin-top:16px"
+          >
+
+            <div class="empty">
+              正在读取批次资料...
+            </div>
+
+          </div>
+
+        </div>
+
+      `
+    );
+
+
+    await loadHeadOfficeBatchDetails(
+      variant.id
+    );
+
+    return;
+
+  }
                     ${
                       product.status === "active"
                       ?
@@ -12685,7 +13136,198 @@ async function loadHeadOfficeAdjustmentBatches(
     );
 
 }
+async function loadHeadOfficeBatchDetails(
+  variantId
+){
 
+  const target =
+    el("hqBatchDetailList");
+
+
+  if(!target){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "admin_head_office_inventory_batches"
+    );
+
+
+  if(error){
+
+    target.innerHTML =
+      errorBox(
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const batches =
+    (data || [])
+      .filter(
+        batch =>
+          batch.variant_id
+          ===
+          variantId
+      );
+
+
+  if(!batches.length){
+
+    target.innerHTML =
+      `<div class="empty">
+        这个规格目前没有总部批次记录。
+      </div>`;
+
+    return;
+
+  }
+
+
+  const today =
+    new Date();
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  const thirtyDays =
+    new Date(today);
+
+  thirtyDays.setDate(
+    thirtyDays.getDate()
+    +
+    30
+  );
+
+
+  const rows =
+    batches.map(
+      batch => {
+
+        let batchStatus =
+          "正常";
+
+
+        if(batch.expiry_date){
+
+          const expiry =
+            new Date(
+              batch.expiry_date
+              +
+              "T00:00:00"
+            );
+
+
+          if(expiry < today){
+
+            batchStatus =
+              "已过期";
+
+          }
+          else if(
+            expiry <= thirtyDays
+          ){
+
+            batchStatus =
+              "临期";
+
+          }
+
+        }
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${escapeHtml(batchStatus)}
+            </td>
+
+            <td>
+              ${Number(
+                batch.quantity_received
+                ||
+                0
+              )}
+            </td>
+
+            <td>
+              <strong>
+                ${Number(
+                  batch.quantity_remaining
+                  ||
+                  0
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${escapeHtml(
+                batch.received_date
+                ||
+                "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                batch.production_date
+                ||
+                "—"
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                batch.expiry_date
+                ||
+                "—"
+              )}
+            </td>
+
+            <td>
+              ${formatDate(
+                batch.created_at
+              )}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+  target.innerHTML =
+    makeTable(
+      [
+        "状态",
+        "本批进货",
+        "当前剩余",
+        "收货日期",
+        "生产日期",
+        "过期日期",
+        "建立时间"
+      ],
+      rows
+    );
+
+}
 
 async function confirmHeadOfficeAdjustment(
   batchId
@@ -12789,7 +13431,8 @@ async function confirmHeadOfficeAdjustment(
 }
 async function openProductAction(
   productId,
-  action
+  action,
+  requestedVariantId = null
 ){
 
   const product =
@@ -12803,7 +13446,27 @@ async function openProductAction(
   }
 
 
+    const variants =
+    productVariantsFor(
+      productId
+    );
+
+
   const variant =
+    variants.find(
+      item =>
+        item.id
+        ===
+        requestedVariantId
+    )
+    ||
+    variants.find(
+      item =>
+        item.id
+        ===
+        currentProductActionVariantId
+    )
+    ||
     productVariantFor(
       productId
     );
@@ -12816,6 +13479,45 @@ async function openProductAction(
     variant?.id
     ||
     null;
+
+
+  const variantChooser =
+    variants.length > 1
+    ?
+    `
+
+      <div class="panel" style="margin-bottom:14px">
+
+        <div class="form-group">
+
+          <label>
+            口味 / Size / SKU
+          </label>
+
+          <select
+            onchange="changeProductActionVariant(
+              '${productId}',
+              '${action}',
+              this.value
+            )"
+          >
+
+            ${
+              productVariantOptions(
+                productId,
+                variant?.id
+              )
+            }
+
+          </select>
+
+        </div>
+
+      </div>
+
+    `
+    :
+    "";
 
 
   el("productListPage")
@@ -13277,7 +13979,44 @@ async function openProductAction(
               >
 
             </div>
+            <div class="form-group">
 
+              <label>
+                口味 / 规格名称
+              </label>
+
+              <input
+                id="editVariantFlavor"
+                value="${escapeHtml(
+                  variant.flavor_zh
+                  ||
+                  variant.name_zh
+                  ||
+                  ""
+                )}"
+                placeholder="例如：草莓味 / 原味 / 无糖"
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                Size / 规格
+              </label>
+
+              <input
+                id="editVariantSpecification"
+                value="${escapeHtml(
+                  variant.specification_zh
+                  ||
+                  ""
+                )}"
+                placeholder="例如：330ml / 500ml / 大包"
+              >
+
+            </div>
             <div class="form-group">
 
               <label>
@@ -15759,8 +16498,26 @@ async function saveProductEdit(){
       .from("product_variants")
       .update({
 
-        name_zh:
+                name_zh:
+          el("editVariantFlavor")
+            ?.value
+            .trim()
+          ||
           name,
+
+        flavor_zh:
+          el("editVariantFlavor")
+            ?.value
+            .trim()
+          ||
+          null,
+
+        specification_zh:
+          el("editVariantSpecification")
+            ?.value
+            .trim()
+          ||
+          null,
 
         retail_price:
           retailPrice,
