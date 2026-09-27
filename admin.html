@@ -12577,33 +12577,124 @@ function renderSimpleProductList(){
       .map(
         product => {
 
-          const variant =
-            productVariantFor(
+                   const variants =
+            productVariantsFor(
               product.id
             );
 
 
-          const stock =
-            variant
-            ?
-            Number(
-              headOfficeStockMap[
-                variant.id
-              ]
-              ||
-              0
+          const variant =
+            variants.find(
+              item =>
+                item.is_active
             )
-            :
-            0;
+            ||
+            variants[0]
+            ||
+            null;
 
 
-          const retailPrice =
-            variant
-            ?
-            Number(
-              variant.retail_price
-              ||
+          const stock =
+            variants.reduce(
+              (
+                total,
+                item
+              ) =>
+                total
+                +
+                Number(
+                  headOfficeStockMap[
+                    item.id
+                  ]
+                  ||
+                  0
+                ),
               0
+            );
+
+
+          const saleableStock =
+            variants.reduce(
+              (
+                total,
+                item
+              ) =>
+                total
+                +
+                Number(
+                  headOfficeBatchStockMap[
+                    item.id
+                  ]?.saleable
+                  ??
+                  headOfficeStockMap[
+                    item.id
+                  ]
+                  ??
+                  0
+                ),
+              0
+            );
+
+
+          const expiringStock =
+            variants.reduce(
+              (
+                total,
+                item
+              ) =>
+                total
+                +
+                Number(
+                  headOfficeBatchStockMap[
+                    item.id
+                  ]?.expiring
+                  ||
+                  0
+                ),
+              0
+            );
+
+
+          const expiredStock =
+            variants.reduce(
+              (
+                total,
+                item
+              ) =>
+                total
+                +
+                Number(
+                  headOfficeBatchStockMap[
+                    item.id
+                  ]?.expired
+                  ||
+                  0
+                ),
+              0
+            );
+
+
+          const activePrices =
+            variants
+              .filter(
+                item =>
+                  item.is_active
+              )
+              .map(
+                item =>
+                  Number(
+                    item.retail_price
+                    ||
+                    0
+                  )
+              );
+
+
+          const minRetailPrice =
+            activePrices.length
+            ?
+            Math.min(
+              ...activePrices
             )
             :
             Number(
@@ -12611,6 +12702,39 @@ function renderSimpleProductList(){
               ||
               0
             );
+
+
+          const maxRetailPrice =
+            activePrices.length
+            ?
+            Math.max(
+              ...activePrices
+            )
+            :
+            Number(
+              product.price
+              ||
+              0
+            );
+
+
+          const retailPriceText =
+            minRetailPrice
+            ===
+            maxRetailPrice
+            ?
+            money(
+              minRetailPrice,
+              "MMK"
+            )
+            :
+            `${money(
+              minRetailPrice,
+              "MMK"
+            )} ～ ${money(
+              maxRetailPrice,
+              "MMK"
+            )}`;
 
 
           const category =
