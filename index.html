@@ -9832,71 +9832,134 @@ function renderOrderDetail(
         </div>
 
 
-        ${
+               ${
           items
             .map(
-              item => `
+              item => {
 
-                <div class="summary-line">
+                const cancelled =
+                  item.item_status
+                  ===
+                  "cancelled";
 
-                  <div>
 
-                    <strong>
+                return `
+
+                  <div
+                    class="summary-line"
+                    style="${
+                      cancelled
+                      ?
+                      "opacity:.65"
+                      :
+                      ""
+                    }"
+                  >
+
+                    <div>
+
+                      <strong>
+
+                        ${
+                          escapeHtml(
+                            orderItemName(
+                              item
+                            )
+                          )
+                        }
+
+                      </strong>
+
+
+                      <div class="small">
+
+                        ${
+                          escapeHtml(
+                            orderVariantName(
+                              item
+                            )
+                          )
+                        }
+
+                        ·
+
+                        ${
+                          escapeHtml(
+                            t(
+                              item.purchase_mode
+                            )
+                          )
+                        }
+
+                        ×
+                        ${item.quantity}
+
+                      </div>
+
 
                       ${
-                        escapeHtml(
-                          orderItemName(
-                            item
-                          )
+                        cancelled
+                        ?
+                        `
+                          <div
+                            class="small"
+                            style="
+                              margin-top:4px;
+                              font-weight:700;
+                            "
+                          >
+                            已取消
+                            ${
+                              item.cancellation_reason
+                              ?
+                              ` · ${escapeHtml(item.cancellation_reason)}`
+                              :
+                              ""
+                            }
+
+                            ${
+                              item.cancelled_at
+                              ?
+                              ` · ${escapeHtml(formatDate(item.cancelled_at))}`
+                              :
+                              ""
+                            }
+                          </div>
+                        `
+                        :
+                        ""
+                      }
+
+                    </div>
+
+
+                    <strong
+                      style="${
+                        cancelled
+                        ?
+                        "text-decoration:line-through"
+                        :
+                        ""
+                      }"
+                    >
+
+                      ${
+                        money(
+                          item.line_total,
+                          order.currency_code
                         )
                       }
 
                     </strong>
 
-                    <div class="small">
-
-                      ${
-                        escapeHtml(
-                          orderVariantName(
-                            item
-                          )
-                        )
-                      }
-
-                      ·
-
-                        ${
-                        escapeHtml(
-                          t(
-                            item.purchase_mode
-                          )
-                        )
-                      }
-
-                      ×
-                      ${item.quantity}
-
-                    </div>
-
                   </div>
 
+                `;
 
-                  <strong>
-
-                    ${
-                      money(
-                        item.line_total,
-                        order.currency_code
-                      )
-                    }
-
-                  </strong>
-
-                </div>
-
-              `
+              }
             )
             .join("")
+        }
         }
 
       </div>
@@ -10110,9 +10173,49 @@ function renderAccount(){
           "
         >
 
-          <div class="avatar">
-            👤
-          </div>
+                    <label
+            class="avatar"
+            style="
+              cursor:pointer;
+              overflow:hidden;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+            "
+            title="${escapeHtml(
+              customerAccountText(
+                "avatar"
+              )
+            )}"
+          >
+
+            ${
+              customerProfile.avatar_url
+              ?
+              `
+                <img
+                  src="${escapeHtml(customerProfile.avatar_url)}"
+                  alt=""
+                  style="
+                    width:100%;
+                    height:100%;
+                    object-fit:cover;
+                    display:block;
+                  "
+                >
+              `
+              :
+              "👤"
+            }
+
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style="display:none"
+              onchange="uploadCustomerAvatar(this.files?.[0])"
+            >
+
+          </label>
 
           <div>
 
@@ -10286,7 +10389,74 @@ function renderAccount(){
 
       </div>
 
+      <div class="form-card">
 
+        <div class="form-title">
+          ${escapeHtml(
+            customerAccountText(
+              "password"
+            )
+          )}
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(
+                customerAccountText(
+                  "newPassword"
+                )
+              )}
+            </label>
+
+            <input
+              id="accountNewPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="6"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              ${escapeHtml(
+                customerAccountText(
+                  "confirmPassword"
+                )
+              )}
+            </label>
+
+            <input
+              id="accountConfirmPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="6"
+            >
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="changeCustomerPassword()"
+        >
+          ${escapeHtml(
+            customerAccountText(
+              "password"
+            )
+          )}
+        </button>
+
+      </div>
       <div class="form-card">
 
         <div class="form-title">
@@ -10934,7 +11104,340 @@ async function updateProfile(){
   );
 
 }
+function customerAccountText(key){
 
+  const texts = {
+
+    zh:{
+      avatar:"更换头像",
+      password:"修改密码",
+      newPassword:"新密码",
+      confirmPassword:"确认新密码",
+      passwordTooShort:"新密码至少需要6位。",
+      passwordMismatch:"两次输入的密码不一致。",
+      passwordSaved:"密码修改成功。",
+      avatarType:"请选择 JPG、PNG 或 WEBP 图片。",
+      avatarSize:"头像不能超过5MB。",
+      avatarSaved:"头像更新成功。"
+    },
+
+    en:{
+      avatar:"Change avatar",
+      password:"Change password",
+      newPassword:"New password",
+      confirmPassword:"Confirm new password",
+      passwordTooShort:"Password must be at least 6 characters.",
+      passwordMismatch:"The passwords do not match.",
+      passwordSaved:"Password updated.",
+      avatarType:"Please select a JPG, PNG or WEBP image.",
+      avatarSize:"Avatar must be smaller than 5MB.",
+      avatarSaved:"Avatar updated."
+    },
+
+    my:{
+      avatar:"ပရိုဖိုင်ပုံပြောင်းရန်",
+      password:"စကားဝှက်ပြောင်းရန်",
+      newPassword:"စကားဝှက်အသစ်",
+      confirmPassword:"စကားဝှက်အသစ်အတည်ပြုရန်",
+      passwordTooShort:"စကားဝှက်အသစ်သည် အနည်းဆုံး ၆ လုံးရှိရမည်။",
+      passwordMismatch:"စကားဝှက်နှစ်ခု မတူပါ။",
+      passwordSaved:"စကားဝှက်ပြောင်းပြီးပါပြီ။",
+      avatarType:"JPG၊ PNG သို့မဟုတ် WEBP ပုံကိုရွေးပါ။",
+      avatarSize:"ပရိုဖိုင်ပုံသည် 5MB ထက်မကြီးရပါ။",
+      avatarSaved:"ပရိုဖိုင်ပုံပြောင်းပြီးပါပြီ။"
+    },
+
+    th:{
+      avatar:"เปลี่ยนรูปโปรไฟล์",
+      password:"เปลี่ยนรหัสผ่าน",
+      newPassword:"รหัสผ่านใหม่",
+      confirmPassword:"ยืนยันรหัสผ่านใหม่",
+      passwordTooShort:"รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร",
+      passwordMismatch:"รหัสผ่านทั้งสองไม่ตรงกัน",
+      passwordSaved:"เปลี่ยนรหัสผ่านสำเร็จ",
+      avatarType:"กรุณาเลือกไฟล์ JPG, PNG หรือ WEBP",
+      avatarSize:"รูปโปรไฟล์ต้องมีขนาดไม่เกิน 5MB",
+      avatarSaved:"อัปเดตรูปโปรไฟล์สำเร็จ"
+    }
+
+  };
+
+
+  return (
+    texts[appLanguage]?.[key]
+    ||
+    texts.zh[key]
+    ||
+    key
+  );
+
+}
+
+
+async function changeCustomerPassword(){
+
+  if(!currentUser){
+    openAuthModal();
+    return;
+  }
+
+
+  const password =
+    el("accountNewPassword")
+      ?.value
+    ||
+    "";
+
+  const confirmPassword =
+    el("accountConfirmPassword")
+      ?.value
+    ||
+    "";
+
+
+  if(password.length < 6){
+
+    showMessage(
+      customerAccountText(
+        "passwordTooShort"
+      )
+    );
+
+    return;
+
+  }
+
+
+  if(
+    password
+    !==
+    confirmPassword
+  ){
+
+    showMessage(
+      customerAccountText(
+        "passwordMismatch"
+      )
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.auth.updateUser({
+      password:
+        password
+    });
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(el("accountNewPassword")){
+    el("accountNewPassword").value = "";
+  }
+
+  if(el("accountConfirmPassword")){
+    el("accountConfirmPassword").value = "";
+  }
+
+
+  showMessage(
+    customerAccountText(
+      "passwordSaved"
+    )
+  );
+
+}
+
+
+async function uploadCustomerAvatar(
+  file
+){
+
+  if(
+    !currentUser
+    ||
+    !file
+  ){
+    return;
+  }
+
+
+  const allowedTypes =
+    [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+
+  if(
+    !allowedTypes.includes(
+      file.type
+    )
+  ){
+
+    showMessage(
+      customerAccountText(
+        "avatarType"
+      )
+    );
+
+    return;
+
+  }
+
+
+  if(
+    file.size
+    >
+    5 * 1024 * 1024
+  ){
+
+    showMessage(
+      customerAccountText(
+        "avatarSize"
+      )
+    );
+
+    return;
+
+  }
+
+
+  const extension =
+    file.type === "image/png"
+    ?
+    "png"
+    :
+    file.type === "image/webp"
+    ?
+    "webp"
+    :
+    "jpg";
+
+
+  const path =
+    `${currentUser.id}/avatar.${extension}`;
+
+
+  const {
+    error:
+      uploadError
+  } =
+    await db.storage
+      .from(
+        "customer-avatars"
+      )
+      .upload(
+        path,
+        file,
+        {
+          upsert:true,
+          contentType:
+            file.type,
+          cacheControl:
+            "3600"
+        }
+      );
+
+
+  if(uploadError){
+
+    showMessage(
+      uploadError.message
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:
+      publicData
+  } =
+    db.storage
+      .from(
+        "customer-avatars"
+      )
+      .getPublicUrl(
+        path
+      );
+
+
+  const publicUrl =
+    publicData
+      ?.publicUrl
+    ||
+    "";
+
+
+  if(!publicUrl){
+    return;
+  }
+
+
+  const avatarUrl =
+    `${publicUrl}?v=${Date.now()}`;
+
+
+  const {
+    error:
+      profileError
+  } =
+    await db
+      .from(
+        "customer_profiles"
+      )
+      .update({
+        avatar_url:
+          avatarUrl,
+
+        updated_at:
+          new Date()
+            .toISOString()
+      })
+      .eq(
+        "id",
+        currentUser.id
+      );
+
+
+  if(profileError){
+
+    showMessage(
+      profileError.message
+    );
+
+    return;
+
+  }
+
+
+  await initializeCustomer();
+
+
+  showMessage(
+    customerAccountText(
+      "avatarSaved"
+    )
+  );
+
+}
 
 /* ==========================================================
    EMPTY
