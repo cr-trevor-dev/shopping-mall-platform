@@ -12027,38 +12027,364 @@ async function uploadProductImage(file){
   );
 
 }
+let quickProductType = "simple";
+
+function selectQuickProductType(type){
+
+  quickProductType = type;
+
+  document
+    .querySelectorAll(".quick-product-type-button")
+    .forEach(button => {
+
+      const active =
+        button.dataset.type === type;
+
+      button.classList.toggle(
+        "btn-primary",
+        active
+      );
+
+      button.classList.toggle(
+        "btn-light",
+        !active
+      );
+
+    });
+
+
+  const simplePrices =
+    el("quickSimplePrices");
+
+  const variantArea =
+    el("quickVariantArea");
+
+  const variantRows =
+    el("quickVariantRows");
+
+  if(type === "simple"){
+
+    simplePrices?.classList.remove("hidden");
+    variantArea?.classList.add("hidden");
+
+    if(variantRows){
+      variantRows.replaceChildren();
+    }
+
+    return;
+
+  }
+
+
+  simplePrices?.classList.add("hidden");
+  variantArea?.classList.remove("hidden");
+
+  if(
+    variantRows
+    &&
+    variantRows.children.length === 0
+  ){
+    addQuickVariantRow();
+  }
+
+}
+
+
 function updateQuickVariantMode(){
-  el("quickSimplePrices")?.classList.toggle(
-    "hidden",!!el("quickVariantRows")?.children.length
-  );
+
+  if(
+    quickProductType === "simple"
+  ){
+    el("quickSimplePrices")
+      ?.classList
+      .remove("hidden");
+
+    el("quickVariantArea")
+      ?.classList
+      .add("hidden");
+
+    return;
+  }
+
+  el("quickSimplePrices")
+    ?.classList
+    .add("hidden");
+
+  el("quickVariantArea")
+    ?.classList
+    .remove("hidden");
+
 }
+
+
 function addQuickVariantRow(){
-  const row = document.createElement("div");
-  row.className = "quick-variant-row panel";
-  row.style.margin = "10px 0";
-  row.innerHTML = `<div class="form-grid">
-    <div class="form-group"><label>口味</label><input class="quick-flavor" placeholder="例如：草莓味"></div>
-    <div class="form-group"><label>包装 / Size</label><input class="quick-size" placeholder="例如：小包装 / 330ml"></div>
-    <div class="form-group"><label>零售价 *</label><input class="quick-retail" type="number" min="0"></div>
-    <div class="form-group"><label>批发价</label><input class="quick-wholesale" type="number" min="0"></div>
-    <div class="form-group"><label>批发起订量</label><input class="quick-min" type="number" min="1"></div>
-    <div class="form-group"><label>成本价（可选）</label><input class="quick-cost" type="number" min="0"></div>
-    <div class="form-group"><label>销售单位（可选）</label><input class="quick-unit" placeholder="例如：袋 / 盒 / 瓶"></div>
-  </div><button type="button" class="btn btn-light" onclick="this.closest('.quick-variant-row').remove();updateQuickVariantMode()">删除这一规格</button>`;
-  el("quickVariantRows").appendChild(row);
+
+  if(
+    quickProductType === "simple"
+  ){
+    return;
+  }
+
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    "quick-variant-row panel";
+
+  row.style.margin =
+    "10px 0";
+
+
+  const showFlavor =
+    quickProductType === "flavor";
+
+
+  row.innerHTML = `
+
+    <div class="form-grid">
+
+      ${
+        showFlavor
+        ?
+        `
+          <div class="form-group">
+            <label>口味 *</label>
+            <input
+              class="quick-flavor"
+              placeholder="例如：草莓味 / 牛奶味 / 原味"
+            >
+          </div>
+        `
+        :
+        `
+          <input
+            class="quick-flavor"
+            type="hidden"
+            value=""
+          >
+        `
+      }
+
+      <div class="form-group">
+
+        <label>
+          ${
+            showFlavor
+            ?
+            "包装 / 容量"
+            :
+            "包装 / 容量 *"
+          }
+        </label>
+
+        <input
+          class="quick-size"
+          placeholder="例如：小包 / 大包 / 330ml / 1L"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          零售价 *
+        </label>
+
+        <input
+          class="quick-retail"
+          type="number"
+          min="0"
+          placeholder="例如 1500"
+        >
+
+      </div>
+
+    </div>
+
+
+    <details style="margin-top:10px">
+
+      <summary
+        style="
+          cursor:pointer;
+          font-weight:800;
+        "
+      >
+        更多选项
+      </summary>
+
+      <div
+        class="form-grid"
+        style="margin-top:12px"
+      >
+
+        <div class="form-group">
+
+          <label>
+            批发价
+          </label>
+
+          <input
+            class="quick-wholesale"
+            type="number"
+            min="0"
+            placeholder="不做批发可留空"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            批发起订量
+          </label>
+
+          <input
+            class="quick-min"
+            type="number"
+            min="1"
+            placeholder="例如 10"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            成本价
+          </label>
+
+          <input
+            class="quick-cost"
+            type="number"
+            min="0"
+            placeholder="可留空"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            销售单位
+          </label>
+
+          <input
+            class="quick-unit"
+            placeholder="例如：袋 / 盒 / 瓶"
+          >
+
+        </div>
+
+      </div>
+
+    </details>
+
+
+    <button
+      type="button"
+      class="btn btn-light"
+      style="margin-top:10px"
+      onclick="
+        this.closest('.quick-variant-row').remove();
+        updateQuickVariantMode();
+      "
+    >
+      删除这一项
+    </button>
+
+  `;
+
+
+  el("quickVariantRows")
+    .appendChild(row);
+
   updateQuickVariantMode();
+
 }
+
+
 function readQuickVariantRows(){
-  return [...document.querySelectorAll("#quickVariantRows .quick-variant-row")]
-    .map(row => ({
-      flavor:row.querySelector(".quick-flavor").value.trim(),
-      specification:row.querySelector(".quick-size").value.trim(),
-      retail_price:row.querySelector(".quick-retail").value.trim(),
-      wholesale_price:row.querySelector(".quick-wholesale").value.trim(),
-      wholesale_min_qty:row.querySelector(".quick-min").value.trim(),
-      cost_price:row.querySelector(".quick-cost").value.trim(),
-      sales_unit_zh:row.querySelector(".quick-unit").value.trim()
-    }));
+
+  if(
+    quickProductType === "simple"
+  ){
+    return [];
+  }
+
+
+  return [
+    ...document.querySelectorAll(
+      "#quickVariantRows .quick-variant-row"
+    )
+  ]
+    .map(
+      row => ({
+
+        flavor:
+          row
+            .querySelector(".quick-flavor")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        specification:
+          row
+            .querySelector(".quick-size")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        retail_price:
+          row
+            .querySelector(".quick-retail")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        wholesale_price:
+          row
+            .querySelector(".quick-wholesale")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        wholesale_min_qty:
+          row
+            .querySelector(".quick-min")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        cost_price:
+          row
+            .querySelector(".quick-cost")
+            ?.value
+            .trim()
+          ||
+          "",
+
+        sales_unit_zh:
+          row
+            .querySelector(".quick-unit")
+            ?.value
+            .trim()
+          ||
+          ""
+
+      })
+    );
+
 }
 async function quickCreateProduct(){
 
@@ -12396,24 +12722,34 @@ async function quickCreateProduct(){
   
 
 
-  el("quickProductName").value = "";
+    el("quickProductName").value = "";
   el("quickProductImageFile").value = "";
   el("quickProductBrand").value = "";
   el("quickRetailPrice").value = "";
   el("quickWholesalePrice").value = "";
   el("quickWholesaleMin").value = "";
   el("quickVariantRows").replaceChildren();
-  updateQuickVariantMode();
 
-   await loadBaseData();
+  selectQuickProductType("simple");
+
+  await loadBaseData();
   await loadProducts();
 
   if(data?.product_id){
-    await openProductAction(data.product_id,"edit",data.variant_id);
+    await openProductAction(
+      data.product_id,
+      "edit",
+      data.variant_id
+    );
   }
-    alert(variantRows.length ? `商品及 ${variantRows.length} 个规格已建立。现在可分别增加库存。` :
-    "商品已建立。如有其他口味或 Size，可在此添加规格；单规格商品可直接返回。");
 
+  alert(
+    variantRows.length
+    ?
+    `商品及 ${variantRows.length} 个实际销售规格已建立。现在可分别增加库存。`
+    :
+    "商品已建立。现在可以增加库存。"
+  );
 }
 async function createProduct(){
 
