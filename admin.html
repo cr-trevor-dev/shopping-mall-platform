@@ -6960,7 +6960,13 @@ async function showAdminOrderItems(
     data
     ||
     [];
-
+  const actorNames = {};
+  if(items.some(item => item.cancelled_by)){
+    const {data:actors} = await db.rpc("order_item_cancel_actors",{p_order_id:orderId});
+    (actors || []).forEach(actor => {
+      actorNames[actor.order_item_id] = actor.actor_name;
+    });
+  }
 
   if(!items.length){
 
@@ -7014,7 +7020,9 @@ async function showAdminOrderItems(
         const variant =
           [
             item.variant_name_zh_snapshot,
-            item.specification_zh_snapshot,
+                       item.specification_zh_snapshot &&
+            item.variant_name_zh_snapshot?.includes(item.specification_zh_snapshot)
+              ? null : item.specification_zh_snapshot,
             item.sku_code_snapshot
           ]
           .filter(Boolean)
@@ -7149,6 +7157,7 @@ async function showAdminOrderItems(
                     :
                     ""
                   }
+                                 ${item.cancelled_by ? `<div class="small">取消人：${escapeHtml(actorNames[item.id] || item.cancelled_by)}</div>` : ""}
                 `
                 :
                 "正常"
@@ -14400,11 +14409,7 @@ async function openProductAction(
               <input
                 id="editVariantFlavor"
                 value="${escapeHtml(
-                  variant.flavor_zh
-                  ||
-                  variant.name_zh
-                  ||
-                  ""
+                                   variant.flavor_zh || ""
                 )}"
                 placeholder="例如：草莓味 / 原味 / 无糖"
               >
@@ -16955,12 +16960,9 @@ async function saveProductEdit(){
       .from("product_variants")
       .update({
 
-                name_zh:
-          el("editVariantFlavor")
-            ?.value
-            .trim()
-          ||
-          name,
+                      name_zh:
+          [el("editVariantFlavor")?.value.trim(),el("editVariantSpecification")?.value.trim()]
+            .filter(Boolean).join(" · ") || name,
 
         flavor_zh:
           el("editVariantFlavor")
