@@ -10829,7 +10829,7 @@ function renderAccountAddresses(){
 }
 
 
-async function saveAccountAddress(){
+
 function editAccountAddress(id){
   editingAccountAddressId = id;
   renderAccount();
@@ -10846,6 +10846,7 @@ async function deleteAccountAddress(id){
   await loadAddresses();
   renderAccount();
 }
+  async function saveAccountAddress(){
   if(!currentUser){
 
     openAuthModal();
