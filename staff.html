@@ -4846,11 +4846,7 @@ async function loadVariants(){
       .from(
         "product_variants"
       )
-      .select("*")
-      .eq(
-        "is_active",
-        true
-      );
+           .select("*");
 
 
   variants =
@@ -7318,15 +7314,14 @@ async function confirmOrderReturn(
 function shipmentProductName(
   variantId
 ){
-
-  return (
-    variantMap[
-      variantId
-    ]
-    ||
-    rt("inventoryProduct")
-  );
-
+  const variant = variants.find(item => item.id === variantId);
+  if(!variant) return variantMap[variantId] || rt("inventoryProduct");
+  const productName = productMap[variant.product_id] || variant.name_zh || rt("inventoryProduct");
+  const flavor = variant[`flavor_${appLanguage}`] || variant.flavor_zh || "";
+  const specification = variant[`specification_${appLanguage}`] || variant.specification_zh || "";
+  const parts = [productName,flavor,specification]
+    .filter(Boolean).filter((value,index,array) => array.indexOf(value) === index);
+  return `${parts.join(" · ")} · SKU ${variant.sku_code || "—"}`;
 }
 
 
