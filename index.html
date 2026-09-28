@@ -7268,13 +7268,7 @@ const recoveryLabels = {
   th:{title:"บันทึกรหัสกู้คืนของคุณ",warning:"สำคัญ: หากลืมรหัสผ่าน ใช้รหัสเหล่านี้ตั้งใหม่ได้ด้วยตนเอง บันทึกภาพหน้าจอหรือจดไว้ตอนนี้ หลังจากปิดแล้วจะดูซ้ำไม่ได้ ห้ามบอกผู้อื่น",once:"รหัสแต่ละอันใช้ได้ครั้งเดียว หากลืมรหัสผ่าน ทำรหัสกู้คืนทั้งหมดหาย และออกจากระบบทุกเครื่อง จะกู้บัญชีเองไม่ได้",saved:"ฉันบันทึกรหัสกู้คืนทั้ง 3 อันอย่างปลอดภัยแล้ว",continue:"เสร็จสิ้น",resetTitle:"ตั้งรหัสผ่านใหม่ด้วยรหัสกู้คืน",phone:"เบอร์โทรศัพท์ที่ลงทะเบียน",code:"รหัสกู้คืนที่ยังไม่เคยใช้",password:"รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)",confirm:"กรอกรหัสผ่านใหม่อีกครั้ง",reset:"ตั้งรหัสผ่านใหม่",back:"กลับไปเข้าสู่ระบบ",invalid:"กรอกเบอร์โทร รหัสกู้คืน และรหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร",mismatch:"รหัสผ่านทั้งสองไม่ตรงกัน",failed:"เบอร์โทรหรือรหัสกู้คืนไม่ถูกต้อง หรือใช้รหัสนี้แล้ว",success:"เปลี่ยนรหัสผ่านแล้ว เข้าสู่ระบบด้วยรหัสใหม่และบันทึกรหัสกู้คืนชุดใหม่",rotate:"สร้างรหัสกู้คืนใหม่ 3 อัน",rotateConfirm:"รหัสกู้คืนเดิมจะใช้ไม่ได้ทันที ต้องการสร้างชุดใหม่หรือไม่?",unavailable:"สร้างรหัสกู้คืนไม่ได้ โปรดลองใหม่จากหน้าบัญชีภายหลัง"}
 };
 function recoveryText(key){return (recoveryLabels[appLanguage] || recoveryLabels.zh)[key];}
-const recoveryCopyLabels = {
-  zh:["复制这一整枚","已复制","复制失败，请手动填写完整一行。"],
-  en:["Copy this whole code","Copied","Copy failed. Enter one complete line."],
-  my:["ကုဒ်တစ်ခုလုံး ကူးယူရန်","ကူးယူပြီး","ကူးယူ၍မရပါ။ ကုဒ်တစ်ကြောင်းလုံး ရိုက်ထည့်ပါ။"],
-  th:["คัดลอกรหัสทั้งชุด","คัดลอกแล้ว","คัดลอกไม่ได้ กรุณากรอกรหัสหนึ่งบรรทัดให้ครบ"]
-};
-function recoveryCopyText(index){return (recoveryCopyLabels[appLanguage] || recoveryCopyLabels.zh)[index];}
+
 function closeRecoveryReset(){el("recoveryResetOverlay")?.remove();}
 function openRecoveryReset(){
   closeRecoveryReset();
@@ -7319,21 +7313,14 @@ function showRecoveryCodes(codes){
   panel.innerHTML=`<div style="background:#fff;border:4px solid #e65a20;border-radius:16px;padding:24px;width:min(100%,520px);max-height:90vh;overflow:auto">
     <h2 style="color:#a73510;font-size:26px;margin:0 0 12px">⚠️ ${escapeHtml(recoveryText("title"))}</h2>
     <p style="font-size:18px;font-weight:700;line-height:1.6;color:#54220c;background:#fff1dc;padding:14px;border-radius:10px">${escapeHtml(recoveryText("warning"))}</p>
-        ${codes.map(code=>`<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0;padding:10px;background:#f5f6f8;border-radius:10px"><div style="display:flex;flex-wrap:wrap;gap:5px">${code.split("-").map(group=>`<span style="font:700 18px/1.5 monospace;padding:3px;background:#fff;border:1px solid #ddd;border-radius:5px">${escapeHtml(group)}</span>`).join("")}</div><button type="button" class="btn btn-light" data-code="${escapeHtml(code)}" onclick="copyCustomerRecoveryCode(this)">${escapeHtml(recoveryCopyText(0))}</button></div>`).join("")}
+                ${codes.map(code=>`<div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;padding:10px;background:#f5f6f8;border-radius:10px">${code.split("-").map(group=>`<span style="font:700 20px/1.5 monospace;padding:5px 8px;background:#fff;border:1px solid #ddd;border-radius:5px">${escapeHtml(group)}</span>`).join("")}</div>`).join("")}
     <p style="font-size:15px;line-height:1.6">${escapeHtml(recoveryText("once"))}</p>
         <label style="display:flex;align-items:flex-start;gap:10px;font-size:17px;font-weight:700;line-height:1.5;margin:16px 0"><input id="recoveryAcknowledged" type="checkbox" style="width:22px;height:22px;flex:0 0 22px;padding:0;margin:2px 0 0" onchange="el('recoveryDone').disabled=!this.checked"><span style="min-width:0;overflow-wrap:anywhere">${escapeHtml(recoveryText("saved"))}</span></label>
     <button id="recoveryDone" disabled type="button" class="btn btn-primary btn-block" onclick="el('recoveryCodesOverlay').remove()">${escapeHtml(recoveryText("continue"))}</button>
   </div>`;
   document.body.appendChild(panel);
 }
-async function copyCustomerRecoveryCode(button){
-  try{
-    await navigator.clipboard.writeText(button.dataset.code || "");
-    button.textContent = recoveryCopyText(1);
-  }catch{
-    showMessage(recoveryCopyText(2));
-  }
-}
+
   async function ensureCustomerRecoveryCodes(){
   const {data,error}=await db.functions.invoke("customer-phone-auth",{body:{action:"ensure_recovery"}});
   if(error || !data?.ok){showMessage(recoveryText("unavailable"));return;}
