@@ -7268,7 +7268,13 @@ const recoveryLabels = {
   th:{title:"บันทึกรหัสกู้คืนของคุณ",warning:"สำคัญ: หากลืมรหัสผ่าน ใช้รหัสเหล่านี้ตั้งใหม่ได้ด้วยตนเอง บันทึกภาพหน้าจอหรือจดไว้ตอนนี้ หลังจากปิดแล้วจะดูซ้ำไม่ได้ ห้ามบอกผู้อื่น",once:"รหัสแต่ละอันใช้ได้ครั้งเดียว หากลืมรหัสผ่าน ทำรหัสกู้คืนทั้งหมดหาย และออกจากระบบทุกเครื่อง จะกู้บัญชีเองไม่ได้",saved:"ฉันบันทึกรหัสกู้คืนทั้ง 3 อันอย่างปลอดภัยแล้ว",continue:"เสร็จสิ้น",resetTitle:"ตั้งรหัสผ่านใหม่ด้วยรหัสกู้คืน",phone:"เบอร์โทรศัพท์ที่ลงทะเบียน",code:"รหัสกู้คืนที่ยังไม่เคยใช้",password:"รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)",confirm:"กรอกรหัสผ่านใหม่อีกครั้ง",reset:"ตั้งรหัสผ่านใหม่",back:"กลับไปเข้าสู่ระบบ",invalid:"กรอกเบอร์โทร รหัสกู้คืน และรหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร",mismatch:"รหัสผ่านทั้งสองไม่ตรงกัน",failed:"เบอร์โทรหรือรหัสกู้คืนไม่ถูกต้อง หรือใช้รหัสนี้แล้ว",success:"เปลี่ยนรหัสผ่านแล้ว เข้าสู่ระบบด้วยรหัสใหม่และบันทึกรหัสกู้คืนชุดใหม่",rotate:"สร้างรหัสกู้คืนใหม่ 3 อัน",rotateConfirm:"รหัสกู้คืนเดิมจะใช้ไม่ได้ทันที ต้องการสร้างชุดใหม่หรือไม่?",unavailable:"สร้างรหัสกู้คืนไม่ได้ โปรดลองใหม่จากหน้าบัญชีภายหลัง"}
 };
 function recoveryText(key){return (recoveryLabels[appLanguage] || recoveryLabels.zh)[key];}
-
+const recoveryCopyLabels = {
+  zh:["复制这一整枚","已复制","复制失败，请手动填写完整一行。"],
+  en:["Copy this whole code","Copied","Copy failed. Enter one complete line."],
+  my:["ကုဒ်တစ်ခုလုံး ကူးယူရန်","ကူးယူပြီး","ကူးယူ၍မရပါ။ ကုဒ်တစ်ကြောင်းလုံး ရိုက်ထည့်ပါ။"],
+  th:["คัดลอกรหัสทั้งชุด","คัดลอกแล้ว","คัดลอกไม่ได้ กรุณากรอกรหัสหนึ่งบรรทัดให้ครบ"]
+};
+function recoveryCopyText(index){return (recoveryCopyLabels[appLanguage] || recoveryCopyLabels.zh)[index];}
 function closeRecoveryReset(){el("recoveryResetOverlay")?.remove();}
 function openRecoveryReset(){
   closeRecoveryReset();
@@ -7313,14 +7319,22 @@ function showRecoveryCodes(codes){
   panel.innerHTML=`<div style="background:#fff;border:4px solid #e65a20;border-radius:16px;padding:24px;width:min(100%,520px);max-height:90vh;overflow:auto">
     <h2 style="color:#a73510;font-size:26px;margin:0 0 12px">⚠️ ${escapeHtml(recoveryText("title"))}</h2>
     <p style="font-size:18px;font-weight:700;line-height:1.6;color:#54220c;background:#fff1dc;padding:14px;border-radius:10px">${escapeHtml(recoveryText("warning"))}</p>
-    ${codes.map(code=>`<div style="font:700 20px/1.6 monospace;letter-spacing:1px;padding:8px;user-select:all;overflow-wrap:anywhere">${escapeHtml(code)}</div>`).join("")}
+        ${codes.map(code=>`<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0;padding:10px;background:#f5f6f8;border-radius:10px"><div style="display:flex;flex-wrap:wrap;gap:5px">${code.split("-").map(group=>`<span style="font:700 18px/1.5 monospace;padding:3px;background:#fff;border:1px solid #ddd;border-radius:5px">${escapeHtml(group)}</span>`).join("")}</div><button type="button" class="btn btn-light" data-code="${escapeHtml(code)}" onclick="copyCustomerRecoveryCode(this)">${escapeHtml(recoveryCopyText(0))}</button></div>`).join("")}
     <p style="font-size:15px;line-height:1.6">${escapeHtml(recoveryText("once"))}</p>
         <label style="display:flex;align-items:flex-start;gap:10px;font-size:17px;font-weight:700;line-height:1.5;margin:16px 0"><input id="recoveryAcknowledged" type="checkbox" style="width:22px;height:22px;flex:0 0 22px;padding:0;margin:2px 0 0" onchange="el('recoveryDone').disabled=!this.checked"><span style="min-width:0;overflow-wrap:anywhere">${escapeHtml(recoveryText("saved"))}</span></label>
     <button id="recoveryDone" disabled type="button" class="btn btn-primary btn-block" onclick="el('recoveryCodesOverlay').remove()">${escapeHtml(recoveryText("continue"))}</button>
   </div>`;
   document.body.appendChild(panel);
 }
-async function ensureCustomerRecoveryCodes(){
+async function copyCustomerRecoveryCode(button){
+  try{
+    await navigator.clipboard.writeText(button.dataset.code || "");
+    button.textContent = recoveryCopyText(1);
+  }catch{
+    showMessage(recoveryCopyText(2));
+  }
+}
+  async function ensureCustomerRecoveryCodes(){
   const {data,error}=await db.functions.invoke("customer-phone-auth",{body:{action:"ensure_recovery"}});
   if(error || !data?.ok){showMessage(recoveryText("unavailable"));return;}
   if(data.codes)showRecoveryCodes(data.codes);
@@ -10342,7 +10356,7 @@ function renderAccount(){
               type="file"
               accept="image/jpeg,image/png,image/webp"
               style="display:none"
-              onchange="uploadCustomerAvatar(this.files?.[0])"
+                            onchange="uploadCustomerAvatar(this.files?.[0]);this.value=''"
             >
 
           </label>
@@ -10377,7 +10391,7 @@ function renderAccount(){
         ${statusBadge(customerProfile.status)}
 
       </div>
-
+      <div id="avatarUploadStatus" role="status" aria-live="polite" style="margin:8px 0;font-size:14px;font-weight:700"></div>
 
       <div class="form-card">
 
@@ -11440,180 +11454,60 @@ async function changeCustomerPassword(){
 }
 
 
-async function uploadCustomerAvatar(
-  file
-){
+function avatarProgressText(key){
+  const labels={
+    zh:{loading:"头像上传中，请稍等…",failed:"头像上传失败，请换一张 JPG、PNG 或 WEBP 图片重试。"},
+    en:{loading:"Uploading avatar, please wait…",failed:"Avatar upload failed. Try another JPG, PNG or WEBP image."},
+    my:{loading:"ပရိုဖိုင်ပုံ တင်နေပါသည်၊ ခဏစောင့်ပါ…",failed:"ပရိုဖိုင်ပုံ တင်မရပါ။ အခြား JPG၊ PNG သို့မဟုတ် WEBP ပုံကို ထပ်ရွေးပါ။"},
+    th:{loading:"กำลังอัปโหลดรูปโปรไฟล์ โปรดรอสักครู่…",failed:"อัปโหลดรูปไม่สำเร็จ ลองใช้ภาพ JPG, PNG หรือ WEBP อื่น"}
+  };
+  return (labels[appLanguage]||labels.zh)[key];
+}
 
-  if(
-    !currentUser
-    ||
-    !file
-  ){
+async function uploadCustomerAvatar(file){
+  if(!currentUser || !file) return;
+  const status=el("avatarUploadStatus");
+  const report=message=>{if(status)status.textContent=message;};
+  const fail=error=>{
+    const message=error?.message || avatarProgressText("failed");
+    report(message);
+    showMessage(message);
+  };
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+    report(customerAccountText("avatarType"));
+    showMessage(customerAccountText("avatarType"));
     return;
   }
-
-
-  const allowedTypes =
-    [
-      "image/jpeg",
-      "image/png",
-      "image/webp"
-    ];
-
-
-  if(
-    !allowedTypes.includes(
-      file.type
-    )
-  ){
-
-    showMessage(
-      customerAccountText(
-        "avatarType"
-      )
-    );
-
-    return;
-
-  }
-
-
-  if(
-    file.size
-    >
-    5 * 1024 * 1024
-  ){
-
-    showMessage(
-      customerAccountText(
-        "avatarSize"
-      )
-    );
-
-    return;
-
-  }
-
-
-  const extension =
-    file.type === "image/png"
-    ?
-    "png"
-    :
-    file.type === "image/webp"
-    ?
-    "webp"
-    :
-    "jpg";
-
-
-  const path =
-    `${currentUser.id}/avatar.${extension}`;
-
-
-  const {
-    error:
-      uploadError
-  } =
-    await db.storage
-      .from(
-        "customer-avatars"
-      )
-      .upload(
-        path,
-        file,
-        {
-          upsert:true,
-          contentType:
-            file.type,
-          cacheControl:
-            "3600"
-        }
-      );
-
-
-  if(uploadError){
-
-    showMessage(
-      uploadError.message
-    );
-
-    return;
-
-  }
-
-
-  const {
-    data:
-      publicData
-  } =
-    db.storage
-      .from(
-        "customer-avatars"
-      )
-      .getPublicUrl(
-        path
-      );
-
-
-  const publicUrl =
-    publicData
-      ?.publicUrl
-    ||
-    "";
-
-
-  if(!publicUrl){
+  if(file.size>5*1024*1024){
+    report(customerAccountText("avatarSize"));
+    showMessage(customerAccountText("avatarSize"));
     return;
   }
-
-
-  const avatarUrl =
-    `${publicUrl}?v=${Date.now()}`;
-
-
-  const {
-    error:
-      profileError
-  } =
-    await db
-      .from(
-        "customer_profiles"
-      )
-      .update({
-        avatar_url:
-          avatarUrl,
-
-        updated_at:
-          new Date()
-            .toISOString()
-      })
-      .eq(
-        "id",
-        currentUser.id
-      );
-
-
-  if(profileError){
-
-    showMessage(
-      profileError.message
-    );
-
-    return;
-
-  }
-
-
-  await initializeCustomer();
-
-
-  showMessage(
-    customerAccountText(
-      "avatarSaved"
-    )
-  );
-
+  report(avatarProgressText("loading"));
+  const extension=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+  const path=currentUser.id+"/avatar."+extension;
+  let uploaded;
+  try{
+    uploaded=await db.storage.from("customer-avatars").upload(path,file,{
+      upsert:true,contentType:file.type,cacheControl:"3600"
+    });
+  }catch(error){uploaded={error};}
+  if(uploaded?.error){fail(uploaded.error);return;}
+  const publicUrl=db.storage.from("customer-avatars").getPublicUrl(path).data?.publicUrl;
+  if(!publicUrl){fail();return;}
+  let updated;
+  try{
+    updated=await db.from("customer_profiles").update({
+      avatar_url:publicUrl+"?v="+Date.now(),
+      updated_at:new Date().toISOString()
+    }).eq("id",currentUser.id);
+  }catch(error){updated={error};}
+  if(updated?.error){fail(updated.error);return;}
+  try{await initializeCustomer();}
+  catch(error){fail(error);return;}
+  const newStatus=el("avatarUploadStatus");
+  if(newStatus)newStatus.textContent=customerAccountText("avatarSaved");
+  showMessage(customerAccountText("avatarSaved"));
 }
 
 /* ==========================================================
