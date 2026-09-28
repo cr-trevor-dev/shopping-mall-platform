@@ -6346,7 +6346,11 @@ async function openOrderDetail(orderId){
   const order = orderResult.data;
   const items = itemResult.data || [];
   const task = deliveryResult.data?.[0] || null;
-
+  const actorNames = {};
+  if(items.some(item => item.cancelled_by)){
+    const {data:actors} = await db.rpc("order_item_cancel_actors",{p_order_id:orderId});
+    (actors || []).forEach(actor => { actorNames[actor.order_item_id] = actor.actor_name; });
+  }
   const productRows =
     items.map(item => {
 
@@ -6429,7 +6433,7 @@ async function openOrderDetail(orderId){
             }
 
             ${
-              specification
+                            specification && !variantName.includes(specification)
               ?
               `<div class="small">${escapeHtml(specification)}</div>`
               :
@@ -6492,6 +6496,7 @@ async function openOrderDetail(orderId){
                   :
                   ""
                 }
+                             ${item.cancelled_by ? `<div class="small">取消人：${escapeHtml(actorNames[item.id] || item.cancelled_by)}</div>` : ""}
               `
               :
               "正常"
