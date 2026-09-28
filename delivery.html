@@ -3008,40 +3008,9 @@ function taskCard(
           )
           .join(" · ");
 
-        return `
-          <div style="margin-bottom:10px">
-
-            <strong>
-              ${escapeHtml(productName)}
-            </strong>
-
-            ${
-              details
-              ?
-              `<div class="info-secondary">
-                ${escapeHtml(details)}
-              </div>`
-              :
-              ""
-            }
-
-            ${
-              item.sku_code_snapshot
-              ?
-              `<div class="info-secondary">
-                SKU：${escapeHtml(item.sku_code_snapshot)}
-              </div>`
-              :
-              ""
-            }
-
-            <div class="info-secondary">
-              ${escapeHtml(t("quantity"))}：
-              <strong>${escapeHtml(item.quantity ?? 0)}</strong>
-            </div>
-
-          </div>
-        `;
+                return `<div style="margin-bottom:10px">
+          <strong>${escapeHtml(productName)}${details ? ` · ${escapeHtml(details)}` : ""} ×${escapeHtml(item.quantity ?? 0)}</strong>
+        </div>`;
 
       })
       .join("");
