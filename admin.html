@@ -2303,10 +2303,16 @@ tr:last-child td{
       员工列表
     </div>
 
-    <div id="staffTable"></div>
+       <div id="staffTable"></div>
 
   </div>
 
+  <div class="panel">
+    <div class="panel-title">客户忘记密码申请</div>
+    <div class="safe-note">须先通过已建立的线下渠道核验本人身份，再设置临时密码并安全交付客户。仅凭手机号不能重置。</div>
+    <button type="button" class="btn btn-light" onclick="loadPasswordResetRequests()">刷新申请</button>
+    <div id="passwordResetRequestsTable" style="margin-top:12px"></div>
+  </div>
 
   <div class="panel">
 
@@ -3481,8 +3487,11 @@ async function refreshCurrentSection(){
     delivery:
       loadDelivery,
 
-    staff:
-      loadStaff,
+        staff:
+      async () => {
+        await loadStaff();
+        await loadPasswordResetRequests();
+      },
 
     approvals:
       loadApprovals,
@@ -10114,7 +10123,35 @@ async function setDeliveryStatus(
 /* =========================
    员工
 ========================= */
+async function loadPasswordResetRequests(){
+  const target = el("passwordResetRequestsTable");
+  if(!target) return;
+  const {data,error} = await db.rpc("admin_password_reset_requests");
+  if(error){target.textContent = error.message;return;}
+  target.innerHTML = makeTable(
+    ["客户","电话","申请时间","状态","操作"],
+    (data || []).map(item => `<tr>
+      <td>${escapeHtml(item.customer_name || "—")}</td>
+      <td>${escapeHtml(item.phone || "—")}</td>
+      <td>${formatDate(item.requested_at)}</td>
+      <td>${escapeHtml(item.status)}</td>
+      <td>${item.status === "pending" ? `<button type="button" class="btn btn-light btn-small" onclick="resetCustomerPassword('${item.id}')">核验后重置</button>` : "—"}</td>
+    </tr>`)
+  );
+}
 
+async function resetCustomerPassword(requestId){
+  if(!confirm("请确认已通过可信渠道核验客户本人身份。仅知道手机号不足以重置密码。")) return;
+  const password = prompt("设置至少 8 位临时密码，并通过安全渠道交给客户：");
+  if(password === null) return;
+  if(password.length < 8){alert("临时密码至少 8 位。");return;}
+  const {data,error} = await db.functions.invoke("customer-phone-auth",{
+    body:{action:"admin_reset",request_id:requestId,password}
+  });
+  if(error || !data?.ok){alert("重置失败：" + (data?.message || error?.message || "未知错误"));return;}
+  alert("密码已重置。请通过安全渠道告知客户临时密码。");
+  await loadPasswordResetRequests();
+}
 async function createStaffProfile(){
 
   const email =
@@ -12291,9 +12328,7 @@ async function quickCreateProduct(){
   button.textContent = "保存商品";
 
 
-  alert(
-    "商品资料已保存。\n第一张图片会作为封面图。"
-  );
+  
 
 
   el("quickProductName").value = "";
@@ -12304,8 +12339,13 @@ async function quickCreateProduct(){
   el("quickWholesaleMin").value = "";
 
 
-  await loadBaseData();
+   await loadBaseData();
   await loadProducts();
+
+  if(data?.product_id){
+    await openProductAction(data.product_id,"edit",data.variant_id);
+  }
+  alert("商品已建立。如有其他口味或 Size，可在此添加规格；单规格商品可直接返回。");
 
 }
 async function createProduct(){
@@ -14293,8 +14333,10 @@ async function openProductAction(
 
     productActionShell(
       product,
-      "编辑商品",
+            "编辑商品",
       `
+
+        ${variantChooser}
 
         <div class="panel">
 
@@ -14458,7 +14500,20 @@ async function openProductAction(
             onclick="saveProductEdit()"
           >
             保存修改
-          </button>
+                   </button>
+
+          <div class="panel" style="margin-top:16px">
+            <div class="panel-title">新增口味 / Size / 规格</div>
+            <div class="safe-note">同一商品下建立独立 SKU、价格和库存。普通单规格商品可留空。</div>
+            <div class="form-grid">
+              <div class="form-group"><label>口味 / 名称</label><input id="newVariantFlavor" placeholder="例如：无糖"></div>
+              <div class="form-group"><label>Size / 规格</label><input id="newVariantSpecification" placeholder="例如：330ml"></div>
+              <div class="form-group"><label>零售价 *</label><input id="newVariantRetailPrice" type="number" min="0"></div>
+              <div class="form-group"><label>批发价</label><input id="newVariantWholesalePrice" type="number" min="0"></div>
+              <div class="form-group"><label>批发起订量</label><input id="newVariantWholesaleMin" type="number" min="1"></div>
+            </div>
+            <button type="button" class="btn btn-light" onclick="addProductVariant('${productId}')">添加规格</button>
+          </div>
 
         </div>
 
@@ -14537,7 +14592,35 @@ async function openProductAction(
 
 }
 
-
+async function addProductVariant(productId){
+  const flavor = el("newVariantFlavor")?.value.trim() || "";
+  const specification = el("newVariantSpecification")?.value.trim() || "";
+  const retailRaw = el("newVariantRetailPrice")?.value.trim();
+  const retailPrice = Number(retailRaw);
+  const wholesaleRaw = el("newVariantWholesalePrice")?.value.trim();
+  const wholesalePrice = wholesaleRaw ? Number(wholesaleRaw) : null;
+  const minRaw = el("newVariantWholesaleMin")?.value.trim();
+  const wholesaleMin = minRaw ? Number(minRaw) : null;
+  if(!flavor && !specification){alert("请填写口味或规格。");return;}
+  if(!retailRaw || !Number.isFinite(retailPrice) || retailPrice < 0 ||
+    (wholesalePrice !== null && (!Number.isFinite(wholesalePrice) || wholesalePrice < 0 || !Number.isInteger(wholesaleMin) || wholesaleMin < 1))){
+    alert("请填写正确的价格和批发起订量。");return;
+  }
+  const sku = "SKU-" + crypto.randomUUID().replaceAll("-","").slice(0,12).toUpperCase();
+  const {error} = await db.from("product_variants").insert({
+    product_id:productId,sku_code:sku,
+    name_zh:[flavor,specification].filter(Boolean).join(" · "),
+    flavor_zh:flavor || null,specification_zh:specification || null,
+    retail_price:retailPrice,wholesale_price:wholesalePrice,
+    wholesale_min_qty:wholesalePrice === null ? null : wholesaleMin,
+    sales_unit_code:"piece",sales_unit_zh:"件",is_active:true,sort_order:100
+  });
+  if(error){alert("添加规格失败：" + error.message);return;}
+  await loadBaseData();
+  await loadProducts();
+  await openProductAction(productId,"edit");
+  alert("新规格已建立，SKU：" + sku + "。现在可为该规格增加库存。");
+}
 async function confirmProductStockAdd(){
 
   const variantId =
@@ -16835,8 +16918,12 @@ async function saveProductEdit(){
           ||
           null,
 
-        price:
-          retailPrice,
+               price:
+          Math.min(
+            retailPrice,
+            ...variantData.filter(item => item.product_id === product.id && item.id !== variant.id && item.is_active)
+              .map(item => Number(item.retail_price || 0))
+          ),
 
         updated_at:
           now
