@@ -14978,17 +14978,135 @@ async function openProductAction(
             保存修改
                    </button>
 
-          <div class="panel" style="margin-top:16px">
-            <div class="panel-title">新增口味 / Size / 规格</div>
-            <div class="safe-note">同一商品下建立独立 SKU、价格和库存。普通单规格商品可留空。</div>
-            <div class="form-grid">
-              <div class="form-group"><label>口味 / 名称</label><input id="newVariantFlavor" placeholder="例如：无糖"></div>
-              <div class="form-group"><label>Size / 规格</label><input id="newVariantSpecification" placeholder="例如：330ml"></div>
-              <div class="form-group"><label>零售价 *</label><input id="newVariantRetailPrice" type="number" min="0"></div>
-              <div class="form-group"><label>批发价</label><input id="newVariantWholesalePrice" type="number" min="0"></div>
-              <div class="form-group"><label>批发起订量</label><input id="newVariantWholesaleMin" type="number" min="1"></div>
+                   <div
+            class="panel"
+            style="margin-top:16px"
+          >
+
+            <div class="panel-title">
+              新增规格
             </div>
-            <button type="button" class="btn btn-light" onclick="addProductVariant('${productId}')">添加规格</button>
+
+            <div class="small">
+              只有这个商品以后增加新口味或新包装时才需要使用。
+            </div>
+
+
+            <div
+              class="form-grid"
+              style="margin-top:12px"
+            >
+
+              <div class="form-group">
+
+                <label>
+                  口味
+                </label>
+
+                <input
+                  id="newVariantFlavor"
+                  placeholder="例如：原味 / 草莓味 / 无糖"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  包装 / 容量
+                </label>
+
+                <input
+                  id="newVariantSpecification"
+                  placeholder="例如：小包 / 大包 / 330ml / 1L"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label>
+                  零售价 *
+                </label>
+
+                <input
+                  id="newVariantRetailPrice"
+                  type="number"
+                  min="0"
+                  placeholder="例如 1500"
+                >
+
+              </div>
+
+            </div>
+
+
+            <details
+              style="margin-top:10px"
+            >
+
+              <summary
+                style="
+                  cursor:pointer;
+                  font-weight:800;
+                "
+              >
+                更多选项
+              </summary>
+
+
+              <div
+                class="form-grid"
+                style="margin-top:12px"
+              >
+
+                <div class="form-group">
+
+                  <label>
+                    批发价
+                  </label>
+
+                  <input
+                    id="newVariantWholesalePrice"
+                    type="number"
+                    min="0"
+                    placeholder="不做批发可留空"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label>
+                    批发起订量
+                  </label>
+
+                  <input
+                    id="newVariantWholesaleMin"
+                    type="number"
+                    min="1"
+                    placeholder="例如 10"
+                  >
+
+                </div>
+
+              </div>
+
+            </details>
+
+
+            <button
+              type="button"
+              class="btn btn-light"
+              style="margin-top:12px"
+              onclick="addProductVariant('${productId}')"
+            >
+              ＋ 添加规格
+            </button>
+
           </div>
 
         </div>
@@ -15069,38 +15187,268 @@ async function openProductAction(
 }
 
 async function addProductVariant(productId){
-  const flavor = el("newVariantFlavor")?.value.trim() || "";
-  const specification = el("newVariantSpecification")?.value.trim() || "";
-   if(productVariantsFor(productId).some(item => item.is_active &&
-    !item.flavor_zh && !item.specification_zh)){
-    alert("请先把原有默认规格编辑成一个具体口味或包装，再添加其他规格。");return;
+
+  const flavor =
+    el("newVariantFlavor")
+      ?.value
+      .trim()
+    ||
+    "";
+
+  const specification =
+    el("newVariantSpecification")
+      ?.value
+      .trim()
+    ||
+    "";
+
+  const retailRaw =
+    el("newVariantRetailPrice")
+      ?.value
+      .trim()
+    ||
+    "";
+
+  const retailPrice =
+    Number(retailRaw);
+
+  const wholesaleRaw =
+    el("newVariantWholesalePrice")
+      ?.value
+      .trim()
+    ||
+    "";
+
+  const wholesalePrice =
+    wholesaleRaw === ""
+    ?
+    null
+    :
+    Number(wholesaleRaw);
+
+  const minRaw =
+    el("newVariantWholesaleMin")
+      ?.value
+      .trim()
+    ||
+    "";
+
+  const wholesaleMin =
+    minRaw === ""
+    ?
+    null
+    :
+    Number(minRaw);
+
+
+  const existingVariants =
+    productVariantsFor(productId);
+
+
+  const blankVariant =
+    existingVariants.find(
+      item =>
+        item.is_active
+        &&
+        !(
+          item.flavor_zh
+          ||
+          ""
+        ).trim()
+        &&
+        !(
+          item.specification_zh
+          ||
+          ""
+        ).trim()
+    );
+
+
+  if(blankVariant){
+
+    alert(
+      "这个商品目前还是普通商品。请先把现有规格修改成具体的口味或包装，再添加新的规格。"
+    );
+
+    return;
+
   }
-  if(productVariantsFor(productId).some(item => item.is_active &&
-    (item.flavor_zh || "").trim().toLocaleLowerCase() === flavor.toLocaleLowerCase() &&
-    (item.specification_zh || "").trim().toLocaleLowerCase() === specification.toLocaleLowerCase())){
-    alert("这个口味和包装已经存在，请直接编辑原有规格。");return;
+
+
+  if(
+    !flavor
+    &&
+    !specification
+  ){
+
+    alert(
+      "请填写口味或包装 / 容量。"
+    );
+
+    return;
+
   }
-  const retailRaw = el("newVariantRetailPrice")?.value.trim();
-  const retailPrice = Number(retailRaw);
-  const wholesaleRaw = el("newVariantWholesalePrice")?.value.trim();
-  const wholesalePrice = wholesaleRaw ? Number(wholesaleRaw) : null;
-  const minRaw = el("newVariantWholesaleMin")?.value.trim();
-  const wholesaleMin = minRaw ? Number(minRaw) : null;
-  if(!flavor && !specification){alert("请填写口味或规格。");return;}
-  if(!retailRaw || !Number.isFinite(retailPrice) || retailPrice < 0 ||
-    (wholesalePrice !== null && (!Number.isFinite(wholesalePrice) || wholesalePrice < 0 || !Number.isInteger(wholesaleMin) || wholesaleMin < 1))){
-    alert("请填写正确的价格和批发起订量。");return;
+
+
+  const duplicate =
+    existingVariants.find(
+      item =>
+        item.is_active
+        &&
+        (
+          item.flavor_zh
+          ||
+          ""
+        )
+        .trim()
+        .toLocaleLowerCase()
+        ===
+        flavor.toLocaleLowerCase()
+        &&
+        (
+          item.specification_zh
+          ||
+          ""
+        )
+        .trim()
+        .toLocaleLowerCase()
+        ===
+        specification.toLocaleLowerCase()
+    );
+
+
+  if(duplicate){
+
+    alert(
+      "这个口味和包装组合已经存在，请直接编辑原有规格。"
+    );
+
+    return;
+
   }
-    const {data,error} = await db.rpc("admin_add_product_variant",{
-    p_product_id:productId,p_flavor:flavor,p_specification:specification,
-    p_retail_price:retailPrice,p_wholesale_price:wholesalePrice,
-    p_wholesale_min_qty:wholesaleMin
-  });
-  if(error){alert("添加规格失败：" + error.message);return;}
+
+
+  if(
+    retailRaw === ""
+    ||
+    !Number.isFinite(retailPrice)
+    ||
+    retailPrice < 0
+  ){
+
+    alert(
+      "请填写正确的零售价。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    wholesalePrice !== null
+    &&
+    (
+      !Number.isFinite(
+        wholesalePrice
+      )
+      ||
+      wholesalePrice < 0
+      ||
+      !Number.isInteger(
+        wholesaleMin
+      )
+      ||
+      wholesaleMin < 1
+    )
+  ){
+
+    alert(
+      "填写批发价时，必须同时填写正确的批发起订量。"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    wholesalePrice === null
+    &&
+    wholesaleMin !== null
+  ){
+
+    alert(
+      "填写批发起订量时，也必须填写批发价。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db.rpc(
+      "admin_add_product_variant",
+      {
+
+        p_product_id:
+          productId,
+
+        p_flavor:
+          flavor,
+
+        p_specification:
+          specification,
+
+        p_retail_price:
+          retailPrice,
+
+        p_wholesale_price:
+          wholesalePrice,
+
+        p_wholesale_min_qty:
+          wholesaleMin
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "添加规格失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
   await loadBaseData();
+
   await loadProducts();
-  await openProductAction(productId,"edit");
-    alert("新规格已建立，SKU：" + data.sku_code + "。现在可为该规格增加库存。");
+
+  await openProductAction(
+    productId,
+    "edit",
+    data?.variant_id
+    ||
+    data?.id
+    ||
+    null
+  );
+
+
+  alert(
+    "新规格已建立。现在可以为这个规格增加库存。"
+  );
+
 }
 async function confirmProductStockAdd(){
 
