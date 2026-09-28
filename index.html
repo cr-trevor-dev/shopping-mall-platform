@@ -4819,10 +4819,12 @@ function renderProducts(list){
               product.id
             );
 
-          const price =
+                    const price =
             productMinimumPrice(
               product.id
             );
+          const hasMultipleVariants =
+            variants.filter(item => item.product_id === product.id).length > 1;
 
           const wholesale =
             productWholesalePrice(
@@ -4955,7 +4957,9 @@ function renderProducts(list){
 
                 <div class="product-price">
 
-                  ${money(price)}
+                                    ${money(price)}${hasMultipleVariants
+                    ? ({zh:" 起",en:" and up",my:" မှစ၍",th:" ขึ้นไป"}[appLanguage] || " and up")
+                    : ""}
 
                 </div>
 
@@ -5693,15 +5697,20 @@ function renderVariantChoices(list, selected){
       }).join("")}</div>`
     : "";
 
+    const hasSize = sizes.some(item =>
+    item.specification_zh || item.specification_en ||
+    item.specification_my || item.specification_th
+  );
   return `${flavorButtons}
-    <div style="${labelStyle}">${escapeHtml(labels[1])}</div>
+    ${hasSize ? `<div style="${labelStyle}">${escapeHtml(labels[1])}</div>
     <div class="variant-list">${sizes.map(item => `
       <button type="button" class="variant-chip ${item.id === selected.id ? "active" : ""}"
         onclick="selectVariant('${item.id}')">
         ${escapeHtml(variantSize(item))} · ${money(item.retail_price)}
+        ${availableQty(item.id) <= 0 ? ` · ${escapeHtml(t("outOfStock"))}` : ""}
         ${sizes.filter(other => variantSize(other) === variantSize(item)).length > 1
           ? ` · ${escapeHtml(item.sku_code || "")}` : ""}
-      </button>`).join("")}</div>
+      </button>`).join("")}</div>` : ""}
     <div style="margin-top:7px;font-size:11px;color:var(--muted)">
       SKU: ${escapeHtml(selected.sku_code || "—")}
     </div>`;
@@ -5716,7 +5725,7 @@ async function selectFlavor(variantId){
   );
   const current = variantMap[currentVariantId];
   const preferred = matching.find(item =>
-    variantSize(item) === variantSize(current) && availableQty(item.id) > 0
+        variantSize(item) === variantSize(current)
   ) || matching.find(item => availableQty(item.id) > 0) || matching[0];
   if(preferred){ await selectVariant(preferred.id); }
 }
@@ -5859,6 +5868,11 @@ function addCurrentProductToCart(){
 function quickAddProduct(
   productId
 ){
+
+    if(variants.filter(item => item.product_id === productId).length > 1){
+    openProduct(productId);
+    return;
+  }
 
   const variant =
     variants
