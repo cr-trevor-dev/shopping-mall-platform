@@ -4861,26 +4861,12 @@ async function loadVariants(){
   variants.forEach(
     variant => {
 
-      variantMap[
-  variant.id
-] =
-  productMap[
-    variant.product_id
-  ]
-  ||
-  variant[
-    `name_${appLanguage}`
-  ]
-  ||
-  variant.name_zh
-  ||
-  variant[
-    `specification_${appLanguage}`
-  ]
-  ||
-  variant.specification_zh
-  ||
-  rt("inventoryProduct");
+           const productName = productMap[variant.product_id]
+        || variant.name_zh || rt("inventoryProduct");
+      const flavor = variant[`flavor_${appLanguage}`] || variant.flavor_zh || "";
+      const size = variant[`specification_${appLanguage}`] || variant.specification_zh || "";
+      variantMap[variant.id] = [productName,flavor,size,variant.sku_code ? `SKU ${variant.sku_code}` : ""]
+        .filter(Boolean).join(" · ");
 
     }
   );
