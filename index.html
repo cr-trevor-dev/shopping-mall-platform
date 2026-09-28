@@ -2095,8 +2095,11 @@ textarea:focus{
         onclick="customerLogin()"
         data-i18n="login"
       >
-        登录
+             登录
       </button>
+
+      <button type="button" class="btn btn-light btn-block"
+        onclick="requestCustomerPasswordReset()" data-i18n="forgotPassword">忘记密码？</button>
 
     </div>
 
@@ -2337,6 +2340,8 @@ let currentOrderId =
 
 let selectedCheckoutAddressId =
   null;
+
+let editingAccountAddressId = null;
 
 let authMode =
   "login";
@@ -2867,7 +2872,8 @@ zh:{
   accountUnavailable:"该账号目前无法登录。",
     deliveryFailed:"配送未成功",
   paymentMethodUnavailable:"当前付款方式不可用，请重新选择。",
-  hot:"热门"
+    hot:"热门",
+  forgotPassword:"忘记密码？",editAddress:"编辑",deleteAddress:"删除",cancelEditAddress:"取消编辑",saveChanges:"保存修改",confirmDeleteAddress:"确定删除这个地址？历史订单地址不会改变。",resetPhoneRequired:"请先输入注册手机号。",resetRequestFailed:"申请提交失败，请稍后重试。",resetSubmitted:"如果该手机号已注册，申请已提交。请联系管理员核验身份。",cancelledReason:"取消原因"
 },
 
 en:{
@@ -2896,7 +2902,8 @@ en:{
   accountUnavailable:"This account is currently unable to sign in.",
     deliveryFailed:"Delivery Unsuccessful",
   paymentMethodUnavailable:"This payment method is currently unavailable. Please choose another method.",
-  hot:"HOT"
+    hot:"HOT",
+  forgotPassword:"Forgot password?",editAddress:"Edit",deleteAddress:"Delete",cancelEditAddress:"Cancel edit",saveChanges:"Save changes",confirmDeleteAddress:"Delete this address? Past orders will keep their original address.",resetPhoneRequired:"Enter your registered phone number first.",resetRequestFailed:"Could not submit your request. Please try again.",resetSubmitted:"If this phone is registered, your request has been submitted. Contact an administrator for identity verification.",cancelledReason:"Cancellation reason"
 },
 
 my:{
@@ -2925,7 +2932,8 @@ my:{
   accountUnavailable:"ဤအကောင့်ဖြင့် လောလောဆယ် ဝင်ရောက်၍မရပါ။",
     deliveryFailed:"ပို့ဆောင်မှု မအောင်မြင်ပါ",
   paymentMethodUnavailable:"ဤငွေပေးချေမှုနည်းလမ်းကို လောလောဆယ် အသုံးမပြုနိုင်ပါ။ အခြားနည်းလမ်းကို ရွေးပါ။",
-  hot:"လူကြိုက်များ"
+    hot:"လူကြိုက်များ",
+  forgotPassword:"စကားဝှက်မေ့နေပါသလား?",editAddress:"ပြင်ရန်",deleteAddress:"ဖျက်ရန်",cancelEditAddress:"မပြင်တော့ပါ",saveChanges:"သိမ်းဆည်းရန်",confirmDeleteAddress:"ဤလိပ်စာကို ဖျက်မလား? ယခင်အော်ဒါများ၏ လိပ်စာ မပြောင်းပါ။",resetPhoneRequired:"မှတ်ပုံတင်ထားသော ဖုန်းနံပါတ်ကို အရင်ထည့်ပါ။",resetRequestFailed:"တောင်းဆိုမှု မအောင်မြင်ပါ။ နောက်မှ ထပ်ကြိုးစားပါ။",resetSubmitted:"ဤဖုန်းနံပါတ် စာရင်းသွင်းထားပါက တောင်းဆိုမှု တင်ပြီးပါပြီ။ အတည်ပြုရန် စီမံခန့်ခွဲသူကို ဆက်သွယ်ပါ။",cancelledReason:"ပယ်ဖျက်ရသည့်အကြောင်းရင်း"
 },
 
 th:{
@@ -2954,7 +2962,8 @@ th:{
   accountUnavailable:"บัญชีนี้ไม่สามารถเข้าสู่ระบบได้ในขณะนี้",
     deliveryFailed:"จัดส่งไม่สำเร็จ",
   paymentMethodUnavailable:"วิธีการชำระเงินนี้ไม่สามารถใช้งานได้ กรุณาเลือกใหม่",
-  hot:"ยอดนิยม"
+    hot:"ยอดนิยม",
+  forgotPassword:"ลืมรหัสผ่าน?",editAddress:"แก้ไข",deleteAddress:"ลบ",cancelEditAddress:"ยกเลิก",saveChanges:"บันทึกการแก้ไข",confirmDeleteAddress:"ลบที่อยู่นี้หรือไม่? ที่อยู่ในคำสั่งซื้อเก่าจะไม่เปลี่ยน",resetPhoneRequired:"กรอกเบอร์โทรศัพท์ที่ลงทะเบียนก่อน",resetRequestFailed:"ส่งคำขอไม่สำเร็จ โปรดลองอีกครั้ง",resetSubmitted:"หากเบอร์นี้ลงทะเบียนแล้ว คำขอถูกส่งแล้ว โปรดติดต่อผู้ดูแลเพื่อยืนยันตัวตน",cancelledReason:"เหตุผลที่ยกเลิก"
 }
 
 };
@@ -7210,7 +7219,17 @@ async function customerLogin(){
 
 }
 
-
+async function requestCustomerPasswordReset(){
+  const phone = el("loginPhone")?.value.trim();
+  if(!phone){
+    showAuthMessage(t("resetPhoneRequired"));
+    return;
+  }
+  const {data,error} = await db.functions.invoke("customer-phone-auth",{
+    body:{action:"request_reset",phone}
+  });
+  showAuthMessage(error || !data?.ok ? t("resetRequestFailed") : t("resetSubmitted"));
+}
 async function customerRegister(){
 
   const name =
@@ -7710,8 +7729,10 @@ async function logoutCustomer(){
   addresses = [];
   orders = [];
 
-  selectedCheckoutAddressId =
+    selectedCheckoutAddressId =
     null;
+
+  editingAccountAddressId = null;
 
   renderAccount();
 
@@ -9644,10 +9665,14 @@ async function openOrder(
     ||
     [];
 
-  const history =
-    results[2].data
-    ||
-    [];
+    const history =
+    (results[2].data || []).filter(item =>
+      ["order","delivery","payment"].includes(item.status_group)
+      || (item.status_group === "fulfillment" &&
+          ["picking","packed","fulfilled"].includes(item.new_status))
+      || (item.status_group === "after_sales" &&
+          ["pending","returned"].includes(item.new_status))
+    );
 
 
   renderOrderDetail(
@@ -9742,8 +9767,11 @@ function renderOrderDetail(
             ""
           }
 
-        </div>
+               </div>
 
+        ${order.order_status === "cancelled" && order.cancellation_reason
+          ? `<div class="small">${escapeHtml(t("cancelledReason"))}：${escapeHtml(order.cancellation_reason)}</div>`
+          : ""}
 
         <div
           class="summary-line"
@@ -10487,7 +10515,11 @@ function renderAccount(){
 
 function renderAccountAddresses(){
 
+  const editingAddress = addresses.find(item => item.id === editingAccountAddressId);
+
   const defaultRegionId =
+    editingAddress?.region_id
+    ||
     customerProfile
       ?.default_region_id
     ||
@@ -10629,7 +10661,12 @@ function renderAccountAddresses(){
               }
 
             </div>
-
+            <div class="operation-buttons" style="margin-top:8px">
+              <button type="button" class="btn btn-light btn-small"
+                onclick="editAccountAddress('${address.id}')">${escapeHtml(t("editAddress"))}</button>
+              <button type="button" class="btn btn-red btn-small"
+                onclick="deleteAccountAddress('${address.id}')">${escapeHtml(t("deleteAddress"))}</button>
+            </div>
           </div>
 
         `
@@ -10657,7 +10694,7 @@ function renderAccountAddresses(){
           margin-bottom:12px
         "
       >
-        ${escapeHtml(t("addAddress"))}
+               ${editingAddress ? escapeHtml(t("editAddress")) : escapeHtml(t("addAddress"))}
       </div>
 
 
@@ -10669,7 +10706,7 @@ function renderAccountAddresses(){
             ${escapeHtml(t("recipientName"))}
           </label>
 
-          <input id="accountAddressName">
+                   <input id="accountAddressName" value="${escapeHtml(editingAddress?.recipient_name || "")}">
 
         </div>
 
@@ -10680,9 +10717,10 @@ function renderAccountAddresses(){
             ${escapeHtml(t("phone"))}
           </label>
 
-          <input
+                    <input
             id="accountAddressPhone"
             type="tel"
+            value="${escapeHtml(editingAddress?.phone || "")}"
           >
 
         </div>
@@ -10703,15 +10741,7 @@ function renderAccountAddresses(){
         </div>
 
 
-        <div class="form-group">
-
-          <label>
-            ${escapeHtml(t("township"))}
-          </label>
-
-          <input id="accountAddressTownship">
-
-        </div>
+        
 
 
         <div class="form-group">
@@ -10720,7 +10750,7 @@ function renderAccountAddresses(){
             ${escapeHtml(t("street"))}
           </label>
 
-          <input id="accountAddressStreet">
+                   <input id="accountAddressStreet" value="${escapeHtml(editingAddress?.street || "")}">
 
         </div>
 
@@ -10731,8 +10761,9 @@ function renderAccountAddresses(){
             ${escapeHtml(t("addressLabel"))}
           </label>
 
-          <input
+                   <input
             id="accountAddressLabel"
+            value="${escapeHtml(editingAddress?.label || "")}"
             placeholder="${escapeHtml(t("addressLabelPlaceholder"))}"
           >
 
@@ -10747,7 +10778,7 @@ function renderAccountAddresses(){
           ${escapeHtml(t("detailedAddress"))}
         </label>
 
-        <textarea id="accountAddressDetail"></textarea>
+               <textarea id="accountAddressDetail">${escapeHtml(editingAddress?.detailed_address || "")}</textarea>
 
       </div>
 
@@ -10767,7 +10798,7 @@ function renderAccountAddresses(){
           type="checkbox"
           style="width:auto"
           ${
-            addresses.length === 0
+                       (editingAddress?.is_default || addresses.length === 0)
             ?
             "checked"
             :
@@ -10785,9 +10816,11 @@ function renderAccountAddresses(){
         onclick="saveAccountAddress()"
       >
 
-        ${escapeHtml(t("saveAddress"))}
+               ${editingAddress ? escapeHtml(t("saveChanges")) : escapeHtml(t("saveAddress"))}
 
       </button>
+
+      ${editingAddress ? `<button type="button" class="btn btn-light" onclick="editAccountAddress(null)">${escapeHtml(t("cancelEditAddress"))}</button>` : ""}
 
     </div>
 
@@ -10797,7 +10830,22 @@ function renderAccountAddresses(){
 
 
 async function saveAccountAddress(){
+function editAccountAddress(id){
+  editingAccountAddressId = id;
+  renderAccount();
+  el("accountAddressName")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
 
+async function deleteAccountAddress(id){
+  if(!currentUser || !confirm(t("confirmDeleteAddress"))) return;
+  const address = addresses.find(item => item.id === id);
+  if(!address) return;
+  const {error} = await db.rpc("customer_deactivate_address",{p_address_id:id});
+  if(error){showMessage(error.message);return;}
+  if(editingAccountAddressId === id) editingAccountAddressId = null;
+  await loadAddresses();
+  renderAccount();
+}
   if(!currentUser){
 
     openAuthModal();
@@ -10846,8 +10894,11 @@ async function saveAccountAddress(){
   }
 
 
+    const editingAddress = addresses.find(item => item.id === editingAccountAddressId);
   const isDefault =
     addresses.length === 0
+    ||
+    !!editingAddress?.is_default
     ||
     !!el("accountAddressDefault")
       ?.checked;
@@ -10862,7 +10913,7 @@ async function saveAccountAddress(){
     null;
 
 
-  if(isDefault){
+    if(isDefault && !editingAddress){
 
     const {
       error:
@@ -10893,7 +10944,25 @@ async function saveAccountAddress(){
 
   }
 
-
+  if(editingAddress){
+    const {error} = await db.rpc("customer_update_address",{
+      p_address_id:editingAddress.id,
+      p_recipient_name:name,p_phone:phone,p_region_id:regionId,
+      p_street:el("accountAddressStreet")?.value.trim() || "",
+      p_detailed_address:detail,
+      p_label:el("accountAddressLabel")?.value.trim() || "",
+      p_is_default:isDefault
+    });
+    if(error){
+      showMessage(error.message);
+      return;
+    }
+    editingAccountAddressId = null;
+    await loadAddresses();
+    renderAccount();
+    showMessage(t("addressSaved"));
+    return;
+  }
   const {
     data:
       createdAddress,
