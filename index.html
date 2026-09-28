@@ -7249,15 +7249,78 @@ async function customerLogin(){
 }
 
 async function requestCustomerPasswordReset(){
-  const phone = el("loginPhone")?.value.trim();
-  if(!phone){
-    showAuthMessage(t("resetPhoneRequired"));
-    return;
-  }
-  const {data,error} = await db.functions.invoke("customer-phone-auth",{
-    body:{action:"request_reset",phone}
+  openRecoveryReset();
+}
+
+const recoveryLabels = {
+  zh:{title:"保存您的找回码",warning:"重要：忘记密码时，只能用这些找回码自行重设。请现在截图或抄写，分别妥善保存；离开后无法再次查看。不要发给任何人。",once:"每个找回码只能用一次。忘记密码及全部找回码，并且所有设备都已退出登录，就无法自行找回账号。",saved:"我已经安全保存这 3 个找回码",continue:"完成",resetTitle:"用找回码重设密码",phone:"注册手机号",code:"任意一个未用过的找回码",password:"新密码（至少 6 位）",confirm:"再次输入新密码",reset:"重设密码",back:"返回登录",invalid:"请填写手机号、找回码和新密码（至少 6 位）。",mismatch:"两次输入的密码不一致。",failed:"找回码或手机号不正确，或该码已经用过。",success:"密码已更新。请用新密码登录，并保存新的一组找回码。",rotate:"重新生成 3 个找回码",rotateConfirm:"旧找回码会立即失效。现在生成新的一组吗？",unavailable:"暂时无法生成找回码，请稍后在「我的」页面重试。"},
+  en:{title:"Save your recovery codes",warning:"Important: These codes let you reset a forgotten password. Save a screenshot or write them down now. They cannot be shown again. Never share them.",once:"Each code works once. If you lose your password and all codes and are signed out everywhere, you cannot recover the account yourself.",saved:"I safely saved all 3 recovery codes",continue:"Done",resetTitle:"Reset password with a recovery code",phone:"Registered phone number",code:"One unused recovery code",password:"New password (at least 6 characters)",confirm:"Repeat new password",reset:"Reset password",back:"Back to login",invalid:"Enter your phone, recovery code and a new password of at least 6 characters.",mismatch:"The passwords do not match.",failed:"Incorrect phone or recovery code, or this code has already been used.",success:"Password updated. Log in with the new password and save your new recovery codes.",rotate:"Generate 3 new recovery codes",rotateConfirm:"Your old recovery codes will stop working immediately. Generate new ones now?",unavailable:"Recovery codes are unavailable. Try again later from your account page."},
+  my:{title:"အကောင့်ပြန်ယူရန်ကုဒ်များကို သိမ်းထားပါ",warning:"အရေးကြီးသည်။ စကားဝှက်မေ့လျှင် ဤကုဒ်များဖြင့်သာ မိမိဘာသာ ပြန်သတ်မှတ်နိုင်သည်။ ယခု screenshot ရိုက်ပါ သို့မဟုတ် ရေးမှတ်ပါ။ နောက်မှ ထပ်မံကြည့်၍မရပါ။ မည်သူ့ကိုမျှ မပေးပါနှင့်။",once:"ကုဒ်တစ်ခုကို တစ်ကြိမ်သာ သုံးနိုင်သည်။ စကားဝှက်နှင့် ကုဒ်အားလုံး ပျောက်ပြီး စက်အားလုံးမှ ထွက်ထားလျှင် မိမိဘာသာ အကောင့်ပြန်ယူ၍မရပါ။",saved:"ကုဒ် ၃ ခုလုံးကို လုံခြုံစွာ သိမ်းပြီးပါပြီ",continue:"ပြီးပါပြီ",resetTitle:"ကုဒ်ဖြင့် စကားဝှက်ပြန်သတ်မှတ်ရန်",phone:"မှတ်ပုံတင်ထားသော ဖုန်းနံပါတ်",code:"မသုံးရသေးသော ကုဒ်တစ်ခု",password:"စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး)",confirm:"စကားဝှက်အသစ် ထပ်ရိုက်ပါ",reset:"စကားဝှက်ပြန်သတ်မှတ်ရန်",back:"ဝင်ရန် ပြန်သွားပါ",invalid:"ဖုန်းနံပါတ်၊ ကုဒ်နှင့် စကားဝှက်အသစ် (အနည်းဆုံး ၆ လုံး) ဖြည့်ပါ။",mismatch:"စကားဝှက်နှစ်ခု မတူပါ။",failed:"ဖုန်းနံပါတ် သို့မဟုတ် ကုဒ် မှားနေသည်၊ သို့မဟုတ် ကုဒ်ကို အသုံးပြုပြီးဖြစ်သည်။",success:"စကားဝှက်ပြောင်းပြီးပါပြီ။ စကားဝှက်အသစ်ဖြင့် ဝင်ပြီး ကုဒ်အသစ်များကို သိမ်းထားပါ။",rotate:"ကုဒ်အသစ် ၃ ခု ထုတ်ရန်",rotateConfirm:"ကုဒ်အဟောင်းများ ချက်ချင်း အသုံးမဝင်တော့ပါ။ အသစ်ထုတ်မလား?",unavailable:"ကုဒ်ထုတ်မရသေးပါ။ နောက်မှ «ကျွန်ုပ်» စာမျက်နှာတွင် ထပ်ကြိုးစားပါ။"},
+  th:{title:"บันทึกรหัสกู้คืนของคุณ",warning:"สำคัญ: หากลืมรหัสผ่าน ใช้รหัสเหล่านี้ตั้งใหม่ได้ด้วยตนเอง บันทึกภาพหน้าจอหรือจดไว้ตอนนี้ หลังจากปิดแล้วจะดูซ้ำไม่ได้ ห้ามบอกผู้อื่น",once:"รหัสแต่ละอันใช้ได้ครั้งเดียว หากลืมรหัสผ่าน ทำรหัสกู้คืนทั้งหมดหาย และออกจากระบบทุกเครื่อง จะกู้บัญชีเองไม่ได้",saved:"ฉันบันทึกรหัสกู้คืนทั้ง 3 อันอย่างปลอดภัยแล้ว",continue:"เสร็จสิ้น",resetTitle:"ตั้งรหัสผ่านใหม่ด้วยรหัสกู้คืน",phone:"เบอร์โทรศัพท์ที่ลงทะเบียน",code:"รหัสกู้คืนที่ยังไม่เคยใช้",password:"รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)",confirm:"กรอกรหัสผ่านใหม่อีกครั้ง",reset:"ตั้งรหัสผ่านใหม่",back:"กลับไปเข้าสู่ระบบ",invalid:"กรอกเบอร์โทร รหัสกู้คืน และรหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร",mismatch:"รหัสผ่านทั้งสองไม่ตรงกัน",failed:"เบอร์โทรหรือรหัสกู้คืนไม่ถูกต้อง หรือใช้รหัสนี้แล้ว",success:"เปลี่ยนรหัสผ่านแล้ว เข้าสู่ระบบด้วยรหัสใหม่และบันทึกรหัสกู้คืนชุดใหม่",rotate:"สร้างรหัสกู้คืนใหม่ 3 อัน",rotateConfirm:"รหัสกู้คืนเดิมจะใช้ไม่ได้ทันที ต้องการสร้างชุดใหม่หรือไม่?",unavailable:"สร้างรหัสกู้คืนไม่ได้ โปรดลองใหม่จากหน้าบัญชีภายหลัง"}
+};
+function recoveryText(key){return (recoveryLabels[appLanguage] || recoveryLabels.zh)[key];}
+
+function closeRecoveryReset(){el("recoveryResetOverlay")?.remove();}
+function openRecoveryReset(){
+  closeRecoveryReset();
+  const panel = document.createElement("div");
+  panel.id = "recoveryResetOverlay";
+  panel.style.cssText = "position:fixed;inset:0;z-index:10010;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto";
+  panel.innerHTML = `<div style="background:#fff;border-radius:16px;padding:24px;width:min(100%,440px);max-height:90vh;overflow:auto">
+    <h2>${escapeHtml(recoveryText("resetTitle"))}</h2>
+    <div class="form-group"><label>${escapeHtml(recoveryText("phone"))}</label><input id="recoveryPhone" type="tel" autocomplete="tel" value="${escapeHtml(el("loginPhone")?.value || "")}"></div>
+    <div class="form-group"><label>${escapeHtml(recoveryText("code"))}</label><input id="recoveryCode" autocomplete="off" autocapitalize="characters"></div>
+    <div class="form-group"><label>${escapeHtml(recoveryText("password"))}</label><input id="recoveryPassword" type="password" autocomplete="new-password"></div>
+    <div class="form-group"><label>${escapeHtml(recoveryText("confirm"))}</label><input id="recoveryConfirm" type="password" autocomplete="new-password"></div>
+    <div id="recoveryError" role="alert" style="color:#b42318;margin:10px 0"></div>
+    <button type="button" class="btn btn-primary btn-block" onclick="submitRecoveryReset()">${escapeHtml(recoveryText("reset"))}</button>
+    <button type="button" class="btn btn-light btn-block" onclick="closeRecoveryReset()">${escapeHtml(recoveryText("back"))}</button>
+  </div>`;
+  document.body.appendChild(panel);
+}
+async function submitRecoveryReset(){
+  const phone=el("recoveryPhone").value.trim(), recovery_code=el("recoveryCode").value.trim();
+  const password=el("recoveryPassword").value, confirm=el("recoveryConfirm").value;
+  const message=el("recoveryError");
+  if(!phone || !recovery_code || password.length<6){message.textContent=recoveryText("invalid");return;}
+  if(password!==confirm){message.textContent=recoveryText("mismatch");return;}
+  message.textContent=t("loading");
+  const {data,error}=await db.functions.invoke("customer-phone-auth",{
+    body:{action:"reset_with_recovery",phone,recovery_code,password}
   });
-  showAuthMessage(error || !data?.ok ? t("resetRequestFailed") : t("resetSubmitted"));
+  if(error || !data?.ok){message.textContent=recoveryText("failed");return;}
+  el("loginPhone").value=phone;
+  el("loginPassword").value="";
+  closeRecoveryReset();
+  showAuthMessage(recoveryText("success"));
+}
+
+function showRecoveryCodes(codes){
+  if(!Array.isArray(codes) || codes.length!==3)return;
+  el("recoveryCodesOverlay")?.remove();
+  const panel=document.createElement("div");
+  panel.id="recoveryCodesOverlay";
+  panel.style.cssText="position:fixed;inset:0;z-index:10020;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto";
+  panel.innerHTML=`<div style="background:#fff;border:4px solid #e65a20;border-radius:16px;padding:24px;width:min(100%,520px);max-height:90vh;overflow:auto">
+    <h2 style="color:#a73510;font-size:26px;margin:0 0 12px">⚠️ ${escapeHtml(recoveryText("title"))}</h2>
+    <p style="font-size:18px;font-weight:700;line-height:1.6;color:#54220c;background:#fff1dc;padding:14px;border-radius:10px">${escapeHtml(recoveryText("warning"))}</p>
+    ${codes.map(code=>`<div style="font:700 20px/1.6 monospace;letter-spacing:1px;padding:8px;user-select:all;overflow-wrap:anywhere">${escapeHtml(code)}</div>`).join("")}
+    <p style="font-size:15px;line-height:1.6">${escapeHtml(recoveryText("once"))}</p>
+    <label style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;margin:16px 0"><input id="recoveryAcknowledged" type="checkbox" onchange="el('recoveryDone').disabled=!this.checked">${escapeHtml(recoveryText("saved"))}</label>
+    <button id="recoveryDone" disabled type="button" class="btn btn-primary btn-block" onclick="el('recoveryCodesOverlay').remove()">${escapeHtml(recoveryText("continue"))}</button>
+  </div>`;
+  document.body.appendChild(panel);
+}
+async function ensureCustomerRecoveryCodes(){
+  const {data,error}=await db.functions.invoke("customer-phone-auth",{body:{action:"ensure_recovery"}});
+  if(error || !data?.ok){showMessage(recoveryText("unavailable"));return;}
+  if(data.codes)showRecoveryCodes(data.codes);
+}
+async function rotateCustomerRecoveryCodes(){
+  if(!confirm(recoveryText("rotateConfirm")))return;
+  const {data,error}=await db.functions.invoke("customer-phone-auth",{body:{action:"rotate_recovery"}});
+  if(error || !data?.ok || !data.codes){showMessage(recoveryText("unavailable"));return;}
+  showRecoveryCodes(data.codes);
 }
 async function customerRegister(){
 
@@ -7640,6 +7703,7 @@ async function initializeCustomer(){
 
   renderAccount();
   setupCustomerRealtime();
+  await ensureCustomerRecoveryCodes();
 }
 
 
@@ -10513,6 +10577,11 @@ function renderAccount(){
           )}
         </button>
 
+      </div>
+           <div class="form-card">
+        <div class="form-title">${escapeHtml(recoveryText("title"))}</div>
+        <p>${escapeHtml(recoveryText("once"))}</p>
+        <button type="button" class="btn btn-light" onclick="rotateCustomerRecoveryCodes()">${escapeHtml(recoveryText("rotate"))}</button>
       </div>
       <div class="form-card">
 
