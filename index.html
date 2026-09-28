@@ -10019,15 +10019,11 @@ function renderOrderDetail(
 
                       <div class="small">
 
-                        ${
-                          escapeHtml(
-                            orderVariantName(
-                              item
-                            )
-                          )
-                        }
-
-                        ·
+                          ${orderVariantName(item) !== "—" &&
+                          orderVariantName(item).trim().toLocaleLowerCase() !==
+                            orderItemName(item).trim().toLocaleLowerCase()
+                          ? `${escapeHtml(orderVariantName(item))} · `
+                          : ""}
 
                         ${
                           escapeHtml(
@@ -10054,11 +10050,11 @@ function renderOrderDetail(
                               font-weight:700;
                             "
                           >
-                            已取消
+                           ${escapeHtml(statusText("cancelled"))}
                             ${
                               item.cancellation_reason
                               ?
-                              ` · ${escapeHtml(item.cancellation_reason)}`
+                                ` · ${escapeHtml(t("cancelledReason"))}: ${escapeHtml(item.cancellation_reason)}`
                               :
                               ""
                             }
@@ -10106,7 +10102,7 @@ function renderOrderDetail(
             )
             .join("")
         }
-        }
+        
 
       </div>
 
