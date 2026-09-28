@@ -17295,10 +17295,24 @@ async function saveProductEdit(){
       .value
       .trim();
 
+  const flavor =
+    el("editVariantFlavor")
+      .value
+      .trim();
+
+  const specification =
+    el("editVariantSpecification")
+      .value
+      .trim();
+
+  const retailRaw =
+    el("editRetailPrice")
+      .value
+      .trim();
+
   const retailPrice =
     Number(
-      el("editRetailPrice")
-        .value
+      retailRaw
     );
 
   const wholesaleRaw =
@@ -17329,15 +17343,38 @@ async function saveProductEdit(){
       wholesaleMinRaw
     );
 
+  const costRaw =
+    el("editCostPrice")
+      .value
+      .trim();
+
+  const costPrice =
+    costRaw === ""
+    ?
+    null
+    :
+    Number(
+      costRaw
+    );
+
+  const salesUnit =
+    el("editSalesUnit")
+      .value
+      .trim()
+    ||
+    "件";
+
 
   if(
     !name
     ||
-       !categoryId
+    !categoryId
     ||
-    el("editRetailPrice").value.trim() === ""
+    retailRaw === ""
     ||
-    !Number.isFinite(retailPrice)
+    !Number.isFinite(
+      retailPrice
+    )
     ||
     retailPrice < 0
   ){
@@ -17370,7 +17407,7 @@ async function saveProductEdit(){
   ){
 
     alert(
-      "批发价和批发起订量填写不正确。"
+      "填写批发价时，必须同时填写正确的批发起订量。"
     );
 
     return;
@@ -17378,29 +17415,153 @@ async function saveProductEdit(){
   }
 
 
-    const costRaw = el("editCostPrice").value.trim();
-  const costPrice = costRaw === "" ? null : Number(costRaw);
-  if(costPrice !== null && (!Number.isFinite(costPrice) || costPrice < 0)){
-    alert("成本价填写不正确.");return;
+  if(
+    wholesalePrice === null
+    &&
+    wholesaleMin !== null
+  ){
+
+    alert(
+      "填写批发起订量时，也必须填写批发价。"
+    );
+
+    return;
+
   }
 
-  const {error} = await db.rpc("admin_update_product_variant",{
-    p_product_id:product.id,p_variant_id:variant.id,p_name:name,
-    p_category_id:categoryId,p_brand:brand,p_flavor:el("editVariantFlavor").value.trim(),
-    p_specification:el("editVariantSpecification").value.trim(),
-    p_retail_price:retailPrice,p_wholesale_price:wholesalePrice,
-    p_wholesale_min_qty:wholesaleMin,p_cost_price:costPrice,
-    p_sales_unit_zh:el("editSalesUnit").value.trim()
-  });
-  if(error){alert("商品修改失败：\n" + error.message);return;}
+
+  if(
+    costPrice !== null
+    &&
+    (
+      !Number.isFinite(
+        costPrice
+      )
+      ||
+      costPrice < 0
+    )
+  ){
+
+    alert(
+      "成本价填写不正确。"
+    );
+
+    return;
+
+  }
+
+
+  const duplicateVariant =
+    productVariantsFor(
+      product.id
+    )
+    .find(
+      item =>
+        item.id !== variant.id
+        &&
+        item.is_active
+        &&
+        (
+          item.flavor_zh
+          ||
+          ""
+        )
+        .trim()
+        .toLocaleLowerCase()
+        ===
+        flavor.toLocaleLowerCase()
+        &&
+        (
+          item.specification_zh
+          ||
+          ""
+        )
+        .trim()
+        .toLocaleLowerCase()
+        ===
+        specification.toLocaleLowerCase()
+    );
+
+
+  if(duplicateVariant){
+
+    alert(
+      "这个口味和包装组合已经存在，请直接编辑原有规格。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await db.rpc(
+      "admin_update_product_variant",
+      {
+
+        p_product_id:
+          product.id,
+
+        p_variant_id:
+          variant.id,
+
+        p_name:
+          name,
+
+        p_category_id:
+          categoryId,
+
+        p_brand:
+          brand,
+
+        p_flavor:
+          flavor,
+
+        p_specification:
+          specification,
+
+        p_retail_price:
+          retailPrice,
+
+        p_wholesale_price:
+          wholesalePrice,
+
+        p_wholesale_min_qty:
+          wholesaleMin,
+
+        p_cost_price:
+          costPrice,
+
+        p_sales_unit_zh:
+          salesUnit
+
+      }
+    );
+
+
+  if(error){
+
+    alert(
+      "商品修改失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  await loadBaseData();
+
+  await loadProducts();
 
 
   alert(
-    "商品资料已更新。"
+    "商品资料和规格已更新。"
   );
-
-
-  await loadProducts();
 
 }
 
