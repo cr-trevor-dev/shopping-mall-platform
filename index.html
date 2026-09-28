@@ -7278,7 +7278,8 @@ function openRecoveryReset(){
   panel.innerHTML = `<div style="background:#fff;border-radius:16px;padding:24px;width:min(100%,440px);max-height:90vh;overflow:auto">
     <h2>${escapeHtml(recoveryText("resetTitle"))}</h2>
     <div class="form-group"><label>${escapeHtml(recoveryText("phone"))}</label><input id="recoveryPhone" type="tel" autocomplete="tel" value="${escapeHtml(el("loginPhone")?.value || "")}"></div>
-    <div class="form-group"><label>${escapeHtml(recoveryText("code"))}</label><input id="recoveryCode" autocomplete="off" autocapitalize="characters"></div>
+        <div class="form-group"><label>${escapeHtml(recoveryText("code"))}</label><input id="recoveryCode" autocomplete="off" autocapitalize="characters"></div>
+    <p style="color:#b42318;font-weight:700;line-height:1.5">${escapeHtml(({zh:"请输入同一行的全部四组字符，不要只输入其中一组。",en:"Enter all four groups from the same row, not just one group.",my:"တစ်ကြောင်းတည်းရှိ အုပ်စု ၄ ခုလုံးကို ဖြည့်ပါ။ အုပ်စုတစ်ခုတည်း မဖြည့်ပါနှင့်။",th:"กรอกรหัสทั้ง 4 กลุ่มจากแถวเดียวกัน ไม่ใช่เพียงกลุ่มเดียว"})[appLanguage] || "请输入同一行的全部四组字符，不要只输入其中一组。")}</p>
     <div class="form-group"><label>${escapeHtml(recoveryText("password"))}</label><input id="recoveryPassword" type="password" autocomplete="new-password"></div>
     <div class="form-group"><label>${escapeHtml(recoveryText("confirm"))}</label><input id="recoveryConfirm" type="password" autocomplete="new-password"></div>
     <div id="recoveryError" role="alert" style="color:#b42318;margin:10px 0"></div>
