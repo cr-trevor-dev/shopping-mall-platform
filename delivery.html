@@ -2993,7 +2993,8 @@ function taskCard(
         const details =
           [
             variantName,
-            specification
+                       specification && !variantName.includes(specification)
+              ? specification : ""
           ]
           .filter(Boolean)
           .filter(
