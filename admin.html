@@ -2746,62 +2746,134 @@ tr:last-child td{
 
         </div>
 
-        <div id="quickSimplePrices" class="form-grid full">
-        <div class="form-group">
+               <div class="form-group full">
 
           <label>
-            零售价 *
+            商品类型 *
           </label>
 
-          <input
-            id="quickRetailPrice"
-            type="number"
-            min="0"
-            placeholder="例如 1000"
+          <div
+            style="
+              display:flex;
+              gap:8px;
+              flex-wrap:wrap;
+            "
           >
+
+            <button
+              type="button"
+              class="btn btn-primary quick-product-type-button"
+              data-type="simple"
+              onclick="selectQuickProductType('simple')"
+            >
+              普通商品
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-light quick-product-type-button"
+              data-type="package"
+              onclick="selectQuickProductType('package')"
+            >
+              不同包装
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-light quick-product-type-button"
+              data-type="flavor"
+              onclick="selectQuickProductType('flavor')"
+            >
+              不同口味
+            </button>
+
+          </div>
+
+          <div
+            class="small"
+            style="margin-top:8px"
+          >
+            只需要选择最符合这个商品的方式。
+          </div>
 
         </div>
 
 
-        <div class="form-group">
+        <div
+          id="quickSimplePrices"
+          class="form-grid full"
+        >
 
-          <label>
-            批发价
-          </label>
+          <div class="form-group">
 
-          <input
-            id="quickWholesalePrice"
-            type="number"
-            min="0"
-            placeholder="不做批发可留空"
-          >
+            <label>
+              零售价 *
+            </label>
 
-        </div>
+            <input
+              id="quickRetailPrice"
+              type="number"
+              min="0"
+              placeholder="例如 1000"
+            >
+
+          </div>
 
 
-        <div class="form-group">
+          <div class="form-group">
 
-          <label>
-            批发起订量
-          </label>
+            <label>
+              批发价
+            </label>
 
-          <input
-            id="quickWholesaleMin"
-            type="number"
-            min="1"
-            placeholder="例如 10"
-          >
+            <input
+              id="quickWholesalePrice"
+              type="number"
+              min="0"
+              placeholder="不做批发可留空"
+            >
 
-                </div>
+          </div>
+
+
+          <div class="form-group">
+
+            <label>
+              批发起订量
+            </label>
+
+            <input
+              id="quickWholesaleMin"
+              type="number"
+              min="1"
+              placeholder="例如 10"
+            >
+
+          </div>
+
         </div>
 
       </div>
 
-      <div class="panel" style="margin:12px 0">
-        <div style="font-weight:900">这个商品有不同口味或包装？</div>
-        <div class="small">普通单规格商品直接保存；多规格时逐行填写各自的价格。</div>
-        <div id="quickVariantRows"></div>
-        <button type="button" class="btn btn-light" onclick="addQuickVariantRow()">＋ 添加一个口味 / 包装</button>
+
+      <div
+        id="quickVariantArea"
+        class="panel hidden"
+        style="margin:12px 0"
+      >
+
+        <div
+          id="quickVariantRows"
+        ></div>
+
+        <button
+          type="button"
+          class="btn btn-light"
+          onclick="addQuickVariantRow()"
+        >
+          ＋ 添加一个规格
+        </button>
+
       </div>
 
       <button
