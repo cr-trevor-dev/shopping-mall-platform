@@ -5324,42 +5324,7 @@ function renderProductDetail(){
           </div>
 
 
-          <div class="variant-list">
-
-            ${
-              list
-                .map(
-                  item => `
-
-                    <button
-                      class="variant-chip ${
-                        item.id
-                        ===
-                        currentVariantId
-                        ?
-                        "active"
-                        :
-                        ""
-                      }"
-                      onclick="selectVariant('${item.id}')"
-                    >
-
-                      ${
-                        escapeHtml(
-                          getVariantName(
-                            item
-                          )
-                        )
-                      }
-
-                    </button>
-
-                  `
-                )
-                .join("")
-            }
-
-          </div>
+         ${renderVariantChoices(list, variant)}
 
 
           ${
@@ -5681,7 +5646,71 @@ async function selectVariant(
 
 }
 
+function variantFlavor(item){
+  return item?.[`flavor_${appLanguage}`]
+    || item?.flavor_zh || item?.flavor_en || "";
+}
 
+function variantSize(item){
+  return item?.[`specification_${appLanguage}`]
+    || item?.specification_zh || item?.specification_en
+    || getVariantName(item);
+}
+
+function renderVariantChoices(list, selected){
+  if(!selected){ return ""; }
+  if(list.length === 1){
+    return `<div style="margin-top:14px;font-weight:900">
+      ${escapeHtml(getVariantName(selected))} · SKU: ${escapeHtml(selected.sku_code || "—")}
+    </div>`;
+  }
+
+  const labels = {
+    zh:["口味","Size / 规格"],
+    en:["Flavor","Size / Specification"],
+    my:["အရသာ","အရွယ်အစား / သတ်မှတ်ချက်"],
+    th:["รสชาติ","ขนาด / รุ่น"]
+  }[appLanguage] || ["口味","Size / 规格"];
+  const flavors = [...new Set(list.map(variantFlavor))];
+  const currentFlavor = variantFlavor(selected);
+  const sizes = list.filter(item => variantFlavor(item) === currentFlavor);
+  const labelStyle = "margin-top:14px;font-size:12px;font-weight:900";
+  const flavorButtons = flavors.length > 1 || flavors[0]
+    ? `<div style="${labelStyle}">${escapeHtml(labels[0])}</div>
+      <div class="variant-list">${flavors.map(flavor => {
+        const first = list.find(item => variantFlavor(item) === flavor);
+        return `<button type="button" class="variant-chip ${flavor === currentFlavor ? "active" : ""}"
+          onclick="selectFlavor('${first.id}')">${escapeHtml(flavor || getVariantName(first))}</button>`;
+      }).join("")}</div>`
+    : "";
+
+  return `${flavorButtons}
+    <div style="${labelStyle}">${escapeHtml(labels[1])}</div>
+    <div class="variant-list">${sizes.map(item => `
+      <button type="button" class="variant-chip ${item.id === selected.id ? "active" : ""}"
+        onclick="selectVariant('${item.id}')">
+        ${escapeHtml(variantSize(item))} · ${money(item.retail_price)}
+        ${sizes.filter(other => variantSize(other) === variantSize(item)).length > 1
+          ? ` · ${escapeHtml(item.sku_code || "")}` : ""}
+      </button>`).join("")}</div>
+    <div style="margin-top:7px;font-size:11px;color:var(--muted)">
+      SKU: ${escapeHtml(selected.sku_code || "—")}
+    </div>`;
+}
+
+async function selectFlavor(variantId){
+  const first = variantMap[variantId];
+  if(!first || first.product_id !== currentProductId){ return; }
+  const matching = variants.filter(item =>
+    item.product_id === currentProductId &&
+    variantFlavor(item) === variantFlavor(first)
+  );
+  const current = variantMap[currentVariantId];
+  const preferred = matching.find(item =>
+    variantSize(item) === variantSize(current) && availableQty(item.id) > 0
+  ) || matching.find(item => availableQty(item.id) > 0) || matching[0];
+  if(preferred){ await selectVariant(preferred.id); }
+}
 function setPurchaseMode(mode){
 
   const variant =
