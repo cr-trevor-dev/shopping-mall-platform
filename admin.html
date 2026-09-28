@@ -2746,7 +2746,7 @@ tr:last-child td{
 
         </div>
 
-
+        <div id="quickSimplePrices" class="form-grid full">
         <div class="form-group">
 
           <label>
@@ -2792,10 +2792,17 @@ tr:last-child td{
             placeholder="例如 10"
           >
 
+                </div>
         </div>
 
       </div>
 
+      <div class="panel" style="margin:12px 0">
+        <div style="font-weight:900">这个商品有不同口味或包装？</div>
+        <div class="small">普通单规格商品直接保存；多规格时逐行填写各自的价格。</div>
+        <div id="quickVariantRows"></div>
+        <button type="button" class="btn btn-light" onclick="addQuickVariantRow()">＋ 添加一个口味 / 包装</button>
+      </div>
 
       <button
         id="quickSaveButton"
@@ -12020,7 +12027,56 @@ async function uploadProductImage(file){
   );
 
 }
+function updateQuickVariantMode(){
+  el("quickSimplePrices")?.classList.toggle(
+    "hidden",!!el("quickVariantRows")?.children.length
+  );
+}
+function addQuickVariantRow(){
+  const row = document.createElement("div");
+  row.className = "quick-variant-row panel";
+  row.style.margin = "10px 0";
+  row.innerHTML = `<div class="form-grid">
+    <div class="form-group"><label>口味</label><input class="quick-flavor" placeholder="例如：草莓味"></div>
+    <div class="form-group"><label>包装 / Size</label><input class="quick-size" placeholder="例如：小包装 / 330ml"></div>
+    <div class="form-group"><label>零售价 *</label><input class="quick-retail" type="number" min="0"></div>
+    <div class="form-group"><label>批发价</label><input class="quick-wholesale" type="number" min="0"></div>
+    <div class="form-group"><label>批发起订量</label><input class="quick-min" type="number" min="1"></div>
+    <div class="form-group"><label>成本价（可选）</label><input class="quick-cost" type="number" min="0"></div>
+    <div class="form-group"><label>销售单位（可选）</label><input class="quick-unit" placeholder="例如：袋 / 盒 / 瓶"></div>
+  </div><button type="button" class="btn btn-light" onclick="this.closest('.quick-variant-row').remove();updateQuickVariantMode()">删除这一规格</button>`;
+  el("quickVariantRows").appendChild(row);
+  updateQuickVariantMode();
+}
+function readQuickVariantRows(){
+  return [...document.querySelectorAll("#quickVariantRows .quick-variant-row")]
+    .map(row => ({
+      flavor:row.querySelector(".quick-flavor").value.trim(),
+      specification:row.querySelector(".quick-size").value.trim(),
+      retail_price:row.querySelector(".quick-retail").value.trim(),
+      wholesale_price:row.querySelector(".quick-wholesale").value.trim(),
+      wholesale_min_qty:row.querySelector(".quick-min").value.trim(),
+      cost_price:row.querySelector(".quick-cost").value.trim(),
+      sales_unit_zh:row.querySelector(".quick-unit").value.trim()
+    }));
+}
 async function quickCreateProduct(){
+
+  const variantRows = readQuickVariantRows();
+  const variantKeys = new Set();
+  for(const row of variantRows){
+    const key = `${row.flavor.toLocaleLowerCase()}|${row.specification.toLocaleLowerCase()}`;
+    if(!row.flavor && !row.specification){alert("每个规格请填写口味或包装。");return;}
+    if(variantKeys.has(key)){alert("口味和包装重复，请合并或修改。");return;}
+    variantKeys.add(key);
+    if(!/^\d+(\.\d+)?$/.test(row.retail_price) ||
+       (row.wholesale_price !== "" && (!/^\d+(\.\d+)?$/.test(row.wholesale_price) ||
+       !/^[1-9]\d*$/.test(row.wholesale_min_qty))) ||
+       (row.wholesale_price === "" && row.wholesale_min_qty !== "") ||
+       (row.cost_price !== "" && !/^\d+(\.\d+)?$/.test(row.cost_price))){
+      alert("请检查每个规格的价格和批发起订量。");return;
+    }
+  }
 
   const name =
     el("quickProductName")
@@ -12036,10 +12092,9 @@ async function quickCreateProduct(){
       .value
       .trim();
 
-  const retailRaw =
-    el("quickRetailPrice")
-      .value
-      .trim();
+    const retailRaw = variantRows.length
+    ? variantRows[0].retail_price
+    : el("quickRetailPrice").value.trim();
 
   const retailPrice =
     retailRaw === ""
@@ -12048,10 +12103,9 @@ async function quickCreateProduct(){
     :
     Number(retailRaw);
 
-  const wholesaleRaw =
-    el("quickWholesalePrice")
-      .value
-      .trim();
+    const wholesaleRaw = variantRows.length
+    ? variantRows[0].wholesale_price
+    : el("quickWholesalePrice").value.trim();
 
   const wholesalePrice =
     wholesaleRaw
@@ -12060,10 +12114,9 @@ async function quickCreateProduct(){
     :
     null;
 
-  const wholesaleMinRaw =
-    el("quickWholesaleMin")
-      .value
-      .trim();
+    const wholesaleMinRaw = variantRows.length
+    ? variantRows[0].wholesale_min_qty
+    : el("quickWholesaleMin").value.trim();
 
   const wholesaleMin =
     wholesaleMinRaw
@@ -12225,8 +12278,11 @@ async function quickCreateProduct(){
     error
   } =
     await db.rpc(
-      "admin_create_product_master",
-      {
+            variantRows.length ? "admin_create_product_with_variants" : "admin_create_product_master",
+      variantRows.length ? {
+        p_name:name,p_category_id:categoryId,p_image_url:imageUrls[0] || null,
+        p_brand:brand || null,p_variants:variantRows
+      } : {
 
         p_name:
           name,
@@ -12346,7 +12402,8 @@ async function quickCreateProduct(){
   el("quickRetailPrice").value = "";
   el("quickWholesalePrice").value = "";
   el("quickWholesaleMin").value = "";
-
+  el("quickVariantRows").replaceChildren();
+  updateQuickVariantMode();
 
    await loadBaseData();
   await loadProducts();
@@ -12354,7 +12411,8 @@ async function quickCreateProduct(){
   if(data?.product_id){
     await openProductAction(data.product_id,"edit",data.variant_id);
   }
-  alert("商品已建立。如有其他口味或 Size，可在此添加规格；单规格商品可直接返回。");
+    alert(variantRows.length ? `商品及 ${variantRows.length} 个规格已建立。现在可分别增加库存。` :
+    "商品已建立。如有其他口味或 Size，可在此添加规格；单规格商品可直接返回。");
 
 }
 async function createProduct(){
@@ -14497,7 +14555,12 @@ async function openProductAction(
               >
 
             </div>
-
+            <div class="form-group"><label>成本价（可选）</label>
+              <input id="editCostPrice" type="number" min="0" value="${variant.cost_price ?? ""}">
+            </div>
+            <div class="form-group"><label>销售单位</label>
+              <input id="editSalesUnit" value="${escapeHtml(variant.sales_unit_zh || "件")}" placeholder="例如：袋 / 盒 / 瓶">
+            </div>
           </div>
 
           <button
@@ -14600,6 +14663,15 @@ async function openProductAction(
 async function addProductVariant(productId){
   const flavor = el("newVariantFlavor")?.value.trim() || "";
   const specification = el("newVariantSpecification")?.value.trim() || "";
+   if(productVariantsFor(productId).some(item => item.is_active &&
+    !item.flavor_zh && !item.specification_zh)){
+    alert("请先把原有默认规格编辑成一个具体口味或包装，再添加其他规格。");return;
+  }
+  if(productVariantsFor(productId).some(item => item.is_active &&
+    (item.flavor_zh || "").trim().toLocaleLowerCase() === flavor.toLocaleLowerCase() &&
+    (item.specification_zh || "").trim().toLocaleLowerCase() === specification.toLocaleLowerCase())){
+    alert("这个口味和包装已经存在，请直接编辑原有规格。");return;
+  }
   const retailRaw = el("newVariantRetailPrice")?.value.trim();
   const retailPrice = Number(retailRaw);
   const wholesaleRaw = el("newVariantWholesalePrice")?.value.trim();
@@ -14611,20 +14683,16 @@ async function addProductVariant(productId){
     (wholesalePrice !== null && (!Number.isFinite(wholesalePrice) || wholesalePrice < 0 || !Number.isInteger(wholesaleMin) || wholesaleMin < 1))){
     alert("请填写正确的价格和批发起订量。");return;
   }
-  const sku = "SKU-" + crypto.randomUUID().replaceAll("-","").slice(0,12).toUpperCase();
-  const {error} = await db.from("product_variants").insert({
-    product_id:productId,sku_code:sku,
-    name_zh:[flavor,specification].filter(Boolean).join(" · "),
-    flavor_zh:flavor || null,specification_zh:specification || null,
-    retail_price:retailPrice,wholesale_price:wholesalePrice,
-    wholesale_min_qty:wholesalePrice === null ? null : wholesaleMin,
-    sales_unit_code:"piece",sales_unit_zh:"件",is_active:true,sort_order:100
+    const {data,error} = await db.rpc("admin_add_product_variant",{
+    p_product_id:productId,p_flavor:flavor,p_specification:specification,
+    p_retail_price:retailPrice,p_wholesale_price:wholesalePrice,
+    p_wholesale_min_qty:wholesaleMin
   });
   if(error){alert("添加规格失败：" + error.message);return;}
   await loadBaseData();
   await loadProducts();
   await openProductAction(productId,"edit");
-  alert("新规格已建立，SKU：" + sku + "。现在可为该规格增加库存。");
+    alert("新规格已建立，SKU：" + data.sku_code + "。现在可为该规格增加库存。");
 }
 async function confirmProductStockAdd(){
 
@@ -16857,7 +16925,9 @@ async function saveProductEdit(){
   if(
     !name
     ||
-    !categoryId
+       !categoryId
+    ||
+    el("editRetailPrice").value.trim() === ""
     ||
     !Number.isFinite(retailPrice)
     ||
@@ -16900,120 +16970,21 @@ async function saveProductEdit(){
   }
 
 
-  const now =
-    new Date()
-      .toISOString();
-
-
-  const {
-    error:productError
-  } =
-    await db
-      .from("products")
-      .update({
-
-        name_zh:
-          name,
-
-        category_id:
-          categoryId,
-
-        brand:
-          brand
-          ||
-          null,
-
-               price:
-          Math.min(
-            retailPrice,
-            ...variantData.filter(item => item.product_id === product.id && item.id !== variant.id && item.is_active)
-              .map(item => Number(item.retail_price || 0))
-          ),
-
-        updated_at:
-          now
-
-      })
-      .eq(
-        "id",
-        product.id
-      );
-
-
-  if(productError){
-
-    alert(
-      "商品资料修改失败：\n"
-      +
-      productError.message
-    );
-
-    return;
-
+    const costRaw = el("editCostPrice").value.trim();
+  const costPrice = costRaw === "" ? null : Number(costRaw);
+  if(costPrice !== null && (!Number.isFinite(costPrice) || costPrice < 0)){
+    alert("成本价填写不正确.");return;
   }
 
-
-  const {
-    error:variantError
-  } =
-    await db
-      .from("product_variants")
-      .update({
-
-                      name_zh:
-          [el("editVariantFlavor")?.value.trim(),el("editVariantSpecification")?.value.trim()]
-            .filter(Boolean).join(" · ") || name,
-
-        flavor_zh:
-          el("editVariantFlavor")
-            ?.value
-            .trim()
-          ||
-          null,
-
-        specification_zh:
-          el("editVariantSpecification")
-            ?.value
-            .trim()
-          ||
-          null,
-
-        retail_price:
-          retailPrice,
-
-        wholesale_price:
-          wholesalePrice,
-
-        wholesale_min_qty:
-          wholesalePrice
-          ===
-          null
-          ?
-          null
-          :
-          wholesaleMin,
-
-        updated_at:
-          now
-
-      })
-      .eq(
-        "id",
-        variant.id
-      );
-
-
-  if(variantError){
-
-    alert(
-      "价格资料修改失败：\n"
-      +
-      variantError.message
-    );
-
-    return;
-
-  }
+  const {error} = await db.rpc("admin_update_product_variant",{
+    p_product_id:product.id,p_variant_id:variant.id,p_name:name,
+    p_category_id:categoryId,p_brand:brand,p_flavor:el("editVariantFlavor").value.trim(),
+    p_specification:el("editVariantSpecification").value.trim(),
+    p_retail_price:retailPrice,p_wholesale_price:wholesalePrice,
+    p_wholesale_min_qty:wholesaleMin,p_cost_price:costPrice,
+    p_sales_unit_zh:el("editSalesUnit").value.trim()
+  });
+  if(error){alert("商品修改失败：\n" + error.message);return;}
 
 
   alert(
