@@ -2161,7 +2161,15 @@ textarea:focus{
 
       </div>
 
-
+      <div class="form-group">
+        <label data-i18n="languageLabel">语言</label>
+        <select id="registerLanguage" onchange="changeLanguage(this.value)">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="my">မြန်မာ</option>
+          <option value="th">ไทย</option>
+        </select>
+      </div>
       <button
         class="btn btn-primary btn-block"
         onclick="customerRegister()"
@@ -3351,7 +3359,8 @@ function applyLanguage(){
 
   el("languageSelect").value =
     appLanguage;
-
+  el("registerLanguage").value =
+    appLanguage;
 }
 
 
@@ -7306,7 +7315,7 @@ function showRecoveryCodes(codes){
     <p style="font-size:18px;font-weight:700;line-height:1.6;color:#54220c;background:#fff1dc;padding:14px;border-radius:10px">${escapeHtml(recoveryText("warning"))}</p>
     ${codes.map(code=>`<div style="font:700 20px/1.6 monospace;letter-spacing:1px;padding:8px;user-select:all;overflow-wrap:anywhere">${escapeHtml(code)}</div>`).join("")}
     <p style="font-size:15px;line-height:1.6">${escapeHtml(recoveryText("once"))}</p>
-    <label style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;margin:16px 0"><input id="recoveryAcknowledged" type="checkbox" onchange="el('recoveryDone').disabled=!this.checked">${escapeHtml(recoveryText("saved"))}</label>
+        <label style="display:flex;align-items:flex-start;gap:10px;font-size:17px;font-weight:700;line-height:1.5;margin:16px 0"><input id="recoveryAcknowledged" type="checkbox" style="width:22px;height:22px;flex:0 0 22px;padding:0;margin:2px 0 0" onchange="el('recoveryDone').disabled=!this.checked"><span style="min-width:0;overflow-wrap:anywhere">${escapeHtml(recoveryText("saved"))}</span></label>
     <button id="recoveryDone" disabled type="button" class="btn btn-primary btn-block" onclick="el('recoveryCodesOverlay').remove()">${escapeHtml(recoveryText("continue"))}</button>
   </div>`;
   document.body.appendChild(panel);
