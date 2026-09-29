@@ -6477,13 +6477,22 @@ function renderCart(){
                 </div>
 
 
-                <div class="cart-meta">
+                                <div class="cart-meta">
 
                   ${
                     escapeHtml(
-                      getVariantName(
-                        variant
+                      [
+                        variantFlavor(variant),
+                        variantSize(variant)
+                      ]
+                      .filter(Boolean)
+                      .filter(
+                        (value,index,array) =>
+                          array.indexOf(value) === index
                       )
+                      .join(" · ")
+                      ||
+                      getVariantName(variant)
                     )
                   }
 
