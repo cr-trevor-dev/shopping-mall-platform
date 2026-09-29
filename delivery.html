@@ -2957,38 +2957,38 @@ function taskCard(
       )
       .map(item => {
 
-        const productName =
-          item[
-            `product_name_${appLanguage}_snapshot`
-          ]
-          ||
+                const productName =
           item.product_name_zh_snapshot
           ||
           item.product_name_en_snapshot
           ||
           "—";
 
-        const variantName =
-          item[
-            `variant_name_${appLanguage}_snapshot`
-          ]
-          ||
-          item.variant_name_zh_snapshot
-          ||
-          item.variant_name_en_snapshot
-          ||
-          "";
+                const variantName =
+          localizeCatalogTerm(
+            item[
+              `variant_name_${appLanguage}_snapshot`
+            ]
+            ||
+            item.variant_name_zh_snapshot
+            ||
+            item.variant_name_en_snapshot
+            ||
+            ""
+          );
 
-        const specification =
-          item[
-            `specification_${appLanguage}_snapshot`
-          ]
-          ||
-          item.specification_zh_snapshot
-          ||
-          item.specification_en_snapshot
-          ||
-          "";
+                const specification =
+          localizeCatalogTerm(
+            item[
+              `specification_${appLanguage}_snapshot`
+            ]
+            ||
+            item.specification_zh_snapshot
+            ||
+            item.specification_en_snapshot
+            ||
+            ""
+          );
 
         const details =
           [
