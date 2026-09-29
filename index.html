@@ -3636,7 +3636,108 @@ function getCurrentRegion(){
 
 }
 
+function localizeCatalogTerm(value){
 
+  const raw =
+    String(
+      value
+      ||
+      ""
+    )
+    .trim();
+
+  if(!raw){
+    return "";
+  }
+
+  const terms = {
+
+    "大包":{
+      zh:"大包",
+      en:"Large Pack",
+      my:"အထုပ်ကြီး",
+      th:"แพ็กใหญ่"
+    },
+
+    "小包":{
+      zh:"小包",
+      en:"Small Pack",
+      my:"အထုပ်သေး",
+      th:"แพ็กเล็ก"
+    },
+
+    "件":{
+      zh:"件",
+      en:"pc",
+      my:"ခု",
+      th:"ชิ้น"
+    },
+
+    "个":{
+      zh:"个",
+      en:"pc",
+      my:"ခု",
+      th:"ชิ้น"
+    },
+
+    "包":{
+      zh:"包",
+      en:"Pack",
+      my:"အထုပ်",
+      th:"แพ็ก"
+    },
+
+    "袋":{
+      zh:"袋",
+      en:"Bag",
+      my:"အိတ်",
+      th:"ถุง"
+    },
+
+    "盒":{
+      zh:"盒",
+      en:"Box",
+      my:"ဘူး",
+      th:"กล่อง"
+    },
+
+    "瓶":{
+      zh:"瓶",
+      en:"Bottle",
+      my:"ပုလင်း",
+      th:"ขวด"
+    },
+
+    "箱":{
+      zh:"箱",
+      en:"Case",
+      my:"ပုံး",
+      th:"ลัง"
+    },
+
+    "罐":{
+      zh:"罐",
+      en:"Can",
+      my:"ဘူး",
+      th:"กระป๋อง"
+    },
+
+    "杯":{
+      zh:"杯",
+      en:"Cup",
+      my:"ခွက်",
+      th:"ถ้วย"
+    }
+
+  };
+
+  return (
+    terms[raw]?.[appLanguage]
+    ||
+    raw
+  );
+
+}
 function getProductName(product){
 
   if(!product){
@@ -3644,10 +3745,6 @@ function getProductName(product){
   }
 
   return (
-    product[
-      `name_${appLanguage}`
-    ]
-    ||
     product.name_zh
     ||
     product.name_en
@@ -3666,7 +3763,7 @@ function getVariantName(variant){
     return "—";
   }
 
-  return (
+  const value =
     variant[
       `name_${appLanguage}`
     ]
@@ -3685,7 +3782,10 @@ function getVariantName(variant){
     ||
     variant.flavor_zh
     ||
-    variant.sku_code
+    variant.sku_code;
+
+  return localizeCatalogTerm(
+    value
   );
 
 }
@@ -5373,19 +5473,21 @@ function renderProductDetail(){
 
                 <div class="mode-note">
 
-                  ${
+                                    ${
                     escapeHtml(
-                       variant[
-                        `sales_unit_${appLanguage}`
-                      ]
-                      ||
-                      variant.sales_unit_zh
-                      ||
-                      variant.sales_unit_en
-                      ||
-                      variant.sales_unit_code
-                      ||
-                      ""
+                      localizeCatalogTerm(
+                        variant[
+                          `sales_unit_${appLanguage}`
+                        ]
+                        ||
+                        variant.sales_unit_zh
+                        ||
+                        variant.sales_unit_en
+                        ||
+                        variant.sales_unit_code
+                        ||
+                        ""
+                      )
                     )
                   }
 
@@ -5665,9 +5767,20 @@ function variantFlavor(item){
 }
 
 function variantSize(item){
-  return item?.[`specification_${appLanguage}`]
-    || item?.specification_zh || item?.specification_en
-    || getVariantName(item);
+
+  const value =
+    item?.[`specification_${appLanguage}`]
+    ||
+    item?.specification_zh
+    ||
+    item?.specification_en
+    ||
+    getVariantName(item);
+
+  return localizeCatalogTerm(
+    value
+  );
+
 }
 
 function renderVariantChoices(list, selected){
