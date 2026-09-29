@@ -6242,14 +6242,16 @@ async function loadBusinessData(){
   ||
   "—";
 
-    const variantName =
-      item[`variant_name_${appLanguage}_snapshot`]
-      ||
-      item.variant_name_zh_snapshot
-      ||
-      item.variant_name_en_snapshot
-      ||
-      "";
+        const variantName =
+      localizeCatalogTerm(
+        item[`variant_name_${appLanguage}_snapshot`]
+        ||
+        item.variant_name_zh_snapshot
+        ||
+        item.variant_name_en_snapshot
+        ||
+        ""
+      );
 
     const specification =
   localizeCatalogTerm(
@@ -6577,14 +6579,16 @@ async function openOrderDetail(orderId){
   ||
   "—";
 
-      const variantName =
-        item[`variant_name_${appLanguage}_snapshot`]
-        ||
-        item.variant_name_zh_snapshot
-        ||
-        item.variant_name_en_snapshot
-        ||
-        "";
+            const variantName =
+        localizeCatalogTerm(
+          item[`variant_name_${appLanguage}_snapshot`]
+          ||
+          item.variant_name_zh_snapshot
+          ||
+          item.variant_name_en_snapshot
+          ||
+          ""
+        );
 
       const specification =
   localizeCatalogTerm(
