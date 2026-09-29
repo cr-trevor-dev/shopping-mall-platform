@@ -12259,7 +12259,777 @@ async function uploadProductImage(file){
   );
 
 }
-let quickProductType = "simple";
+async function loadEditableProductImages(
+  productId
+){
+
+  const list =
+    el("editProductImageList");
+
+
+  if(!list){
+    return;
+  }
+
+
+  list.innerHTML =
+    `<div class="empty">正在读取商品图片...</div>`;
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("product_images")
+      .select(
+        "id,product_id,image_url,sort_order,is_primary,is_active"
+      )
+      .eq(
+        "product_id",
+        productId
+      )
+      .eq(
+        "is_active",
+        true
+      )
+      .order(
+        "sort_order",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(error){
+
+    list.innerHTML =
+      errorBox(
+        "读取商品图片失败："
+        +
+        error.message
+      );
+
+    return;
+
+  }
+
+
+  const images =
+    data
+    ||
+    [];
+
+
+  if(
+    images.length === 0
+  ){
+
+    list.innerHTML =
+      `
+        <div class="empty">
+          当前还没有商品图片，可以在下面补传。
+        </div>
+      `;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    images
+      .map(
+        image => `
+
+          <div
+            style="
+              width:150px;
+              border:1px solid var(--border);
+              border-radius:12px;
+              padding:8px;
+            "
+          >
+
+            <img
+              src="${escapeHtml(image.image_url || "")}"
+              alt=""
+              style="
+                width:100%;
+                height:120px;
+                object-fit:cover;
+                border-radius:8px;
+                display:block;
+                margin-bottom:8px;
+              "
+            >
+
+
+            ${
+              image.is_primary
+              ?
+              `
+                <div
+                  class="small"
+                  style="
+                    font-weight:800;
+                    margin-bottom:6px;
+                  "
+                >
+                  当前封面
+                </div>
+              `
+              :
+              `
+                <button
+                  type="button"
+                  class="btn btn-light btn-small"
+                  style="width:100%;margin-bottom:6px"
+                  onclick="setEditedProductPrimary(
+                    '${image.id}',
+                    '${productId}'
+                  )"
+                >
+                  设为封面
+                </button>
+              `
+            }
+
+
+            <button
+              type="button"
+              class="btn btn-red btn-small"
+              style="width:100%"
+              onclick="removeEditedProductImage(
+                '${image.id}',
+                '${productId}'
+              )"
+            >
+              删除图片
+            </button>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+async function addEditedProductImages(){
+
+  const productId =
+    currentProductActionId;
+
+
+  if(!productId){
+    return;
+  }
+
+
+  const input =
+    el("editProductImageFile");
+
+
+  const files =
+    Array.from(
+      input?.files
+      ||
+      []
+    );
+
+
+  if(
+    files.length === 0
+  ){
+
+    alert(
+      "请先选择要上传的图片。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:existingImages,
+    error:existingError
+  } =
+    await db
+      .from("product_images")
+      .select(
+        "id,image_url,sort_order,is_primary"
+      )
+      .eq(
+        "product_id",
+        productId
+      )
+      .eq(
+        "is_active",
+        true
+      )
+      .order(
+        "sort_order",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(existingError){
+
+    alert(
+      "读取现有图片失败：\n"
+      +
+      existingError.message
+    );
+
+    return;
+
+  }
+
+
+  const existing =
+    existingImages
+    ||
+    [];
+
+
+  if(
+    existing.length
+    +
+    files.length
+    >
+    10
+  ){
+
+    alert(
+      `当前已有 ${existing.length} 张图片，商品最多只能保留 10 张。`
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    el("editProductImageAddButton");
+
+
+  if(button){
+
+    button.disabled =
+      true;
+
+  }
+
+
+  const urls =
+    [];
+
+
+  try{
+
+    for(
+      let i = 0;
+      i < files.length;
+      i++
+    ){
+
+      if(button){
+
+        button.textContent =
+          `正在上传 ${i + 1}/${files.length}...`;
+
+      }
+
+
+      const url =
+        await uploadProductImage(
+          files[i]
+        );
+
+
+      if(url){
+
+        urls.push(url);
+
+      }
+
+    }
+
+  }
+  catch(error){
+
+    if(button){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "＋ 添加图片";
+
+    }
+
+
+    alert(
+      "图片上传失败：\n"
+      +
+      (
+        error.message
+        ||
+        "请重新选择图片。"
+      )
+    );
+
+    return;
+
+  }
+
+
+  if(
+    urls.length === 0
+  ){
+
+    if(button){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "＋ 添加图片";
+
+    }
+
+    return;
+
+  }
+
+
+  const maxSortOrder =
+    existing.reduce(
+      (
+        max,
+        image
+      ) =>
+        Math.max(
+          max,
+          Number(
+            image.sort_order
+            ||
+            0
+          )
+        ),
+      -1
+    );
+
+
+  const hasPrimary =
+    existing.some(
+      image =>
+        image.is_primary
+    );
+
+
+  const rows =
+    urls.map(
+      (
+        url,
+        index
+      ) => ({
+
+        product_id:
+          productId,
+
+        image_url:
+          url,
+
+        sort_order:
+          maxSortOrder
+          +
+          index
+          +
+          1,
+
+        is_primary:
+          !hasPrimary
+          &&
+          index === 0,
+
+        is_active:
+          true
+
+      })
+    );
+
+
+  const {
+    error
+  } =
+    await db
+      .from("product_images")
+      .insert(rows);
+
+
+  if(error){
+
+    if(button){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "＋ 添加图片";
+
+    }
+
+
+    alert(
+      "图片资料保存失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !hasPrimary
+    &&
+    urls[0]
+  ){
+
+    await db
+      .from("products")
+      .update({
+        image_url:
+          urls[0]
+      })
+      .eq(
+        "id",
+        productId
+      );
+
+  }
+
+
+  if(input){
+
+    input.value =
+      "";
+
+  }
+
+
+  if(button){
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "＋ 添加图片";
+
+  }
+
+
+  await loadEditableProductImages(
+    productId
+  );
+
+}
+
+
+async function setEditedProductPrimary(
+  imageId,
+  productId
+){
+
+  const {
+    data:image,
+    error:imageError
+  } =
+    await db
+      .from("product_images")
+      .select(
+        "id,image_url"
+      )
+      .eq(
+        "id",
+        imageId
+      )
+      .eq(
+        "product_id",
+        productId
+      )
+      .eq(
+        "is_active",
+        true
+      )
+      .single();
+
+
+  if(
+    imageError
+    ||
+    !image
+  ){
+
+    alert(
+      "读取图片失败。"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error:clearError
+  } =
+    await db
+      .from("product_images")
+      .update({
+        is_primary:
+          false
+      })
+      .eq(
+        "product_id",
+        productId
+      )
+      .eq(
+        "is_active",
+        true
+      );
+
+
+  if(clearError){
+
+    alert(
+      "修改封面失败：\n"
+      +
+      clearError.message
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error:setError
+  } =
+    await db
+      .from("product_images")
+      .update({
+        is_primary:
+          true
+      })
+      .eq(
+        "id",
+        imageId
+      );
+
+
+  if(setError){
+
+    alert(
+      "修改封面失败：\n"
+      +
+      setError.message
+    );
+
+    return;
+
+  }
+
+
+  await db
+    .from("products")
+    .update({
+      image_url:
+        image.image_url
+    })
+    .eq(
+      "id",
+      productId
+    );
+
+
+  await loadEditableProductImages(
+    productId
+  );
+
+}
+
+
+async function removeEditedProductImage(
+  imageId,
+  productId
+){
+
+  if(
+    !confirm(
+      "确定删除这张商品图片吗？"
+    )
+  ){
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("product_images")
+      .select(
+        "id,image_url,sort_order,is_primary"
+      )
+      .eq(
+        "product_id",
+        productId
+      )
+      .eq(
+        "is_active",
+        true
+      )
+      .order(
+        "sort_order",
+        {
+          ascending:true
+        }
+      );
+
+
+  if(error){
+
+    alert(
+      "读取商品图片失败：\n"
+      +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  const images =
+    data
+    ||
+    [];
+
+
+  const target =
+    images.find(
+      image =>
+        image.id === imageId
+    );
+
+
+  if(!target){
+    return;
+  }
+
+
+  const {
+    error:removeError
+  } =
+    await db
+      .from("product_images")
+      .update({
+        is_active:
+          false,
+
+        is_primary:
+          false
+      })
+      .eq(
+        "id",
+        imageId
+      );
+
+
+  if(removeError){
+
+    alert(
+      "删除图片失败：\n"
+      +
+      removeError.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    target.is_primary
+  ){
+
+    const replacement =
+      images.find(
+        image =>
+          image.id !== imageId
+      )
+      ||
+      null;
+
+
+    if(replacement){
+
+      await db
+        .from("product_images")
+        .update({
+          is_primary:
+            true
+        })
+        .eq(
+          "id",
+          replacement.id
+        );
+
+
+      await db
+        .from("products")
+        .update({
+          image_url:
+            replacement.image_url
+        })
+        .eq(
+          "id",
+          productId
+        );
+
+    }
+    else{
+
+      await db
+        .from("products")
+        .update({
+          image_url:
+            null
+        })
+        .eq(
+          "id",
+          productId
+        );
+
+    }
+
+  }
+
+
+  await loadEditableProductImages(
+    productId
+  );
+
+}
+  let quickProductType = "simple";
 
 function selectQuickProductType(type){
 
@@ -15175,7 +15945,64 @@ async function openProductAction(
           >
             保存修改
                    </button>
+          <div
+            class="panel"
+            style="margin-top:16px"
+          >
 
+            <div class="panel-title">
+              商品图片
+            </div>
+
+            <div class="small">
+              可以补传、增加、删除图片，也可以重新设置封面。最多保留 10 张图片。
+            </div>
+
+
+            <div
+              id="editProductImageList"
+              style="
+                display:flex;
+                gap:12px;
+                flex-wrap:wrap;
+                margin-top:14px;
+                margin-bottom:14px;
+              "
+            >
+              <div class="empty">
+                正在读取商品图片...
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label>
+                添加图片
+              </label>
+
+              <input
+                id="editProductImageFile"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
+              >
+
+              <div class="small">
+                支持 JPG、PNG、WebP、GIF；单张最大 5MB；商品最多 10 张图片。
+              </div>
+            </div>
+
+
+            <button
+              id="editProductImageAddButton"
+              type="button"
+              class="btn btn-light"
+              onclick="addEditedProductImages()"
+            >
+              ＋ 添加图片
+            </button>
+
+          </div>
                    <div
             class="panel"
             style="margin-top:16px"
@@ -15310,6 +16137,10 @@ async function openProductAction(
         </div>
 
       `
+        );
+
+    await loadEditableProductImages(
+      product.id
     );
 
     return;
