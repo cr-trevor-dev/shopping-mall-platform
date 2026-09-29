@@ -5701,16 +5701,35 @@ function renderVariantChoices(list, selected){
     item.specification_zh || item.specification_en ||
     item.specification_my || item.specification_th
   );
-  return `${flavorButtons}
-    ${hasSize ? `<div style="${labelStyle}">${escapeHtml(labels[1])}</div>
-    <div class="variant-list">${sizes.map(item => `
-      <button type="button" class="variant-chip ${item.id === selected.id ? "active" : ""}"
-        onclick="selectVariant('${item.id}')">
-        ${escapeHtml(variantSize(item))} · ${money(item.retail_price)}
-        ${availableQty(item.id) <= 0 ? ` · ${escapeHtml(t("outOfStock"))}` : ""}
-        
-      </button>`).join("")}</div>` : ""}
-    
+    return `${flavorButtons}
+    ${
+      hasSize
+      ?
+      `<div style="${labelStyle}">
+        ${escapeHtml(labels[1])}
+      </div>
+
+      <div class="variant-list">
+        ${sizes.map(item => `
+          <button
+            type="button"
+            class="variant-chip ${item.id === selected.id ? "active" : ""}"
+            onclick="selectVariant('${item.id}')"
+          >
+            ${escapeHtml(variantSize(item))} · ${money(item.retail_price)}
+            ${
+              availableQty(item.id) <= 0
+              ?
+              ` · ${escapeHtml(t("outOfStock"))}`
+              :
+              ""
+            }
+          </button>
+        `).join("")}
+      </div>`
+      :
+      ""
+    }`;
 }
 
 async function selectFlavor(variantId){
