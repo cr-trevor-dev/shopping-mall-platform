@@ -6077,11 +6077,11 @@ async function loadBusinessData(){
     return;
   }
 
-    const {data:items,error:itemError} =
+      const {data:items,error:itemError} =
     await db
       .from("order_items")
       .select(
-        "product_id,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,quantity,line_total,item_status"
+        "variant_id,product_id,sku_code_snapshot,product_name_zh_snapshot,product_name_en_snapshot,product_name_my_snapshot,product_name_th_snapshot,variant_name_zh_snapshot,variant_name_en_snapshot,variant_name_my_snapshot,variant_name_th_snapshot,specification_zh_snapshot,specification_en_snapshot,specification_my_snapshot,specification_th_snapshot,quantity,line_total,item_status"
       )
       .in("order_id",orderIds)
       .eq(
@@ -6101,33 +6101,98 @@ async function loadBusinessData(){
 
   (items || []).forEach(item => {
 
-    const key =
-      item.product_id
+    const productName =
+      item[`product_name_${appLanguage}_snapshot`]
       ||
-      item.product_name_zh_snapshot;
+      item.product_name_zh_snapshot
+      ||
+      item.product_name_en_snapshot
+      ||
+      "—";
+
+    const variantName =
+      item[`variant_name_${appLanguage}_snapshot`]
+      ||
+      item.variant_name_zh_snapshot
+      ||
+      item.variant_name_en_snapshot
+      ||
+      "";
+
+    const specification =
+      item[`specification_${appLanguage}_snapshot`]
+      ||
+      item.specification_zh_snapshot
+      ||
+      item.specification_en_snapshot
+      ||
+      "";
+
+    const displayParts =
+      [
+        productName,
+        variantName,
+        specification
+      ]
+      .filter(Boolean)
+      .filter(
+        (value,index,array) =>
+          array.indexOf(value) === index
+      );
+
+    const displayName =
+      displayParts.join(" · ");
+
+    const key =
+      item.variant_id
+      ||
+      [
+        item.product_id
+        ||
+        productName,
+        item.sku_code_snapshot
+        ||
+        variantName
+        ||
+        specification
+        ||
+        "default"
+      ]
+      .join("|");
 
     if(!totals[key]){
 
       totals[key] = {
         name:
-          item[`product_name_${appLanguage}_snapshot`]
+          displayName,
+
+        sku:
+          item.sku_code_snapshot
           ||
-          item.product_name_zh_snapshot
-          ||
-          item.product_name_en_snapshot
-          ||
-          "—",
-        quantity:0,
-        amount:0
+          "",
+
+        quantity:
+          0,
+
+        amount:
+          0
       };
 
     }
 
     totals[key].quantity +=
-      Number(item.quantity || 0);
+      Number(
+        item.quantity
+        ||
+        0
+      );
 
     totals[key].amount +=
-      Number(item.line_total || 0);
+      Number(
+        item.line_total
+        ||
+        0
+      );
 
   });
 
@@ -6137,16 +6202,47 @@ async function loadBusinessData(){
         (a,b) =>
           b.quantity-a.quantity
       )
-      .map((item,index) => `
+      .map(
+        (item,index) => `
 
-        <tr>
-          <td>${index+1}</td>
-          <td>${escapeHtml(item.name)}</td>
-          <td>${item.quantity}</td>
-          <td>${money(item.amount)}</td>
-        </tr>
+          <tr>
 
-      `);
+            <td>
+              ${index+1}
+            </td>
+
+            <td>
+
+              <strong>
+                ${escapeHtml(item.name)}
+              </strong>
+
+              ${
+                item.sku
+                ?
+                `
+                  <div class="small">
+                    SKU：${escapeHtml(item.sku)}
+                  </div>
+                `
+                :
+                ""
+              }
+
+            </td>
+
+            <td>
+              ${item.quantity}
+            </td>
+
+            <td>
+              ${money(item.amount)}
+            </td>
+
+          </tr>
+
+        `
+      );
 
   el("businessProducts").innerHTML =
     makeTable(
