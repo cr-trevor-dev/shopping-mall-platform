@@ -5019,7 +5019,10 @@ function showSection(
 
 async function refreshCurrent(){
 
-   const map = {
+  await loadProducts();
+  await loadVariants();
+
+  const map = {
 
     dashboard:
       loadDashboard,
@@ -5031,22 +5034,20 @@ async function refreshCurrent(){
       loadOrders,
 
     orderDetail:
-  async () => {
+      async () => {
 
-    if(currentOrderDetailId){
+        if(currentOrderDetailId){
 
-      await openOrderDetail(
-        currentOrderDetailId
-      );
+          await openOrderDetail(
+            currentOrderDetailId
+          );
 
-    }
+        }
 
-  },
+      },
 
-
-
-shipments:
-  loadShipments,
+    shipments:
+      loadShipments,
 
     inventory:
       loadInventory,
