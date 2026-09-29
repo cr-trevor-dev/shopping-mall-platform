@@ -2982,7 +2982,108 @@ function rt(key){
 
 }
 
+function localizeCatalogTerm(value){
 
+  const raw =
+    String(
+      value
+      ||
+      ""
+    )
+    .trim();
+
+  if(!raw){
+    return "";
+  }
+
+  const terms = {
+
+    "大包":{
+      zh:"大包",
+      en:"Large Pack",
+      my:"အထုပ်ကြီး",
+      th:"แพ็กใหญ่"
+    },
+
+    "小包":{
+      zh:"小包",
+      en:"Small Pack",
+      my:"အထုပ်သေး",
+      th:"แพ็กเล็ก"
+    },
+
+    "件":{
+      zh:"件",
+      en:"pc",
+      my:"ခု",
+      th:"ชิ้น"
+    },
+
+    "个":{
+      zh:"个",
+      en:"pc",
+      my:"ခု",
+      th:"ชิ้น"
+    },
+
+    "包":{
+      zh:"包",
+      en:"Pack",
+      my:"အထုပ်",
+      th:"แพ็ก"
+    },
+
+    "袋":{
+      zh:"袋",
+      en:"Bag",
+      my:"အိတ်",
+      th:"ถุง"
+    },
+
+    "盒":{
+      zh:"盒",
+      en:"Box",
+      my:"ဘူး",
+      th:"กล่อง"
+    },
+
+    "瓶":{
+      zh:"瓶",
+      en:"Bottle",
+      my:"ပုလင်း",
+      th:"ขวด"
+    },
+
+    "箱":{
+      zh:"箱",
+      en:"Case",
+      my:"ပုံး",
+      th:"ลัง"
+    },
+
+    "罐":{
+      zh:"罐",
+      en:"Can",
+      my:"ဘူး",
+      th:"กระป๋อง"
+    },
+
+    "杯":{
+      zh:"杯",
+      en:"Cup",
+      my:"ခွက်",
+      th:"ถ้วย"
+    }
+
+  };
+
+  return (
+    terms[raw]?.[appLanguage]
+    ||
+    raw
+  );
+
+}
 const runtimeAliasMap =
   new Map();
 
@@ -4821,15 +4922,15 @@ async function loadProducts(){
     product => {
 
       productMap[
-        product.id
-      ] =
-        product[
-          `name_${appLanguage}`
-        ]
-        ||
-        product.name_zh
-        ||
-        product.name_en;
+  product.id
+] =
+  product.name_zh
+  ||
+  product.name_en
+  ||
+  product.product_code
+  ||
+  "—";
 
     }
   );
@@ -4861,12 +4962,44 @@ async function loadVariants(){
   variants.forEach(
     variant => {
 
-           const productName = productMap[variant.product_id]
-        || variant.name_zh || rt("inventoryProduct");
-      const flavor = variant[`flavor_${appLanguage}`] || variant.flavor_zh || "";
-      const size = variant[`specification_${appLanguage}`] || variant.specification_zh || "";
-      variantMap[variant.id] = [productName,flavor,size,variant.sku_code ? `SKU ${variant.sku_code}` : ""]
-        .filter(Boolean).join(" · ");
+           const productName =
+  productMap[variant.product_id]
+  ||
+  variant.name_zh
+  ||
+  rt("inventoryProduct");
+
+const flavor =
+  localizeCatalogTerm(
+    variant[`flavor_${appLanguage}`]
+    ||
+    variant.flavor_zh
+    ||
+    ""
+  );
+
+const size =
+  localizeCatalogTerm(
+    variant[`specification_${appLanguage}`]
+    ||
+    variant.specification_zh
+    ||
+    ""
+  );
+
+variantMap[variant.id] =
+  [
+    productName,
+    flavor,
+    size,
+    variant.sku_code
+    ?
+    `SKU ${variant.sku_code}`
+    :
+    ""
+  ]
+  .filter(Boolean)
+  .join(" · ");
 
     }
   );
@@ -6103,13 +6236,11 @@ async function loadBusinessData(){
   (items || []).forEach(item => {
 
     const productName =
-      item[`product_name_${appLanguage}_snapshot`]
-      ||
-      item.product_name_zh_snapshot
-      ||
-      item.product_name_en_snapshot
-      ||
-      "—";
+  item.product_name_zh_snapshot
+  ||
+  item.product_name_en_snapshot
+  ||
+  "—";
 
     const variantName =
       item[`variant_name_${appLanguage}_snapshot`]
@@ -6121,13 +6252,15 @@ async function loadBusinessData(){
       "";
 
     const specification =
-      item[`specification_${appLanguage}_snapshot`]
-      ||
-      item.specification_zh_snapshot
-      ||
-      item.specification_en_snapshot
-      ||
-      "";
+  localizeCatalogTerm(
+    item[`specification_${appLanguage}_snapshot`]
+    ||
+    item.specification_zh_snapshot
+    ||
+    item.specification_en_snapshot
+    ||
+    ""
+  );
 
     const displayParts =
       [
@@ -6438,13 +6571,11 @@ async function openOrderDetail(orderId){
     items.map(item => {
 
       const productName =
-        item[`product_name_${appLanguage}_snapshot`]
-        ||
-        item.product_name_zh_snapshot
-        ||
-        item.product_name_en_snapshot
-        ||
-        "—";
+  item.product_name_zh_snapshot
+  ||
+  item.product_name_en_snapshot
+  ||
+  "—";
 
       const variantName =
         item[`variant_name_${appLanguage}_snapshot`]
@@ -6456,13 +6587,15 @@ async function openOrderDetail(orderId){
         "";
 
       const specification =
-        item[`specification_${appLanguage}_snapshot`]
-        ||
-        item.specification_zh_snapshot
-        ||
-        item.specification_en_snapshot
-        ||
-        "";
+  localizeCatalogTerm(
+    item[`specification_${appLanguage}_snapshot`]
+    ||
+    item.specification_zh_snapshot
+    ||
+    item.specification_en_snapshot
+    ||
+    ""
+  );
 
             const cancelled =
         item.item_status
@@ -7404,12 +7537,44 @@ function shipmentProductName(
 ){
   const variant = variants.find(item => item.id === variantId);
   if(!variant) return variantMap[variantId] || rt("inventoryProduct");
-  const productName = productMap[variant.product_id] || variant.name_zh || rt("inventoryProduct");
-  const flavor = variant[`flavor_${appLanguage}`] || variant.flavor_zh || "";
-  const specification = variant[`specification_${appLanguage}`] || variant.specification_zh || "";
-  const parts = [productName,flavor,specification]
-    .filter(Boolean).filter((value,index,array) => array.indexOf(value) === index);
-  return `${parts.join(" · ")} · SKU ${variant.sku_code || "—"}`;
+  const productName =
+  productMap[variant.product_id]
+  ||
+  variant.name_zh
+  ||
+  rt("inventoryProduct");
+
+const flavor =
+  localizeCatalogTerm(
+    variant[`flavor_${appLanguage}`]
+    ||
+    variant.flavor_zh
+    ||
+    ""
+  );
+
+const specification =
+  localizeCatalogTerm(
+    variant[`specification_${appLanguage}`]
+    ||
+    variant.specification_zh
+    ||
+    ""
+  );
+
+const parts =
+  [
+    productName,
+    flavor,
+    specification
+  ]
+  .filter(Boolean)
+  .filter(
+    (value,index,array) =>
+      array.indexOf(value) === index
+  );
+
+return `${parts.join(" · ")} · SKU ${variant.sku_code || "—"}`;
 }
 
 
@@ -8219,8 +8384,8 @@ async function loadInventoryList(){
                 class="small"
                 style="margin-top:4px"
               >
-                已过期库存：
-                ${expiredStock}
+                ${escapeHtml(rt("expiredText"))}：
+${expiredStock}
               </div>
             `
             :
