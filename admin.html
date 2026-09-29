@@ -3665,8 +3665,36 @@ function setupAdminRealtime(){
   }
 
 
-    const refreshAdmin =
-    () => {
+      const refreshAdmin =
+    sections => {
+
+      if(
+        !window.adminRealtimeSections
+      ){
+
+        window.adminRealtimeSections =
+          new Set();
+
+      }
+
+
+      (
+        sections
+        ||
+        []
+      )
+      .forEach(
+        section => {
+
+          window
+            .adminRealtimeSections
+            .add(
+              section
+            );
+
+        }
+      );
+
 
       clearTimeout(
         window.adminRealtimeTimer
@@ -3678,6 +3706,16 @@ function setupAdminRealtime(){
           async () => {
 
             await updateAdminBadges();
+
+
+            const pendingSections =
+              window.adminRealtimeSections
+              ||
+              new Set();
+
+
+            window.adminRealtimeSections =
+              new Set();
 
 
             const productCreateOpen =
@@ -3705,7 +3743,15 @@ function setupAdminRealtime(){
             }
 
 
-            await refreshCurrentSection();
+            if(
+              pendingSections.has(
+                currentSection
+              )
+            ){
+
+              await refreshCurrentSection();
+
+            }
 
           },
           250
@@ -3727,7 +3773,14 @@ function setupAdminRealtime(){
           schema:"public",
           table:"orders"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "orders",
+            "reports",
+            "settlement",
+            "delivery"
+          ])
       )
 
       .on(
@@ -3737,7 +3790,12 @@ function setupAdminRealtime(){
           schema:"public",
           table:"region_inventory"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "inventory",
+            "products"
+          ])
       )
 
       .on(
@@ -3747,7 +3805,13 @@ function setupAdminRealtime(){
           schema:"public",
           table:"region_shipments"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "shipments",
+            "inventory",
+            "products"
+          ])
       )
 
       .on(
@@ -3757,7 +3821,13 @@ function setupAdminRealtime(){
           schema:"public",
           table:"delivery_tasks"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "orders",
+            "delivery",
+            "reports"
+          ])
       )
 
       .on(
@@ -3767,7 +3837,13 @@ function setupAdminRealtime(){
           schema:"public",
           table:"payment_transactions"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "orders",
+            "reports",
+            "settlement"
+          ])
       )
 
       .on(
@@ -3777,7 +3853,14 @@ function setupAdminRealtime(){
           schema:"public",
           table:"refund_transactions"
         },
-        refreshAdmin
+        () =>
+          refreshAdmin([
+            "dashboard",
+            "orders",
+            "reports",
+            "settlement"
+          ])
+      )
       )
 
       .subscribe();
