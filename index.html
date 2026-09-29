@@ -4115,7 +4115,95 @@ async function loadPublicData(){
   renderPublic();
 
 }
+async function refreshPublicInventory(){
 
+  const results =
+    await Promise.all([
+
+      db
+        .from("region_inventory")
+        .select("*"),
+
+      db.rpc(
+        "customer_saleable_inventory"
+      )
+
+    ]);
+
+
+  const firstError =
+    results.find(
+      item =>
+        item.error
+    );
+
+
+  if(firstError){
+
+    console.error(
+      firstError.error
+    );
+
+    return;
+
+  }
+
+
+  inventory =
+    results[0].data
+    ||
+    [];
+
+
+  const saleableRows =
+    results[1].data
+    ||
+    [];
+
+
+  const saleableMap =
+    {};
+
+
+  saleableRows.forEach(
+    item => {
+
+      saleableMap[
+        `${item.region_id}:${item.variant_id}`
+      ] =
+        Math.max(
+          0,
+          Number(
+            item.saleable_quantity
+            ||
+            0
+          )
+        );
+
+    }
+  );
+
+
+  inventory =
+    inventory.map(
+      item => ({
+
+        ...item,
+
+        customer_saleable_quantity:
+          saleableMap[
+            `${item.region_id}:${item.variant_id}`
+          ]
+          ??
+          0
+
+      })
+    );
+
+
+  rebuildMaps();
+
+}
 
 /* ==========================================================
    MAPS
@@ -11697,7 +11785,7 @@ function setupCustomerRealtime(){
         setTimeout(
           async () => {
 
-            await loadPublicData();
+            await refreshPublicInventory();
 
             renderPublic();
             renderCart();
