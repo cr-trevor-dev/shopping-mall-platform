@@ -1736,11 +1736,20 @@ tr:last-child td{
   </div>
 
 
-  <div class="panel">
+    <div
+    id="ordersListPanel"
+    class="panel"
+  >
 
     <div id="ordersTable"></div>
 
   </div>
+
+
+  <div
+    id="adminOrderItemsPage"
+    class="hidden"
+  ></div>
 
 </section>
 
@@ -7366,59 +7375,101 @@ async function showAdminOrderItems(
     );
 
 
-  productActionShell(
-    {
-      name_zh:
-        `订单 ${orderNumber}`
-    },
-    "商品明细",
-    `
-
-      <div class="panel">
-
-        <div class="small">
-          当前订单金额
-        </div>
-
-        <div style="
-          font-size:22px;
-          font-weight:800;
-          margin-top:4px;
-          margin-bottom:16px;
-        ">
-
-          ${money(
-            order.total_amount
-            ||
-            0,
-            order.currency_code
-            ||
-            "MMK"
-          )}
-
-        </div>
+    el("ordersListPanel")
+    ?.classList
+    .add("hidden");
 
 
-        ${makeTable(
-          [
-            "商品 / SKU",
-            "数量",
-            "单价",
-            "小计",
-            "状态 / 取消记录",
-            "操作"
-          ],
-          rows
+  const detailPage =
+    el("adminOrderItemsPage");
+
+
+  if(!detailPage){
+    return;
+  }
+
+
+  detailPage
+    .classList
+    .remove("hidden");
+
+
+  detailPage.innerHTML = `
+
+    <button
+      class="btn btn-light"
+      onclick="closeAdminOrderItems()"
+      style="margin-bottom:14px"
+    >
+      ← 返回订单
+    </button>
+
+
+    <div class="page-title">
+      商品明细
+    </div>
+
+
+    <div class="page-subtitle">
+      ${escapeHtml(orderNumber)}
+    </div>
+
+
+    <div class="panel">
+
+      <div class="small">
+        当前订单金额
+      </div>
+
+      <div style="
+        font-size:22px;
+        font-weight:800;
+        margin-top:4px;
+        margin-bottom:16px;
+      ">
+
+        ${money(
+          order.total_amount
+          ||
+          0,
+          order.currency_code
+          ||
+          "MMK"
         )}
 
       </div>
 
-    `
-  );
+
+      ${makeTable(
+        [
+          "商品 / SKU",
+          "数量",
+          "单价",
+          "小计",
+          "状态 / 取消记录",
+          "操作"
+        ],
+        rows
+      )}
+
+    </div>
+
+  `;
 
 }
 
+function closeAdminOrderItems(){
 
+  el("adminOrderItemsPage")
+    ?.classList
+    .add("hidden");
+
+
+  el("ordersListPanel")
+    ?.classList
+    .remove("hidden");
+
+}
 async function cancelSingleOrderItem(
   orderItemId,
   orderId,
