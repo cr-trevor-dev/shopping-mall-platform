@@ -2387,7 +2387,7 @@ zh:{
   retail:"零售",
   wholesale:"批发",
   wholesaleFrom:"起订",
-  available:"可售",
+  available:"可购买",
   outOfStock:"缺货",
   addCart:"加入购物车",
   cart:"购物车",
@@ -5672,9 +5672,9 @@ function variantSize(item){
 
 function renderVariantChoices(list, selected){
   if(!selected){ return ""; }
-  if(list.length === 1){
+    if(list.length === 1){
     return `<div style="margin-top:14px;font-weight:900">
-      ${escapeHtml(getVariantName(selected))} · SKU: ${escapeHtml(selected.sku_code || "—")}
+      ${escapeHtml(getVariantName(selected))}
     </div>`;
   }
 
@@ -5708,12 +5708,9 @@ function renderVariantChoices(list, selected){
         onclick="selectVariant('${item.id}')">
         ${escapeHtml(variantSize(item))} · ${money(item.retail_price)}
         ${availableQty(item.id) <= 0 ? ` · ${escapeHtml(t("outOfStock"))}` : ""}
-        ${sizes.filter(other => variantSize(other) === variantSize(item)).length > 1
-          ? ` · ${escapeHtml(item.sku_code || "")}` : ""}
+        
       </button>`).join("")}</div>` : ""}
-    <div style="margin-top:7px;font-size:11px;color:var(--muted)">
-      SKU: ${escapeHtml(selected.sku_code || "—")}
-    </div>`;
+    
 }
 
 async function selectFlavor(variantId){
