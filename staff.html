@@ -5150,10 +5150,18 @@ function showSection(
 }
 
 
-async function refreshCurrent(){
+async function refreshCurrent(
+  reloadCatalog = true
+){
 
-  await loadProducts();
-  await loadVariants();
+  if(
+    reloadCatalog
+  ){
+
+    await loadProducts();
+    await loadVariants();
+
+  }
 
   const map = {
 
@@ -5295,8 +5303,10 @@ async function setupStaffRealtime(){
     };
 
 
-  const refreshStaffView =
-    async () => {
+    const refreshStaffView =
+    async (
+      reloadCatalog = true
+    ) => {
 
       if(
         document.visibilityState
@@ -5320,7 +5330,9 @@ async function setupStaffRealtime(){
 
       try{
 
-        await refreshCurrent();
+        await refreshCurrent(
+  reloadCatalog
+);
 
 
         if(
@@ -5344,8 +5356,10 @@ async function setupStaffRealtime(){
     };
 
 
-  const refreshFromRealtime =
-    () => {
+    const refreshFromRealtime =
+    (
+      reloadCatalog = false
+    ) => {
 
       clearTimeout(
         window.staffRealtimeTimer
@@ -5354,7 +5368,10 @@ async function setupStaffRealtime(){
 
       window.staffRealtimeTimer =
         setTimeout(
-          refreshStaffView,
+          () =>
+            refreshStaffView(
+              reloadCatalog
+            ),
           150
         );
 
@@ -5387,14 +5404,15 @@ async function setupStaffRealtime(){
         "staff-live-sync"
       )
 
-      .on(
+            .on(
         "postgres_changes",
         {
           event:"*",
           schema:"public",
           table:"orders"
         },
-        refreshFromRealtime
+        () =>
+          refreshFromRealtime(false)
       )
 
       .on(
@@ -5404,7 +5422,8 @@ async function setupStaffRealtime(){
           schema:"public",
           table:"region_inventory"
         },
-        refreshFromRealtime
+        () =>
+          refreshFromRealtime(true)
       )
 
       .on(
@@ -5414,7 +5433,8 @@ async function setupStaffRealtime(){
           schema:"public",
           table:"region_shipments"
         },
-        refreshFromRealtime
+        () =>
+          refreshFromRealtime(true)
       )
 
       .on(
@@ -5424,10 +5444,9 @@ async function setupStaffRealtime(){
           schema:"public",
           table:"delivery_tasks"
         },
-        refreshFromRealtime
+        () =>
+          refreshFromRealtime(false)
       )
-
-      
 
       .on(
         "postgres_changes",
@@ -5436,7 +5455,8 @@ async function setupStaffRealtime(){
           schema:"public",
           table:"refund_transactions"
         },
-        refreshFromRealtime
+        () =>
+          refreshFromRealtime(false)
       );
 
 
