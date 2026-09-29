@@ -3665,7 +3665,7 @@ function setupAdminRealtime(){
   }
 
 
-  const refreshAdmin =
+    const refreshAdmin =
     () => {
 
       clearTimeout(
@@ -3678,6 +3678,32 @@ function setupAdminRealtime(){
           async () => {
 
             await updateAdminBadges();
+
+
+            const productCreateOpen =
+              currentSection === "products"
+              &&
+              !el("productCreatePage")
+                ?.classList
+                .contains("hidden");
+
+
+            const productActionOpen =
+              currentSection === "products"
+              &&
+              !el("productActionPage")
+                ?.classList
+                .contains("hidden");
+
+
+            if(
+              productCreateOpen
+              ||
+              productActionOpen
+            ){
+              return;
+            }
+
 
             await refreshCurrentSection();
 
