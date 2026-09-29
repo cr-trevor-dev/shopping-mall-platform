@@ -3119,23 +3119,7 @@ function taskCard(
               ×${escapeHtml(item.quantity ?? 0)}
             </strong>
 
-            ${
-              item.sku_code_snapshot
-              ?
-              `
-                <div
-                  style="
-                    margin-top:3px;
-                    font-size:11px;
-                    color:var(--muted);
-                  "
-                >
-                  SKU：${escapeHtml(item.sku_code_snapshot)}
-                </div>
-              `
-              :
-              ""
-            }
+            
 
           </div>
         `;
