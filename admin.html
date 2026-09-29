@@ -12103,7 +12103,12 @@ let quickProductType = "simple";
 
 function selectQuickProductType(type){
 
-  quickProductType = type;
+  const previousType =
+    quickProductType;
+
+  quickProductType =
+    type;
+
 
   document
     .querySelectorAll(".quick-product-type-button")
@@ -12134,10 +12139,16 @@ function selectQuickProductType(type){
   const variantRows =
     el("quickVariantRows");
 
+
   if(type === "simple"){
 
-    simplePrices?.classList.remove("hidden");
-    variantArea?.classList.add("hidden");
+    simplePrices?.classList.remove(
+      "hidden"
+    );
+
+    variantArea?.classList.add(
+      "hidden"
+    );
 
     if(variantRows){
       variantRows.replaceChildren();
@@ -12148,15 +12159,34 @@ function selectQuickProductType(type){
   }
 
 
-  simplePrices?.classList.add("hidden");
-  variantArea?.classList.remove("hidden");
+  simplePrices?.classList.add(
+    "hidden"
+  );
+
+  variantArea?.classList.remove(
+    "hidden"
+  );
+
+
+  if(
+    variantRows
+    &&
+    previousType !== type
+  ){
+
+    variantRows.replaceChildren();
+
+  }
+
 
   if(
     variantRows
     &&
     variantRows.children.length === 0
   ){
+
     addQuickVariantRow();
+
   }
 
 }
