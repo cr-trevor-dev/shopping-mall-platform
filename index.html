@@ -6015,7 +6015,9 @@ function setPurchaseMode(mode){
 
   }
 
-
+  if(mode === "retail"){
+    currentProductQty = 1;
+  }
   renderProductDetail();
 
 }
